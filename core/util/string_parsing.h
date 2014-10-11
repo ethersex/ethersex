@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2010 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2014 by Daniel Lindner <daniel.lindner@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,18 +27,17 @@
  * otherwise the number of parsed characters, including the spaces
  */
 
-uint8_t next_uint16(char *cmd, uint16_t *value);
+uint8_t next_uint16(char *cmd, uint16_t * value);
 
-uint8_t next_int16(char *cmd, int16_t *value);
+uint8_t next_int16(char *cmd, int16_t * value);
 
 /* Takes a character string and an place for the value, and parses the first number
  * after all spaces. If there isn't an integer, it will return 0,
  * otherwise the number of parsed characters, including the spaces
  */
 
- uint8_t next_int16_fp(char *cmd, int16_t *value, uint8_t fixeddigits);
+uint8_t next_int16_fp(char *cmd, int16_t *value, uint8_t fixeddigits);
 
 /* Read hexbyte at cmd, strips all spaces before and returns consumed
    characters or 0 on error */
-uint8_t next_hexbyte(char *cmd, uint8_t *value);
-
+uint8_t next_hexbyte(char *cmd, uint8_t * value);
