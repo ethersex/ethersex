@@ -7,16 +7,16 @@ if [ "$BSBPORT_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
 		int    "BSBPort Baudrate" BSBPORT_BAUDRATE 4800
 
 		if [ "$BSBPORT_BUFFER_LEN" = "" ] ; then
-			BSBPORT_BUFFER_LEN=500
+			BSBPORT_BUFFER_LEN=32
 		fi
 		if [ "$BSBPORT_BUFFER_LEN" -gt "$NET_MAX_FRAME_LENGTH" ] ; then
 			BSBPORT_BUFFER_LEN=$NET_MAX_FRAME_LENGTH
 		fi
 		int    "BSBPort Buffer Length" BSBPORT_BUFFER_LEN 32
-        int    "BSBPort Max Buffer Flush Interval (N*20ms)" BSBPORT_FLUSH 25
+		int    "BSBPort Max Buffer Flush Interval (N*20ms)" BSBPORT_FLUSH 25
 		int    "BSBPort Message History Size" BSBPORT_MESSAGE_BUFFER_LEN 10
 		int    "BSBPort Message Max Length" BSBPORT_MESSAGE_MAX_LEN 25
-		int		 'BSBPORT Address' BSBPORT_OWNADDRESS 7
+		int    'BSBPORT Address' BSBPORT_OWNADDRESS 7
 		dep_bool 'BSBPORT Polling Support' BSBPORT_POLLING_SUPPORT $BSBPORT_SUPPORT
 	comment  "Debugging Flags"
 	dep_bool 'BSBPORT Debug Rx' DEBUG_BSBPORT_RX $BSBPORT_SUPPORT
