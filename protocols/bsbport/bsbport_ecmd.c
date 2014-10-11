@@ -26,6 +26,7 @@
 #include "config.h"
 #include "core/bit-macros.h"
 #include "core/util/fixedpoint.h"
+#include "core/util/string_parsing.h"
 #include "core/debug.h"
 #include "protocols/bsbport/bsbport.h"
 #include "protocols/bsbport/bsbport_helper.h"
@@ -210,7 +211,8 @@ parse_cmd_bsbport_query(char *cmd, char *output, uint16_t len)
 int16_t
 parse_cmd_bsbport_set(char *cmd, char *output, uint16_t len)
 {
-  float val = 0;
+  int32_t fp_val = 0;
+  uint16_t raw_val = 0;
   uint8_t p1 = 0;
   uint8_t p2 = 0;
   uint8_t p3 = 0;
@@ -222,48 +224,54 @@ parse_cmd_bsbport_set(char *cmd, char *output, uint16_t len)
   ret =
     sscanf_P(cmd, PSTR("%hhi %hhi %hhi %hhi %hhi %3s %s"), &p1, &p2, &p3, &p4,
              &dest, type, strvalue);
-  val = strtod(strvalue, NULL);
+             
+  sscanf_P(strvalue,PSTR("%i"),&raw_val);
+  
+  next_int16_fp(strvalue,&fp_val,1);
 #ifdef DEBUG_BSBPORT_ECMD
-  debug_printf("ECMD(%d) set MSG ARGS:%d %02x %02x %02x %02x %3s %s %f", len,
-               ret, p1, p2, p3, p4, type, strvalue, val);
+  debug_printf("ECMD(%d) set MSG ARGS:%d %02x %02x %02x %02x %3s %s %d %u\n", len,
+               ret, p1, p2, p3, p4, type, strvalue, fp_val, raw_val);
 #endif
-  if (ret == 6 || ret == 7)
+  if (ret == 7)
   {
     uint8_t data[3];
     uint8_t datalen = 3;
     if (strcmp_P(type, PSTR("RAW")) == 0)
     {
       data[0] = 0x01;
-      data[1] = (uint8_t) ((uint16_t) val >> 8);
-      data[2] = (uint8_t) (0x00FF & (uint16_t) val);
+      data[1] = (raw_val >> 8);
+      data[2] = (raw_val & 0xFF);
       datalen = 3;
     }
     else if (strcmp_P(type, PSTR("SEL")) == 0)
     {
       data[0] = 0x01;
-      data[1] = (uint8_t) (val);
+      data[1] = (uint8_t) (raw_val);
       datalen = 2;
     }
     else if (strcmp_P(type, PSTR("TMP")) == 0)
     {
-      bsbport_ConvertTempToData(val, &data[1]);
+      int16_t tmp=0;
+      tmp = ((int32_t)fp_val * 64) / 10;
       data[0] = 0x01;
+      data[1] = (tmp >> 8);
+      data[2] = (tmp & 0xFF);
       datalen = 3;
     }
     else if (strcmp_P(type, PSTR("FP1")) == 0)
     {
-      int16_t tmp = 0;
       data[0] = 0x01;
-      tmp = val * 10;
-      memcpy(&data[1], &tmp, 2);
+      data[1] = (fp_val >> 8);
+      data[2] = (fp_val & 0xFF);
       datalen = 3;
     }
     else if (strcmp_P(type, PSTR("FP5")) == 0)
     {
       int16_t tmp = 0;
+      tmp = fp_val * 2 / 10;
       data[0] = 0x01;
-      tmp = val * 2;
-      memcpy(&data[1], &tmp, 2);
+      data[1] = (tmp >> 8);
+      data[2] = (tmp & 0xFF);
       datalen = 3;
     }
     else
@@ -288,8 +296,8 @@ parse_cmd_bsbport_set(char *cmd, char *output, uint16_t len)
 /*
   -- Ethersex META --
   block([[BSBPORT]] commands)
-  ecmd_feature(bsbport_stats, "bsbport stats",, Report statistic counters OK/CRC/Lenght/Frame/Overflow/Parity/Buffer/BufferNet/Retransmit)
-  ecmd_feature(bsbport_list, "bsbport list",, List all messages currently in buffer)
+  ecmd_feature(bsbport_stats, "bsbport stats",, Report statistic counters OK/CRC/Lenght under/Lenght over/Droped/Buffer/BufferNet/Retransmit)
+  ecmd_feature(bsbport_list, "bsbport list",, List all messages currently in buffer output in RAW TMP FP1 FP5)
   ecmd_feature(bsbport_get, "bsbport get",P1 P2 P3 P4 SRC TYPE, Show specific message currently in buffer format value as TYPE type is one of RAW STA TMP FP1 FP5)
   ecmd_feature(bsbport_set, "bsbport set",P1 P2 P3 P4 DEST TYPE VALUE, Send Message to set value type is one of RAW SEL TMP FP1 FP5)
   ecmd_feature(bsbport_query, "bsbport query",P1 P2 P3 P4 [DEST], Send Message to query for a value DEST is optional defaults to 0 )
