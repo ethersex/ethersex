@@ -20,12 +20,9 @@
 * http://www.gnu.org/copyleft/gpl.html
 */
 
-#include <avr/io.h>
+#include <stdint.h>
 #include <util/crc16.h>
-#include <util/atomic.h>
-#include <string.h>
 
-#include "core/debug.h"
 #include "config.h"
 #include "bsbport.h"
 #include "bsbport_helper.h"
