@@ -59,12 +59,16 @@ parse_cmd_bsbport_list(char *cmd, char *output, uint16_t len)
   if (cmd[0] != 0x23)           /* indicator flag: real invocation:  0 */
   {
     cmd[0] = 0x23;              /* continuing call: 23 */
-    cmd[1] = 0;                 /* counter for sensors in list */
+    cmd[1] = 0;                 /* counter for message in list */
   }
   uint8_t i = cmd[1];
-  /* This is a special case: the while loop below printed a sensor which was
-   * last in the list, so we still need to send an 'OK' after the sensor id */
-  if (i >= BSBPORT_MESSAGE_BUFFER_LEN)
+  /* This is a special case: the while loop below printed a message which was
+   * last in the list or the next message is empty, so we still need to send an 'OK' after the message */
+  if (i >= BSBPORT_MESSAGE_BUFFER_LEN
+    ||  (bsbport_msg_buffer.msg[i].data[P1]==0
+    &&  bsbport_msg_buffer.msg[i].data[P2]==0
+    &&  bsbport_msg_buffer.msg[i].data[P3]==0
+    &&  bsbport_msg_buffer.msg[i].data[P4]==0))
     return ECMD_FINAL_OK;
 
 #ifdef DEBUG_BSBPORT_ECMD
@@ -73,16 +77,21 @@ parse_cmd_bsbport_list(char *cmd, char *output, uint16_t len)
 
   int16_t ret = 0;
   ret =
-    snprintf_P(output, len, PSTR("%02d %02x%02x%02x%02x %.1f %.1f %.1f %d"),
-               i, bsbport_msg_buffer.msg[i].data[P1],
+    snprintf_P(output, len, PSTR("%d\t%02x%02x%02x%02x\t%d"),
+               i,
+               bsbport_msg_buffer.msg[i].data[P1],
                bsbport_msg_buffer.msg[i].data[P2],
                bsbport_msg_buffer.msg[i].data[P3],
                bsbport_msg_buffer.msg[i].data[P4],
-               bsbport_msg_buffer.msg[i].value_temp,
-               bsbport_msg_buffer.msg[i].value_FP1,
-               bsbport_msg_buffer.msg[i].value_FP5,
                bsbport_msg_buffer.msg[i].value_raw);
-  i++;
+    if(len - ret > 0) output[ret++] = '\t';
+    ret += n_itoa_fixedpoint(((int32_t)bsbport_msg_buffer.msg[i].value_raw * 100) / 64, 2, output+ret, len-ret);
+    if(len - ret > 0) output[ret++] = '\t';
+    ret += n_itoa_fixedpoint(bsbport_msg_buffer.msg[i].value_raw, 1, output+ret, len-ret);
+    if(len - ret > 0) output[ret++] = '\t';
+    ret += n_itoa_fixedpoint(bsbport_msg_buffer.msg[i].value_raw * 10 / 2, 1, output+ret, len-ret);
+
+    i++;
 
 #ifdef DEBUG_BSBPORT_ECMD
   debug_printf("ECMD list write %d bytes", ret);
@@ -149,21 +158,15 @@ parse_cmd_bsbport_get(char *cmd, char *output, uint16_t len)
         }
         else if (strcmp_P(type, PSTR("TMP")) == 0)
         {
-          ret =
-            snprintf_P(output, len, PSTR("%.1f"),
-                       bsbport_msg_buffer.msg[i].value_temp);
+          ret = n_itoa_fixedpoint(((int32_t)bsbport_msg_buffer.msg[i].value_raw * 100) / 64, 2, output, len);
         }
         else if (strcmp_P(type, PSTR("FP1")) == 0)
         {
-          ret =
-            snprintf_P(output, len, PSTR("%.1f"),
-                       bsbport_msg_buffer.msg[i].value_FP1);
+          ret = n_itoa_fixedpoint(bsbport_msg_buffer.msg[i].value_raw, 1, output, len);
         }
         else if (strcmp_P(type, PSTR("FP5")) == 0)
         {
-          ret =
-            snprintf_P(output, len, PSTR("%.1f"),
-                       bsbport_msg_buffer.msg[i].value_FP5);
+          ret = n_itoa_fixedpoint(bsbport_msg_buffer.msg[i].value_raw * 10 / 2, 1, output, len);
         }
         else
           return ECMD_ERR_PARSE_ERROR;
