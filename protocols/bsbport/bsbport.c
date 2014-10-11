@@ -39,7 +39,7 @@
 #include "core/usart.h"
 
 /* We generate our own usart init module, for our usart port */
-generate_bsbport_usart_init_8O1()
+generate_bsbport_usart_init_8O1();
 
 struct bsbport_buffer_net bsbport_sendnet_buffer;
 struct bsbport_buffer_net bsbport_recvnet_buffer;

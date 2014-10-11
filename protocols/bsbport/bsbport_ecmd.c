@@ -66,10 +66,10 @@ parse_cmd_bsbport_list(char *cmd, char *output, uint16_t len)
   /* This is a special case: the while loop below printed a message which was
    * last in the list or the next message is empty, so we still need to send an 'OK' after the message */
   if (i >= BSBPORT_MESSAGE_BUFFER_LEN
-    ||  (bsbport_msg_buffer.msg[i].data[P1]==0
-    &&  bsbport_msg_buffer.msg[i].data[P2]==0
-    &&  bsbport_msg_buffer.msg[i].data[P3]==0
-    &&  bsbport_msg_buffer.msg[i].data[P4]==0))
+      || (bsbport_msg_buffer.msg[i].data[P1] == 0
+          && bsbport_msg_buffer.msg[i].data[P2] == 0
+          && bsbport_msg_buffer.msg[i].data[P3] == 0
+          && bsbport_msg_buffer.msg[i].data[P4] == 0))
     return ECMD_FINAL_OK;
 
 #ifdef DEBUG_BSBPORT_ECMD
@@ -85,14 +85,23 @@ parse_cmd_bsbport_list(char *cmd, char *output, uint16_t len)
                bsbport_msg_buffer.msg[i].data[P3],
                bsbport_msg_buffer.msg[i].data[P4],
                bsbport_msg_buffer.msg[i].value_raw);
-    if(len - ret > 0) output[ret++] = '\t';
-    ret += n_itoa_fixedpoint(((int32_t)bsbport_msg_buffer.msg[i].value_raw * 100) / 64, 2, output+ret, len-ret);
-    if(len - ret > 0) output[ret++] = '\t';
-    ret += n_itoa_fixedpoint(bsbport_msg_buffer.msg[i].value_raw, 1, output+ret, len-ret);
-    if(len - ret > 0) output[ret++] = '\t';
-    ret += n_itoa_fixedpoint(bsbport_msg_buffer.msg[i].value_raw * 10 / 2, 1, output+ret, len-ret);
+  if (len - ret > 0)
+    output[ret++] = '\t';
+  ret +=
+    n_itoa_fixedpoint(((int32_t) bsbport_msg_buffer.msg[i].value_raw * 100) /
+                      64, 2, output + ret, len - ret);
+  if (len - ret > 0)
+    output[ret++] = '\t';
+  ret +=
+    n_itoa_fixedpoint(bsbport_msg_buffer.msg[i].value_raw, 1, output + ret,
+                      len - ret);
+  if (len - ret > 0)
+    output[ret++] = '\t';
+  ret +=
+    n_itoa_fixedpoint(bsbport_msg_buffer.msg[i].value_raw * 10 / 2, 1,
+                      output + ret, len - ret);
 
-    i++;
+  i++;
 
 #ifdef DEBUG_BSBPORT_ECMD
   debug_printf("ECMD list write %d bytes", ret);
@@ -155,19 +164,25 @@ parse_cmd_bsbport_get(char *cmd, char *output, uint16_t len)
         {
           ret =
             snprintf_P(output, len, PSTR("%u"),
-                       (uint8_t)(bsbport_msg_buffer.msg[i].value_raw >> 8));
+                       (uint8_t) (bsbport_msg_buffer.msg[i].value_raw >> 8));
         }
         else if (strcmp_P(type, PSTR("TMP")) == 0)
         {
-          ret = n_itoa_fixedpoint(((int32_t)bsbport_msg_buffer.msg[i].value_raw * 100) / 64, 2, output, len);
+          ret =
+            n_itoa_fixedpoint(((int32_t) bsbport_msg_buffer.msg[i].value_raw *
+                               100) / 64, 2, output, len);
         }
         else if (strcmp_P(type, PSTR("FP1")) == 0)
         {
-          ret = n_itoa_fixedpoint(bsbport_msg_buffer.msg[i].value_raw, 1, output, len);
+          ret =
+            n_itoa_fixedpoint(bsbport_msg_buffer.msg[i].value_raw, 1, output,
+                              len);
         }
         else if (strcmp_P(type, PSTR("FP5")) == 0)
         {
-          ret = n_itoa_fixedpoint(bsbport_msg_buffer.msg[i].value_raw * 10 / 2, 1, output, len);
+          ret =
+            n_itoa_fixedpoint(bsbport_msg_buffer.msg[i].value_raw * 10 / 2, 1,
+                              output, len);
         }
         else
           return ECMD_ERR_PARSE_ERROR;
@@ -224,13 +239,13 @@ parse_cmd_bsbport_set(char *cmd, char *output, uint16_t len)
   ret =
     sscanf_P(cmd, PSTR("%hhi %hhi %hhi %hhi %hhi %3s %s"), &p1, &p2, &p3, &p4,
              &dest, type, strvalue);
-             
-  sscanf_P(strvalue,PSTR("%i"),&raw_val);
-  
-  next_int16_fp(strvalue,&fp_val,1);
+
+  sscanf_P(strvalue, PSTR("%i"), &raw_val);
+
+  next_int16_fp(strvalue, &fp_val, 1);
 #ifdef DEBUG_BSBPORT_ECMD
-  debug_printf("ECMD(%d) set MSG ARGS:%d %02x %02x %02x %02x %3s %s %d %u\n", len,
-               ret, p1, p2, p3, p4, type, strvalue, fp_val, raw_val);
+  debug_printf("ECMD(%d) set MSG ARGS:%d %02x %02x %02x %02x %3s %s %d %u\n",
+               len, ret, p1, p2, p3, p4, type, strvalue, fp_val, raw_val);
 #endif
   if (ret == 7)
   {
@@ -251,8 +266,8 @@ parse_cmd_bsbport_set(char *cmd, char *output, uint16_t len)
     }
     else if (strcmp_P(type, PSTR("TMP")) == 0)
     {
-      int16_t tmp=0;
-      tmp = ((int32_t)fp_val * 64) / 10;
+      int16_t tmp = 0;
+      tmp = ((int32_t) fp_val * 64) / 10;
       data[0] = 0x01;
       data[1] = (tmp >> 8);
       data[2] = (tmp & 0xFF);
