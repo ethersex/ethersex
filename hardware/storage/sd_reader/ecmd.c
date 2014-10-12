@@ -20,6 +20,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <stdio.h>
 #include <avr/pgmspace.h>
 
 #include "config.h"
