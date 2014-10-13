@@ -243,20 +243,6 @@ stella_getFadestep(void)
   return stella_fade_step;
 }
 
-/* Get a channel value.
- * Only call this function with a channel<STELLA_CHANNELS ! */
-inline uint8_t
-stella_getValue(const uint8_t channel)
-{
-  return stella_brightness[channel];
-}
-
-inline uint8_t
-stella_getFadeValue(const uint8_t channel)
-{
-  return stella_fade[channel];
-}
-
 #ifndef TEENSY_SUPPORT
 void
 stella_loadFromEEROMFading(void)
@@ -334,11 +320,7 @@ stella_sort()
     }
 #endif
 #ifdef STELLA_USE_CIE1931
-	#ifdef STELLA_CIE1931_PROGMEM
 		cal_table->channel[i].value = 255 - pgm_read_byte_near(cie_luminance_8bit + stella_brightness[i]);
-	#else
-		cal_table->channel[i].value = 255 - cie_luminance_8bit[stella_brightness[i]];
-	#endif
 #else
     cal_table->channel[i].value = 255 - stella_brightness[i];
 #endif

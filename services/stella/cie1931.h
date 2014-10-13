@@ -1,10 +1,6 @@
 // CIE1931 correction table
 // Automatically generated
-#ifdef STELLA_CIE1931_PROGMEM
 const unsigned char cie_luminance_8bit[256] PROGMEM = {
-#else
-const unsigned char cie_luminance_8bit[256] = {
-#endif
 	0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 
 	1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 
 	2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 
