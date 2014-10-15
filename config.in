@@ -1,4 +1,5 @@
 source scripts/usart-config.sh
+source scripts/periodic-config.sh
 source scripts/rfm12-config.sh
 source scripts/namedPinCopy.sh
 source scripts/avrdude_config.sh

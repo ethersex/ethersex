@@ -49,6 +49,7 @@ contrib/libecmd/interactive/interactive
 contrib/libecmd/rfm12ask_2272/rfm12ask_2272
 
 # module specific files
+core/periodic_milliticks.c
 core/vfs/vfs-concat
 core/portio/np_simple.c
 core/crc/crc16-concat

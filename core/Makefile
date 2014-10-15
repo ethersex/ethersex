@@ -12,6 +12,7 @@ endif
 endif
 
 $(ARCH_AVR)_SRC += core/periodic.c
+$(ARCH_AVR)_ECMD_SRC += core/periodic_ecmd.c
 SRC += core/eeprom.c 
 $(MBR_SUPPORT)_SRC += core/mbr.c
 
@@ -26,6 +27,15 @@ CPPFLAGS += -Icore/host
 endif
 
 $(STATUSLED_HB_ACT_SUPPORT)_SRC += core/heartbeat.c
+
+##############################################################################
+# milliticks cruft
+# depends on meta.m4, use y_AUTOGEN_SRC to avoid circular deps
+
+$(ARCH_AVR)_AUTOGEN_SRC += core/periodic_milliticks.c
+
+core/periodic_milliticks.c: scripts/meta_periodic_milliticks.m4 meta.m4
+	$(M4) `cat meta.defines` $^ > $@
 
 ##############################################################################
 # generic fluff
