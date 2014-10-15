@@ -139,6 +139,7 @@ compile-$(TARGET): $(TARGET).hex $(TARGET).bin
 .SILENT: compile-$(TARGET)
 
 OBJECTS += $(patsubst %.c,%.o,${SRC} ${y_SRC} meta.c)
+OBJECTS += $(patsubst %.c,%.o,${AUTOGEN_SRC} ${y_AUTOGEN_SRC})
 OBJECTS += $(patsubst %.S,%.o,${ASRC} ${y_ASRC})
 
 $(TARGET): $(OBJECTS)
@@ -292,6 +293,7 @@ clean:
 		$(patsubst %.o,%.E,${OBJECTS}) \
 		$(patsubst %.o,%.s,${OBJECTS}) network.dep
 	$(RM) meta.c meta.h meta.m4 meta.defines
+	$(RM) $(AUTOGEN_SRC) $(y_AUTOGEN_SRC)
 	echo "Cleaning completed"
 
 fullclean: clean
