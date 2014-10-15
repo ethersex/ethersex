@@ -1,19 +1,19 @@
 dnl
-dnl   Copyright (c) 2014 by Michael Brakemeier <michael@brakemeier.de>
-dnl
+dnl   Copyright (c) 2013-2015 by Michael Brakemeier <michael@brakemeier.de>
+dnl  
 dnl   This program is free software; you can redistribute it and/or modify
 dnl   it under the terms of the GNU General Public License version 3 as
 dnl   published by the Free Software Foundation.
-dnl
+dnl  
 dnl   This program is distributed in the hope that it will be useful,
 dnl   but WITHOUT ANY WARRANTY; without even the implied warranty of
 dnl   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 dnl   GNU General Public License for more details.
-dnl
+dnl  
 dnl   You should have received a copy of the GNU General Public License
 dnl   along with this program; if not, write to the Free Software
 dnl   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-dnl
+dnl  
 dnl   For more information on the GPL, please go to:
 dnl   http://www.gnu.org/copyleft/gpl.html
 dnl

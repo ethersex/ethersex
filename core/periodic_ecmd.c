@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2014 by Michael Brakemeier <michael@brakemeier.de>
+ * Copyright (c) 2013-2015 by Michael Brakemeier <michael@brakemeier.de>
  * Copyright (c) 2015 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify it

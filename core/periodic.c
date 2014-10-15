@@ -2,7 +2,7 @@
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) by Stefan Siegl <stesie@brokenpipe.de>
  * Copyright (c) by David Gräff <david.graeff@web.de>
- * Copyright (c) 2014 by Michael Brakemeier <michael@brakemeier.de>
+ * Copyright (c) 2013-2015 by Michael Brakemeier <michael@brakemeier.de>
  * Copyright (c) 2015 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -91,8 +91,36 @@ void
 timer_expired(void)
 {
   newtick = 1;
-  if (++milliticks >= HZ)
-    milliticks -= HZ;
+
+  // TODO check for needed stuff from clock.c ISR
+  //#ifdef DCF77_SUPPORT
+  //  dcf77_tick();
+  //#endif
+  //
+  //#ifdef CLOCK_CPU_SUPPORT
+  //  milliticks = 0;
+  //
+  //  TC1_COUNTER_CURRENT = 65536 - CLOCK_SECONDS;
+  //  TC1_COUNTER_COMPARE = 65536 - CLOCK_SECONDS + CLOCK_TICKS;
+  //#endif
+  //  milliticks = 0;
+  //
+  //  TC1_COUNTER_CURRENT = 65536 - CLOCK_SECONDS;
+  //  TC1_COUNTER_COMPARE = 65536 - CLOCK_SECONDS + CLOCK_TICKS;
+  //#endif
+  //
+  //#if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
+  //  if (!sync_timestamp || sync_timestamp == clock_timestamp)
+  //#endif
+  //  {
+  //    clock_timestamp++;
+  //#if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT) || defined(CONTROL6_SUPPORT)
+  //    uptime_timestamp++;
+  //#endif
+  //  }
+  //
+  //  if (sync_timestamp)
+  //    sync_timestamp++;
 }
 #endif
 
@@ -182,6 +210,38 @@ periodic_millis_elapsed(periodic_timestamp_t * last)
   return periodic_micros_elapsed(last) / 1000;
 }
 #endif
+
+void
+periodic_reset_tick(void)
+{
+/* TODO support other configurations and rewrite any and all
+ * direct TC register accesses from other modules.
+ */
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+  {
+    // reset timer
+    PERIODIC_COUNTER_CURRENT = PERIODIC_ZERO;
+    // the last compare match matches the overflow condition,
+    // subtract one here to avoid losing the related tick
+    PERIODIC_COUNTER_COMPARE = PERIODIC_ZERO + CLOCK_MILLITICKS - 1;
+    // TODO reset milliticks, newtick, dcf_tick...??
+  }
+}
+
+//#ifdef FREQCOUNT_SUPPORT
+//void
+//timer_expired(void)
+//#else
+//ISR(TC1_VECTOR_COMPARE)
+//#endif
+//{
+//#ifdef CLOCK_CPU_SUPPORT
+//  TC1_COUNTER_COMPARE += CLOCK_TICKS;
+//#endif
+//  newtick = 1;
+//  if (++milliticks >= HZ)
+//    milliticks -= HZ;
+//}
 
 /*
  -- Ethersex META --
