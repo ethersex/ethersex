@@ -226,7 +226,7 @@ parse_cmd_bsbport_query(char *cmd, char *output, uint16_t len)
 int16_t
 parse_cmd_bsbport_set(char *cmd, char *output, uint16_t len)
 {
-  int32_t fp_val = 0;
+  int16_t fp_val = 0;
   uint16_t raw_val = 0;
   uint8_t p1 = 0;
   uint8_t p2 = 0;
