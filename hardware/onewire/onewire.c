@@ -800,7 +800,7 @@ ow_periodic(void)
 
 #ifdef DEBUG_OW_POLLING
         char temperature[7];    /* enough for two decimal digits (124.99) */
-        itoa_fixedpoint(temp.val, temp.twodigits + 1, temperature);
+        itoa_fixedpoint(temp.val, temp.twodigits + 1, temperature, 6);
 
         OW_DEBUG_POLL("temperature: %s°C on device "
             "%02x%02x%02x%02x%02x%02x%02x%02x"

@@ -124,7 +124,7 @@ parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 #ifdef ONEWIRE_ECMD_LIST_VALUES_SUPPORT
         char temperature[7];
         itoa_fixedpoint(ow_sensors[i].temp.val,
-                        ow_sensors[i].temp.twodigits + 1, temperature);
+                        ow_sensors[i].temp.twodigits + 1, temperature, 6);
 #endif
         ret = snprintf_P(output, len, PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"
 #ifdef ONEWIRE_NAMING_SUPPORT
@@ -360,7 +360,7 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
     if (sensor != NULL)
       ret =
         itoa_fixedpoint(sensor->temp.val, sensor->temp.twodigits + 1,
-                        output);
+                        output, len);
     else
       ret = snprintf_P(output, len, PSTR("sensor not in list!"));
 #ifdef ONEWIRE_DS2502_SUPPORT
@@ -438,7 +438,7 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 
     debug_printf("successfully read scratchpad\n");
     ow_temp_t temp = ow_temp_normalize(&rom, &sp);
-    ret = itoa_fixedpoint(temp.val, temp.twodigits + 1, output);
+    ret = itoa_fixedpoint(temp.val, temp.twodigits + 1, output, len);
     debug_printf("temperature: %s\n", output);
 
 #ifdef ONEWIRE_DS2502_SUPPORT
