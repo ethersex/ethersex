@@ -29,9 +29,6 @@ struct bsbport_msg
 {
   uint16_t len;
   uint8_t data[BSBPORT_MESSAGE_MAX_LEN];
-  float value_temp;             // RAW interpreted as Temp (RAW/64)
-  float value_FP1;              // RAW interpreted as FixPoint Value with one digit (RAW/10)
-  float value_FP5;              // RAW interpreted as FixPoint Value with one half digit (RAW/2)
   int16_t value_raw;            // Raw Value as Integer (RAW)
 };
 

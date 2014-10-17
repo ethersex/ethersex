@@ -3,6 +3,7 @@
 *
 * Copyright (c) 2009 Gerd v. Egidy <gerd@egidy.de>
 * Copyright (c) 2013 Erik Kunze <ethersex@erik-kunze.de>
+* Copyright (c) 2014 by Daniel Lindner <daniel.lindner@gmx.de>
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -28,5 +29,6 @@
 #include <stdint.h>
 
 uint8_t itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[]);
+uint8_t n_itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[], uint8_t max_len);
 
 #endif

@@ -40,9 +40,6 @@ bsbport_rx_init(void)
   for (uint8_t i = 0; i < BSBPORT_MESSAGE_BUFFER_LEN; i++)
   {
     bsbport_msg_buffer.msg[i].len = 0;
-    bsbport_msg_buffer.msg[i].value_temp = 0;
-    bsbport_msg_buffer.msg[i].value_FP1 = 0;
-    bsbport_msg_buffer.msg[i].value_FP5 = 0;
     bsbport_msg_buffer.msg[i].value_raw = 0;
     for (uint8_t j = 0; j < BSBPORT_MESSAGE_MAX_LEN; j++)
     {
@@ -203,16 +200,10 @@ bsbport_calc_value(struct bsbport_msg *msg)
                  msg->data[TYPE]);
 #endif
     msg->value_raw = bsbport_ConvertToInt16(&msg->data[DATA]);
-    msg->value_temp = bsbport_ConvertToTemp(msg->value_raw);
-    msg->value_FP1 = bsbport_ConvertToFP1(msg->value_raw);
-    msg->value_FP5 = bsbport_ConvertToFP5(msg->value_raw);
   }
   else if (msg->data[TYPE] == SET)
   {
     msg->value_raw = bsbport_ConvertToInt16(&msg->data[DATA]);
-    msg->value_temp = bsbport_ConvertToTemp(msg->value_raw);
-    msg->value_FP1 = bsbport_ConvertToFP1(msg->value_raw);
-    msg->value_FP5 = bsbport_ConvertToFP5(msg->value_raw);
   }
   else if (msg->data[TYPE] == ACK)
   {
@@ -230,9 +221,6 @@ bsbport_calc_value(struct bsbport_msg *msg)
                  msg->data[TYPE]);
 #endif
     msg->value_raw = (uint8_t) msg->data[DATA + 1];
-    msg->value_temp = bsbport_ConvertToTemp(msg->value_raw);
-    msg->value_FP1 = bsbport_ConvertToFP1(msg->value_raw);
-    msg->value_FP5 = bsbport_ConvertToFP5(msg->value_raw);
   }
   else if (msg->data[TYPE] == ANSWER && msg->data[LEN] == 14)   // Msg with 3 Databytes received
   {
@@ -242,9 +230,6 @@ bsbport_calc_value(struct bsbport_msg *msg)
                  msg->data[TYPE]);
 #endif
     msg->value_raw = bsbport_ConvertToInt16(&msg->data[DATA + 1]);
-    msg->value_temp = bsbport_ConvertToTemp(msg->value_raw);
-    msg->value_FP1 = bsbport_ConvertToFP1(msg->value_raw);
-    msg->value_FP5 = bsbport_ConvertToFP5(msg->value_raw);
   }
   else if (msg->data[TYPE] == ANSWER && msg->data[LEN] == 13)   // Msg with 2 Databytes received
   {
@@ -254,9 +239,6 @@ bsbport_calc_value(struct bsbport_msg *msg)
                  msg->data[TYPE]);
 #endif
     msg->value_raw = bsbport_ConvertToInt16(&msg->data[DATA]);
-    msg->value_temp = bsbport_ConvertToTemp(msg->value_raw);
-    msg->value_FP1 = bsbport_ConvertToFP1(msg->value_raw);
-    msg->value_FP5 = bsbport_ConvertToFP5(msg->value_raw);
   }
   else if (msg->data[TYPE] == ANSWER)   // Msg with unknow Databytes received
   {
@@ -266,9 +248,6 @@ bsbport_calc_value(struct bsbport_msg *msg)
                  msg->data[TYPE]);
 #endif
     msg->value_raw = bsbport_ConvertToInt16(&msg->data[DATA + 1]);
-    msg->value_temp = bsbport_ConvertToTemp(msg->value_raw);
-    msg->value_FP1 = bsbport_ConvertToFP1(msg->value_raw);
-    msg->value_FP5 = bsbport_ConvertToFP5(msg->value_raw);
   }
   else
   {
@@ -278,8 +257,7 @@ bsbport_calc_value(struct bsbport_msg *msg)
 #endif
   }
 #ifdef DEBUG_BSBPORT_PARSE
-  debug_printf("Parsed as RAW %d FP1: %d FP5: %d TMP: %d", msg->value_raw,
-               msg->value_FP1, msg->value_FP5, msg->value_temp);
+  debug_printf("Parsed as RAW %d", msg->value_raw);
 #endif
 
 }

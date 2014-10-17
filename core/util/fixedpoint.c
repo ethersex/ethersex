@@ -3,6 +3,7 @@
 *
 * Copyright (c) 2009 Gerd v. Egidy <gerd@egidy.de>
 * Copyright (c) 2013 Erik Kunze <ethersex@erik-kunze.de>
+* Copyright (c) 2014 by Daniel Lindner <daniel.lindner@gmx.de>
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -66,5 +67,48 @@ itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[])
 
   s[len] = '\0';
 
+  return len;
+}
+
+uint8_t
+n_itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[], uint8_t max_len)
+{
+  uint8_t len = 0;
+
+  if (max_len) 
+  {
+    if (n < 0)
+    {
+      s[len++] = '-';
+      n = -n;
+    }
+
+    /* Number of digits to output */
+    /* Output at least fixeddigits + 1 digits */
+    uint8_t digits = 1;
+    int16_t m = 1;
+    while ((m <= n / 10) || (digits < fixeddigits + 1))
+    {
+      m *= 10;
+      digits++;
+    }
+
+    while (digits > 0 && len < max_len)
+    {
+      uint8_t i;
+      /* Decimal point? */
+      if (digits == fixeddigits)
+      {
+        s[len++] = '.';
+      }
+      for (i = '0'; n >= m; n -= m, i++);
+      if (len < max_len) s[len++] = i;
+      m /= 10;
+      digits--;
+    }
+
+    s[len] = '\0';
+  }
+  
   return len;
 }

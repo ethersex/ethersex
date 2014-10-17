@@ -20,12 +20,9 @@
 * http://www.gnu.org/copyleft/gpl.html
 */
 
-#include <avr/io.h>
+#include <stdint.h>
 #include <util/crc16.h>
-#include <util/atomic.h>
-#include <string.h>
 
-#include "core/debug.h"
 #include "config.h"
 #include "bsbport.h"
 #include "bsbport_helper.h"
@@ -55,36 +52,4 @@ bsbport_ConvertToInt16(uint8_t * msg)
   int16_t converted = 0;
   converted = ((int16_t) msg[0] << 8) + (int16_t) msg[1];
   return converted;
-}
-
-// Convert temperature inside message to FixPoint Integer
-float
-bsbport_ConvertToTemp(int16_t raw)
-{
-  // Temperatures are SIGNED INT 16-Bit in width
-  return (float) (raw) / 64;
-}
-
-// Convert value to FixPoint Integer
-float
-bsbport_ConvertToFP1(int16_t raw)
-{
-  return (float) (raw) / 10;
-}
-
-// Convert value to FixPoint Integer
-float
-bsbport_ConvertToFP5(int16_t raw)
-{
-  return (float) (raw) / 2;
-}
-
-// Convert temperature and store it inside message (pointer to 2 bytes)
-void
-bsbport_ConvertTempToData(float Temp, uint8_t * Target)
-{
-  int16_t Val = Temp * 64;
-
-  Target[0] = (Val >> 8);
-  Target[1] = Val & 0xFF;
 }
