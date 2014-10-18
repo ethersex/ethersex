@@ -124,7 +124,8 @@ parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 #ifdef ONEWIRE_ECMD_LIST_VALUES_SUPPORT
         char temperature[7];
         itoa_fixedpoint(ow_sensors[i].temp.val,
-                        ow_sensors[i].temp.twodigits + 1, temperature, 6);
+                        ow_sensors[i].temp.twodigits + 1, temperature,
+                        sizeof(temperature));
 #endif
         ret = snprintf_P(output, len, PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"
 #ifdef ONEWIRE_NAMING_SUPPORT
@@ -136,15 +137,14 @@ parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 #ifdef ONEWIRE_ECMD_LIST_POWER_SUPPORT
                                            "\t%d"
 #endif
-                         )
-                         , ow_sensors[i].ow_rom_code.bytewise[0]
-                         , ow_sensors[i].ow_rom_code.bytewise[1]
-                         , ow_sensors[i].ow_rom_code.bytewise[2]
-                         , ow_sensors[i].ow_rom_code.bytewise[3]
-                         , ow_sensors[i].ow_rom_code.bytewise[4]
-                         , ow_sensors[i].ow_rom_code.bytewise[5]
-                         , ow_sensors[i].ow_rom_code.bytewise[6]
-                         , ow_sensors[i].ow_rom_code.bytewise[7]
+                         ), ow_sensors[i].ow_rom_code.bytewise[0],
+                         ow_sensors[i].ow_rom_code.bytewise[1],
+                         ow_sensors[i].ow_rom_code.bytewise[2],
+                         ow_sensors[i].ow_rom_code.bytewise[3],
+                         ow_sensors[i].ow_rom_code.bytewise[4],
+                         ow_sensors[i].ow_rom_code.bytewise[5],
+                         ow_sensors[i].ow_rom_code.bytewise[6],
+                         ow_sensors[i].ow_rom_code.bytewise[7]
 #ifdef ONEWIRE_NAMING_SUPPORT
                          , name
 #endif
