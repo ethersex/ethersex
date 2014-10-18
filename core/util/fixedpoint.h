@@ -27,6 +27,12 @@
 
 #include <stdint.h>
 
-uint8_t itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[]);
+/* Attention: returns the length in bytes, not a pointer like the regular
+ * itoa this is more convenient for use in output to ECMDs output buffer.
+ * Function needs an integer, the number of fixeddigits, a pointer to
+ * outputbuffer and size of outputbuffer. Its Callers responsibility to
+ * allocate memory for outputbuffer */
+uint8_t itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[],
+                        uint8_t size);
 
 #endif
