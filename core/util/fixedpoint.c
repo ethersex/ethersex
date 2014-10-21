@@ -41,6 +41,7 @@ itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[], uint8_t size)
     s[len++] = '-';
     n = -n;
   }
+
 /* Number of digits to output */
 /* Output at least fixeddigits + 1 digits */
   uint8_t digits = 1;
@@ -50,7 +51,9 @@ itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[], uint8_t size)
     m *= 10;
     digits++;
   }
-  while (digits > 0 && len < size - 1)
+
+  size--;
+  while (digits > 0 && len < size)
   {
     uint8_t i;
 /* Decimal point? */
@@ -59,11 +62,12 @@ itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[], uint8_t size)
       s[len++] = '.';
     }
     for (i = '0'; n >= m; n -= m, i++);
-    if (len < size - 1)
+    if (len < size)
       s[len++] = i;
     m /= 10;
     digits--;
   }
+
   s[len] = '\0';
 
   return len;

@@ -40,3 +40,4 @@ uint8_t next_int16_fp(char *cmd, int16_t * value, uint8_t fixeddigits);
 /* Read hexbyte at cmd, strips all spaces before and returns consumed
    characters or 0 on error */
 uint8_t next_hexbyte(char *cmd, uint8_t * value);
+
