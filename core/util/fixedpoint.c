@@ -34,7 +34,7 @@ itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[], uint8_t size)
 {
   uint8_t len = 0;
   if (size <= 1)
-    return 0
+    return 0;
 
   if (n < 0)
   {
