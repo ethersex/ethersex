@@ -29,13 +29,13 @@
 
 #include "config.h"
 
-#define MAX_OVERFLOW          65535UL   /* 16 bit timer/counter 1/3 max */
-#define HZ                    50        /* 20ms */
+#define MAX_OVERFLOW    65535UL   /* 16 bit timer/counter 1/3 max */
+#define HZ              50        /* 20ms */
 
 /* periodic milliticks usability check -
- * there should be at least ~2000 CPU-Cycles per Tick
+ * there should be at least ~1000 CPU-Cycles per periodic millitick
  */
-#if (F_CPU / CLOCKS_PER_SEC) < 2000
+#if (F_CPU / CONF_CLOCKS_PER_SEC) < 1000
 #warning *** You should either increase F_CPU or decrease
 #warning *** the tick rate to make periodic milliticks work as expected!!
 #endif
@@ -61,8 +61,11 @@
 #define CLOCK_SET_PRESCALER     PERIODIC_PRESCALER_1
 #endif
 
-/* timer ticks needed for one millitick */
-#define CLOCK_MILLITICKS        (F_CPU/CLOCK_PRESCALER/CLOCKS_PER_SEC)
+/* periodic milliticks per second / periodic_milliticks_isr frequency
+ * CONF_CLOCKS_PER_SECOND       defined via config.in/autoconf.h
+ */
+/* timer ticks needed for one periodic millitick */
+#define CLOCK_MILLITICKS        (F_CPU/CLOCK_PRESCALER/CONF_CLOCKS_PER_SEC)
 /* timer ticks needed for one 20ms clock tick */
 #define CLOCK_TICKS             (F_CPU/CLOCK_PRESCALER/HZ)
 /* timer ticks needed for one second */
@@ -71,16 +74,13 @@
 #define PERIODIC_ZERO           ((MAX_OVERFLOW + 1) - CLOCK_TICKS)
 
 /* millitick counter */
-extern volatile uint16_t milliticks;
+extern volatile uint16_t periodic_milliticks;
 
 /* initialize hardware timer */
 void periodic_init(void);
 
-/* reset Timer/Counter to zero, starting a new cycle */
-void periodic_reset_tick(void);
-
-//#ifdef FREQCOUNT_SUPPORT
-//void timer_expired(void);
-//#endif
+#ifdef FREQCOUNT_SUPPORT
+void timer_expired(void);
+#endif
 
 #endif /* _PERIODIC_H */

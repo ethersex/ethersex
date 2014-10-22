@@ -29,13 +29,13 @@ dnl save current divert value
 define(`pushdivert', `define(`_old_divert', divnum)')dnl
 define(`popdivert', `divert(_old_divert)')dnl
 
-define(`milliticks_header', `divert(header_file_divert)#include "$1"
+define(`periodic_milliticks_header', `divert(header_file_divert)#include "$1"
 divert(-1)')
-define(`prototype', `ifelse($#, 0, ``$0'', $1,,,dnl
-`divert(header_file_divert)$1;
-divert(-1)')')
+dnl define(`prototype', `ifelse($#, 0, ``$0'', $1,,,dnl
+dnl `divert(header_file_divert)$1;
+dnl divert(-1)')')
 
-define(`milliticks_isr', `ifelse($#, 0, ``$0'', $1,,,dnl
+define(`periodic_milliticks_isr', `ifelse($#, 0, ``$0'', $1,,,dnl
 `pushdivert()divert(milliticks_isr_divert)  $1;
 popdivert()')')dnl
 
@@ -52,16 +52,19 @@ divert(preamble_divert)dnl
 
 #include "core/periodic.h"
 
+/* all millitickes header files */
 divert(header_file_divert)dnl
 divert(implementation_start_divert)dnl
 
 #ifdef DEBUG_PERIODIC
-extern volatile uint16_t    milliticks_min;
-extern volatile uint16_t    milliticks_max;
+extern volatile uint16_t    periodic_milliticks_min;
+extern volatile uint16_t    periodic_milliticks_max;
 #endif
 
 /**
  * Timer/Counter compare ISR with milliticks support.
+ *
+ * This ISR is called CONF_CLOCKS_PER_SECOND times per second. 
  */
 ISR(PERIODIC_VECTOR_COMPARE)
 {
@@ -69,24 +72,24 @@ ISR(PERIODIC_VECTOR_COMPARE)
   PERIODIC_COUNTER_COMPARE += CLOCK_MILLITICKS;
 
   // advance millitick counter
-  milliticks++;
+  periodic_milliticks++;
 
 #ifdef DEBUG_PERIODIC
-  if (milliticks > milliticks_max)
-    milliticks_max = milliticks;
+  if (periodic_milliticks > periodic_milliticks_max)
+    periodic_milliticks_max = periodic_milliticks;
 
-  #ifdef DEBUG_PERIODIC_WAVEFORMS_SUPPORT
+#ifdef DEBUG_PERIODIC_WAVEFORMS_SUPPORT
   PIN_TOGGLE(PERIODIC_WAVETICK_OUT);
-  #endif
+#endif
 #endif
 
   // just to be sure
-  if (milliticks > CLOCKS_PER_SEC)
-    milliticks -= CLOCKS_PER_SEC;
+  if (periodic_milliticks > CONF_CLOCKS_PER_SEC)
+    periodic_milliticks -= CONF_CLOCKS_PER_SEC;
 
 #ifdef DEBUG_PERIODIC
-  if (milliticks < milliticks_min)
-    milliticks_min = milliticks;
+  if (periodic_milliticks < periodic_milliticks_min)
+    periodic_milliticks_min = periodic_milliticks;
 #endif
 
   // call all the millitickers

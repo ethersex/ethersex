@@ -31,16 +31,19 @@
 
 #include "core/periodic.h"
 #include "core/debug.h"
-//#ifdef FREQCOUNT_SUPPORT
-//#include "services/freqcount/freqcount.h"
-//#endif
+#ifdef FREQCOUNT_SUPPORT
+#include "services/freqcount/freqcount.h"
+#endif
+#ifdef CLOCK_PERIODIC_SUPPORT
+#include "services/clock/clock.h"
+#endif
 
 #ifdef DEBUG_PERIODIC
 #define PERIODICDEBUG(a...)   debug_printf("periodic: " a)
-volatile uint16_t milliticks_min;
-volatile uint16_t milliticks_max;
-volatile uint16_t milliticks_last;
-volatile uint16_t milliticks_miss;
+volatile uint16_t periodic_milliticks_min;
+volatile uint16_t periodic_milliticks_max;
+volatile uint16_t periodic_milliticks_last;
+volatile uint16_t periodic_milliticks_miss;
 #else
 #define PERIODICDEBUG(a...)
 #endif /* DEBUG_PERIODIC */
@@ -49,8 +52,11 @@ volatile uint16_t milliticks_miss;
 uint16_t bootload_delay = CONF_BOOTLOAD_DELAY;
 #endif
 
+/* signal a new timer() tick to meta */
 extern volatile uint8_t newtick;
-volatile uint16_t milliticks;
+
+/* millitick counter */
+volatile uint16_t periodic_milliticks;
 
 void
 periodic_init(void)
@@ -62,31 +68,25 @@ periodic_init(void)
 
   CLOCK_SET_PRESCALER;
 
-//#ifdef CLOCK_CPU_SUPPORT
-//  /* init timer1 to expire after ~20ms, with Normal */
-//  TC1_MODE_OFF;
-//  TC1_COUNTER_CURRENT = 65536 - CLOCK_SECONDS;
-//  TC1_COUNTER_COMPARE = 65536 - CLOCK_SECONDS + CLOCK_TICKS;
-//  TC1_INT_COMPARE_ON;
-//  TC1_INT_OVERFLOW_ON;
-//#else
-//#ifdef FREQCOUNT_SUPPORT
-//  /* init timer1 to run with full cpu frequency, normal mode,
-//   * compare and overflow int active */
-//  TC1_PRESCALER_1;
-//  freqcount_init();
-//  TC1_INT_COMPARE_ON;
-//  TC1_INT_OVERFLOW_ON;
-//#else
+#ifdef FREQCOUNT_SUPPORT
+  /* init timer1 to run with full cpu frequency, normal mode,
+   * compare and overflow int active */
+  TC1_PRESCALER_1;
+  freqcount_init();
+  TC1_INT_COMPARE_ON;
+  TC1_INT_OVERFLOW_ON;
+#else
 /*
  * !! *DO NOT TOUCH* the Timer/Counter registers used by the periodic
  * !! framework except through the interfaces provided!
  */
+  periodic_milliticks = 0;
+
 #ifdef DEBUG_PERIODIC
-  milliticks_min = CLOCKS_PER_SEC;
-  milliticks_max = 0;
-  milliticks_last = 0;
-  milliticks_miss = 0;
+  periodic_milliticks_min = CONF_CLOCKS_PER_SEC;
+  periodic_milliticks_max = 0;
+  periodic_milliticks_last = 0;
+  periodic_milliticks_miss = 0;
 #endif
 
 /* Configure 16 bit Timer/Counter for normal mode, counting up from
@@ -94,8 +94,6 @@ periodic_init(void)
  * Use TOV interrupts to generate 50Hz / 20ms intervals for timer() calls
  * from meta. Use OCR interrupts to generate periodic milliticks.
  */
-  milliticks = 0;
-
   PERIODIC_MODE_OFF;
   PERIODIC_COUNTER_CURRENT = PERIODIC_ZERO;
   // the last compare match matches the overflow condition,
@@ -103,19 +101,20 @@ periodic_init(void)
   PERIODIC_COUNTER_COMPARE = PERIODIC_ZERO + CLOCK_MILLITICKS - 1;
   PERIODIC_INT_COMPARE_ON;
   PERIODIC_INT_OVERFLOW_ON;
-//#endif /* FREQCOUNT_SUPPORT */
-//#endif /* CLOCK_CPU_SUPPORT */
+#endif /* FREQCOUNT_SUPPORT */
 }
 
 /**
  * Timer/Counter compare ISR with milliticks support is auto-generated!
- * See core/milliticks.c for
+ * See core/periodic_milliticks.c for
  *
  * ISR(PERIODIC_VECTOR_COMPARE)
  */
 
 /**
  * Timer/Counter overflow ISR with milliticks support.
+ *
+ * This ISR is called every 20ms / 50 times per second.
  */
 ISR(PERIODIC_VECTOR_OVERFLOW)
 {
@@ -125,95 +124,48 @@ ISR(PERIODIC_VECTOR_OVERFLOW)
   // subtract one here to avoid losing the related tick
   PERIODIC_COUNTER_COMPARE = PERIODIC_ZERO + CLOCK_MILLITICKS - 1;
 
+  // provide tick for metas timer() calls
+  newtick = 1;
+
+#ifdef CLOCK_PERIODIC_SUPPORT
+  /* tick the clock */
+  clock_tick();
+#endif
+
 #ifdef DEBUG_PERIODIC_WAVEFORMS_SUPPORT
   PIN_TOGGLE(PERIODIC_WAVE25HZ_OUT);
 #endif
 
 #ifdef DEBUG_PERIODIC
-  if (milliticks > milliticks_max)
-    milliticks_max = milliticks;
+  if (periodic_milliticks > periodic_milliticks_max)
+    periodic_milliticks_max = periodic_milliticks;
 
   // CLOCKS_PER_SEC/HZ ticks since last TOV
-  if (milliticks < (milliticks_last + (CLOCKS_PER_SEC / HZ)))
-    milliticks_miss += (milliticks_last + (CLOCKS_PER_SEC / HZ) - milliticks);
+  if (periodic_milliticks < (periodic_milliticks_last + (CONF_CLOCKS_PER_SEC / HZ)))
+    periodic_milliticks_miss += (periodic_milliticks_last + (CONF_CLOCKS_PER_SEC / HZ) - periodic_milliticks);
 #endif
 
   // should be an exact match here
-  if (milliticks >= CLOCKS_PER_SEC)
-    milliticks -= CLOCKS_PER_SEC;
+  if (periodic_milliticks >= CONF_CLOCKS_PER_SEC)
+    periodic_milliticks -= CONF_CLOCKS_PER_SEC;
 
 #ifdef DEBUG_PERIODIC
-  if (milliticks < milliticks_min)
-    milliticks_min = milliticks;
+  if (periodic_milliticks < periodic_milliticks_min)
+    periodic_milliticks_min = periodic_milliticks;
 
-  milliticks_last = milliticks;
+  periodic_milliticks_last = periodic_milliticks;
 #endif
-
-  // provide tick for metas timer() calls
-  newtick = 1;
-
-  // TODO check for needed stuff from clock.c ISR
-  //#ifdef DCF77_SUPPORT
-  //  dcf77_tick();
-  //#endif
-  //
-  //#ifdef CLOCK_CPU_SUPPORT
-  //  milliticks = 0;
-  //
-  //  TC1_COUNTER_CURRENT = 65536 - CLOCK_SECONDS;
-  //  TC1_COUNTER_COMPARE = 65536 - CLOCK_SECONDS + CLOCK_TICKS;
-  //#endif
-  //  milliticks = 0;
-  //
-  //  TC1_COUNTER_CURRENT = 65536 - CLOCK_SECONDS;
-  //  TC1_COUNTER_COMPARE = 65536 - CLOCK_SECONDS + CLOCK_TICKS;
-  //#endif
-  //
-  //#if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
-  //  if (!sync_timestamp || sync_timestamp == clock_timestamp)
-  //#endif
-  //  {
-  //    clock_timestamp++;
-  //#if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT) || defined(CONTROL6_SUPPORT)
-  //    uptime_timestamp++;
-  //#endif
-  //  }
-  //
-  //  if (sync_timestamp)
-  //    sync_timestamp++;
 }
 
+#ifdef FREQCOUNT_SUPPORT
 void
-periodic_reset_tick(void)
+timer_expired(void)
 {
-/* TODO support other configurations and rewrite any and all
- * direct TC register accesses from other modules.
- */
-  ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-  {
-    // reset timer
-    PERIODIC_COUNTER_CURRENT = PERIODIC_ZERO;
-    // the last compare match matches the overflow condition,
-    // subtract one here to avoid losing the related tick
-    PERIODIC_COUNTER_COMPARE = PERIODIC_ZERO + CLOCK_MILLITICKS - 1;
-    // TODO reset milliticks, newtick, dcf_tick...??
-  }
+  newtick = 1;
+  if (++milliticks >= HZ)
+    milliticks -= HZ;
 }
-
-//#ifdef FREQCOUNT_SUPPORT
-//void
-//timer_expired(void)
-//#else
-//ISR(TC1_VECTOR_COMPARE)
-//#endif
-//{
-//#ifdef CLOCK_CPU_SUPPORT
-//  TC1_COUNTER_COMPARE += CLOCK_TICKS;
-//#endif
-//  newtick = 1;
-//  if (++milliticks >= HZ)
-//    milliticks -= HZ;
-//}
+#endif
 
 /*
  -- Ethersex META --

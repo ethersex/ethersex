@@ -27,9 +27,19 @@
 #include "core/debug.h"
 
 #ifdef DEBUG_PERIODIC_ECMD_SUPPORT
-extern volatile uint16_t milliticks_min;
-extern volatile uint16_t milliticks_max;
-extern volatile uint16_t milliticks_miss;
+extern volatile uint16_t periodic_milliticks;
+extern volatile uint16_t periodic_milliticks_min;
+extern volatile uint16_t periodic_milliticks_max;
+extern volatile uint16_t periodic_milliticks_miss;
+
+enum
+{
+  PRINT_TIMER_USED = 0,
+  PRINT_COUNTS,
+  PRINT_MILLITICKS,
+  PRINT_MILLITICKS_MISS,
+  LAST
+};
 
 int16_t
 parse_cmd_periodic_debug_stats(char *cmd, char *output, uint16_t len)
@@ -43,15 +53,6 @@ parse_cmd_periodic_debug_stats(char *cmd, char *output, uint16_t len)
   }
 
   /* simple state machine to iterate over the lines of output */
-  enum
-  {
-    PRINT_TIMER_USED = 0,
-    PRINT_COUNTS,
-    PRINT_MILLITICKS,
-    PRINT_MILLITICKS_MISS,
-    LAST
-  };
-
   switch (cmd[1])
   {
     case PRINT_TIMER_USED:
@@ -70,12 +71,12 @@ parse_cmd_periodic_debug_stats(char *cmd, char *output, uint16_t len)
 
     case PRINT_MILLITICKS:
       len = snprintf_P(output, len,
-                   PSTR("Ticks 1/s: %u, Tick current: %u, min: %u, max: %u"),
-                   CLOCKS_PER_SEC, milliticks, milliticks_min, milliticks_max);
+                   PSTR("Ticks 1/s: %u, current: %u, min: %u, max: %u"),
+                   CONF_CLOCKS_PER_SEC, periodic_milliticks, periodic_milliticks_min, periodic_milliticks_max);
       break;
 
     case PRINT_MILLITICKS_MISS:
-      len = snprintf_P(output, len, PSTR("Ticks missed: %u"), milliticks_miss);
+      len = snprintf_P(output, len, PSTR("Ticks missed: %u"), periodic_milliticks_miss);
       break;
   }
 
