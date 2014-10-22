@@ -28,10 +28,10 @@
  */
 
 uint8_t
-next_uint16(char *cmd, uint16_t * value)
+next_uint16(char const *cmd, uint16_t * value)
 {
   uint8_t found_number = 0;
-  char *old_cmd = cmd;
+  char const *old_cmd = cmd;
   *value = 0;
 
   while (*cmd == ' ')
@@ -48,10 +48,10 @@ next_uint16(char *cmd, uint16_t * value)
 }
 
 uint8_t
-next_int16(char *cmd, int16_t * value)
+next_int16(char const *cmd, int16_t * value)
 {
   uint8_t found_number = 0, found_negative = 0;
-  char *old_cmd = cmd;
+  char const *old_cmd = cmd;
   *value = 0;
   while (*cmd == ' ')
     cmd++;                      /* Strip the spaces before */
@@ -77,11 +77,11 @@ next_int16(char *cmd, int16_t * value)
 * otherwise the number of parsed characters, including the spaces
 */
 uint8_t
-next_int16_fp(char *cmd, int16_t * value, uint8_t fixeddigits)
+next_int16_fp(char const *cmd, int16_t * value, uint8_t fixeddigits)
 {
   uint8_t found_number = 0, found_negative = 0, found_decimal = 0,
     count_fixed = 0;
-  char *old_cmd = cmd;
+  char const *old_cmd = cmd;
   *value = 0;
   while (*cmd == ' ')
     cmd++;                      /* Strip the spaces before */
@@ -120,9 +120,9 @@ next_int16_fp(char *cmd, int16_t * value, uint8_t fixeddigits)
 /* Read hexbyte at cmd, strips all spaces before and returns consumed
    characters or 0 on error */
 uint8_t
-next_hexbyte(char *cmd, uint8_t * value)
+next_hexbyte(char const *cmd, uint8_t * value)
 {
-  char *old_cmd = cmd;
+  char const *old_cmd = cmd;
   while (*cmd == ' ')
     cmd++;                      /* Strip the spaces before */
 
