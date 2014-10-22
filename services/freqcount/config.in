@@ -1,5 +1,7 @@
-# CLOCK_CPU_SUPPORT and FREQCOUNT_SUPPORT are currently not compatible
-if [ "$CLOCK_CPU_SUPPORT" != "y" ]; then
+# FREQCOUNT_SUPPORT requires a free 16 bit timer/counter unit
+# and is currently not compatible to the e6 periodic framework
+# (needs rewrite)
+if false; then
     dep_bool_menu "Frequency counter" FREQCOUNT_SUPPORT $ARCH_AVR
         int 'Channels' FREQCOUNT_CHANNELS "1"
         bool "All channels active on boot" FREQCOUNT_BOOT_ON
@@ -14,6 +16,6 @@ if [ "$CLOCK_CPU_SUPPORT" != "y" ]; then
     endmenu
 else
     define_bool FREQCOUNT_SUPPORT "n"
-    comment "Frequency counter not available: CPU clock active"
+    comment "Frequency counter needs rewrite and is currently not available"
 fi
 
