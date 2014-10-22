@@ -211,37 +211,15 @@ periodic_millis_elapsed(periodic_timestamp_t * last)
 }
 #endif
 
+#ifdef FREQCOUNT_SUPPORT
 void
-periodic_reset_tick(void)
+timer_expired(void)
 {
-/* TODO support other configurations and rewrite any and all
- * direct TC register accesses from other modules.
- */
-  ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-  {
-    // reset timer
-    PERIODIC_COUNTER_CURRENT = PERIODIC_ZERO;
-    // the last compare match matches the overflow condition,
-    // subtract one here to avoid losing the related tick
-    PERIODIC_COUNTER_COMPARE = PERIODIC_ZERO + CLOCK_MILLITICKS - 1;
-    // TODO reset milliticks, newtick, dcf_tick...??
-  }
+  newtick = 1;
+  if (++milliticks >= HZ)
+    milliticks -= HZ;
 }
-
-//#ifdef FREQCOUNT_SUPPORT
-//void
-//timer_expired(void)
-//#else
-//ISR(TC1_VECTOR_COMPARE)
-//#endif
-//{
-//#ifdef CLOCK_CPU_SUPPORT
-//  TC1_COUNTER_COMPARE += CLOCK_TICKS;
-//#endif
-//  newtick = 1;
-//  if (++milliticks >= HZ)
-//    milliticks -= HZ;
-//}
+#endif
 
 /*
  -- Ethersex META --
