@@ -1,16 +1,15 @@
-	comment "Periodic / Scheduler"
-	choice 'Periodic ticks per second' "$(periodic_ticks_per_second_choice)" 50 CONF_CLOCKS_PER_SEC
-	define_symbol CLOCKS_PER_SEC $(echo $CONF_CLOCKS_PER_SEC | ${SED} -e "s,^.*_,,")
-	dep_bool "Periodic use Timer / Counter 3" PERIODIC_TIMER3_SUPPORT $(mcu_has_timer_3_support)
-	if [ "$PERIODIC_TIMER3_SUPPORT" = y ]; then
-		define_symbol CONF_PERIODIC_USE_TIMER 3
-	else
-		define_symbol CONF_PERIODIC_USE_TIMER 1
-	fi
-  dep_bool_menu "Periodic general debugging" DEBUG_PERIODIC $DEBUG
-    dep_bool "Read periodic debug stats via ECMD" DEBUG_PERIODIC_ECMD_SUPPORT $DEBUG_PERIODIC $ECMD_PARSER_SUPPORT
-    dep_bool "Toggle pins in periodic tick" DEBUG_PERIODIC_WAVEFORMS_SUPPORT $DEBUG_PERIODIC
-  endmenu
+comment "Periodic / Scheduler"
+int_min_max_step 'Periodic ticks per second' CONF_CLOCKS_PER_SEC 50 50 20000 50
+dep_bool "Periodic use Timer/Counter 3" PERIODIC_TIMER3_SUPPORT $(mcu_has_timer_3_support)
+if [ "$PERIODIC_TIMER3_SUPPORT" = y ]; then
+	define_symbol CONF_PERIODIC_USE_TIMER 3
+else
+	define_symbol CONF_PERIODIC_USE_TIMER 1
+fi
+dep_bool_menu "Periodic general debugging" DEBUG_PERIODIC $DEBUG
+	dep_bool "Read periodic debug stats via ECMD" DEBUG_PERIODIC_ECMD_SUPPORT $DEBUG_PERIODIC $ECMD_PARSER_SUPPORT
+	dep_bool "Toggle pins in periodic tick" DEBUG_PERIODIC_WAVEFORMS_SUPPORT $DEBUG_PERIODIC
+endmenu
 
 dep_bool_menu "Status LEDs" STATUSLEDS $ARCH_AVR
 	dep_bool "Status LED (Power)"		STATUSLED_POWER_SUPPORT		$STATUSLEDS
@@ -40,9 +39,9 @@ dep_bool_menu "Status LEDs" STATUSLEDS $ARCH_AVR
 endmenu
 
 if [ "$STATUSLED_HEARTBEAT_SUPPORT" = "y" ]; then
-  if [ "$BOOTLOADER_SUPPORT" = "y" ]; then
-    define_bool STATUSLED_HEARTBEAT_BOOTLOADER_SUPPORT y
-  else
-    define_bool STATUSLED_HEARTBEAT_STANDARD_SUPPORT y
-  fi
+	if [ "$BOOTLOADER_SUPPORT" = "y" ]; then
+		define_bool STATUSLED_HEARTBEAT_BOOTLOADER_SUPPORT y
+	else
+		define_bool STATUSLED_HEARTBEAT_STANDARD_SUPPORT y
+	fi
 fi
