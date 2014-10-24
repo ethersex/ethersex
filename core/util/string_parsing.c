@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2010 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2014 by Daniel Lindner <daniel.lindner@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -47,49 +48,17 @@ next_uint16(char const *cmd, uint16_t * value)
   return found_number ? cmd - old_cmd : 0;
 }
 
-uint8_t
-next_int16(char const *cmd, int16_t * value)
-{
-  uint8_t found_number = 0, found_negative = 0;
-  char const *old_cmd = cmd;
-  *value = 0;
-  while (*cmd == ' ')
-    cmd++;                      /* Strip the spaces before */
-  if (*cmd == '-')
-  {
-    found_negative = 1;
-    cmd++;
-  }
-  while (*cmd >= '0' && *cmd <= '9')
-  {
-    *value = (*value) * 10 + (*cmd) - '0';
-    cmd++;
-    found_number = 1;
-  }
-  if (found_number && found_negative)
-    *value *= -1;
-  return found_number ? cmd - old_cmd : 0;
-}
-
 /* Takes a character string and an place for the value, and parses the first number
 * after all spaces. Number can contain decimal point. The returned integer is
 * a fixpoint integer with fixeddigits decimal places. If there isn't an integer, it will return 0,
 * otherwise the number of parsed characters, including the spaces
 */
 uint8_t
-next_int16_fp(char const *cmd, int16_t * value, uint8_t fixeddigits)
+next_int16_fp(char const *cmd, int16_t * value, int8_t fixeddigits)
 {
-  uint8_t found_number = 0, found_negative = 0, found_decimal = 0,
-    count_fixed = 0;
+  uint8_t found_number = 0, found_negative = 0, found_decimal = 0;
   char const *old_cmd = cmd;
   *value = 0;
-  while (*cmd == ' ')
-    cmd++;                      /* Strip the spaces before */
-  if (*cmd == '-')
-  {
-    found_negative = 1;
-    cmd++;
-  }
   while (*cmd == ' ')
     cmd++;                      /* Strip the spaces before */
   if (*cmd == '-')
@@ -101,15 +70,18 @@ next_int16_fp(char const *cmd, int16_t * value, uint8_t fixeddigits)
   {
     if (*cmd == '.')
       found_decimal = 1;
-    if (*cmd != '.' && count_fixed < fixeddigits)       /* Stop parsing if fixeddigits are parsed but consume all numbers */
-      *value = (*value) * 10 + (*cmd) - '0';
-    if (found_decimal && *cmd != '.')   /* Count numbers after decimal point */
-      count_fixed++;
+    else
+    {
+      if (fixeddigits > 0 || !found_decimal)       /* Stop parsing if fixeddigits are parsed but consume all numbers */
+        *value = (*value) * 10 + (*cmd) - '0';
+      if (found_decimal)   /* Count numbers after decimal point */
+        fixeddigits--;
+    }
     cmd++;
     found_number = 1;
   }
 /* Fill up with zero */
-  while (count_fixed++ < fixeddigits)
+  while (fixeddigits-- > 0)
     *value = (*value) * 10;
   if (found_number && found_negative)
     *value *= -1;

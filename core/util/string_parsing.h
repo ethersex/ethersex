@@ -27,7 +27,7 @@
  */
 
 uint8_t next_uint16(char const *cmd, uint16_t * value);
-uint8_t next_int16(char const *cmd, int16_t * value);
+#define next_int16(cmd, value) next_int16_fp( cmd, value, 0 )
 
 /* Takes a character string and an place for the value, and parses the first number
 * after all spaces. Number can contain decimal point. The returned integer is
@@ -35,7 +35,7 @@ uint8_t next_int16(char const *cmd, int16_t * value);
 * otherwise the number of parsed characters, including the spaces
 */
 
-uint8_t next_int16_fp(char const *cmd, int16_t * value, uint8_t fixeddigits);
+uint8_t next_int16_fp(char const *cmd, int16_t * value, int8_t fixeddigits);
 
 /* Read hexbyte at cmd, strips all spaces before and returns consumed
    characters or 0 on error */
