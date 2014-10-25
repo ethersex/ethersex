@@ -96,7 +96,7 @@ parse_cmd_sht_temp(char *cmd, char *output, uint16_t len)
 
   if (ret == SHT_OK)
     return
-      ECMD_FINAL(itoa_fixedpoint(sht_convert_temp(&raw_temp), 2, output));
+      ECMD_FINAL(itoa_fixedpoint(sht_convert_temp(&raw_temp), 2, output, len));
   else
     return ECMD_FINAL(output_sht_error(ret, output));
 }
@@ -117,7 +117,7 @@ parse_cmd_sht_humid(char *cmd, char *output, uint16_t len)
   if (ret == SHT_OK)
     return
       ECMD_FINAL(itoa_fixedpoint
-                 (sht_convert_humid(&raw_temp, &raw_humid), 1, output));
+                 (sht_convert_humid(&raw_temp, &raw_humid), 1, output, len));
   else
     return ECMD_FINAL(output_sht_error(ret, output));
 }

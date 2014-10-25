@@ -38,7 +38,7 @@ int16_t parse_cmd_dht_temp(char *cmd, char *output, uint16_t len)
   uint8_t sensor = 0;
   int ret = sscanf_P(cmd, PSTR("%hhu"), &sensor);
   return (sensor < dht_sensors_count ?
-    ECMD_FINAL(itoa_fixedpoint(dht_sensors[sensor].temp,1,output)) :
+    ECMD_FINAL(itoa_fixedpoint(dht_sensors[sensor].temp,1,output,len)) :
     ECMD_ERR_PARSE_ERROR);
 }
 #endif
@@ -49,7 +49,7 @@ int16_t parse_cmd_dht_humid(char *cmd, char *output, uint16_t len)
   uint8_t sensor = 0;
   int ret = sscanf_P(cmd, PSTR("%hhu"), &sensor);
   return (sensor < dht_sensors_count ?
-    ECMD_FINAL(itoa_fixedpoint(dht_sensors[sensor].humid,1,output)) :
+    ECMD_FINAL(itoa_fixedpoint(dht_sensors[sensor].humid,1,output,len)) :
     ECMD_ERR_PARSE_ERROR);
 }
 #endif
@@ -79,11 +79,12 @@ int16_t parse_cmd_dht_list(char *cmd, char *output, uint16_t len)
 
 #ifdef DHT_LIST_WITH_VALUES_CMD_SUPPORT
   ret = snprintf_P(output, len, PSTR("%d\t%S"), i, dht_sensors[i].name);
-  /* itoa_fixedpoint does not check for buffer length */
-  output[ret++] = '\t';
-  ret += itoa_fixedpoint(dht_sensors[i].temp,1,output+ret);
-  output[ret++] = '\t';
-  ret += itoa_fixedpoint(dht_sensors[i].humid,1,output+ret);
+  if(len-ret>0)
+    output[ret++] = '\t';
+  ret += itoa_fixedpoint(dht_sensors[i].temp,1,output+ret,len-ret);
+  if(len-ret>0)
+    output[ret++] = '\t';
+  ret += itoa_fixedpoint(dht_sensors[i].humid,1,output+ret,len-ret);
 #else
   ret = snprintf_P(output, len, PSTR("%d\t%S"), i, dht_sensors[i].name);
 #endif

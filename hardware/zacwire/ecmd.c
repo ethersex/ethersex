@@ -128,7 +128,7 @@ int16_t parse_cmd_zacwire_306(char *cmd, char *output, uint16_t len)
     ret=zacwire_get(&raw_temp,pin_ptr,bitno);
 
     if (ret == ZACWIRE_OK)
-        return ECMD_FINAL(itoa_fixedpoint(convert_tsic306(raw_temp),1,output));
+        return ECMD_FINAL(itoa_fixedpoint(convert_tsic306(raw_temp),1,output,len));
     else
         return output_zac_error(ret,output);
 }
@@ -150,7 +150,7 @@ int16_t parse_cmd_zacwire_506(char *cmd, char *output, uint16_t len)
     ret=zacwire_get(&raw_temp,pin_ptr,bitno);
 
     if (ret == ZACWIRE_OK)
-        return ECMD_FINAL(itoa_fixedpoint(convert_tsic506(raw_temp),2,output));
+        return ECMD_FINAL(itoa_fixedpoint(convert_tsic506(raw_temp),2,output,len));
     else
         return output_zac_error(ret,output);
 }

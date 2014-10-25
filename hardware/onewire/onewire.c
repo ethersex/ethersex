@@ -57,7 +57,7 @@ ow_global_t ow_global;
 
 #ifdef ONEWIRE_POLLING_SUPPORT
 /* perform an initial bus discovery on startup */
-uint16_t ow_discover_interval = 1; /* minimal initial delay */
+uint16_t ow_discover_interval = 1;    /* minimal initial delay */
 uint16_t ow_polling_interval;         /* time between polling the sensors */
 #endif
 
@@ -800,7 +800,7 @@ ow_periodic(void)
 
 #ifdef DEBUG_OW_POLLING
         char temperature[7];    /* enough for two decimal digits (124.99) */
-        itoa_fixedpoint(temp.val, temp.twodigits + 1, temperature);
+        itoa_fixedpoint(temp.val, temp.twodigits + 1, temperature, sizeof(temperature));
 
         OW_DEBUG_POLL("temperature: %s°C on device "
             "%02x%02x%02x%02x%02x%02x%02x%02x"

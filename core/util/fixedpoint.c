@@ -30,9 +30,11 @@
 /* Attention: returns the length in bytes, not a pointer like the regular
  * itoa this is more convenient for use in output to ECMDs output buffer */
 uint8_t
-itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[])
+itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[], uint8_t size)
 {
   uint8_t len = 0;
+  if (size <= 1)
+    return 0;
 
   if (n < 0)
   {
@@ -40,8 +42,8 @@ itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[])
     n = -n;
   }
 
-  /* Number of digits to output */
-  /* Output at least fixeddigits + 1 digits */
+/* Number of digits to output */
+/* Output at least fixeddigits + 1 digits */
   uint8_t digits = 1;
   int16_t m = 1;
   while ((m <= n / 10) || (digits < fixeddigits + 1))
@@ -50,16 +52,18 @@ itoa_fixedpoint(int16_t n, uint8_t fixeddigits, char s[])
     digits++;
   }
 
-  while (digits > 0)
+  size--;
+  while (digits > 0 && len < size)
   {
     uint8_t i;
-    /* Decimal point? */
+/* Decimal point? */
     if (digits == fixeddigits)
     {
       s[len++] = '.';
     }
     for (i = '0'; n >= m; n -= m, i++);
-    s[len++] = i;
+    if (len < size)
+      s[len++] = i;
     m /= 10;
     digits--;
   }
