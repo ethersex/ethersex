@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2008 by Daniel Lindner <daniel.lindner@gmx.de>
+ * Copyright (c) 2013-2014 by Daniel Lindner <daniel.lindner@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,17 +32,16 @@
 
 // Low-Level sending of message to bus
 uint8_t
-bsbport_send(uint8_t * msg)
+bsbport_send(uint8_t * const msg)
 {
 
-  uint8_t len = msg[3];
   msg[SOT] = 0xDC;
   msg[SRC] = 0x80 | BSBPORT_OWNADDRESS;
 
   {
-    uint16_t crc = bsbport_crc(msg, len - 2);
-    msg[len - 2] = (crc >> 8);
-    msg[len - 1] = (crc & 0xFF);
+    uint16_t crc = bsbport_crc(msg, msg[LEN] - 2);
+    msg[msg[LEN] - 2] = (crc >> 8);
+    msg[msg[LEN] - 1] = (crc & 0xFF);
   }
 
 #ifdef DEBUG_BSBPORT_TX
@@ -54,7 +53,7 @@ bsbport_send(uint8_t * msg)
   {
     debug_printf("%02x", msg[i]);
   }
-  debug_printf("CRC: %02x%02x ", msg[len - 2], msg[len - 1]);
+  debug_printf("CRC: %02x%02x ", msg[msg[LEN] - 2], msg[msg[LEN] - 1]);
 #endif
   return bsbport_txstart(msg, msg[LEN]);
 }
@@ -62,15 +61,16 @@ bsbport_send(uint8_t * msg)
 
 // High-level sending to bus
 uint8_t
-bsbport_query(uint8_t A1, uint8_t A2, uint8_t A3, uint8_t A4, uint8_t dest)
+bsbport_query(const uint8_t A1, const uint8_t A2, const uint8_t A3,
+              const uint8_t A4, const uint8_t dest)
 {
   uint8_t msg[11];
   msg[LEN] = 11;
   msg[TYPE] = QUERY;
   msg[DEST] = dest;
   // Adress switch A1,A2 for a query
-  msg[P2] = A1;
   msg[P1] = A2;
+  msg[P2] = A1;
   msg[P3] = A3;
   msg[P4] = A4;
   return bsbport_send(msg);
@@ -78,16 +78,17 @@ bsbport_query(uint8_t A1, uint8_t A2, uint8_t A3, uint8_t A4, uint8_t dest)
 
 // High-level sending to bus
 uint8_t
-bsbport_set(uint8_t A1, uint8_t A2, uint8_t A3, uint8_t A4, uint8_t dest,
-            uint8_t * data, uint8_t datalen)
+bsbport_set(const uint8_t A1, const uint8_t A2, const uint8_t A3,
+            const uint8_t A4, const uint8_t dest, const uint8_t * const data,
+            const uint8_t datalen)
 {
   uint8_t msg[BSBPORT_MESSAGE_MAX_LEN];
   msg[LEN] = datalen + 11;
   msg[TYPE] = SET;
   msg[DEST] = 0x80 & dest;
   // Adress switch A1,A2 for a set msg
-  msg[P2] = A1;
   msg[P1] = A2;
+  msg[P2] = A1;
   msg[P3] = A3;
   msg[P4] = A4;
 

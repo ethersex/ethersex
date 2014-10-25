@@ -1,6 +1,7 @@
 /*
  *
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2013-2014 by Daniel Lindner <daniel.lindner@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -86,7 +87,7 @@ bsbport_net_main(void)
   else if (uip_newdata())
   {
     if (uip_len <= BSBPORT_BUFFER_LEN &&
-        bsbport_tx_net_start(uip_appdata, uip_len) != 0)
+        bsbport_txstart(uip_appdata, uip_len) != 0)
     {
       /* prevent the other side from sending more data via tcp */
       uip_stop();
@@ -109,7 +110,7 @@ bsbport_net_main(void)
     if (uip_poll()
         && bsbport_conn == uip_conn
         && uip_stopped(bsbport_conn)
-        && bsbport_sendnet_buffer.sent == bsbport_sendnet_buffer.len)
+        && bsbport_send_buffer.sent == bsbport_send_buffer.len)
       uip_restart();
 
     /* send data */
