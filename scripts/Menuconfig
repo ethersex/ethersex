@@ -188,6 +188,17 @@ function int () {
 }
 
 #
+# Add a menu item which will call our local int function.
+#
+function int_min_max_step () {
+	set_x_info "$2" "$3"
+
+	echo -ne "'$2' '($x) $1$info' " >>MCmenu
+
+	echo -e "function $2 () { l_int_min_max_step '$1' '$2' '$3' '$4' '$5' '$6' '$x' ;}" >>MCradiolists
+}
+
+#
 # Add a menu item which will call our local hex function.
 # 
 function hex () {
@@ -556,6 +567,41 @@ function l_int () {
 				${DIALOG} --backtitle "$backtitle" \
 					--infobox "You have made an invalid entry." 3 43
 				sleep 2
+			fi
+
+			break
+		fi
+
+		help "$2" "$1"
+	done
+}
+
+#
+# Create a dialog for entering an integer into a kernel option.
+#
+function l_int_min_max_step () {
+	while true
+	do
+		if $DIALOG --title "$1" \
+			--backtitle "$backtitle" \
+			--inputbox "$inputbox_instructions_int" \
+			10 75 "$7" 2>MCdialog.out
+		then
+			answer="`cat MCdialog.out`"
+			answer="${answer:-$3}"
+
+			# Semantics of + and ? in GNU expr changed, so
+			# we avoid them:
+			if expr '(' "$answer" : '0$' '|' "$answer" : '[1-9][0-9]*$' '|' "$answer" : '-[1-9][0-9]*$' ')' \
+			  '&' "$answer" '>=' $4 '&' "$answer" '<=' $5 '&' '(' "$answer" '%' $6 ')' = 0 >/dev/null
+			then
+				eval $2=\"$answer\"
+			else
+				eval $2=\"$3\"
+				echo -en "\007"
+				${DIALOG} --backtitle "$backtitle" \
+					--msgbox "You have made an invalid entry." 5 43
+#				sleep 2
 			fi
 
 			break
@@ -1315,6 +1361,12 @@ save_configuration () {
 	}
 
 	function int () {
+		set_x_info "$2" "$3"
+		echo "$2=$x" 		>>$CONFIG
+		echo "#define $2 ($x)"	>>$CONFIG_H
+	}
+
+	function int_min_max_step () {
 		set_x_info "$2" "$3"
 		echo "$2=$x" 		>>$CONFIG
 		echo "#define $2 ($x)"	>>$CONFIG_H

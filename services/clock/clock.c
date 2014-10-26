@@ -61,7 +61,6 @@ static uint16_t ntp_timer = 1;
 timestamp_t uptime_timestamp;
 #endif
 
-
 void
 clock_init(void)
 {
@@ -83,22 +82,11 @@ clock_init(void)
   dcf_count = 0;
 }
 
-#if defined(CLOCK_CRYSTAL_SUPPORT) || defined(CLOCK_CPU_SUPPORT)
-#ifdef CLOCK_CPU_SUPPORT
-ISR(TC1_VECTOR_OVERFLOW)
-#else
+#if defined(CLOCK_CRYSTAL_SUPPORT)
 ISR(TIMER_8_AS_1_VECTOR_OVERFLOW)
-#endif
 {
 #ifdef DCF77_SUPPORT
   dcf77_tick();
-#endif
-
-#ifdef CLOCK_CPU_SUPPORT
-  milliticks = 0;
-
-  TC1_COUNTER_CURRENT = 65536 - CLOCK_SECONDS;
-  TC1_COUNTER_COMPARE = 65536 - CLOCK_SECONDS + CLOCK_TICKS;
 #endif
 
 #if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
@@ -134,10 +122,10 @@ clock_periodic(void)
 void
 clock_tick(void)
 {
-  if (++ticks >= 50)
+  if (++ticks >= HZ)
   {
     /* Only clock here, when no crystal is connected */
-#if !defined(CLOCK_CRYSTAL_SUPPORT) && !defined(CLOCK_CPU_SUPPORT)
+#if !defined(CLOCK_CRYSTAL_SUPPORT)
     /* Don't wait for a sync, if no sync source is enabled */
 #if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
     if (!sync_timestamp || sync_timestamp == clock_timestamp)
@@ -183,27 +171,6 @@ clock_set_time(timestamp_t new_sync_timestamp)
   if (sync_timestamp)
   {
     delta = new_sync_timestamp - sync_timestamp;
-#if defined(CLOCK_NTP_ADJUST_SUPPORT) && !defined(CLOCK_CPU_SUPPORT)
-    NTPADJDEBUG("sync timestamp delta is %d\n", delta);
-    if (delta < -300 || delta > 300)
-      NTPADJDEBUG("eeek, delta too large. " "not adjusting.\n");
-
-    else if (sync_timestamp != clock_timestamp)
-      NTPADJDEBUG("our clock is not up with ntp clock.\n");
-
-    else if (NTP_RESYNC_PERIOD == -delta)
-      NTPADJDEBUG("-delta equals resync period, eeek!? "
-                  "clock isn't running at all.\n");
-    else
-    {
-      uint32_t new_value = TC1_COUNTER_COMPARE;
-      new_value *= NTP_RESYNC_PERIOD;
-      new_value /= NTP_RESYNC_PERIOD + delta;
-
-      NTPADJDEBUG("new OCR1A value %d\n", new_value);
-      TC1_COUNTER_COMPARE = new_value;
-    }
-#endif /* CLOCK_NTP_ADJUST_SUPPORT */
   }
 
   sync_timestamp = new_sync_timestamp;
@@ -300,6 +267,6 @@ clock_get_uptime(void)
   -- Ethersex META --
   header(services/clock/clock.h)
   init(clock_init)
-  timer(1, clock_tick())
+  ifdef(`conf_CLOCK_PERIODIC', `', `timer(1, clock_tick())')
   ifdef(`conf_NTP', `timer(50, clock_periodic())')
 */

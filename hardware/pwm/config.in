@@ -1,3 +1,5 @@
+# PWM support requires access to Timer/Counter1
+if [ "$PERIODIC_TIMER3_SUPPORT" = y ]; then
 dep_bool_menu "PWM Generator" PWM_SUPPORT $ARCH_AVR
   dep_bool "PWM general" PWM_GENERAL_SUPPORT $PWM_SUPPORT
   dep_bool "  invert input" PWM_GENERAL_INVERT_SUPPORT $PWM_GENERAL_SUPPORT
@@ -22,4 +24,6 @@ dep_bool_menu "PWM Generator" PWM_SUPPORT $ARCH_AVR
 	dep_bool 'PWM' DEBUG_PWM $DEBUG
 	dep_bool 'PWM Servo' DEBUG_PWM_SERVO $DEBUG
 endmenu
-
+else
+	comment "PWM Generator is currently not compatible with core/periodic"
+fi
