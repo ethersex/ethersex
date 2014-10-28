@@ -46,7 +46,7 @@ bsbport_rx_init(void)
     bsbport_msg_buffer.msg[i].p2 = 0;
     bsbport_msg_buffer.msg[i].p3 = 0;
     bsbport_msg_buffer.msg[i].p4 = 0;
-    bsbport_msg_buffer.msg[i].data_lenght = 0;
+    bsbport_msg_buffer.msg[i].data_length = 0;
 #ifdef BSBPORT_MQTT_SUPPORT
     bsbport_msg_buffer.msg[i].mqtt_new = 0;
 #endif
@@ -188,7 +188,7 @@ bsbport_calc_value(struct bsbport_msg *msg)
 {
 #ifdef DEBUG_BSBPORT_PARSE
     debug_printf("DATA: %02x %02x %02x Len:%d TYPE: %u ", msg->data[0],
-                 msg->data[1], msg->data[2], msg->data_lenght, msg->type);
+                 msg->data[1], msg->data[2], msg->data_length, msg->type);
 #endif
 // Nach Nachrichten Typ entscheiden
   if (msg->type == INFO)
@@ -208,7 +208,7 @@ bsbport_calc_value(struct bsbport_msg *msg)
     //Query has no value
   }
   else if (msg->type == ANSWER 
-           && msg->data_lenght == 12 
+           && msg->data_length == 12
            && msg->p1 == 0x05 
            && msg->p2 == 0x3D 
            && msg->p3 == 0x00 
@@ -216,11 +216,11 @@ bsbport_calc_value(struct bsbport_msg *msg)
   {
     msg->value = (uint8_t) msg->data[DATA + 1];
   }
-  else if (msg->type == ANSWER && msg->data_lenght == 3)        // Msg with 3 Databytes received
+  else if (msg->type == ANSWER && msg->data_length == 3)        // Msg with 3 Databytes received
   {
     msg->value = bsbport_ConvertToInt16(&msg->data[1]);
   }
-  else if (msg->type == ANSWER && msg->data_lenght == 2)        // Msg with 2 Databytes received
+  else if (msg->type == ANSWER && msg->data_length == 2)        // Msg with 2 Databytes received
   {
     msg->value = bsbport_ConvertToInt16(&msg->data[0]);
   }
@@ -250,7 +250,7 @@ bsbport_store_msg(const uint8_t * const msg, const uint8_t len)
 #endif
   for (uint8_t i = 0; i < BSBPORT_MESSAGE_BUFFER_LEN; i++)
   {
-    if (bsbport_msg_buffer.msg[i].data_lenght != 0
+    if (bsbport_msg_buffer.msg[i].data_length != 0
         && (0x7F & bsbport_msg_buffer.msg[i].src) == (0x7F & msg[SRC])
         && bsbport_msg_buffer.msg[i].p1 == msg[P1]
         && bsbport_msg_buffer.msg[i].p2 == msg[P2]
@@ -262,7 +262,7 @@ bsbport_store_msg(const uint8_t * const msg, const uint8_t len)
       {
         memcpy(bsbport_msg_buffer.msg[i].data, msg + DATA,
                msg[LEN] - DATA - 2);
-        bsbport_msg_buffer.msg[i].data_lenght = msg[LEN] - DATA - 2;
+        bsbport_msg_buffer.msg[i].data_length = msg[LEN] - DATA - 2;
         bsbport_calc_value(&bsbport_msg_buffer.msg[i]);
 #ifdef BSBPORT_MQTT_SUPPORT
         bsbport_msg_buffer.msg[i].mqtt_new = 1;
@@ -277,7 +277,7 @@ bsbport_store_msg(const uint8_t * const msg, const uint8_t len)
     {
       memcpy(bsbport_msg_buffer.msg[bsbport_msg_buffer.act].data, msg + DATA,
              msg[LEN] - DATA - 2);
-      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].data_lenght =
+      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].data_length =
         msg[LEN] - DATA - 2;
       bsbport_msg_buffer.msg[bsbport_msg_buffer.act].src = msg[SRC];
       bsbport_msg_buffer.msg[bsbport_msg_buffer.act].dest = msg[DEST];

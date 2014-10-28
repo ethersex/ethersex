@@ -140,7 +140,7 @@ parse_cmd_bsbport_get(const char *cmd, char *output, const uint16_t len)
   {
     for (uint8_t i = 0; i < BSBPORT_MESSAGE_BUFFER_LEN; i++)
     {
-      if (bsbport_msg_buffer.msg[i].data_lenght != 0
+      if (bsbport_msg_buffer.msg[i].data_length != 0
           && bsbport_msg_buffer.msg[i].p1 == p1
           && bsbport_msg_buffer.msg[i].p2 == p2
           && bsbport_msg_buffer.msg[i].p3 == p3

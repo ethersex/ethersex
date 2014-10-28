@@ -35,7 +35,7 @@ struct bsbport_msg
   uint8_t p3;
   uint8_t p4;
   int16_t value;
-  uint8_t data_lenght;
+  uint8_t data_length;
   uint8_t data[BSBPORT_MESSAGE_MAX_LEN - 11];
 #ifdef BSBPORT_MQTT_SUPPORT
   uint8_t mqtt_new;
