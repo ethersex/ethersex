@@ -65,10 +65,7 @@ parse_cmd_bsbport_list(char *const cmd, char *output, const uint16_t len)
   /* This is a special case: the while loop below printed a message which was
    * last in the list or the next message is empty, so we still need to send an 'OK' after the message */
   if (i >= BSBPORT_MESSAGE_BUFFER_LEN
-      || (bsbport_msg_buffer.msg[i].p1 == 0
-          && bsbport_msg_buffer.msg[i].p2 == 0
-          && bsbport_msg_buffer.msg[i].p3 == 0
-          && bsbport_msg_buffer.msg[i].p4 == 0))
+      || (bsbport_msg_buffer.msg[i].p.raw == 0))
     return ECMD_FINAL_OK;
 
 #ifdef DEBUG_BSBPORT_ECMD
@@ -79,10 +76,10 @@ parse_cmd_bsbport_list(char *const cmd, char *output, const uint16_t len)
   ret =
     snprintf_P(output, len, PSTR("%d\t%02x%02x%02x%02x\t%d"),
                i,
-               bsbport_msg_buffer.msg[i].p1,
-               bsbport_msg_buffer.msg[i].p2,
-               bsbport_msg_buffer.msg[i].p3,
-               bsbport_msg_buffer.msg[i].p4, bsbport_msg_buffer.msg[i].value);
+               bsbport_msg_buffer.msg[i].p.data.p1,
+               bsbport_msg_buffer.msg[i].p.data.p2,
+               bsbport_msg_buffer.msg[i].p.data.p3,
+               bsbport_msg_buffer.msg[i].p.data.p4, bsbport_msg_buffer.msg[i].value);
   if (len - ret > 0)
     output[ret++] = '\t';
   ret +=
@@ -141,10 +138,10 @@ parse_cmd_bsbport_get(const char *cmd, char *output, const uint16_t len)
     for (uint8_t i = 0; i < BSBPORT_MESSAGE_BUFFER_LEN; i++)
     {
       if (bsbport_msg_buffer.msg[i].data_length != 0
-          && bsbport_msg_buffer.msg[i].p1 == p1
-          && bsbport_msg_buffer.msg[i].p2 == p2
-          && bsbport_msg_buffer.msg[i].p3 == p3
-          && bsbport_msg_buffer.msg[i].p4 == p4
+          && bsbport_msg_buffer.msg[i].p.data.p1 == p1
+          && bsbport_msg_buffer.msg[i].p.data.p2 == p2
+          && bsbport_msg_buffer.msg[i].p.data.p3 == p3
+          && bsbport_msg_buffer.msg[i].p.data.p4 == p4
           && (bsbport_msg_buffer.msg[i].src & 0x0F) == src)
       {
 #ifdef DEBUG_BSBPORT_ECMD
@@ -247,15 +244,14 @@ parse_cmd_bsbport_set(const char *const cmd, char *output, const uint16_t len)
   {
     uint8_t data[3];
     uint8_t datalen = 3;
+    data[0] = 0x01;
     if (strcmp_P(type, PSTR("RAW")) == 0)
     {
-      data[0] = 0x01;
       data[1] = (raw_val >> 8);
       data[2] = (raw_val & 0xFF);
     }
     else if (strcmp_P(type, PSTR("SEL")) == 0)
     {
-      data[0] = 0x01;
       data[1] = (uint8_t) (raw_val);
       datalen = 2;
     }
@@ -263,13 +259,11 @@ parse_cmd_bsbport_set(const char *const cmd, char *output, const uint16_t len)
     {
       int16_t tmp;
       tmp = ((int32_t) fp_val * 64) / 10;
-      data[0] = 0x01;
       data[1] = (tmp >> 8);
       data[2] = (tmp & 0xFF);
     }
     else if (strcmp_P(type, PSTR("FP1")) == 0)
     {
-      data[0] = 0x01;
       data[1] = (fp_val >> 8);
       data[2] = (fp_val & 0xFF);
     }
@@ -277,7 +271,6 @@ parse_cmd_bsbport_set(const char *const cmd, char *output, const uint16_t len)
     {
       int16_t tmp;
       tmp = fp_val * 2 / 10;
-      data[0] = 0x01;
       data[1] = (tmp >> 8);
       data[2] = (tmp & 0xFF);
     }

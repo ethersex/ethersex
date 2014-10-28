@@ -25,15 +25,17 @@
 #ifndef _BSBPORT_H
 #define _BSBPORT_H
 
+#define SOT_BYTE 0xDC
+
 struct bsbport_msg
 {
+  union {
+    uint32_t raw;
+    struct { uint8_t p1, p2, p3, p4; } data;
+  } p;
   uint8_t src;
   uint8_t dest;
   uint8_t type;
-  uint8_t p1;
-  uint8_t p2;
-  uint8_t p3;
-  uint8_t p4;
   int16_t value;
   uint8_t data_length;
   uint8_t data[BSBPORT_MESSAGE_MAX_LEN - 11];

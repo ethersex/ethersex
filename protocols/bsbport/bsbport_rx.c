@@ -36,25 +36,7 @@ struct bsbport_buffer_msg bsbport_msg_buffer;
 void
 bsbport_rx_init(void)
 {
-  bsbport_msg_buffer.act = 0;
-  for (uint8_t i = 0; i < BSBPORT_MESSAGE_BUFFER_LEN; i++)
-  {
-    bsbport_msg_buffer.msg[i].src = 0;
-    bsbport_msg_buffer.msg[i].dest = 0;
-    bsbport_msg_buffer.msg[i].type = 0;
-    bsbport_msg_buffer.msg[i].p1 = 0;
-    bsbport_msg_buffer.msg[i].p2 = 0;
-    bsbport_msg_buffer.msg[i].p3 = 0;
-    bsbport_msg_buffer.msg[i].p4 = 0;
-    bsbport_msg_buffer.msg[i].data_length = 0;
-#ifdef BSBPORT_MQTT_SUPPORT
-    bsbport_msg_buffer.msg[i].mqtt_new = 0;
-#endif
-    for (uint8_t j = 0; j < BSBPORT_MESSAGE_MAX_LEN - 11; j++)
-    {
-      bsbport_msg_buffer.msg[i].data[j] = 0;
-    }
-  }
+  memset(&bsbport_msg_buffer, 0, sizeof(bsbport_msg_buffer));
 }
 
 void
@@ -71,11 +53,11 @@ bsbport_rx_periodic(void)
 #endif
 
     // Read serial data...
-    if (bsbport_recv_buffer.data[bsbport_recv_buffer.read++] == 0xDC) /* ... until SOF detected (= 0xDC)  */
+    if (bsbport_recv_buffer.data[bsbport_recv_buffer.read++] == SOT_BYTE) /* ... until SOT detected (= 0xDC)  */
     {
       i = 0;
       // Restore otherwise dropped SOF indicator
-      buffer[i++] = 0xDC;
+      buffer[i++] = SOT_BYTE;
 
       // read the rest of the message
       while (bsbport_recv_buffer.len > bsbport_recv_buffer.read)
@@ -209,10 +191,10 @@ bsbport_calc_value(struct bsbport_msg *msg)
   }
   else if (msg->type == ANSWER 
            && msg->data_length == 12
-           && msg->p1 == 0x05 
-           && msg->p2 == 0x3D 
-           && msg->p3 == 0x00 
-           && msg->p4 == 0x9A)   // Msg with errorcode in byte 2 received
+           && msg->p.data.p1 == 0x05
+           && msg->p.data.p2 == 0x3D
+           && msg->p.data.p3 == 0x00
+           && msg->p.data.p4 == 0x9A)   // Msg with errorcode in byte 2 received
   {
     msg->value = (uint8_t) msg->data[DATA + 1];
   }
@@ -252,10 +234,10 @@ bsbport_store_msg(const uint8_t * const msg, const uint8_t len)
   {
     if (bsbport_msg_buffer.msg[i].data_length != 0
         && (0x7F & bsbport_msg_buffer.msg[i].src) == (0x7F & msg[SRC])
-        && bsbport_msg_buffer.msg[i].p1 == msg[P1]
-        && bsbport_msg_buffer.msg[i].p2 == msg[P2]
-        && bsbport_msg_buffer.msg[i].p3 == msg[P3]
-        && bsbport_msg_buffer.msg[i].p4 == msg[P4])
+        && bsbport_msg_buffer.msg[i].p.data.p1 == msg[P1]
+        && bsbport_msg_buffer.msg[i].p.data.p2 == msg[P2]
+        && bsbport_msg_buffer.msg[i].p.data.p3 == msg[P3]
+        && bsbport_msg_buffer.msg[i].p.data.p4 == msg[P4])
     {
       // Mark message valid 
       ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
@@ -282,10 +264,10 @@ bsbport_store_msg(const uint8_t * const msg, const uint8_t len)
       bsbport_msg_buffer.msg[bsbport_msg_buffer.act].src = msg[SRC];
       bsbport_msg_buffer.msg[bsbport_msg_buffer.act].dest = msg[DEST];
       bsbport_msg_buffer.msg[bsbport_msg_buffer.act].type = msg[TYPE];
-      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].p1 = msg[P1];
-      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].p2 = msg[P2];
-      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].p3 = msg[P3];
-      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].p4 = msg[P4];
+      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].p.data.p1 = msg[P1];
+      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].p.data.p2 = msg[P2];
+      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].p.data.p3 = msg[P3];
+      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].p.data.p4 = msg[P4];
 #ifdef BSBPORT_MQTT_SUPPORT
       bsbport_msg_buffer.msg[bsbport_msg_buffer.act].mqtt_new = 1;
 #endif
