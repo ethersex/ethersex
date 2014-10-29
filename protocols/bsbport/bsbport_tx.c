@@ -25,6 +25,7 @@
 #include <util/atomic.h>
 #include <string.h>
 #include "core/eeprom.h"
+#include "core/bit-macros.h"
 #include "config.h"
 #include "bsbport.h"
 #include "bsbport_helper.h"
@@ -40,8 +41,8 @@ bsbport_send(uint8_t * const msg)
 
   {
     uint16_t crc = bsbport_crc(msg, msg[LEN] - 2);
-    msg[msg[LEN] - 2] = (crc >> 8);
-    msg[msg[LEN] - 1] = (crc & 0xFF);
+    msg[msg[LEN] - 2] = HI8(crc);
+    msg[msg[LEN] - 1] = LO8(crc);
   }
 
 #ifdef DEBUG_BSBPORT_TX

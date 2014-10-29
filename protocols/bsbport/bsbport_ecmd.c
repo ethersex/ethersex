@@ -157,7 +157,7 @@ parse_cmd_bsbport_get(const char *cmd, char *output, const uint16_t len)
         {
           ret =
             snprintf_P(output, len, PSTR("%u"),
-                       (uint8_t) (bsbport_msg_buffer.msg[i].value >> 8));
+                       HI8(bsbport_msg_buffer.msg[i].value));
         }
         else if (strcmp_P(type, PSTR("TMP")) == 0)
         {
@@ -247,32 +247,32 @@ parse_cmd_bsbport_set(const char *const cmd, char *output, const uint16_t len)
     data[0] = 0x01;
     if (strcmp_P(type, PSTR("RAW")) == 0)
     {
-      data[1] = (raw_val >> 8);
-      data[2] = (raw_val & 0xFF);
+      data[1] = HI8(raw_val);
+      data[2] = LO8(raw_val);
     }
     else if (strcmp_P(type, PSTR("SEL")) == 0)
     {
-      data[1] = (uint8_t) (raw_val);
+      data[1] = LO8(raw_val);
       datalen = 2;
     }
     else if (strcmp_P(type, PSTR("TMP")) == 0)
     {
       int16_t tmp;
       tmp = ((int32_t) fp_val * 64) / 10;
-      data[1] = (tmp >> 8);
-      data[2] = (tmp & 0xFF);
+      data[1] = HI8(tmp);
+      data[2] = LO8(tmp);
     }
     else if (strcmp_P(type, PSTR("FP1")) == 0)
     {
-      data[1] = (fp_val >> 8);
-      data[2] = (fp_val & 0xFF);
+      data[1] = HI8(fp_val);
+      data[2] = LO8(fp_val);
     }
     else if (strcmp_P(type, PSTR("FP5")) == 0)
     {
       int16_t tmp;
       tmp = fp_val * 2 / 10;
-      data[1] = (tmp >> 8);
-      data[2] = (tmp & 0xFF);
+      data[1] = HI8(tmp);
+      data[2] = LO8(tmp);
     }
     else
       return ECMD_ERR_PARSE_ERROR;
