@@ -384,9 +384,10 @@ define(`PERIODIC_USE_TIMER', `dnl
  * Default is timer/counter unit 1, but some MCUs support
  * a second 16 Bit timer/counter unit numbered 3.
  */
-#define PERIODIC_MODE_OFF             format(TC%s_MODE_OFF, $1)
+#define PERIODIC_MODE_PWMFAST_OCR     format(TC%s_MODE_PWMFAST_OCR, $1)
 #define PERIODIC_PRESCALER_1          format(TC%s_PRESCALER_1, $1)
 #define PERIODIC_PRESCALER_8          format(TC%s_PRESCALER_8, $1)
+#define PERIODIC_PRESCALER_64         format(TC%s_PRESCALER_64, $1)
 #define PERIODIC_INT_COMPARE_ON       format(TC%s_INT_COMPARE_ON, $1)
 #define PERIODIC_INT_OVERFLOW_ON      format(TC%s_INT_OVERFLOW_ON, $1)
 #define PERIODIC_COUNTER_CURRENT      format(TC%s_COUNTER_CURRENT, $1)

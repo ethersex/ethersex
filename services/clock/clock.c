@@ -4,6 +4,7 @@
  * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
  * Copyright (c) 2011-2012 by Erik Kunze <ethersex@erik-kunze.de>
  * (c) by Alexander Neumann <alexander@bumpern.de>
+ * Copyright (c) 2014 by Michael Brakemeier <michael@brakemeier.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -42,6 +43,12 @@
 #include "core/debug.h"
 #include "core/periodic.h"
 #include "clock.h"
+
+#ifdef DEBUG_CLOCK
+#define CLOCKDEBUG(a...)   debug_printf("clock: " a)
+#else
+#define CLOCKDEBUG(a...)
+#endif /* DEBUG_CLOCK */
 
 static timestamp_t clock_timestamp;
 static uint8_t ticks;
@@ -171,6 +178,7 @@ clock_set_time(timestamp_t new_sync_timestamp)
   if (sync_timestamp)
   {
     delta = new_sync_timestamp - sync_timestamp;
+    CLOCKDEBUG("sync timestamp delta is %d\n", delta);
   }
 
   sync_timestamp = new_sync_timestamp;

@@ -19,6 +19,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <stdlib.h>
+
 #include "config.h"
 
 #include "protocols/ecmd/ecmd-base.h"
@@ -26,23 +28,57 @@
 #include "core/periodic.h"
 #include "core/debug.h"
 
-#ifdef DEBUG_PERIODIC_ECMD_SUPPORT
+#ifdef DEBUG_PERIODIC
+#define PERIODICDEBUG(a...)   debug_printf("periodic: " a)
 extern volatile uint16_t periodic_milliticks;
-extern volatile uint16_t periodic_milliticks_min;
 extern volatile uint16_t periodic_milliticks_max;
 extern volatile uint16_t periodic_milliticks_miss;
+#else
+#define PERIODICDEBUG(a...)
+#endif /* DEBUG_PERIODIC */
 
+#ifdef PERIODIC_ADJUST_SUPPORT
+int16_t
+parse_cmd_periodic_adjust(char *cmd, char *output, uint16_t len)
+{
+  uint16_t newtop = 0;
+
+  while (*cmd == ' ')
+    cmd++;
+
+  if (*cmd == 0)
+  {
+    newtop = PERIODIC_COUNTER_COMPARE;
+  }
+  else
+  {
+    int16_t offset = atoi(cmd);
+
+    newtop = periodic_adjust_set_offset(offset);
+
+    PERIODICDEBUG("param offset was %d, new TOP %u\n", offset, newtop);
+  }
+
+  if (newtop == 0)
+    return ECMD_ERR_PARSE_ERROR;
+
+  len = snprintf(output, len, "%u", newtop);
+
+  return ECMD_FINAL(len);
+}
+#endif
+
+#ifdef DEBUG_PERIODIC_ECMD_SUPPORT
 enum
 {
   PRINT_TIMER_USED = 0,
-  PRINT_COUNTS,
   PRINT_MILLITICKS,
   PRINT_MILLITICKS_MISS,
   LAST
 };
 
 int16_t
-parse_cmd_periodic_debug_stats(char *cmd, char *output, uint16_t len)
+parse_cmd_periodic_stats(char *cmd, char *output, uint16_t len)
 {
   /* trick: use bytes on cmd as "connection specific static variables" */
   if (cmd[0] != ECMD_STATE_MAGIC)
@@ -57,26 +93,27 @@ parse_cmd_periodic_debug_stats(char *cmd, char *output, uint16_t len)
   {
     case PRINT_TIMER_USED:
       len =
-        snprintf_P(output, len, PSTR("Use Timer/Counter %d, Prescaler: %u"),
+        snprintf_P(output, len, PSTR("Use T/C %d, PRESCALER: %u, TOP: %u"),
                    CONF_PERIODIC_USE_TIMER,
-                   (unsigned int) (CLOCK_PRESCALER));
-      break;
-
-    case PRINT_COUNTS:
-      len =
-        snprintf_P(output, len, PSTR("Timer Counts/Tick: %u, Counts/Hz: %u"),
-                   (unsigned int) CLOCK_MILLITICKS,
-                   (unsigned int) CLOCK_TICKS);
+                   (unsigned int) (PERIODIC_PRESCALER),
+#ifndef PERIODIC_ADJUST_SUPPORT
+                   (unsigned int) (PERIODIC_TOP));
+#else
+                   (unsigned int) (PERIODIC_COUNTER_COMPARE));
+#endif
       break;
 
     case PRINT_MILLITICKS:
       len = snprintf_P(output, len,
-                   PSTR("Ticks 1/s: %u, current: %u, min: %u, max: %u"),
-                   CONF_CLOCKS_PER_SEC, periodic_milliticks, periodic_milliticks_min, periodic_milliticks_max);
+                       PSTR("milliticks 1/s: %u, current: %u, max: %u"),
+                       CONF_MTICKS_PER_SEC, periodic_milliticks,
+                       periodic_milliticks_max);
       break;
 
     case PRINT_MILLITICKS_MISS:
-      len = snprintf_P(output, len, PSTR("Ticks missed: %u"), periodic_milliticks_miss);
+      len =
+        snprintf_P(output, len, PSTR("milliticks missed: %u"),
+                   periodic_milliticks_miss);
       break;
   }
 
@@ -88,13 +125,28 @@ parse_cmd_periodic_debug_stats(char *cmd, char *output, uint16_t len)
 
   return ECMD_AGAIN(len);
 }
-#endif /* DEBUG_PERIODIC_ECMD_SUPPORT */
 
+int16_t
+parse_cmd_periodic_reset(char *cmd, char *output, uint16_t len)
+{
+  periodic_milliticks_max = 0;
+  periodic_milliticks_miss = 0;
+
+  len = snprintf_P(output, len, PSTR("OK"));
+
+  return ECMD_FINAL(len);
+}
+#endif /* DEBUG_PERIODIC_ECMD_SUPPORT */
 
 /*
  -- Ethersex META --
+ ecmd_ifdef(PERIODIC_ADJUST_SUPPORT)
+ block(Miscellaneous)
+ ecmd_feature(periodic_adjust, "periodic adjust", OFFSET, Adjust periodic timers TOP value by adding OFFSET ticks.)
+ ecmd_endif()
  ecmd_ifdef(DEBUG_PERIODIC_ECMD_SUPPORT)
- block(Miscelleanous)
- ecmd_feature(periodic_debug_stats, "periodicstats",, Print debug statistics for periodic module)
+ block(Miscellaneous)
+ ecmd_feature(periodic_stats, "periodic stats",, Print debug statistics for periodic module.)
+ ecmd_feature(periodic_reset, "periodic reset",, Reset debug statistics for periodic module.)
  ecmd_endif()
  */

@@ -22,6 +22,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <stdlib.h>
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
 
@@ -34,13 +36,9 @@
 #ifdef FREQCOUNT_SUPPORT
 #include "services/freqcount/freqcount.h"
 #endif
-#ifdef CLOCK_PERIODIC_SUPPORT
-#include "services/clock/clock.h"
-#endif
 
 #ifdef DEBUG_PERIODIC
 #define PERIODICDEBUG(a...)   debug_printf("periodic: " a)
-volatile uint16_t periodic_milliticks_min;
 volatile uint16_t periodic_milliticks_max;
 volatile uint16_t periodic_milliticks_last;
 volatile uint16_t periodic_milliticks_miss;
@@ -52,21 +50,17 @@ volatile uint16_t periodic_milliticks_miss;
 uint16_t bootload_delay = CONF_BOOTLOAD_DELAY;
 #endif
 
-/* signal a new timer() tick to meta */
-extern volatile uint8_t newtick;
-
-/* millitick counter */
+/* periodic milliticks counter */
 volatile uint16_t periodic_milliticks;
 
 void
 periodic_init(void)
 {
-  // Well, WriteAccess to 16bit timer registers has to be protected
-  // but as TimerInts are expected to be disabled here,
-  // hopefully nobody else will touch timer registers right now,
-  // and we can save some code bytes in not using ATOMIC_BLOCK!
-
-  CLOCK_SET_PRESCALER;
+  /*
+   * !! *DO NOT TOUCH* the Timer/Counter registers used by the periodic
+   * !! framework except through the interfaces provided!
+   */
+  PERIODIC_SET_PRESCALER;
 
 #ifdef FREQCOUNT_SUPPORT
   /* init timer1 to run with full cpu frequency, normal mode,
@@ -76,86 +70,31 @@ periodic_init(void)
   TC1_INT_COMPARE_ON;
   TC1_INT_OVERFLOW_ON;
 #else
-/*
- * !! *DO NOT TOUCH* the Timer/Counter registers used by the periodic
- * !! framework except through the interfaces provided!
- */
   periodic_milliticks = 0;
 
 #ifdef DEBUG_PERIODIC
-  periodic_milliticks_min = CONF_CLOCKS_PER_SEC;
   periodic_milliticks_max = 0;
   periodic_milliticks_last = 0;
   periodic_milliticks_miss = 0;
 #endif
 
-/* Configure 16 bit Timer/Counter for normal mode, counting up from
- * (MAX_OVERFLOW + 1 - (F_CPU / CLOCK_PRESCALER / HZ)) to MAX_OVERFLOW.
- * Use TOV interrupts to generate 50Hz / 20ms intervals for timer() calls
- * from meta. Use OCR interrupts to generate periodic milliticks.
- */
-  PERIODIC_MODE_OFF;
-  PERIODIC_COUNTER_CURRENT = PERIODIC_ZERO;
-  // the last compare match matches the overflow condition,
-  // subtract one here to avoid losing the related tick
-  PERIODIC_COUNTER_COMPARE = PERIODIC_ZERO + CLOCK_MILLITICKS - 1;
-  PERIODIC_INT_COMPARE_ON;
+  PERIODIC_MODE_PWMFAST_OCR;
+  PERIODIC_COUNTER_CURRENT = 0;
+  PERIODIC_COUNTER_COMPARE = PERIODIC_TOP;
   PERIODIC_INT_OVERFLOW_ON;
+
+#if defined(DEBUG_PERIODIC) && defined(DEBUG_PERIODIC_OC1A_SUPPORT)
+  TC1_OUTPUT_COMPARE_TOGGLE;
+#endif
 #endif /* FREQCOUNT_SUPPORT */
 }
 
 /**
- * Timer/Counter compare ISR with milliticks support is auto-generated!
+ * Timer/Counter overflow ISR with milliticks support is auto-generated!
  * See core/periodic_milliticks.c for
  *
- * ISR(PERIODIC_VECTOR_COMPARE)
+ * ISR(PERIODIC_VECTOR_OVERFLOW)
  */
-
-/**
- * Timer/Counter overflow ISR with milliticks support.
- *
- * This ISR is called every 20ms / 50 times per second.
- */
-ISR(PERIODIC_VECTOR_OVERFLOW)
-{
-  // reset timer
-  PERIODIC_COUNTER_CURRENT = PERIODIC_ZERO;
-  // the last compare match matches the overflow condition,
-  // subtract one here to avoid losing the related tick
-  PERIODIC_COUNTER_COMPARE = PERIODIC_ZERO + CLOCK_MILLITICKS - 1;
-
-  // provide tick for metas timer() calls
-  newtick = 1;
-
-#ifdef CLOCK_PERIODIC_SUPPORT
-  /* tick the clock */
-  clock_tick();
-#endif
-
-#ifdef DEBUG_PERIODIC_WAVEFORMS_SUPPORT
-  PIN_TOGGLE(PERIODIC_WAVE25HZ_OUT);
-#endif
-
-#ifdef DEBUG_PERIODIC
-  if (periodic_milliticks > periodic_milliticks_max)
-    periodic_milliticks_max = periodic_milliticks;
-
-  // CLOCKS_PER_SEC/HZ ticks since last TOV
-  if (periodic_milliticks < (periodic_milliticks_last + (CONF_CLOCKS_PER_SEC / HZ)))
-    periodic_milliticks_miss += (periodic_milliticks_last + (CONF_CLOCKS_PER_SEC / HZ) - periodic_milliticks);
-#endif
-
-  // should be an exact match here
-  if (periodic_milliticks >= CONF_CLOCKS_PER_SEC)
-    periodic_milliticks -= CONF_CLOCKS_PER_SEC;
-
-#ifdef DEBUG_PERIODIC
-  if (periodic_milliticks < periodic_milliticks_min)
-    periodic_milliticks_min = periodic_milliticks;
-
-  periodic_milliticks_last = periodic_milliticks;
-#endif
-}
 
 #ifdef FREQCOUNT_SUPPORT
 void
@@ -164,6 +103,32 @@ timer_expired(void)
   newtick = 1;
   if (++milliticks >= HZ)
     milliticks -= HZ;
+}
+#endif
+
+#ifdef PERIODIC_ADJUST_SUPPORT
+uint16_t
+periodic_adjust_set_offset(int16_t offset)
+{
+  /* check under- and overflow and limit offset to 25% */
+  if ((abs(offset) < (PERIODIC_TOP / 4)) &&
+      ((int32_t) offset < (int32_t) (MAX_OVERFLOW - PERIODIC_TOP)))
+  {
+    /* OK, set new top.
+     * Timer Fast PWM mode uses double buffering of OCR value,
+     * no need for special timing to set new value.
+     */
+    PERIODICDEBUG("Adjust by %d, new TOP %u\n", offset,
+                  (PERIODIC_TOP + offset));
+
+    PERIODIC_COUNTER_COMPARE = PERIODIC_TOP + offset;
+
+    return PERIODIC_COUNTER_COMPARE;
+  }
+
+  PERIODICDEBUG("Adjust not allowed, offset was %d\n", offset);
+
+  return 0;
 }
 #endif
 
