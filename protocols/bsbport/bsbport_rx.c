@@ -232,8 +232,7 @@ bsbport_store_msg(const uint8_t * const msg, const uint8_t len)
 #endif
   for (uint8_t i = 0; i < BSBPORT_MESSAGE_BUFFER_LEN; i++)
   {
-    if (bsbport_msg_buffer.msg[i].data_length != 0
-        && (0x7F & bsbport_msg_buffer.msg[i].src) == (0x7F & msg[SRC])
+    if ((0x7F & bsbport_msg_buffer.msg[i].src) == (0x7F & msg[SRC])
         && bsbport_msg_buffer.msg[i].p.data.p1 == msg[P1]
         && bsbport_msg_buffer.msg[i].p.data.p2 == msg[P2]
         && bsbport_msg_buffer.msg[i].p.data.p3 == msg[P3]
