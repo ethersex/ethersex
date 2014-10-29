@@ -2,7 +2,7 @@
  *
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2010 by Erik Kunze <ethersex@erik-kunze.de>
- * Copyright (c) 2013 by Daniel Lindner <daniel.lindner@gmx.de>
+ * Copyright (c) 2013-2014 by Daniel Lindner <daniel.lindner@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -39,9 +39,8 @@
 #include "core/usart.h"
 
 /* We generate our own usart init module, for our usart port */
-generate_bsbport_usart_init_8O1()
+generate_bsbport_usart_init_8O1();
 
-struct bsbport_buffer_net bsbport_sendnet_buffer;
 struct bsbport_buffer_net bsbport_recvnet_buffer;
 struct bsbport_buffer_net bsbport_send_buffer;
 struct bsbport_buffer_rx bsbport_recv_buffer;
@@ -61,44 +60,16 @@ uint16_t bsbport_eth_retransmit;
 uint8_t bsbport_lf;
 #endif
 
-void bsbport_init(void)
+void
+bsbport_init(void)
 {
   usart_init();
 }
 
 uint8_t
-bsbport_tx_net_start(uint8_t * data, uint16_t len)
+bsbport_txstart(const uint8_t * const data, const uint16_t len)
 {
-  uint16_t diff = bsbport_sendnet_buffer.len - bsbport_sendnet_buffer.sent;
-  if (diff == 0)
-  {
-    /* Copy the data to the send buffer */
-    memcpy(bsbport_sendnet_buffer.data, data, len);
-    bsbport_sendnet_buffer.len = len;
-    goto start_sending;
-    /* The actual packet can be pushed into the buffer */
-  }
-  else if ((diff + len) < BSBPORT_BUFFER_LEN)
-  {
-    memmove(bsbport_sendnet_buffer.data,
-            bsbport_sendnet_buffer.data + bsbport_sendnet_buffer.sent, diff);
-    memcpy(bsbport_sendnet_buffer.data + diff, data, len);
-    bsbport_sendnet_buffer.len = diff + len;
-    goto start_sending;
-  }
-  return 0;
-start_sending:
-  bsbport_sendnet_buffer.sent = 1;
-  /* Enable the tx interrupt and send the first character */
-  usart(UCSR, B) |= _BV(usart(TXCIE));
-  usart(UDR) = bsbport_sendnet_buffer.data[0];
-  return 1;
-}
-
-uint8_t
-bsbport_txstart(uint8_t * data, uint16_t len)
-{
-  uint16_t diff = bsbport_send_buffer.len - bsbport_send_buffer.sent;
+  const uint16_t diff = bsbport_send_buffer.len - bsbport_send_buffer.sent;
   if (diff == 0)
   {
     /* Copy the data to the send buffer */
@@ -126,11 +97,7 @@ start_sending:
 
 ISR(usart(USART, _TX_vect))
 {
-  if (bsbport_sendnet_buffer.sent < bsbport_sendnet_buffer.len) /*      Frist send Bytes in Networkbuffer       */
-  {
-    usart(UDR) = bsbport_sendnet_buffer.data[bsbport_sendnet_buffer.sent++];
-  }
-  else if (bsbport_send_buffer.sent < bsbport_send_buffer.len)  /*      Send Bytes in OfflineBuffer     */
+  if (bsbport_send_buffer.sent < bsbport_send_buffer.len)       /*      Send Bytes in Buffer     */
   {
     usart(UDR) = bsbport_send_buffer.data[bsbport_send_buffer.sent++] ^ 0xFF;
   }
@@ -154,7 +121,7 @@ ISR(usart(USART, _RX_vect))
     {
       uint8_t v = usart(UDR);
       if (bsbport_recvnet_buffer.len < BSBPORT_BUFFER_LEN)
-        bsbport_recvnet_buffer.data[bsbport_recvnet_buffer.len++] = v;
+        bsbport_recvnet_buffer.data[bsbport_recvnet_buffer.len++] = v ^ 0xFF;
       else
         bsbport_rx_net_bufferfull++;
       if (bsbport_recv_buffer.len < BSBPORT_BUFFER_LEN)

@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2013 by Daniel Lindner <daniel.lindner@gmx.de>
+ * Copyright (c) 2013-2014 by Daniel Lindner <daniel.lindner@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -36,25 +36,13 @@ struct bsbport_buffer_msg bsbport_msg_buffer;
 void
 bsbport_rx_init(void)
 {
-  bsbport_msg_buffer.act = 0;
-  for (uint8_t i = 0; i < BSBPORT_MESSAGE_BUFFER_LEN; i++)
-  {
-    bsbport_msg_buffer.msg[i].len = 0;
-    bsbport_msg_buffer.msg[i].value_temp = 0;
-    bsbport_msg_buffer.msg[i].value_FP1 = 0;
-    bsbport_msg_buffer.msg[i].value_FP5 = 0;
-    bsbport_msg_buffer.msg[i].value_raw = 0;
-    for (uint8_t j = 0; j < BSBPORT_MESSAGE_MAX_LEN; j++)
-    {
-      bsbport_msg_buffer.msg[i].data[j] = 0;
-    }
-  }
+  memset(&bsbport_msg_buffer, 0, sizeof(bsbport_msg_buffer));
 }
 
 void
 bsbport_rx_periodic(void)
 {
-  uint8_t i = 0, read;
+  uint8_t i;
   uint8_t buffer[BSBPORT_MESSAGE_MAX_LEN];
 
   while (bsbport_recv_buffer.len > bsbport_recv_buffer.read)
@@ -65,38 +53,27 @@ bsbport_rx_periodic(void)
 #endif
 
     // Read serial data...
-    read = bsbport_recv_buffer.data[bsbport_recv_buffer.read++];
-
-
-    // ... until SOF detected (= 0xDC)
-    if (read == 0xDC)
+    if (bsbport_recv_buffer.data[bsbport_recv_buffer.read++] == SOT_BYTE) /* ... until SOT detected (= 0xDC)  */
     {
       i = 0;
       // Restore otherwise dropped SOF indicator
-      buffer[i++] = read;
+      buffer[i++] = SOT_BYTE;
 
       // read the rest of the message
       while (bsbport_recv_buffer.len > bsbport_recv_buffer.read)
-//                      && bsbport_recv_buffer.len > 10)        // Minimal Message Size still reached 
       {
-        read = bsbport_recv_buffer.data[bsbport_recv_buffer.read++];
-        buffer[i++] = read;
+        buffer[i++] = bsbport_recv_buffer.data[bsbport_recv_buffer.read++];
 
-        // Break if next byte signals next message, shouldn´t do that when reading partial messages because of endless loop
-        if (0
-            //((bsbport_recv_buffer.len > bsbport_recv_buffer.read) 
-            //&& (bsbport_recv_buffer.data[bsbport_recv_buffer.read] == 0xDC))
-            //      Break if we are at max message lenght   
-            || (i >= BSBPORT_MESSAGE_MAX_LEN)
-            // Break if message seems to be completely received (i==msg.length)
-            || ((i > LEN) && (i >= buffer[LEN])))
+        // Break if we are at max message lenght   
+        // or if message seems to be completely received (i==msg.length)
+        if (i >= BSBPORT_MESSAGE_MAX_LEN || ((i > LEN) && (i >= buffer[LEN])))
         {
           break;
         }
       }
 
       // Check if we have read the message completly.
-      if (i == buffer[LEN])
+      if (i > LEN && i == buffer[LEN])
       {
         // Seems to have received all data
         if (bsbport_crc(buffer, i) == 0)
@@ -110,9 +87,9 @@ bsbport_rx_periodic(void)
              buffer[16], buffer[17], buffer[18], buffer[19], i);
 #endif
           bsbport_rx_ok++;
-          /*      Store only Messages which contain information                                           */
-          /*      Store only Messages which are addressed to us                                           */
-          /*      Valid Message received  -> If type = Answer or Info Get Value           */
+          /*      Store Messages which contain information                                           */
+          /*      Store Messages which are addressed to us                                           */
+          /*      Valid Message received  -> If type = Answer or Info Get Value                   */
           /*      Valid Message received  -> If dest = OwnAddress or Info Get Value               */
           if (buffer[TYPE] == ANSWER
               || buffer[TYPE] == INFO
@@ -136,16 +113,13 @@ bsbport_rx_periodic(void)
         }
       }
       // We are still missing some bytes but we still have space in databuffer -> Reset Readbytes and try again next time
-      else if (i < buffer[LEN] && i < BSBPORT_MESSAGE_MAX_LEN)
+      else if (i <= LEN || (i < buffer[LEN] && i < BSBPORT_MESSAGE_MAX_LEN))
       {
-#ifdef DEBUG_BSBPORT_RX
-//                              debug_printf("Partial: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x Len:%d\n",buffer[0],buffer[1],buffer[2],buffer[3],buffer[4],buffer[5],buffer[6],buffer[7],buffer[8],buffer[9],buffer[10],buffer[11],buffer[12],buffer[13],buffer[14],buffer[15],buffer[16],buffer[17],buffer[18],buffer[19],i);
-#endif
         bsbport_recv_buffer.read = 0;
-        break;
+        return;
       }
       // Length error
-      else if (i < buffer[LEN])
+      else if (i > LEN && i < buffer[LEN])
       {
 #ifdef DEBUG_BSBPORT_RX
         debug_printf
@@ -157,7 +131,7 @@ bsbport_rx_periodic(void)
 #endif
         bsbport_rx_lenghtunder++;
       }
-      else if (i > buffer[LEN])
+      else if (i > LEN && i > buffer[LEN])
       {
 #ifdef DEBUG_BSBPORT_RX
         debug_printf
@@ -194,98 +168,63 @@ bsbport_rx_periodic(void)
 void
 bsbport_calc_value(struct bsbport_msg *msg)
 {
-// Nach Nachrichten Typ entscheiden
-  if (msg->data[TYPE] == INFO)
-  {
 #ifdef DEBUG_BSBPORT_PARSE
-    debug_printf("DATA: %02x %02x %02x Len:%d TYPE: %u ", msg->data[DATA],
-                 msg->data[DATA + 1], msg->data[DATA + 2], msg->data[LEN],
-                 msg->data[TYPE]);
+    debug_printf("DATA: %02x %02x %02x Len:%d TYPE: %u ", msg->data[0],
+                 msg->data[1], msg->data[2], msg->data_length, msg->type);
 #endif
-    msg->value_raw = bsbport_ConvertToInt16(&msg->data[DATA]);
-    msg->value_temp = bsbport_ConvertToTemp(msg->value_raw);
-    msg->value_FP1 = bsbport_ConvertToFP1(msg->value_raw);
-    msg->value_FP5 = bsbport_ConvertToFP5(msg->value_raw);
-  }
-  else if (msg->data[TYPE] == SET)
+// Nach Nachrichten Typ entscheiden
+  if (msg->type == INFO)
   {
-    msg->value_raw = bsbport_ConvertToInt16(&msg->data[DATA]);
-    msg->value_temp = bsbport_ConvertToTemp(msg->value_raw);
-    msg->value_FP1 = bsbport_ConvertToFP1(msg->value_raw);
-    msg->value_FP5 = bsbport_ConvertToFP5(msg->value_raw);
+    msg->value = bsbport_ConvertToInt16(&msg->data[0]);
   }
-  else if (msg->data[TYPE] == ACK)
+  else if (msg->type == SET)
+  {
+    msg->value = bsbport_ConvertToInt16(&msg->data[0]);
+  }
+  else if (msg->type == ACK)
   {
     //Ack has no value
   }
-  else if (msg->data[TYPE] == QUERY)
+  else if (msg->type == QUERY)
   {
     //Query has no value
   }
-  else if (msg->data[TYPE] == ANSWER && msg->data[LEN] == 0x17 && msg->data[P1] == 0x05 && msg->data[P2] == 0x3D && msg->data[P3] == 0x00 && msg->data[P4] == 0x9A)     // Msg with errorcode in byte 2 received
+  else if (msg->type == ANSWER 
+           && msg->data_length == 12
+           && msg->p.data.p1 == 0x05
+           && msg->p.data.p2 == 0x3D
+           && msg->p.data.p3 == 0x00
+           && msg->p.data.p4 == 0x9A)   // Msg with errorcode in byte 2 received
   {
-#ifdef DEBUG_BSBPORT_PARSE
-    debug_printf("DATA: %02x %02x %02x Len:%d TYPE: %u ", msg->data[DATA],
-                 msg->data[DATA], msg->data[DATA + 1], msg->data[LEN],
-                 msg->data[TYPE]);
-#endif
-    msg->value_raw = (uint8_t) msg->data[DATA + 1];
-    msg->value_temp = bsbport_ConvertToTemp(msg->value_raw);
-    msg->value_FP1 = bsbport_ConvertToFP1(msg->value_raw);
-    msg->value_FP5 = bsbport_ConvertToFP5(msg->value_raw);
+    msg->value = (uint8_t) msg->data[DATA + 1];
   }
-  else if (msg->data[TYPE] == ANSWER && msg->data[LEN] == 14)   // Msg with 3 Databytes received
+  else if (msg->type == ANSWER && msg->data_length == 3)        // Msg with 3 Databytes received
   {
-#ifdef DEBUG_BSBPORT_PARSE
-    debug_printf("DATA: %02x %02x %02x Len:%d TYPE: %u ", msg->data[DATA],
-                 msg->data[DATA + 1], msg->data[DATA + 2], msg->data[LEN],
-                 msg->data[TYPE]);
-#endif
-    msg->value_raw = bsbport_ConvertToInt16(&msg->data[DATA + 1]);
-    msg->value_temp = bsbport_ConvertToTemp(msg->value_raw);
-    msg->value_FP1 = bsbport_ConvertToFP1(msg->value_raw);
-    msg->value_FP5 = bsbport_ConvertToFP5(msg->value_raw);
+    msg->value = bsbport_ConvertToInt16(&msg->data[1]);
   }
-  else if (msg->data[TYPE] == ANSWER && msg->data[LEN] == 13)   // Msg with 2 Databytes received
+  else if (msg->type == ANSWER && msg->data_length == 2)        // Msg with 2 Databytes received
   {
-#ifdef DEBUG_BSBPORT_PARSE
-    debug_printf("DATA: %02x %02x %02x Len:%d TYPE: %u ", msg->data[DATA],
-                 msg->data[DATA + 1], msg->data[DATA + 2], msg->data[LEN],
-                 msg->data[TYPE]);
-#endif
-    msg->value_raw = bsbport_ConvertToInt16(&msg->data[DATA]);
-    msg->value_temp = bsbport_ConvertToTemp(msg->value_raw);
-    msg->value_FP1 = bsbport_ConvertToFP1(msg->value_raw);
-    msg->value_FP5 = bsbport_ConvertToFP5(msg->value_raw);
+    msg->value = bsbport_ConvertToInt16(&msg->data[0]);
   }
-  else if (msg->data[TYPE] == ANSWER)   // Msg with unknow Databytes received
+  else if (msg->type == ANSWER) // Msg with unknow Databytes received
   {
-#ifdef DEBUG_BSBPORT_PARSE
-    debug_printf("DATA: %02x %02x %02x Len:%d TYPE: %u ", msg->data[DATA],
-                 msg->data[DATA + 1], msg->data[DATA + 2], msg->data[LEN],
-                 msg->data[TYPE]);
-#endif
-    msg->value_raw = bsbport_ConvertToInt16(&msg->data[DATA + 1]);
-    msg->value_temp = bsbport_ConvertToTemp(msg->value_raw);
-    msg->value_FP1 = bsbport_ConvertToFP1(msg->value_raw);
-    msg->value_FP5 = bsbport_ConvertToFP5(msg->value_raw);
+    msg->value = bsbport_ConvertToInt16(&msg->data[1]);
   }
   else
   {
     //Unknown Type
 #ifdef DEBUG_BSBPORT_PARSE
-    debug_printf("Unknown Messagetype received: %02x \n", msg->data[TYPE]);
+    debug_printf("Unknown Messagetype received: %02x \n", msg->type);
 #endif
   }
 #ifdef DEBUG_BSBPORT_PARSE
-  debug_printf("Parsed as RAW %d FP1: %d FP5: %d TMP: %d", msg->value_raw,
-               msg->value_FP1, msg->value_FP5, msg->value_temp);
+  debug_printf("Parsed as RAW %d", msg->value);
 #endif
 
 }
 
 void
-bsbport_store_msg(uint8_t * msg, uint8_t len)
+bsbport_store_msg(const uint8_t * const msg, const uint8_t len)
 {
   uint8_t saved = 0;
 #ifdef DEBUG_BSBPORT_RX
@@ -293,19 +232,22 @@ bsbport_store_msg(uint8_t * msg, uint8_t len)
 #endif
   for (uint8_t i = 0; i < BSBPORT_MESSAGE_BUFFER_LEN; i++)
   {
-    if (bsbport_msg_buffer.msg[i].len != 0
-        && bsbport_msg_buffer.msg[i].data[SRC] == msg[SRC]
-        && bsbport_msg_buffer.msg[i].data[P1] == msg[P1]
-        && bsbport_msg_buffer.msg[i].data[P2] == msg[P2]
-        && bsbport_msg_buffer.msg[i].data[P3] == msg[P3]
-        && bsbport_msg_buffer.msg[i].data[P4] == msg[P4])
+    if ((0x7F & bsbport_msg_buffer.msg[i].src) == (0x7F & msg[SRC])
+        && bsbport_msg_buffer.msg[i].p.data.p1 == msg[P1]
+        && bsbport_msg_buffer.msg[i].p.data.p2 == msg[P2]
+        && bsbport_msg_buffer.msg[i].p.data.p3 == msg[P3]
+        && bsbport_msg_buffer.msg[i].p.data.p4 == msg[P4])
     {
       // Mark message valid 
       ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
       {
-        memcpy(bsbport_msg_buffer.msg[i].data, msg, len);
-        bsbport_msg_buffer.msg[i].len = len;
+        memcpy(bsbport_msg_buffer.msg[i].data, msg + DATA,
+               msg[LEN] - DATA - 2);
+        bsbport_msg_buffer.msg[i].data_length = msg[LEN] - DATA - 2;
         bsbport_calc_value(&bsbport_msg_buffer.msg[i]);
+#ifdef BSBPORT_MQTT_SUPPORT
+        bsbport_msg_buffer.msg[i].mqtt_new = 1;
+#endif
         saved = 1;
       }
     }
@@ -314,8 +256,20 @@ bsbport_store_msg(uint8_t * msg, uint8_t len)
   {                             // Mark message valid 
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
-      memcpy(bsbport_msg_buffer.msg[bsbport_msg_buffer.act].data, msg, len);
-      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].len = len;
+      memcpy(bsbport_msg_buffer.msg[bsbport_msg_buffer.act].data, msg + DATA,
+             msg[LEN] - DATA - 2);
+      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].data_length =
+        msg[LEN] - DATA - 2;
+      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].src = msg[SRC];
+      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].dest = msg[DEST];
+      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].type = msg[TYPE];
+      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].p.data.p1 = msg[P1];
+      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].p.data.p2 = msg[P2];
+      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].p.data.p3 = msg[P3];
+      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].p.data.p4 = msg[P4];
+#ifdef BSBPORT_MQTT_SUPPORT
+      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].mqtt_new = 1;
+#endif
       bsbport_calc_value(&bsbport_msg_buffer.msg[bsbport_msg_buffer.act++]);
     }
   }

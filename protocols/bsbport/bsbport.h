@@ -25,14 +25,23 @@
 #ifndef _BSBPORT_H
 #define _BSBPORT_H
 
+#define SOT_BYTE 0xDC
+
 struct bsbport_msg
 {
-  uint16_t len;
-  uint8_t data[BSBPORT_MESSAGE_MAX_LEN];
-  float value_temp;             // RAW interpreted as Temp (RAW/64)
-  float value_FP1;              // RAW interpreted as FixPoint Value with one digit (RAW/10)
-  float value_FP5;              // RAW interpreted as FixPoint Value with one half digit (RAW/2)
-  int16_t value_raw;            // Raw Value as Integer (RAW)
+  union {
+    uint32_t raw;
+    struct { uint8_t p1, p2, p3, p4; } data;
+  } p;
+  uint8_t src;
+  uint8_t dest;
+  uint8_t type;
+  int16_t value;
+  uint8_t data_length;
+  uint8_t data[BSBPORT_MESSAGE_MAX_LEN - 11];
+#ifdef BSBPORT_MQTT_SUPPORT
+  uint8_t mqtt_new;
+#endif
 };
 
 struct bsbport_buffer_msg
@@ -88,8 +97,7 @@ enum msg_src
 };
 
 void bsbport_init(void);
-uint8_t bsbport_tx_net_start(uint8_t * data, uint16_t len);
-uint8_t bsbport_txstart(uint8_t * data, uint16_t len);
+uint8_t bsbport_txstart(const uint8_t * const data, const uint16_t len);
 
 extern struct bsbport_buffer_net bsbport_sendnet_buffer;
 extern struct bsbport_buffer_net bsbport_recvnet_buffer;
@@ -134,6 +142,5 @@ usart_init(void) \
     USART_2X(); \
   } \
 }
-
 
 #endif /* _BSBPORT_H */

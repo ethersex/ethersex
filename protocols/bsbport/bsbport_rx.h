@@ -25,6 +25,6 @@
 
 void bsbport_rx_init(void);
 void bsbport_rx_periodic(void);
-void bsbport_store_msg(uint8_t * msg, uint8_t len);
+void bsbport_store_msg(const uint8_t * const msg, const uint8_t len);
 
 #endif /* BSBPORT_RX_H */
