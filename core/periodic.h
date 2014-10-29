@@ -140,6 +140,18 @@ uint32_t periodic_micros_elapsed(periodic_timestamp_t * last);
 uint32_t periodic_millis_elapsed(periodic_timestamp_t * last);
 #endif
 
+#ifdef PERIODIC_ADJUST_SUPPORT
+/**
+ * Adjust the periodic timer TOP value.
+ *
+ * @param offset +/-25% offset from PERIODIC_TOP in timer ticks,
+ *      0 means reset to PERIODIC_TOP.
+ * @return the new TOP value or 0 if PERIODIC_TOP +/-offset would
+ *      exceed the allowable range.
+ */
+uint16_t periodic_adjust_set_offset(int16_t offset);
+#endif
+
 #ifdef FREQCOUNT_SUPPORT
 void timer_expired(void);
 #endif

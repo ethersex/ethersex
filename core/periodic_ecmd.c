@@ -28,7 +28,6 @@
 #include "protocols/ecmd/ecmd-base.h"
 #include "core/periodic.h"
 
-
 #ifdef PERIODIC_ADJUST_SUPPORT
 int16_t
 parse_cmd_periodic_adjust(char *cmd, char *output, uint16_t len)
@@ -141,7 +140,6 @@ parse_cmd_periodic_reset(char *cmd, char *output, uint16_t len)
 
   return ECMD_FINAL_OK;
 }
-#endif /* DEBUG_PERIODIC_ECMD_SUPPORT */
 
 /*
  -- Ethersex META --

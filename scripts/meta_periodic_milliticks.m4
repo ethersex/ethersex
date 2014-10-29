@@ -4,16 +4,16 @@ dnl
 dnl   This program is free software; you can redistribute it and/or modify
 dnl   it under the terms of the GNU General Public License version 3 as
 dnl   published by the Free Software Foundation.
-dnl  
+dnl
 dnl   This program is distributed in the hope that it will be useful,
 dnl   but WITHOUT ANY WARRANTY; without even the implied warranty of
 dnl   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 dnl   GNU General Public License for more details.
-dnl  
+dnl
 dnl   You should have received a copy of the GNU General Public License
 dnl   along with this program; if not, write to the Free Software
 dnl   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-dnl  
+dnl
 dnl   For more information on the GPL, please go to:
 dnl   http://www.gnu.org/copyleft/gpl.html
 dnl
@@ -84,8 +84,22 @@ ISR(PERIODIC_VECTOR_OVERFLOW)
 
   pdebug_milliticks++;
 
-#ifdef DEBUG_PERIODIC_WAVEFORMS_SUPPORT
+  periodic_milliticks++;
+
+#if defined(DEBUG_PERIODIC) && defined(DEBUG_PERIODIC_WAVEFORMS_SUPPORT)
   PIN_TOGGLE(PERIODIC_WAVETICK_OUT);
+#endif
+
+  if (periodic_hz_tick >= (CONF_MTICKS_PER_SEC / HZ))
+  {
+    /* 20ms overflow */
+#ifdef DEBUG_PERIODIC
+    // should be CONF_MTICKS_PER_SEC / HZ periodic milliticks since last overflow
+    if (periodic_milliticks < (periodic_milliticks_last + (CONF_MTICKS_PER_SEC / HZ) - 1))
+      periodic_milliticks_miss += (periodic_milliticks_last + (CONF_MTICKS_PER_SEC / HZ) - periodic_milliticks);
+
+#ifdef DEBUG_PERIODIC_WAVEFORMS_SUPPORT
+    PIN_TOGGLE(PERIODIC_WAVE25HZ_OUT);
 #endif
 #endif
 
@@ -126,6 +140,7 @@ ISR(PERIODIC_VECTOR_OVERFLOW)
     periodic_hz_tick = 0;
   }
 #endif
+  }
 
   // call all the millitickers
 divert(milliticks_isr_divert)dnl
