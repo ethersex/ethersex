@@ -86,7 +86,7 @@ parse_cmd_ask_2272_send(char *cmd, char *output, uint16_t len)
 #else
   int ret = sscanf_P(cmd, PSTR("%hhu,%hhu,%hhu %hhu %hhu %hhu"),
                      &(command[0]), &(command[1]), &(command[2]),
-                     &delay, &cnt, sync);
+                     &delay, &cnt, &sync);
   if (ret < 3)
     return ECMD_ERR_PARSE_ERROR;
 #endif
