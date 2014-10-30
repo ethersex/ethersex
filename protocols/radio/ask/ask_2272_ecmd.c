@@ -31,7 +31,6 @@
 
 #include "config.h"
 
-#define TEENSY_SUPPORT
 #include "protocols/radio/ask/ask.h"
 #include "protocols/ecmd/ecmd-base.h"
 #ifdef TEENSY_SUPPORT
@@ -53,44 +52,34 @@ parse_cmd_ask_2272_send(char *cmd, char *output, uint16_t len)
 #ifdef TEENSY_SUPPORT
   uint16_t val;
   uint8_t ret;
-  ret = next_uint16(cmd, &val);
-  if (!ret)
-    return ECMD_ERR_PARSE_ERROR;
 
-  command[0] = (uint8_t) val;
-  cmd += ret;
-  if (*cmd++ == ',')
+  for (uint8_t i = 0; i < sizeof(command); i++)
   {
     ret = next_uint16(cmd, &val);
     if (!ret)
       return ECMD_ERR_PARSE_ERROR;
 
-    command[1] = (uint8_t) val;
+    command[i] = (uint8_t) val;
     cmd += ret;
-    if (*cmd++ == ',')
-    {
-      ret = next_uint16(cmd, &val);
-      if (!ret)
-        return ECMD_ERR_PARSE_ERROR;
+    if (i < sizeof(command) - 1 && *cmd != ',')
+      return ECMD_ERR_PARSE_ERROR;
 
-      command[2] = (uint8_t) val;
+    cmd++;
+  }
+  ret = next_uint16(cmd, &val);
+  if (ret)
+  {
+    delay = (uint8_t) val;
+    cmd += ret;
+    ret = next_uint16(cmd, &val);
+    if (ret)
+    {
+      cnt = (uint8_t) val;
       cmd += ret;
       ret = next_uint16(cmd, &val);
       if (ret)
       {
-        delay = (uint8_t) val;
-        cmd += ret;
-        ret = next_uint16(cmd, &val);
-        if (ret)
-        {
-          cnt = (uint8_t) val;
-          cmd += ret;
-          ret = next_uint16(cmd, &val);
-          if (ret)
-          {
-            sync = (uint8_t) val;
-          }
-        }
+        sync = (uint8_t) val;
       }
     }
   }
