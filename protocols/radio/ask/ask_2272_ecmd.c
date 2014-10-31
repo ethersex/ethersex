@@ -33,23 +33,10 @@
 
 #include "protocols/radio/ask/ask.h"
 #include "protocols/ecmd/ecmd-base.h"
-
-
 #ifdef TEENSY_SUPPORT
-static uint8_t
-getIntFromString(char *cmd)
-{
-  uint8_t ptr = 0;
-  char str[3];
+#include "core/util/string_parsing.h"
+#endif
 
-  while ((cmd[ptr] >= '0') && (cmd[ptr] <= '9'))
-  {                             /* count digits */
-    ptr++;
-  }
-  strncpy(str, cmd, ptr);
-  return atoi(str);
-}
-#endif /* TEENSY_SUPPORT */
 
 int16_t
 parse_cmd_ask_2272_send(char *cmd, char *output, uint16_t len)
@@ -60,40 +47,56 @@ parse_cmd_ask_2272_send(char *cmd, char *output, uint16_t len)
   uint8_t command[3];
   uint8_t delay = 74;
   uint8_t cnt = 10;
+  uint8_t sync = 96;
+
 #ifdef TEENSY_SUPPORT
-  while (*cmd == ' ')
+  uint16_t val;
+  uint8_t ret;
+
+  for (uint8_t i = 0; i < sizeof(command); i++)
+  {
+    ret = next_uint16(cmd, &val);
+    if (!ret)
+      return ECMD_ERR_PARSE_ERROR;
+
+    command[i] = (uint8_t) val;
+    cmd += ret;
+    if (i < sizeof(command) - 1 && *cmd != ',')
+      return ECMD_ERR_PARSE_ERROR;
+
     cmd++;
-  command[0] = getIntFromString(cmd);
-  while (*cmd != ',')
-    cmd++;
-  cmd++;
-  command[1] = getIntFromString(cmd);
-  while (*cmd != ',')
-    cmd++;
-  cmd++;
-  command[2] = getIntFromString(cmd);
-  while (*cmd != ' ')
-    cmd++;
-  cmd++;
-  delay = getIntFromString(cmd);
-  while (*cmd != ' ')
-    cmd++;
-  cmd++;
-  cnt = getIntFromString(cmd);
-  int ret = 5;
+  }
+  ret = next_uint16(cmd, &val);
+  if (ret)
+  {
+    delay = (uint8_t) val;
+    cmd += ret;
+    ret = next_uint16(cmd, &val);
+    if (ret)
+    {
+      cnt = (uint8_t) val;
+      cmd += ret;
+      ret = next_uint16(cmd, &val);
+      if (ret)
+      {
+        sync = (uint8_t) val;
+      }
+    }
+  }
 #else
-  int ret = sscanf_P(cmd, PSTR("%hhu,%hhu,%hhu %hhu %hhu"), &(command[0]),
-                     &(command[1]), &(command[2]), &delay, &cnt);
-#endif
+  int ret = sscanf_P(cmd, PSTR("%hhu,%hhu,%hhu %hhu %hhu %hhu"),
+                     &(command[0]), &(command[1]), &(command[2]),
+                     &delay, &cnt, &sync);
   if (ret < 3)
     return ECMD_ERR_PARSE_ERROR;
+#endif
 
-  ask_2272_send(command, delay, cnt);
+  ask_2272_send(command, delay, cnt, sync);
   return ECMD_FINAL_OK;
 }
 
 /*
   -- Ethersex META --
   block([[ASK]])
-  ecmd_feature(ask_2272_send, "ask 2272", HOUSECODE COMMAND DELAY CNT, )
+  ecmd_feature(ask_2272_send, "ask 2272", HOUSECODE COMMAND [DELAY] [CNT] [SYNC], )
 */

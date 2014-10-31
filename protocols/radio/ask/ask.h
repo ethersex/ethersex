@@ -27,7 +27,7 @@
 #include <stdint.h>
 
 void ask_tevion_send(uint8_t *, uint8_t *, uint8_t, uint8_t);
-void ask_2272_send(uint8_t *, uint8_t, uint8_t);
+void ask_2272_send(uint8_t *, uint8_t, uint8_t, uint8_t);
 void ask_1527_send(uint8_t *, uint8_t, uint8_t);
 void ask_intertechno_send(uint8_t, uint8_t, uint8_t, uint8_t);
 void ask_intertechno_sl_send(uint32_t, uint8_t, uint8_t, int8_t);

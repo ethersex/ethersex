@@ -50,7 +50,7 @@
 #ifdef PROTO_TEVION_SUPPORT
 void
 ask_tevion_send(uint8_t * housecode, uint8_t * command, uint8_t delay,
-                      uint8_t cnt)
+                uint8_t cnt)
 {
   uint8_t code[41];
   uint8_t *p = code;
@@ -117,7 +117,7 @@ ask_intertechno_send_sync(void)
 
 void
 ask_intertechno_send(uint8_t family, uint8_t group,
-                           uint8_t device, uint8_t command)
+                     uint8_t device, uint8_t command)
 {
   union
   {
@@ -201,7 +201,7 @@ ask_intertechno_sl_send_pause(void)
 
 void
 ask_intertechno_sl_send(uint32_t house,
-                              uint8_t on, uint8_t button, int8_t dim)
+                        uint8_t on, uint8_t button, int8_t dim)
 {
   ASK_TX_ENABLE;
 
@@ -214,7 +214,7 @@ ask_intertechno_sl_send(uint32_t house,
     {
       ask_intertechno_sl_send_bit(house & 1 << i);
     }
-    ask_intertechno_sl_send_bit(0);       //Group
+    ask_intertechno_sl_send_bit(0);     //Group
 
     if (on == 1 && dim != -1)
     {
@@ -255,7 +255,7 @@ static const uint8_t ask_1527_pulse_duty_factor[4] PROGMEM = { 9, 3, 3, 9 };
 
 static void
 ask_2272_1527_send(uint8_t * command, uint8_t delay, uint8_t cnt,
-                         const uint8_t * duty_factor, uint8_t sync)
+                   const uint8_t * duty_factor, uint8_t sync)
 {
   uint8_t code[49];
   uint8_t *p = code;
@@ -297,9 +297,9 @@ ask_2272_1527_send(uint8_t * command, uint8_t delay, uint8_t cnt,
 
 #ifdef PROTO_2272_SUPPORT
 void
-ask_2272_send(uint8_t * command, uint8_t delay, uint8_t cnt)
+ask_2272_send(uint8_t * command, uint8_t delay, uint8_t cnt, uint8_t sync)
 {
-  ask_2272_1527_send(command, delay, cnt, ask_2272_pulse_duty_factor, 96);
+  ask_2272_1527_send(command, delay, cnt, ask_2272_pulse_duty_factor, sync);
 }
 #endif
 
@@ -359,4 +359,3 @@ ask_oase_send(uint8_t * command, uint8_t delay, uint8_t cnt)
   ASK_TX_DISABLE;
 }
 #endif /* PROTO_OASEFMMASTER_SUPPORT */
-
