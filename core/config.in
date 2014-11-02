@@ -2,7 +2,8 @@ mainmenu_option next_comment
 	comment "Periodic / Scheduler"
 
 	int_min_max_step 'Periodic ticks per second' CONF_MTICKS_PER_SEC 50 50 20000 50
-	dep_bool "Periodic use Timer/Counter 3" PERIODIC_TIMER3_SUPPORT $(mcu_has_timer_3_support)
+	MCU_HAS_TIMER_3_SUPPORT=$(mcu_has_timer_3_support)
+	dep_bool "Periodic use Timer/Counter 3" PERIODIC_TIMER3_SUPPORT $MCU_HAS_TIMER_3_SUPPORT
 	if [ "$PERIODIC_TIMER3_SUPPORT" = y ]; then
 		define_symbol CONF_PERIODIC_USE_TIMER 3
 	else

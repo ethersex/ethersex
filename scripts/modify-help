@@ -54,6 +54,7 @@ function bool() {
 } 
 
 function int() { bool "$1" "$2"; }
+function int_min_max_step() { bool "$1" "$2"; }
 function editor() { bool "$1" "$2"; }
 function hex() { bool "$1" "$2"; }
 function string() { bool "$1" "$2"; }
