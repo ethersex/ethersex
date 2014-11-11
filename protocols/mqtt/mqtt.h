@@ -141,5 +141,11 @@ bool mqtt_construct_ack_packet(uint8_t msg_type, uint16_t msgid);
 // INTERNAL
 void mqtt_periodic(void);
 
+#ifdef MQTT_STATIC_CONF
+  void mqtt_set_static_conf(void);
+#else
+  #define mqtt_set_static_conf(...)
+#endif
+
 
 #endif  /* HAVE_MQTT_H */
