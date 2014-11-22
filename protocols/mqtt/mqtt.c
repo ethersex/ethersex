@@ -193,7 +193,9 @@ mqtt_abort_connection(void)
 static inline uint8_t
 MQTT_LF_LENGTH(uint16_t length)
 {
-  return (length / 128) + 1;
+  if (length < 1<<8) return 1;
+  if (length < 1<<15) return 2;
+  return 3; // more isn't possible with uint16_t
 }
 
 // reset state
