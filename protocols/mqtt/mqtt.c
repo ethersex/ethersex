@@ -89,6 +89,7 @@
 #include <stdbool.h>
 
 #include "config.h"
+#include "core/bit-macros.h"
 #include "protocols/uip/uip.h"
 #include "mqtt.h"
 #include "mqtt_state.h"
@@ -242,14 +243,15 @@ static void
 mqtt_buffer_write_string(char const *data)
 {
   char const *idp = data;
-  uint16_t i = 0;
   mqtt_send_buffer_current_head += 2;
-  while (*idp) {
+
+  while (*idp)
      mqtt_send_buffer[mqtt_send_buffer_current_head++] = *idp++;
-     i++;
-  }
-  mqtt_send_buffer[mqtt_send_buffer_current_head-i-2] = (i >> 8);
-  mqtt_send_buffer[mqtt_send_buffer_current_head-i-1] = (i & 0xFF);
+
+  uint16_t len = data - idp;
+
+  mqtt_send_buffer[mqtt_send_buffer_current_head-len-2] = HI8(len);
+  mqtt_send_buffer[mqtt_send_buffer_current_head-len-1] = LO8(len);
 }
 
 // return whether the buffer has enough storage room for `length` bytes
