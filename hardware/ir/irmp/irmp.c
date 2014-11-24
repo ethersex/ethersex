@@ -137,6 +137,7 @@
 #ifdef IRMP_RX_SUPPORT
 #define irmp_ISR irmp_rx_process
 #define irmp_get_data irmp_rx_get
+#define irmp_protocol_names irmp_proto_names
 #define IRMP_LOGGING 0
 #ifdef DEBUG_IRMP
 #define IRMP_PROTOCOL_NAMES 1
