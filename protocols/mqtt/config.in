@@ -1,0 +1,30 @@
+dep_bool_menu "MQTT client" MQTT_SUPPORT $TCP_SUPPORT
+	int "Number of callback slots" MQTT_CALLBACK_SLOTS 1
+
+	comment  "Configuration"
+	dep_bool 'Enable MQTT static configuration' MQTT_STATIC_CONF $MQTT_SUPPORT
+
+if [ "$MQTT_STATIC_CONF" = y ]; then
+	string 'MQTT client ID' MQTT_STATIC_CONF_CLIENTID
+	ip "MQTT broker IP" MQTT_STATIC_CONF_SERVER_IP "192.168.23.254" "2001:19f0:feee:0:0:dead:beef:cafe"
+	dep_bool 'Supply MQTT username' MQTT_STATIC_CONF_SUPPLY_USERNAME $MQTT_SUPPORT
+  if [ "$MQTT_STATIC_CONF_SUPPLY_USERNAME" = y ]; then
+	dep_bool 'Supply MQTT password' MQTT_STATIC_CONF_SUPPLY_PASSWORD $MQTT_SUPPORT $MQTT_STATIC_CONF_SUPPLY_USERNAME
+	string 'MQTT username' MQTT_STATIC_CONF_USER
+    if [ "$MQTT_STATIC_CONF_SUPPLY_PASSWORD" = y ]; then
+	string 'MQTT password' MQTT_STATIC_CONF_PASS
+    fi
+  fi
+	dep_bool 'Supply MQTT will' MQTT_STATIC_CONF_SUPPLY_WILL $MQTT_SUPPORT
+  if [ "$MQTT_STATIC_CONF_SUPPLY_WILL" = y ]; then
+	string 'MQTT will topic' MQTT_STATIC_CONF_WILL_TOPIC
+	int 'MQTT will QoS' MQTT_STATIC_CONF_WILL_QOS 0
+	bool 'MQTT will retain flag' MQTT_STATIC_CONF_WILL_RETAIN
+	string 'MQTT will message' MQTT_STATIC_CONF_WILL_MESSAGE
+  fi
+fi
+
+	comment  "Debugging Flags"
+	dep_bool 'MQTT Debug Messages' MQTT_DEBUG $DEBUG $MQTT_SUPPORT
+	dep_bool 'MQTT Parse method Debug Messages' MQTT_PARSE_DEBUG $DEBUG $MQTT_SUPPORT
+endmenu

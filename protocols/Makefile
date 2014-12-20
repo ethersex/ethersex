@@ -7,6 +7,7 @@ SUBSUBDIRS += protocols/eltakoms
 SUBSUBDIRS += protocols/ems
 SUBSUBDIRS += protocols/fnordlicht
 SUBSUBDIRS += protocols/mdns_sd
+SUBSUBDIRS += protocols/mqtt
 SUBSUBDIRS += protocols/modbus
 SUBSUBDIRS += protocols/mysql
 SUBSUBDIRS += protocols/smtp
