@@ -28,6 +28,10 @@
 #include "stella_fading_functions.h"
 #include "services/dmx-storage/dmx_storage.h"
 
+#ifdef 	STELLA_USE_CIE1931
+#include "cie1931.h"
+#endif
+
 #define stella_vslow 0
 #define stella_slow 1
 #define stella_normal 2
@@ -239,14 +243,6 @@ stella_getFadestep(void)
   return stella_fade_step;
 }
 
-/* Get a channel value.
- * Only call this function with a channel<STELLA_CHANNELS ! */
-inline uint8_t
-stella_getValue(const uint8_t channel)
-{
-  return stella_brightness[channel];
-}
-
 #ifndef TEENSY_SUPPORT
 void
 stella_loadFromEEROMFading(void)
@@ -323,17 +319,21 @@ stella_sort()
       cal_table->channel[i].port.port = &STELLA_PORT2;
     }
 #endif
+#ifdef STELLA_USE_CIE1931
+		cal_table->channel[i].value = 255 - pgm_read_byte_near(cie_luminance_8bit + stella_brightness[i]);
+#else
     cal_table->channel[i].value = 255 - stella_brightness[i];
+#endif
     cal_table->channel[i].next = 0;
 
     /* Special case: 0% brightness (Don't include this channel!) */
-    if (stella_brightness[i] == 0)
+    if (cal_table->channel[i].value == 255)
       continue;
 
     //cal_table->portmask |= _BV(i+STELLA_OFFSET);
 
     /* Special case: 100% brightness (Merge pwm cycle start masks! Don't include this channel!) */
-    if (stella_brightness[i] == 255)
+    if (cal_table->channel[i].value == 0)
     {
 #ifdef STELLA_PINS_PORT2
       if (i >= STELLA_PINS_PORT1)

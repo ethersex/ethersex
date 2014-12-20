@@ -33,5 +33,6 @@ dep_bool_menu "StellaLight: Multichannel pwm" STELLA_SUPPORT $ARCH_AVR
 	else
 		comment  '----- DMX not available (please enable DMX Storage) -----'
 	fi
+	dep_bool "Use CIE1931 Brightness correction" STELLA_USE_CIE1931	$STELLA_SUPPORT
 	dep_bool 'Debug' DEBUG_STELLA $DEBUG
 endmenu

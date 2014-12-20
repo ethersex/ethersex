@@ -105,7 +105,20 @@ extern uint8_t stella_fade[STELLA_CHANNELS];
 void stella_init(void);
 void stella_process(void);
 
-uint8_t stella_getValue(const uint8_t channel);
+/* Get a channel value.
+ * Only call this function with a channel<STELLA_CHANNELS ! */
+inline uint8_t
+stella_getValue(const uint8_t channel)
+{
+  return stella_brightness[channel];
+}
+
+inline uint8_t
+stella_getFadeValue(const uint8_t channel)
+{
+  return stella_fade[channel];
+}
+
 void stella_setValue(const stella_set_function_e func,
                      const uint8_t channel, const uint8_t value);
 void stella_setFadestep(const uint8_t fadestep);
