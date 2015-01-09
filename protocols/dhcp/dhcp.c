@@ -40,6 +40,8 @@
 #include "dhcp_state.h"
 #include "dhcp.h"
 
+#include "services/ntp/ntp.h"
+
 #define STATE_INITIAL         0
 #define STATE_DISCOVERING     1
 #define STATE_REQUESTING      2
