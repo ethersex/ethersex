@@ -248,7 +248,7 @@ mqtt_buffer_write_string(char const *data)
   while (*idp)
      mqtt_send_buffer[mqtt_send_buffer_current_head++] = *idp++;
 
-  uint16_t len = data - idp;
+  uint16_t len = idp - data;
 
   mqtt_send_buffer[mqtt_send_buffer_current_head-len-2] = HI8(len);
   mqtt_send_buffer[mqtt_send_buffer_current_head-len-1] = LO8(len);
