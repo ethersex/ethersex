@@ -248,7 +248,7 @@ mqtt_buffer_write_string(char const *data)
   while (*idp)
      mqtt_send_buffer[mqtt_send_buffer_current_head++] = *idp++;
 
-  uint16_t len = data - idp;
+  uint16_t len = idp - data;
 
   mqtt_send_buffer[mqtt_send_buffer_current_head-len-2] = HI8(len);
   mqtt_send_buffer[mqtt_send_buffer_current_head-len-1] = LO8(len);
@@ -405,8 +405,8 @@ mqtt_construct_connect_packet(void)
   mqtt_send_buffer[mqtt_send_buffer_current_head++] = connect_flags;
 
   // keep alive
-  mqtt_send_buffer[mqtt_send_buffer_current_head++] = ((MQTT_KEEPALIVE) >> 8);
-  mqtt_send_buffer[mqtt_send_buffer_current_head++] = ((MQTT_KEEPALIVE) & 0xFF);
+  mqtt_send_buffer[mqtt_send_buffer_current_head++] = HI8(MQTT_KEEPALIVE);
+  mqtt_send_buffer[mqtt_send_buffer_current_head++] = LO8(MQTT_KEEPALIVE);
 
   // client id
   mqtt_buffer_write_string(mqtt_con_config->client_id);
@@ -460,8 +460,8 @@ mqtt_construct_publish_packet(char const *topic, const void *payload,
   // message id
   if (qos > 0)
   {
-    mqtt_send_buffer[mqtt_send_buffer_current_head++] = (mqtt_next_msg_id >> 8);
-    mqtt_send_buffer[mqtt_send_buffer_current_head++] = (mqtt_next_msg_id & 0xFF);
+    mqtt_send_buffer[mqtt_send_buffer_current_head++] = HI8(mqtt_next_msg_id);
+    mqtt_send_buffer[mqtt_send_buffer_current_head++] = LO8(mqtt_next_msg_id);
     make_new_message_id();
   }
 
@@ -488,8 +488,8 @@ mqtt_construct_subscribe_packet(char const *topic)
       mqtt_send_buffer + mqtt_send_buffer_current_head, length);
 
   // message id
-  mqtt_send_buffer[mqtt_send_buffer_current_head++] = (mqtt_next_msg_id >> 8);
-  mqtt_send_buffer[mqtt_send_buffer_current_head++] = (mqtt_next_msg_id & 0xFF);
+  mqtt_send_buffer[mqtt_send_buffer_current_head++] = HI8(mqtt_next_msg_id);
+  mqtt_send_buffer[mqtt_send_buffer_current_head++] = LO8(mqtt_next_msg_id);
   make_new_message_id();
 
   // payload: topic + requested qos
@@ -516,8 +516,8 @@ mqtt_construct_unsubscribe_packet(char const *topic)
       + mqtt_send_buffer_current_head, length);
 
   // message id
-  mqtt_send_buffer[mqtt_send_buffer_current_head++] = (mqtt_next_msg_id >> 8);
-  mqtt_send_buffer[mqtt_send_buffer_current_head++] = (mqtt_next_msg_id & 0xFF);
+  mqtt_send_buffer[mqtt_send_buffer_current_head++] = HI8(mqtt_next_msg_id);
+  mqtt_send_buffer[mqtt_send_buffer_current_head++] = LO8(mqtt_next_msg_id);
   make_new_message_id();
 
   // payload: topic
@@ -567,8 +567,8 @@ mqtt_construct_ack_packet(uint8_t msg_type, uint16_t msgid)
   mqtt_send_buffer[mqtt_send_buffer_current_head++] = 2; // length field
 
   // message id
-  mqtt_send_buffer[mqtt_send_buffer_current_head++] = (msgid >> 8);
-  mqtt_send_buffer[mqtt_send_buffer_current_head++] = (msgid & 0xFF);
+  mqtt_send_buffer[mqtt_send_buffer_current_head++] = HI8(msgid);
+  mqtt_send_buffer[mqtt_send_buffer_current_head++] = LO8(msgid);
 
   return true;
 }
