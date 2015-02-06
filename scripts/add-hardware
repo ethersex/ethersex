@@ -324,11 +324,6 @@ template $TANKLEVEL_LOCK_SUPPORT << FNORD
   pin(TANKLEVEL_LOCK, PA2, INPUT)
 FNORD
 
-template $DHT_SUPPORT << FNORD
-  /* DHT 11/22 humidity and temperature sensors */
- pin(DHT, PA0, INPUT)
-FNORD
-
 template $SGC_SUPPORT << FNORD
   /* 4DSystems Slave Graphics Controller */
  pin(SGC_RESET, PC3, OUTPUT)

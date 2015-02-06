@@ -33,32 +33,33 @@
 #include "dht_ecmd.h"
 
 #ifdef DHT_TEMP_ECMD_SUPPORT
-int16_t parse_cmd_dht_temp(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_dht_temp(char *cmd, char *output, uint16_t len)
 {
   uint8_t sensor = 0;
-  int ret = sscanf_P(cmd, PSTR("%hhu"), &sensor);
+  sscanf_P(cmd, PSTR("%hhu"), &sensor);
   return (sensor < dht_sensors_count ?
-    ECMD_FINAL(itoa_fixedpoint(dht_sensors[sensor].temp,1,output,len)) :
+    ECMD_FINAL(itoa_fixedpoint(dht_sensors[sensor].temp, 1, output, len)) :
     ECMD_ERR_PARSE_ERROR);
 }
 #endif
 
 #ifdef DHT_HUMID_ECMD_SUPPORT
-int16_t parse_cmd_dht_humid(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_dht_humid(char *cmd, char *output, uint16_t len)
 {
   uint8_t sensor = 0;
-  int ret = sscanf_P(cmd, PSTR("%hhu"), &sensor);
+  sscanf_P(cmd, PSTR("%hhu"), &sensor);
   return (sensor < dht_sensors_count ?
-    ECMD_FINAL(itoa_fixedpoint(dht_sensors[sensor].humid,1,output,len)) :
+    ECMD_FINAL(itoa_fixedpoint(dht_sensors[sensor].humid, 1, output, len)) :
     ECMD_ERR_PARSE_ERROR);
 }
 #endif
 
 #ifdef DHT_LIST_ECMD_SUPPORT
-int16_t parse_cmd_dht_list(char *cmd, char *output, uint16_t len)
+int16_t
+parse_cmd_dht_list(char *cmd, char *output, uint16_t len)
 {
-  int16_t ret;
-
   /* trick: use bytes on cmd as "connection specific static variables" */
   if (cmd[0] != ECMD_STATE_MAGIC)       /* indicator flag: real invocation:  0 */
   {
@@ -77,14 +78,15 @@ int16_t parse_cmd_dht_list(char *cmd, char *output, uint16_t len)
 
   cmd[1] = i + 1;
 
+  int16_t ret;
 #ifdef DHT_LIST_WITH_VALUES_CMD_SUPPORT
   ret = snprintf_P(output, len, PSTR("%d\t%S"), i, dht_sensors[i].name);
-  if(len-ret>0)
+  if (len - ret > 0)
     output[ret++] = '\t';
-  ret += itoa_fixedpoint(dht_sensors[i].temp,1,output+ret,len-ret);
-  if(len-ret>0)
+  ret += itoa_fixedpoint(dht_sensors[i].temp, 1, output + ret, len - ret);
+  if (len - ret > 0)
     output[ret++] = '\t';
-  ret += itoa_fixedpoint(dht_sensors[i].humid,1,output+ret,len-ret);
+  ret += itoa_fixedpoint(dht_sensors[i].humid, 1, output + ret, len - ret);
 #else
   ret = snprintf_P(output, len, PSTR("%d\t%S"), i, dht_sensors[i].name);
 #endif
