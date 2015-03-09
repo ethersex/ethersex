@@ -27,34 +27,35 @@ atmega168=y
 # at90can64 is not set
 # at90can128 is not set
 FREQ=16000000
+HARDWARE=Arduino_Duemilanove
+Arduino_Duemilanove=y
+# Fimser is not set
+# Jackalope is not set
+# JeeLinkv2 is not set
+# MicroWebServer is not set
+# USBrfm12stick is not set
 # alpengluehn is not set
 # antares_I is not set
 # antares_IO is not set
 # antares_O is not set
-HARDWARE=Arduino_Duemilanove
-Arduino_Duemilanove=y
 # beteigeuze is not set
 # conrad_probot is not set
 # ehaserl is not set
+# eku_pollin_evalboard_addon is not set
 # etherrape is not set
-# Fimser is not set
 # fnordlicht_servo is not set
 # generic_usb_teensy is not set
 # hr20 is not set
-# Jackalope is not set
-# JeeLinkv2 is not set
 # lome6 is not set
-# MicroWebServer is not set
+# netio is not set
 # netio_addon is not set
 # netio_bsbport is not set
-# netio is not set
 # other is not set
-# pollin_evalboard_addon is not set
 # pollin_evalboard is not set
+# pollin_evalboard_addon is not set
 # pollin_funkevalboard is not set
 # radig_web is not set
 # thermy is not set
-# USBrfm12stick is not set
 # volkszaehler_so_server is not set
 # CPU_SLEEP is not set
 # SRAM_SUPPORT is not set
@@ -62,19 +63,19 @@ Arduino_Duemilanove=y
 # BOOTLOADER_SUPPORT is not set
 # BOOTLOADER_JUMP is not set
 BOOTLOADER_SIZE=0
-BOOTLOADER_START_ADDRESS=0x4000
-FLASH_SIZE=0x4000
-EEPROM_SIZE=0x200
-RAM_SIZE=0x500
-FLASH_PAGESIZE=0x80
-EEPROM_PAGESIZE=0x4
+BOOTLOADER_START_ADDRESS=0x1
+FLASH_SIZE=0x1
+EEPROM_SIZE=0x1
+RAM_SIZE=0x1
+FLASH_PAGESIZE=0x0
+EEPROM_PAGESIZE=0x0
 # CRC_PAD_SUPPORT is not set
 # MBR_SUPPORT is not set
 # TEENSY_SUPPORT is not set
 # SPI_TIMEOUT is not set
 # USART_SPI_SUPPORT is not set
 # SOFT_SPI_SUPPORT is not set
-GIT_VERSION="ac826dc"
+GIT_VERSION="367d161"
 # DEBUG_DISCARD_SOME is not set
 DEBUG=y
 DEBUG_OUTPUT=usart
@@ -83,8 +84,6 @@ usart=y
 DEBUG_SERIAL_USART_SUPPORT=y
 # SOFT_UART_SUPPORT is not set
 # DEBUG_USE_SYSLOG is not set
-DEBUG_USART_0=y
-DEBUG_USE_USART=0
 DEBUG_BAUDRATE=19200
 # DEBUG_HOOK is not set
 # DEBUG_RESET_REASON is not set
@@ -273,6 +272,7 @@ PORTIO_SCHEME=PORTIO_SIMPLE
 PORTIO_SIMPLE=y
 # PORTIO_FULL_FEATURED is not set
 PORTIO_SIMPLE_SUPPORT=y
+# PORTIO_SUPPORT is not set
 # NAMED_PIN_SUPPORT is not set
 # TTY_SUPPORT is not set
 TTY_COLS=16
@@ -292,8 +292,6 @@ HC595_REGISTERS=5
 # HC165_INVERSE_OUTPUT is not set
 HC165_REGISTERS=1
 # SMS_SUPPORT is not set
-SMS_USART_0=y
-SMS_USE_USART=0
 # DEBUG_SMS is not set
 
 #
@@ -551,6 +549,7 @@ ECMD_PARSER_SUPPORT=y
 # ECMD_PAM_SUPPORT is not set
 # ECMD_SCRIPT_SUPPORT is not set
 # ECMD_LOG_VIA_SYSLOG is not set
+# ECMD_SERIAL_USART_SUPPORT is not set
 # ECMD_TCP_SUPPORT is not set
 # ECMD_UDP_SUPPORT is not set
 # ECMD_SERIAL_I2C_SUPPORT is not set
@@ -637,6 +636,7 @@ CONF_NETSTAT_API="/~habo/stat/"
 # PROTO_INTERTECHNO_SUPPORT is not set
 # PROTO_INTERTECHNO_SL_SUPPORT is not set
 # PROTO_OASEFMMASTER_SUPPORT is not set
+# PROTO_TX23 is not set
 # SIP_SUPPORT is not set
 CONF_SIP_PROXY_IP="192.168.178.1"
 CONF_SIP_FROM="621"
