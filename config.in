@@ -306,9 +306,11 @@ comment "I/O"
 			Simple PORTIO_SCHEME
 
 		if [ x"$PORTIO_SCHEME" = x"PORTIO_SIMPLE" ]; then
-			define_bool PORTIO_SIMPLE_SUPPORT y;
+			define_bool PORTIO_SIMPLE_SUPPORT y
+			define_bool PORTIO_SUPPORT n
 		elif [ x"$PORTIO_SCHEME" = x"PORTIO_FULL_FEATURED" ]; then
-			define_bool PORTIO_SUPPORT y;
+			define_bool PORTIO_SIMPLE_SUPPORT n
+			define_bool PORTIO_SUPPORT y
 		fi
 
 		source core/portio/config.in

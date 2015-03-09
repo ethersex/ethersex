@@ -27,34 +27,35 @@ atmega128=y
 # at90can64 is not set
 # at90can128 is not set
 FREQ=14745000
+# Arduino_Duemilanove is not set
+# Fimser is not set
+# Jackalope is not set
+# JeeLinkv2 is not set
+# MicroWebServer is not set
+# USBrfm12stick is not set
 # alpengluehn is not set
 # antares_I is not set
 # antares_IO is not set
 # antares_O is not set
-# Arduino_Duemilanove is not set
 # beteigeuze is not set
 HARDWARE=conrad_probot
 conrad_probot=y
 # ehaserl is not set
+# eku_pollin_evalboard_addon is not set
 # etherrape is not set
-# Fimser is not set
 # fnordlicht_servo is not set
 # generic_usb_teensy is not set
 # hr20 is not set
-# Jackalope is not set
-# JeeLinkv2 is not set
 # lome6 is not set
-# MicroWebServer is not set
+# netio is not set
 # netio_addon is not set
 # netio_bsbport is not set
-# netio is not set
 # other is not set
-# pollin_evalboard_addon is not set
 # pollin_evalboard is not set
+# pollin_evalboard_addon is not set
 # pollin_funkevalboard is not set
 # radig_web is not set
 # thermy is not set
-# USBrfm12stick is not set
 # volkszaehler_so_server is not set
 # CPU_SLEEP is not set
 # SRAM_SUPPORT is not set
@@ -62,19 +63,19 @@ conrad_probot=y
 # BOOTLOADER_SUPPORT is not set
 # BOOTLOADER_JUMP is not set
 BOOTLOADER_SIZE=0
-BOOTLOADER_START_ADDRESS=0x20000
-FLASH_SIZE=0x20000
-EEPROM_SIZE=0x1000
-RAM_SIZE=0x1100
-FLASH_PAGESIZE=0x100
-EEPROM_PAGESIZE=0x8
+BOOTLOADER_START_ADDRESS=0x1
+FLASH_SIZE=0x1
+EEPROM_SIZE=0x1
+RAM_SIZE=0x1
+FLASH_PAGESIZE=0x0
+EEPROM_PAGESIZE=0x0
 # CRC_PAD_SUPPORT is not set
 # MBR_SUPPORT is not set
 # TEENSY_SUPPORT is not set
 # SPI_TIMEOUT is not set
 # USART_SPI_SUPPORT is not set
 # SOFT_SPI_SUPPORT is not set
-GIT_VERSION="ac826dc"
+GIT_VERSION="367d161"
 # DEBUG_DISCARD_SOME is not set
 # DEBUG is not set
 # DEBUG_USE_SYSLOG is not set
@@ -222,7 +223,6 @@ CONF_RFM12_IP4_NETMASK="255.255.255.0"
 # USB_NET_SUPPORT is not set
 # DEBUG_USB_HID_KEYBOARD is not set
 # DEBUG_USB_HID_MOUSE is not set
-# ZBUS_SUPPORT is not set
 # ZBUS_RAW_SUPPORT is not set
 # ROUTER_SUPPORT is not set
 # UIP_SUPPORT is not set
@@ -267,12 +267,14 @@ CONF_OPENVPN_PORT=1194
 # PORTIO_SIMPLE is not set
 PORTIO_SCHEME=PORTIO_FULL_FEATURED
 PORTIO_FULL_FEATURED=y
+# PORTIO_SIMPLE_SUPPORT is not set
 PORTIO_SUPPORT=y
 NAMED_PIN_SUPPORT=y
+# Jackalope is not set
 _NP_CONFIG=conrad_probot
 conrad_probot=y
 # default is not set
-# Jackalope is not set
+# eku is not set
 # netio_k8io is not set
 # radig_web is not set
 NP_CONFIG=pinning/named_pin/conrad_probot
@@ -294,9 +296,6 @@ HC595_REGISTERS=5
 # HC165_INVERSE_OUTPUT is not set
 HC165_REGISTERS=1
 # SMS_SUPPORT is not set
-SMS_USART_0=y
-# SMS_USART_1 is not set
-SMS_USE_USART=0
 # DEBUG_SMS is not set
 
 #
@@ -368,16 +367,6 @@ CONF_I2C_24CXX_PAGESIZE=128
 # DEBUG_I2C_SLAVE is not set
 # CAMERA_SUPPORT is not set
 # DC3840_SUPPORT is not set
-# CONFIG_DC3840_RES80 is not set
-# CONFIG_DC3840_RES160 is not set
-# CONFIG_DC3840_RES320 is not set
-# CONFIG_DC3840_RES640 is not set
-# DC3840_HIGH_COMPRESSION is not set
-# DC3840_BLACK_WHITE is not set
-DC3840_USART_0=y
-# DC3840_USART_1 is not set
-DC3840_USE_USART=0
-# DC3840_UDP_DEBUG is not set
 
 #
 # Radio
@@ -514,9 +503,6 @@ PWM_SERVO_INVERT=y
 # DEBUG_HBRIDGE is not set
 # MCUF_SUPPORT is not set
 # MCUF_SERIAL_SUPPORT is not set
-MCUF_USART_0=y
-# MCUF_USART_1 is not set
-MCUF_USE_USART=0
 # MCUF_OUTPUT_SUPPORT is not set
 # BLP_SUPPORT is not set
 # LEDRG_SUPPORT is not set
@@ -563,17 +549,12 @@ CONF_ARTNET_OUTUNIVERSE=0
 # DALI_RAW_SUPPORT is not set
 # DALI_RECEIVE_SUPPORT is not set
 # DMX_SUPPORT is not set
-DMX_OUTPUT_UNIVERSE=1
-DMX_USART_0=y
-# DMX_USART_1 is not set
-DMX_USE_USART=0
 # ECMD_PARSER_SUPPORT is not set
 # ECMD_REMOVE_BACKSPACE_SUPPORT is not set
 # ALIASCMD_SUPPORT is not set
 # ECMD_PAM_SUPPORT is not set
 # ECMD_SCRIPT_SUPPORT is not set
 # ECMD_LOG_VIA_SYSLOG is not set
-# ECMD_SERIAL_USART_SUPPORT is not set
 # ECMD_TCP_SUPPORT is not set
 # ECMD_UDP_SUPPORT is not set
 # ECMD_SERIAL_I2C_SUPPORT is not set
@@ -600,9 +581,6 @@ DMX_USE_USART=0
 # DEBUG_ECMD_RC5 is not set
 # DEBUG_ECMD_SCRIPT is not set
 # ELTAKOMS_SUPPORT is not set
-# ELTAKOMS_USART_0 is not set
-# ELTAKOMS_USART_1 is not set
-# DEBUG_ELTAKOMS is not set
 # EMS_SUPPORT is not set
 EMS_BUFFER_LEN=64
 EMS_PORT=7950
@@ -610,14 +588,7 @@ EMS_PORT=7950
 # EMS_PROTO_DEBUG is not set
 # EMS_IO_DEBUG is not set
 # EMS_ERROR_DEBUG is not set
-# FNORDLICHT_BASIC_SUPPORT is not set
-FNORDLICHT_BAUDRATE=19200
-# FNORDLICHT_USART_0 is not set
-# FNORDLICHT_USART_1 is not set
 # FNORDLICHT_SUPPORT is not set
-CONF_FNORDLICHTER=1
-# FNORDLICHT_SERVO_SUPPORT is not set
-# DEBUG_FNORDLICHT is not set
 # HTTPLOG_SUPPORT is not set
 CONF_HTTPLOG_SERVICE="volkszaehler.org"
 CONF_HTTPLOG_PATH="/httplog/httplog.php"
@@ -670,6 +641,7 @@ CONF_NETSTAT_API="/~habo/stat/"
 # PROTO_INTERTECHNO_SUPPORT is not set
 # PROTO_INTERTECHNO_SL_SUPPORT is not set
 # PROTO_OASEFMMASTER_SUPPORT is not set
+# PROTO_TX23 is not set
 # SIP_SUPPORT is not set
 CONF_SIP_PROXY_IP="192.168.178.1"
 CONF_SIP_FROM="621"
@@ -713,55 +685,11 @@ CONF_USTREAM_IP="205.188.234.7"
 CONF_USTREAM_PORT=80
 # DEBUG_USTREAM is not set
 # YPORT_SUPPORT is not set
-YPORT_USART_0=y
-# YPORT_USART_1 is not set
-YPORT_USE_USART=0
-YPORT_PORT=7970
-YPORT_BAUDRATE=115200
-YPORT_USART_CONFIG=YPORT_USART_CONFIG_8N1
-YPORT_USART_CONFIG_8N1=y
-# YPORT_USART_CONFIG_8E2 is not set
-YPORT_BUFFER_LEN=32
-YPORT_FLUSH=25
-# DEBUG_YPORT is not set
 # BSBPORT_SUPPORT is not set
-# BSBPORT_USART_0 is not set
-# BSBPORT_USART_1 is not set
-BSBPORT_PORT=3000
-BSBPORT_BAUDRATE=4800
-BSBPORT_BUFFER_LEN=500
-BSBPORT_FLUSH=25
-BSBPORT_MESSAGE_BUFFER_LEN=10
-BSBPORT_MESSAGE_MAX_LEN=25
-BSBPORT_OWNADDRESS=7
-# BSBPORT_POLLING_SUPPORT is not set
-# DEBUG_BSBPORT_RX is not set
-# DEBUG_BSBPORT_TX is not set
-# DEBUG_BSBPORT_PARSE is not set
-# DEBUG_BSBPORT_ECMD is not set
 # MSR1_SUPPORT is not set
-MSR1_USART_0=y
-# MSR1_USART_1 is not set
-MSR1_USE_USART=0
-# DEBUG_MSR1 is not set
 # TO1_SUPPORT is not set
-TO1_USART_0=y
-# TO1_USART_1 is not set
-TO1_USE_USART=0
-TO1_SENSOR_COUNT=1
-# DEBUG_TO1 is not set
 # SERIAL_LINE_LOG_SUPPORT is not set
-# SERIAL_LINE_LOG_USART_0 is not set
-# SERIAL_LINE_LOG_USART_1 is not set
-SERIAL_LINE_LOG_TIMEOUT=20
-SERIAL_LINE_LOG_EOL=0A
-SERIAL_LINE_LOG_COUNT=60
-SERIAL_LINE_LOG_BAUDRATE=9600
-# SERIAL_LINE_LOG_SPACE_COMPRESSION is not set
 # NMEA_SUPPORT is not set
-NMEA_USART_0=y
-# NMEA_USART_1 is not set
-NMEA_USE_USART=0
 # STELLA_PROTOCOL_SUPPORT is not set
 UDP_STELLA_PORT=2702
 # IOUDP_PROTOCOL_SUPPORT is not set
@@ -777,13 +705,6 @@ CW_WPM=12
 # CW_RFM12_ASK_SUPPORT is not set
 # DEBUG_CW is not set
 # SGC_SUPPORT is not set
-# SGC_USART_0 is not set
-# SGC_USART_1 is not set
-SGC_BAUDRATE=9600
-# SGC_SHDN_SLEEP_ACTIVE is not set
-SGC_SLEEPMODE=0
-# SGC_TIMEOUT_COUNTER_SUPPORT is not set
-# SGC_ECMD_SEND_SUPPORT is not set
 
 #
 # Applications
@@ -990,9 +911,6 @@ CONF_TIME2PRESS_RESET=40
 CONF_TIME2PRESS_POWER=40
 CONF_TIME2PRESS_POWERL=3
 # PROJECTOR_SANYO_Z700_SUPPORT is not set
-# SANYO_Z700_USART_0 is not set
-# SANYO_Z700_USART_1 is not set
-# DEBUG_SANYO_Z700 is not set
 # FREQCOUNT_SUPPORT is not set
 FREQCOUNT_CHANNELS=1
 # FREQCOUNT_BOOT_ON is not set
