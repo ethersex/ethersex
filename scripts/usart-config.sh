@@ -59,6 +59,9 @@ usart_count_used() {
   if [ "$ELTAKOMS_SUPPORT" = y ]; then
     USARTS_USED=$(($USARTS_USED + 1))
   fi
+  if [ "$EMS_SUPPORT" = y ]; then
+    USARTS_USED=$(($USARTS_USED + 1))
+  fi
   if [ "$FNORDLICHT_SUPPORT" = y ]; then
     USARTS_USED=$(($USARTS_USED + 1))
   fi
