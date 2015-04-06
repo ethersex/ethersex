@@ -72,6 +72,8 @@
  */
 /* Timer ticks needed for one periodic millitick. Fast PWM TOP value. */
 #define PERIODIC_TOP            ((F_CPU / (PERIODIC_PRESCALER * CONF_MTICKS_PER_SEC)) - 1)
+/* Timer ticks needed for ~one second. */
+#define PERIODIC_TTICKS_PER_SEC (PERIODIC_TOP * CONF_MTICKS_PER_SEC)
 
 /* Periodic milliticks usability check -
  * there should be at least ~1000 CPU-Cycles per periodic millitick
@@ -81,11 +83,14 @@
 #warning *** rate to make periodic milliticks work as expected!!
 #endif
 
-/* periodic milliticks counter */
-extern volatile uint16_t periodic_milliticks;
-
 /* Initialize hardware timer. */
 void periodic_init(void);
+
+/**
+ * Returns the number of periodic milliticks since the e6 periodic
+ * framework has been initialized.
+ */
+uint32_t periodic_milliticks(void);
 
 #ifdef PERIODIC_ADJUST_SUPPORT
 /**
@@ -97,6 +102,21 @@ void periodic_init(void);
  *      exceed the allowable range.
  */
 uint16_t periodic_adjust_set_offset(int16_t offset);
+#endif
+
+#ifdef PERIODIC_TIMER_API_SUPPORT
+/**
+ * Returns the number of microseconds since the e6 periodic
+ * framework has been initialized.
+ */
+uint32_t periodic_micros(void);
+
+/**
+ * Returns the number of milliseconds since the e6 periodic
+ * framework has been initialized.
+ *
+ */
+uint32_t periodic_millis(void);
 #endif
 
 #ifdef FREQCOUNT_SUPPORT

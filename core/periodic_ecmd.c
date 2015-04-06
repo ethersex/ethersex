@@ -30,9 +30,9 @@
 
 #ifdef DEBUG_PERIODIC
 #define PERIODICDEBUG(a...)   debug_printf("periodic: " a)
-extern volatile uint16_t periodic_milliticks;
-extern volatile uint16_t periodic_milliticks_max;
-extern volatile uint16_t periodic_milliticks_miss;
+extern volatile uint16_t pdebug_milliticks;
+extern volatile uint16_t pdebug_milliticks_max;
+extern volatile uint16_t pdebug_milliticks_miss;
 #else
 #define PERIODICDEBUG(a...)
 #endif /* DEBUG_PERIODIC */
@@ -106,14 +106,14 @@ parse_cmd_periodic_stats(char *cmd, char *output, uint16_t len)
     case PRINT_MILLITICKS:
       len = snprintf_P(output, len,
                        PSTR("milliticks 1/s: %u, current: %u, max: %u"),
-                       CONF_MTICKS_PER_SEC, periodic_milliticks,
-                       periodic_milliticks_max);
+                       CONF_MTICKS_PER_SEC, pdebug_milliticks,
+                       pdebug_milliticks_max);
       break;
 
     case PRINT_MILLITICKS_MISS:
       len =
         snprintf_P(output, len, PSTR("milliticks missed: %u"),
-                   periodic_milliticks_miss);
+                   pdebug_milliticks_miss);
       break;
   }
 
@@ -129,8 +129,8 @@ parse_cmd_periodic_stats(char *cmd, char *output, uint16_t len)
 int16_t
 parse_cmd_periodic_reset(char *cmd, char *output, uint16_t len)
 {
-  periodic_milliticks_max = 0;
-  periodic_milliticks_miss = 0;
+  pdebug_milliticks_max = 0;
+  pdebug_milliticks_miss = 0;
 
   len = snprintf_P(output, len, PSTR("OK"));
 

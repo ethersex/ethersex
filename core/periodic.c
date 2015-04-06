@@ -39,9 +39,10 @@
 
 #ifdef DEBUG_PERIODIC
 #define PERIODICDEBUG(a...)   debug_printf("periodic: " a)
-volatile uint16_t periodic_milliticks_max;
-volatile uint16_t periodic_milliticks_last;
-volatile uint16_t periodic_milliticks_miss;
+volatile uint16_t pdebug_milliticks;
+volatile uint16_t pdebug_milliticks_max;
+volatile uint16_t pdebug_milliticks_last;
+volatile uint16_t pdebug_milliticks_miss;
 #else
 #define PERIODICDEBUG(a...)
 #endif /* DEBUG_PERIODIC */
@@ -51,7 +52,7 @@ uint16_t bootload_delay = CONF_BOOTLOAD_DELAY;
 #endif
 
 /* periodic milliticks counter */
-volatile uint16_t periodic_milliticks;
+volatile uint32_t periodic_mticks_count;
 
 void
 periodic_init(void)
@@ -70,12 +71,12 @@ periodic_init(void)
   TC1_INT_COMPARE_ON;
   TC1_INT_OVERFLOW_ON;
 #else
-  periodic_milliticks = 0;
 
 #ifdef DEBUG_PERIODIC
-  periodic_milliticks_max = 0;
-  periodic_milliticks_last = 0;
-  periodic_milliticks_miss = 0;
+  pdebug_milliticks = 0;
+  pdebug_milliticks_max = 0;
+  pdebug_milliticks_last = 0;
+  pdebug_milliticks_miss = 0;
 #endif
 
   PERIODIC_MODE_PWMFAST_OCR;
@@ -106,6 +107,13 @@ timer_expired(void)
 }
 #endif
 
+uint32_t
+periodic_milliticks(void)
+{
+  return periodic_mticks_count;
+}
+
+
 #ifdef PERIODIC_ADJUST_SUPPORT
 uint16_t
 periodic_adjust_set_offset(int16_t offset)
@@ -130,6 +138,31 @@ periodic_adjust_set_offset(int16_t offset)
 
   return 0;
 }
+#endif
+
+#ifdef PERIODIC_TIMER_API_SUPPORT
+uint32_t
+periodic_micros(void)
+{
+  uint32_t micros = 0;
+
+  return micros;
+}
+
+uint32_t
+periodic_millis(void)
+{
+  uint32_t millis = 0;
+
+#if (CONF_MTICKS_PER_SEC <= 1000)
+  millis = (periodic_mticks_count * (1000UL / CONF_MTICKS_PER_SEC));
+#else
+  millis = (periodic_mticks_count * (1000UL / CONF_MTICKS_PER_SEC));
+#endif
+
+  return millis;
+}
+
 #endif
 
 /*
