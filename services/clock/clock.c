@@ -2,7 +2,7 @@
  * Copyright (c) 2007,2008 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2009 by Dirk Pannenbecker <dp@sd-gp.de>
  * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
- * Copyright (c) 2011-2012 by Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) 2011-2015 by Erik Kunze <ethersex@erik-kunze.de>
  * (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2014 by Michael Brakemeier <michael@brakemeier.de>
  *
@@ -56,7 +56,9 @@ static timestamp_t sync_timestamp;
 static timestamp_t n_sync_timestamp;
 static timestamp_t n_sync_tick;
 static int16_t delta;
+#ifdef NTP_SUPPORT
 static uint16_t ntp_count;
+#endif
 static uint16_t dcf_count;
 
 #ifdef NTP_SUPPORT
@@ -148,7 +150,7 @@ clock_tick(void)
       sync_timestamp++;
 #endif /* CLOCK_CRYSTAL_SUPPORT */
 
-    ticks = 0;
+    ticks -= HZ;
   }
 }
 
@@ -183,7 +185,11 @@ clock_set_time(timestamp_t new_sync_timestamp)
 
   sync_timestamp = new_sync_timestamp;
   n_sync_timestamp = new_sync_timestamp;
+#ifdef CLOCK_CRYSTAL_SUPPORT
   n_sync_tick = TIMER_8_AS_1_COUNTER_CURRENT;
+#else
+  n_sync_tick = ticks;
+#endif
 
 #if defined(CLOCK_DATETIME_SUPPORT) || defined(DCF77_SUPPORT) || defined(CLOCK_DATE_SUPPORT) || defined(CLOCK_TIME_SUPPORT)
   clock_reset_dst_change();
@@ -243,6 +249,7 @@ set_dcf_count(const uint16_t new_dcf_count)
   dcf_count = (new_dcf_count == 0) ? 0 : dcf_count + new_dcf_count;
 }
 
+#ifdef NTP_SUPPORT
 uint16_t
 clock_ntp_count(void)
 {
@@ -255,7 +262,6 @@ set_ntp_count(const uint16_t new_ntp_count)
   ntp_count = (new_ntp_count == 0) ? 0 : ntp_count + new_ntp_count;
 }
 
-#ifdef NTP_SUPPORT
 uint16_t
 clock_last_ntp(void)
 {

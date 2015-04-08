@@ -1,9 +1,9 @@
 /*
- *
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) by Stefan Siegl <stesie@brokenpipe.de>
  * Copyright (c) by David Gräff <david.graeff@web.de>
  * Copyright (c) 2014 by Michael Brakemeier <michael@brakemeier.de>
+ * Copyright (c) 2015 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -32,18 +32,15 @@
 #include "config.h"
 
 #include "core/periodic.h"
-#include "core/debug.h"
 #ifdef FREQCOUNT_SUPPORT
 #include "services/freqcount/freqcount.h"
 #endif
 
 #ifdef DEBUG_PERIODIC
-#define PERIODICDEBUG(a...)   debug_printf("periodic: " a)
-volatile uint16_t periodic_milliticks_max;
-volatile uint16_t periodic_milliticks_last;
-volatile uint16_t periodic_milliticks_miss;
-#else
-#define PERIODICDEBUG(a...)
+volatile uint16_t pdebug_milliticks;
+volatile uint16_t pdebug_milliticks_max;
+volatile uint16_t pdebug_milliticks_last;
+volatile uint16_t pdebug_milliticks_miss;
 #endif /* DEBUG_PERIODIC */
 
 #ifdef BOOTLOADER_SUPPORT
@@ -51,7 +48,7 @@ uint16_t bootload_delay = CONF_BOOTLOAD_DELAY;
 #endif
 
 /* periodic milliticks counter */
-volatile uint16_t periodic_milliticks;
+volatile uint32_t periodic_mticks_count;
 
 void
 periodic_init(void)
@@ -70,13 +67,6 @@ periodic_init(void)
   TC1_INT_COMPARE_ON;
   TC1_INT_OVERFLOW_ON;
 #else
-  periodic_milliticks = 0;
-
-#ifdef DEBUG_PERIODIC
-  periodic_milliticks_max = 0;
-  periodic_milliticks_last = 0;
-  periodic_milliticks_miss = 0;
-#endif
 
   PERIODIC_MODE_PWMFAST_OCR;
   PERIODIC_COUNTER_CURRENT = 0;
@@ -129,6 +119,67 @@ periodic_adjust_set_offset(int16_t offset)
   PERIODICDEBUG("Adjust not allowed, offset was %d\n", offset);
 
   return 0;
+}
+#endif
+
+#ifdef PERIODIC_TIMER_API_SUPPORT
+void
+periodic_milliticks(periodic_timestamp_t * now)
+{
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+  {
+    now->fragments = PERIODIC_COUNTER_CURRENT;
+    now->ticks = periodic_mticks_count;
+  }
+}
+
+#ifdef PERIODIC_ADJUST_SUPPORT
+#define FRAGMENTS_PER_TICK (PERIODIC_COUNTER_COMPARE + 1)
+#else
+#define FRAGMENTS_PER_TICK (PERIODIC_TOP + 1)
+#endif
+
+uint32_t
+periodic_micros_elapsed(periodic_timestamp_t * last)
+{
+  uint32_t ticks;
+  uint32_t fragments;
+
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+  {
+    fragments = PERIODIC_COUNTER_CURRENT;
+    ticks = periodic_mticks_count;
+  }
+
+  /* calculate elapsed time in microseconds */
+  if (last->ticks <= ticks)
+  {
+    ticks = ticks - last->ticks;
+  }
+  else
+  {
+    ticks = UINT32_MAX - last->ticks + ticks;
+  }
+
+  if (last->fragments <= fragments)
+  {
+    fragments = fragments - last->fragments;
+  }
+  else
+  {
+    fragments = FRAGMENTS_PER_TICK - last->fragments + fragments;
+    ticks -= 1;
+  }
+
+  return (uint32_t) (((uint64_t) ticks * 1000000ULL / CONF_MTICKS_PER_SEC) +
+                     ((uint64_t) fragments * 1000000ULL /
+                      CONF_MTICKS_PER_SEC / FRAGMENTS_PER_TICK));
+}
+
+uint32_t
+periodic_millis_elapsed(periodic_timestamp_t * last)
+{
+  return periodic_micros_elapsed(last) / 1000;
 }
 #endif
 

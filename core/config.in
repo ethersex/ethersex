@@ -9,6 +9,7 @@ mainmenu_option next_comment
 	else
 		define_symbol CONF_PERIODIC_USE_TIMER 1
 	fi
+	bool "Periodic timer API support" PERIODIC_TIMER_API_SUPPORT
 	bool "Periodic adjust support" PERIODIC_ADJUST_SUPPORT
 
 	dep_bool_menu "Periodic general debugging" DEBUG_PERIODIC $DEBUG

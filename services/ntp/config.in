@@ -1,0 +1,21 @@
+dep_bool_menu "Synchronize using NTP protocol" NTP_SUPPORT $CLOCK_SUPPORT $UDP_SUPPORT
+  if [ "$DNS_SUPPORT" = "y" ]; then
+    if [ "$IPV6_SUPPORT" = "y" ]; then
+      string "NTP Server" NTP_SERVER "ntp.ipv6.uni-leipzig.de"
+    else
+      string "NTP Server" NTP_SERVER "ptbtime1.ptb.de"
+    fi
+  else
+    ip "NTP IP" NTP_SERVER_IP "192.53.103.108" "2001:638:902:1:0:0:0:10"
+  fi
+  int "NTP Port" NTP_PORT 123
+
+  if [ "$NTP_QUERY_INTERVAL" -lt 60 -o "$NTP_QUERY_INTERVAL" = "" ] ; then
+    NTP_QUERY_INTERVAL=60
+  fi
+  int "NTP query interval (seconds)" NTP_QUERY_INTERVAL 1800
+
+  comment  "Debugging Flags"
+  dep_bool 'NTP' DEBUG_NTP $DEBUG
+endmenu
+dep_bool "NTP daemon" NTPD_SUPPORT $CLOCK_SUPPORT $CLOCK_CRYSTAL_SUPPORT $UDP_SUPPORT

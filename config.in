@@ -285,7 +285,6 @@ mainmenu_option next_comment
 	dep_bool '  OpenVPN' DEBUG_OPENVPN $DEBUG
 	dep_bool '  Router' DEBUG_ROUTER $DEBUG
 	dep_bool '  uIP' DEBUG_UIP $DEBUG
-	dep_bool '  NTP' DEBUG_NTP $DEBUG
 	dep_bool '  Unknown packets' DEBUG_UNKNOWN_PACKETS $DEBUG_NET
 
 endmenu

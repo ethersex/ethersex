@@ -1,6 +1,7 @@
 /*
  *
  * Copyright (c) 2014 by Michael Brakemeier <michael@brakemeier.de>
+ * Copyright (c) 2015 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -21,21 +22,12 @@
 
 #include <stdlib.h>
 
+#include <util/delay.h>
+
 #include "config.h"
-
 #include "protocols/ecmd/ecmd-base.h"
-
 #include "core/periodic.h"
-#include "core/debug.h"
 
-#ifdef DEBUG_PERIODIC
-#define PERIODICDEBUG(a...)   debug_printf("periodic: " a)
-extern volatile uint16_t periodic_milliticks;
-extern volatile uint16_t periodic_milliticks_max;
-extern volatile uint16_t periodic_milliticks_miss;
-#else
-#define PERIODICDEBUG(a...)
-#endif /* DEBUG_PERIODIC */
 
 #ifdef PERIODIC_ADJUST_SUPPORT
 int16_t
@@ -62,9 +54,7 @@ parse_cmd_periodic_adjust(char *cmd, char *output, uint16_t len)
   if (newtop == 0)
     return ECMD_ERR_PARSE_ERROR;
 
-  len = snprintf(output, len, "%u", newtop);
-
-  return ECMD_FINAL(len);
+  return ECMD_FINAL(snprintf(output, len, "%u", newtop));
 }
 #endif
 
@@ -74,8 +64,16 @@ enum
   PRINT_TIMER_USED = 0,
   PRINT_MILLITICKS,
   PRINT_MILLITICKS_MISS,
-  LAST
+#ifdef PERIODIC_TIMER_API_SUPPORT
+  PRINT_RESOLUTION,
+#endif
 };
+
+#ifdef PERIODIC_ADJUST_SUPPORT
+#define _PERIODIC_TOP PERIODIC_COUNTER_COMPARE
+#else
+#define _PERIODIC_TOP PERIODIC_TOP
+#endif
 
 int16_t
 parse_cmd_periodic_stats(char *cmd, char *output, uint16_t len)
@@ -87,66 +85,73 @@ parse_cmd_periodic_stats(char *cmd, char *output, uint16_t len)
     cmd[0] = ECMD_STATE_MAGIC;  /* continuing call: 23 */
     cmd[1] = 0;                 /* count states / output */
   }
+  else
+  {
+    cmd[1]++;                   /* iterate to next output line */
+  }
 
   /* simple state machine to iterate over the lines of output */
   switch (cmd[1])
   {
     case PRINT_TIMER_USED:
-      len =
-        snprintf_P(output, len, PSTR("Use T/C %d, PRESCALER: %u, TOP: %u"),
-                   CONF_PERIODIC_USE_TIMER,
-                   (unsigned int) (PERIODIC_PRESCALER),
-#ifndef PERIODIC_ADJUST_SUPPORT
-                   (unsigned int) (PERIODIC_TOP));
-#else
-                   (unsigned int) (PERIODIC_COUNTER_COMPARE));
-#endif
-      break;
+      return
+        ECMD_AGAIN(snprintf_P(output, len,
+                              PSTR("Use T/C %d, PRESCALER: %u, TOP: %u"),
+                              CONF_PERIODIC_USE_TIMER,
+                              (unsigned int) (PERIODIC_PRESCALER),
+                              (unsigned int) (_PERIODIC_TOP)));
 
     case PRINT_MILLITICKS:
-      len = snprintf_P(output, len,
-                       PSTR("milliticks 1/s: %u, current: %u, max: %u"),
-                       CONF_MTICKS_PER_SEC, periodic_milliticks,
-                       periodic_milliticks_max);
-      break;
+      return
+        ECMD_AGAIN(snprintf_P(output, len,
+                              PSTR("milliticks 1/s: %u, current: %u, max: %u"),
+                              CONF_MTICKS_PER_SEC, pdebug_milliticks,
+                              pdebug_milliticks_max));
 
     case PRINT_MILLITICKS_MISS:
-      len =
-        snprintf_P(output, len, PSTR("milliticks missed: %u"),
-                   periodic_milliticks_miss);
-      break;
-  }
+      return
+#ifdef PERIODIC_TIMER_API_SUPPORT
+        ECMD_AGAIN(
+#else
+        ECMD_FINAL(
+#endif
+                   snprintf_P(output, len, PSTR("milliticks missed: %u"),
+                              pdebug_milliticks_miss));
 
-  cmd[1]++;
-  if (cmd[1] == LAST)
-  {
-    return ECMD_FINAL(len);
+#ifdef PERIODIC_TIMER_API_SUPPORT
+    case PRINT_RESOLUTION:
+      return
+        ECMD_FINAL(snprintf_P(output, len,
+                              PSTR("resolution: %u us/tick, %u ns/fragment"),
+                              (unsigned int) (1000000U /
+                                              CONF_MTICKS_PER_SEC),
+                              (unsigned int) (1000000000U /
+                                              CONF_MTICKS_PER_SEC /
+                                              (_PERIODIC_TOP + 1))));
+#endif
   }
-
-  return ECMD_AGAIN(len);
+  return ECMD_FINAL_OK;         /* not reached */
 }
 
 int16_t
 parse_cmd_periodic_reset(char *cmd, char *output, uint16_t len)
 {
-  periodic_milliticks_max = 0;
-  periodic_milliticks_miss = 0;
+  pdebug_milliticks_max = 0;
+  pdebug_milliticks_miss = 0;
 
-  len = snprintf_P(output, len, PSTR("OK"));
-
-  return ECMD_FINAL(len);
+  return ECMD_FINAL_OK;
 }
 #endif /* DEBUG_PERIODIC_ECMD_SUPPORT */
 
 /*
  -- Ethersex META --
  ecmd_ifdef(PERIODIC_ADJUST_SUPPORT)
- block(Miscellaneous)
- ecmd_feature(periodic_adjust, "periodic adjust", OFFSET, Adjust periodic timers TOP value by adding OFFSET ticks.)
+  block(Miscellaneous)
+  ecmd_feature(periodic_adjust, "periodic adjust", OFFSET, Adjust periodic timers TOP value by adding OFFSET ticks.)
  ecmd_endif()
  ecmd_ifdef(DEBUG_PERIODIC_ECMD_SUPPORT)
- block(Miscellaneous)
- ecmd_feature(periodic_stats, "periodic stats",, Print debug statistics for periodic module.)
- ecmd_feature(periodic_reset, "periodic reset",, Reset debug statistics for periodic module.)
+  block(Miscellaneous)
+  ecmd_feature(periodic_stats, "periodic stats",, Print debug statistics for periodic module.)
+  ecmd_feature(periodic_reset, "periodic reset",, Reset debug statistics for periodic module.)
  ecmd_endif()
  */

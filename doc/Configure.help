@@ -505,34 +505,49 @@ DCF77_SUPPORT
 
 Synchronize using NTP protocol
 NTP_SUPPORT
-  Depends on:
+  Depends on: 
    * System clock support (CLOCK_SUPPORT)
    * UDP support (UDP_SUPPORT)
 
   Synchronize the system clock via NTP.
 
-NTP Fully Qualified NTP-Server Name
+NTP Server
 NTP_SERVER
+ Depends on:
+   * DNS support (DNS_SUPPORT)
+
  Enter the FQDN of your NTP-Server right here.  The server name depends on
  IPv4/IPv6.
 
-NTP Server IP Address
+NTP IP
 NTP_SERVER_IP
+
  This IP depends on your IPv4 or IPv6 selection and provides
  to set the correct NTP-Server IP Address for your network.
  Useful during disabled DNS operations.
 
-NTP Server Port Number
+NTP Port
 NTP_PORT
+
  The Port Number for your NTP-Server
   Default is 123
 
 NTP query interval (seconds)
 NTP_QUERY_INTERVAL
+
  The NTP query interval is the amount of time in seconds
  between NTP query messages are sent to the NTP server.
    The default value is 1800 seconds.
    The minimum value is 60 seconds.
+
+NTP daemon
+NTPD_SUPPORT
+  Depends on: 
+   * System clock support (CLOCK_SUPPORT)
+   * Use 32 kHz crystal to tick the clock (CLOCK_CRYSTAL_SUPPORT)
+   * UDP support (UDP_SUPPORT)
+
+  Enable NTP server.
 
 Cron daemon
 CRON_SUPPORT
@@ -619,14 +634,6 @@ CRON_ANACRON_MAXAGE
 
   Maximum time span covered by CRON_ANACRON_SUPPORT in secs. Default is
   86400 secs (one day).
-
-NTP daemon
-NTPD_SUPPORT
-  Depends on:
-   * System clock support (CLOCK_SUPPORT)
-   * UDP support (UDP_SUPPORT)
-
-  Enable NTP server.
 
 Working hour meter
 WHM_SUPPORT
@@ -2339,7 +2346,7 @@ OW_SENSORS_COUNT
 Frequency counter
 FREQCOUNT_SUPPORT
   Incompatible with:
-   * CLOCK_CPU_SUPPORT
+   * CLOCK_PERIODIC_SUPPORT
 
   If enabled, the frequency on the ICP1 pin is constantly sampled and stored
   in a variable. It can then be retrieved with code or ECMD.

@@ -1,7 +1,7 @@
 /*
- *
  * (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2014 by Michael Brakemeier <michael@brakemeier.de>
+ * Copyright (c) 2015 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -68,10 +68,12 @@
 #endif
 
 /* Periodic milliticks per second / periodic_milliticks_isr frequency.
- * CONF_MTICKS_PER_SEC           defined via config.in/autoconf.h
+ * CONF_MTICKS_PER_SEC          defined via config.in/autoconf.h
  */
 /* Timer ticks needed for one periodic millitick. Fast PWM TOP value. */
 #define PERIODIC_TOP            ((F_CPU / (PERIODIC_PRESCALER * CONF_MTICKS_PER_SEC)) - 1)
+/* Timer ticks needed for ~one second. */
+#define PERIODIC_TTICKS_PER_SEC (PERIODIC_TOP * CONF_MTICKS_PER_SEC)
 
 /* Periodic milliticks usability check -
  * there should be at least ~1000 CPU-Cycles per periodic millitick
@@ -81,8 +83,20 @@
 #warning *** rate to make periodic milliticks work as expected!!
 #endif
 
+#ifdef DEBUG_PERIODIC
+#include "core/debug.h"
+
+#define PERIODICDEBUG(a...)      debug_printf("periodic: " a)
+extern volatile uint16_t pdebug_milliticks;
+extern volatile uint16_t pdebug_milliticks_max;
+extern volatile uint16_t pdebug_milliticks_last;
+extern volatile uint16_t pdebug_milliticks_miss;
+#else
+#define PERIODICDEBUG(a...)
+#endif /* DEBUG_PERIODIC */
+
 /* periodic milliticks counter */
-extern volatile uint16_t periodic_milliticks;
+extern volatile uint32_t periodic_mticks_count;
 
 /* Initialize hardware timer. */
 void periodic_init(void);
@@ -97,6 +111,33 @@ void periodic_init(void);
  *      exceed the allowable range.
  */
 uint16_t periodic_adjust_set_offset(int16_t offset);
+#endif
+
+#ifdef PERIODIC_TIMER_API_SUPPORT
+
+typedef struct
+{
+  uint32_t ticks;
+  uint16_t fragments;
+} periodic_timestamp_t;
+
+/**
+ * Returns the number of periodic milliticks and fragments since
+ * the e6 periodic framework has been initialized.
+ */
+void periodic_milliticks(periodic_timestamp_t * now);
+
+/**
+ * Returns the number of microseconds that have elapsed between
+ * last and now.
+ */
+uint32_t periodic_micros_elapsed(periodic_timestamp_t * last);
+
+/**
+ * Returns the number of milliseconds that have elapsed between
+ * last and now.
+ */
+uint32_t periodic_millis_elapsed(periodic_timestamp_t * last);
 #endif
 
 #ifdef FREQCOUNT_SUPPORT
