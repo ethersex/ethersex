@@ -84,22 +84,8 @@ ISR(PERIODIC_VECTOR_OVERFLOW)
 
   pdebug_milliticks++;
 
-  periodic_milliticks++;
-
-#if defined(DEBUG_PERIODIC) && defined(DEBUG_PERIODIC_WAVEFORMS_SUPPORT)
-  PIN_TOGGLE(PERIODIC_WAVETICK_OUT);
-#endif
-
-  if (periodic_hz_tick >= (CONF_MTICKS_PER_SEC / HZ))
-  {
-    /* 20ms overflow */
-#ifdef DEBUG_PERIODIC
-    // should be CONF_MTICKS_PER_SEC / HZ periodic milliticks since last overflow
-    if (periodic_milliticks < (periodic_milliticks_last + (CONF_MTICKS_PER_SEC / HZ) - 1))
-      periodic_milliticks_miss += (periodic_milliticks_last + (CONF_MTICKS_PER_SEC / HZ) - periodic_milliticks);
-
 #ifdef DEBUG_PERIODIC_WAVEFORMS_SUPPORT
-    PIN_TOGGLE(PERIODIC_WAVE25HZ_OUT);
+  PIN_TOGGLE(PERIODIC_WAVETICK_OUT);
 #endif
 #endif
 
@@ -140,7 +126,6 @@ ISR(PERIODIC_VECTOR_OVERFLOW)
     periodic_hz_tick = 0;
   }
 #endif
-  }
 
   // call all the millitickers
 divert(milliticks_isr_divert)dnl
