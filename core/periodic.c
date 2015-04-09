@@ -171,9 +171,9 @@ periodic_micros_elapsed(periodic_timestamp_t * last)
     ticks -= 1;
   }
 
-  return (uint32_t) (((uint64_t) ticks * 1000000ULL / CONF_MTICKS_PER_SEC) +
-                     ((uint64_t) fragments * 1000000ULL /
-                      CONF_MTICKS_PER_SEC / FRAGMENTS_PER_TICK));
+  return (uint32_t) (((1000000ULL * (uint64_t) ticks) / CONF_MTICKS_PER_SEC) +
+                     ((1000000ULL * (uint64_t) fragments) /
+                      (CONF_MTICKS_PER_SEC * FRAGMENTS_PER_TICK)));
 }
 
 uint32_t
