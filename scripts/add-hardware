@@ -436,11 +436,6 @@ FNORD
     pin(ZBUS_RXTX_PIN, PC2)
 FNORD
 
-  template $EMS_SUPPORT << FNORD
-    /* port config for EMS - pin must match USART1 TX line */
-    pin(EMS_UART_TX, PD3)
-FNORD
-
   template $BLP_SUPPORT << FNORD
     /* port config for BlinkenlightsPro */
     pin(BLP_CLK, PB1, OUTPUT)

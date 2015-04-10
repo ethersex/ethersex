@@ -53,7 +53,11 @@
 #define BIT_TIME  ((uint8_t)((F_CPU / BAUD) / PRESCALE))
 #define TX_TIMEOUT 10 /* x100ms = 1 second */
 
-#define USE_USART 1
+#ifndef EMS_USE_USART
+#define EMS_USE_USART 1
+#endif
+#define USE_USART EMS_USE_USART
+
 #include "core/usart.h"
 
 static volatile uint8_t state = STATE_RX;
@@ -77,8 +81,14 @@ ems_uart_init(void)
 {
   usart_init();
 
-  PIN_CLEAR(EMS_UART_TX);
-  DDR_CONFIG_OUT(EMS_UART_TX);
+  /* Initialize UART TX GPIO as output driving low, so that it
+   * pulls the line low when we disable the transmitter to generate
+   * the break condition */
+
+  /* PIN_CLEAR(TXDn) */
+  PORT_CHAR(usart(TXD, _PORT)) &= ~_BV(usart(TXD, _PIN));
+  /* DDR_CONFIG_OUT(TXDn) */
+  DDR_CHAR(usart(TXD, _PORT)) |= _BV(usart(TXD, _PIN));
 
   TC2_PRESCALER_8;
   TC2_MODE_CTC;
@@ -161,6 +171,7 @@ ems_uart_periodic(void)
 static void
 start_break(void)
 {
+  /* switching off TXEN will pull the TX line low (see above) */
   usart(UCSR,B) &= ~(_BV(usart(UDRIE)) |
                      _BV(usart(TXEN))  |
                      _BV(usart(TXCIE)));
