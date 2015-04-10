@@ -17,5 +17,6 @@ define(`IPADDR', `ifelse(regexp($1, `:'), `-1', `ip4addr_expand(translit(`$1', `
 define(`ip4addr_expand', `uip_ipaddr_t ip; uip_ipaddr(&ip, $1, $2, $3, $4)')
 define(`ip6addr_expand', `uip_ipaddr_t ip; uip_ip6addr(&ip, $1, $2, $3, $4, $5, $6, $7, $8)')
 
-define(`ESEND', `do {IPADDR($1); ecmd_sender_send_command(&ip, PSTR($2), NULL); } while(0)')
-
+define(`ESEND', `{IPADDR($1);
+ifelse(`$#', 2, `ecmd_sender_send_command_P(&ip, NULL, PSTR($2))',
+                `ecmd_sender_send_command_P(&ip, NULL, PSTR($2), shift(shift($@)))');}')

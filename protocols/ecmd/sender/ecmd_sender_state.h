@@ -27,9 +27,9 @@
 #include <avr/pgmspace.h>
 
 struct ecmd_sender_connection_state_t {
-    uint16_t sent;
-    PGM_P to_be_sent;
     client_return_text_callback_t callback;
+    uint16_t sent;
+    char buf[100];
 };
 
 #endif /* ECMD_SENDER_STATE_H */

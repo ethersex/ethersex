@@ -261,7 +261,7 @@ sgc_setcontrast(char contrast)
 
 #ifdef SGC_ECMD_SEND_SUPPORT
   else                          /* also send ACK if no changes are necessary */
-    ecmd_sender_send_command(&ip, PSTR("ACK\n"), NULL);
+    ecmd_sender_send_command_P(&ip, NULL, PSTR("ACK\n"));
 #endif /* SGC_ECMD_SEND_SUPPORT */
 
   sgc_disp_vars.contrast = contrast;    /* save contrast for next powerup */
@@ -289,7 +289,7 @@ sgc_setpensize(char pensize)
 
 #ifdef SGC_ECMD_SEND_SUPPORT
   else                          /* also send ACK if no changes are necessary */
-    ecmd_sender_send_command(&ip, PSTR("ACK\n"), NULL);
+    ecmd_sender_send_command_P(&ip, NULL, PSTR("ACK\n"));
 #endif /* SGC_ECMD_SEND_SUPPORT */
 
   sgc_disp_vars.pensize = pensize;      /* save pensize for next powerup */
@@ -317,7 +317,7 @@ sgc_setfont(char font)
 
 #ifdef SGC_ECMD_SEND_SUPPORT
   else                          /* also send ACK if no changes are necessary */
-    ecmd_sender_send_command(&ip, PSTR("ACK\n"), NULL);
+    ecmd_sender_send_command_P(&ip, NULL, PSTR("ACK\n"));
 #endif /* SGC_ECMD_SEND_SUPPORT */
 
   sgc_disp_vars.font = font;    /* save font setting */
@@ -339,7 +339,7 @@ sgc_setcolour(char *colour)
 #endif /* SGC_TIMEOUT_COUNTER_SUPPORT */
 
 #ifdef SGC_ECMD_SEND_SUPPORT
-  ecmd_sender_send_command(&ip, PSTR("ACK\n"), NULL);
+  ecmd_sender_send_command_P(&ip, NULL, PSTR("ACK\n"));
 #endif /* SGC_ECMD_SEND_SUPPORT */
 
   sgc_disp_vars.colour[0] = colour[0];  /* save colour setting */
@@ -367,7 +367,7 @@ sgc_setopacity(char opacity)
 
 #ifdef SGC_ECMD_SEND_SUPPORT
   else                          /* also send ACK if no changes are necessary */
-    ecmd_sender_send_command(&ip, PSTR("ACK\n"), NULL);
+    ecmd_sender_send_command_P(&ip, NULL, PSTR("ACK\n"));
 #endif /* SGC_ECMD_SEND_SUPPORT */
 
   sgc_disp_vars.opacity = opacity;      /* save pensize for next powerup */
@@ -594,10 +594,10 @@ sgc_pwr_periodic(void)          /* runs with 20ms */
 #ifdef SGC_ECMD_SEND_SUPPORT
         if (bitstates & F_RESET)
         {                       /* notify host: display ready from reset */
-          ecmd_sender_send_command(&ip, PSTR("RESET\n"), NULL);
+          ecmd_sender_send_command_P(&ip, NULL, PSTR("RESET\n"));
           break;
         }                       /* notify host: display in shutdown */
-        ecmd_sender_send_command(&ip, PSTR("SHUTDOWN\n"), NULL);
+        ecmd_sender_send_command_P(&ip, NULL, PSTR("SHUTDOWN\n"));
 #endif /* SGC_ECMD_SEND_SUPPORT */
 
         break;
@@ -720,7 +720,7 @@ sgc_pwr_periodic(void)          /* runs with 20ms */
         bitstates &= ~TXBUSY;   /* release UART */
 
 #ifdef SGC_ECMD_SEND_SUPPORT    /* notify host: display powered up */
-        ecmd_sender_send_command(&ip, PSTR("POWERUP\n"), NULL);
+        ecmd_sender_send_command_P(&ip, NULL, PSTR("POWERUP\n"));
 #endif /* SGC_ECMD_SEND_SUPPORT */
 
         break;
@@ -759,7 +759,7 @@ ISR(usart(USART, _TX_vect))
     {
       sgc_power_state.ack = SGC_ACK;        /* set status: infinite timeout is always ACK */
 #ifdef SGC_ECMD_SEND_SUPPORT
-      ecmd_sender_send_command(&ip, PSTR("ACK\n"), NULL);
+      ecmd_sender_send_command_P(&ip, NULL, PSTR("ACK\n"));
 #endif /* SGC_ECMD_SEND_SUPPORT */
     }
     else
@@ -806,7 +806,7 @@ ISR(usart(USART, _RX_vect))
 #ifdef SGC_ECMD_SEND_SUPPORT
         if ((sgc_power_state.ist == SGC_SHUTDOWN) ||
             (sgc_power_state.ist == SGC_POWERUP))
-          ecmd_sender_send_command(&ip, PSTR("ACK\n"), NULL);
+          ecmd_sender_send_command_P(&ip, NULL, PSTR("ACK\n"));
 #endif /* SGC_ECMD_SEND_SUPPORT */
       }
       else                      /* NACK was received */
@@ -815,7 +815,7 @@ ISR(usart(USART, _RX_vect))
 #ifdef SGC_ECMD_SEND_SUPPORT
         if ((sgc_power_state.ist == SGC_SHUTDOWN) ||
             (sgc_power_state.ist == SGC_POWERUP))
-          ecmd_sender_send_command(&ip, PSTR("NACK\n"), NULL);
+          ecmd_sender_send_command_P(&ip, NULL, PSTR("NACK\n"));
 #endif /* SGC_ECMD_SEND_SUPPORT */
       }
     }
