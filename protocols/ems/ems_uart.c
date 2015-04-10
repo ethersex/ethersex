@@ -81,6 +81,10 @@ ems_uart_init(void)
 {
   usart_init();
 
+  /* Initialize UART TX GPIO as output driving low, so that it
+   * pulls the line low when we disable the transmitter to generate
+   * the break condition */
+
   /* PIN_CLEAR(TXDn) */
   PORT_CHAR(usart(TXD, _PORT)) &= ~_BV(usart(TXD, _PIN));
   /* DDR_CONFIG_OUT(TXDn) */
@@ -167,6 +171,7 @@ ems_uart_periodic(void)
 static void
 start_break(void)
 {
+  /* switching off TXEN will pull the TX line low (see above) */
   usart(UCSR,B) &= ~(_BV(usart(UDRIE)) |
                      _BV(usart(TXEN))  |
                      _BV(usart(TXCIE)));
