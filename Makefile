@@ -110,7 +110,11 @@ meta.m4: ${SRC} ${y_SRC} .config
 $(ECMD_PARSER_SUPPORT)_NP_SIMPLE_META_SRC = protocols/ecmd/ecmd_defs.m4 ${named_pin_simple_files}
 $(SOAP_SUPPORT)_NP_SIMPLE_META_SRC = protocols/ecmd/ecmd_defs.m4 ${named_pin_simple_files}
 
+ifeq ($(SCHEDULER_SUPPORT), y)
+y_META_SRC += scripts/meta_magic_scheduler.m4
+else
 y_META_SRC += scripts/meta_magic.m4
+endif
 $(ECMD_PARSER_SUPPORT)_META_SRC += protocols/ecmd/ecmd_magic.m4
 $(SOAP_SUPPORT)_META_SRC += protocols/soap/soap_magic.m4
 y_META_SRC += meta.m4
@@ -126,7 +130,7 @@ meta.defines: autoconf.h pinning.c
 $(y_META_SRC): meta.defines
 
 meta.c: $(y_META_SRC)
-	$(M4) `cat meta.defines` $^ > $@
+	$(M4) $(M4FLAGS) `cat meta.defines` $^ > $@
 
 meta.h: scripts/meta_header_magic.m4 meta.m4
 	$(M4) `cat meta.defines` $^ > $@

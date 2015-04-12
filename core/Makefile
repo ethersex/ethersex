@@ -44,6 +44,7 @@ include $(TOPDIR)/scripts/rules.mk
 SUBSUBDIRS += core/crypto
 SUBSUBDIRS += core/host
 SUBSUBDIRS += core/portio
+SUBSUBDIRS += core/scheduler
 SUBSUBDIRS += core/tty
 SUBSUBDIRS += core/gui
 SUBSUBDIRS += core/util
