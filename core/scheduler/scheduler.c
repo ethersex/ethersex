@@ -29,11 +29,7 @@
 void
 scheduler_init(void)
 {
-  for(uint8_t i = 0; i < scheduler_timer_max; i++)
-  {
-    /* initialize run-time calculated values in timer array */
-
-  }
+  // TODO? add run-time optimizations to the array here if req'ed
 
   return;
 }
@@ -47,10 +43,11 @@ scheduler_dispatch_timer(void)
   for(uint8_t i = 0; i < scheduler_timer_max; i++)
   {
     // check for a valid timer ready to run
-    if((scheduler_timers[i].state & TIMER_RUNNABLE) && (scheduler_timers[i].delay == 0))
+    if(((scheduler_timers[i].state & TIMER_RUNNABLE) == TIMER_RUNNABLE)
+        && (scheduler_timers[i].delay == 0))
     {
       // call timer
-      scheduler_timers[i].state &= ~TIMER_RUNNABLE;
+      scheduler_timers[i].state &= (uint8_t)~TIMER_RUNNABLE;
       scheduler_timers[i].state |= TIMER_RUNNING;
 
       (*scheduler_timers[i].timer)();
@@ -63,7 +60,7 @@ scheduler_dispatch_timer(void)
         scheduler_timers[i].delay = scheduler_timers[i].interval;
 
         // set back to runnable
-        scheduler_timers[i].state &= ~TIMER_RUNNING;
+        scheduler_timers[i].state &= (uint8_t)~TIMER_RUNNING;
         scheduler_timers[i].state |= TIMER_RUNNABLE;
       }
 #ifdef SCHEDULER_ONESHOT_SUPPORT

@@ -39,12 +39,13 @@
 /**
  * Maximum value for timer interval
  */
-#define SCHEDULER_INTERVAL_MAX  65535
+#define SCHEDULER_INTERVAL_MAX  UINT16_MAX
 
 /* Timer/Task states */
-#define TIMER_DELETED   0x01
-#define TIMER_RUNNABLE  0x02
-#define TIMER_RUNNING   0x04
+#define TIMER_DELETED   0x00
+#define TIMER_RUNNABLE  0x01
+#define TIMER_RUNNING   0x02
+/* reserved 0x04 */
 /* reserved 0x08 */
 #define TIMER_STATIC    0x10
 #define TIMER_DYNAMIC   0x20
