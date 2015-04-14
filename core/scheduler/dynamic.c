@@ -34,7 +34,7 @@ scheduler_add_timer(timer_t func, uint16_t interval)
   for(uint8_t i = 0; i < scheduler_timer_max; i++)
   {
     /* find free entry */
-    if ((scheduler_timers[i].state & TIMER_DELETED) == TIMER_DELETED)
+    if ((scheduler_timers[i].state == TIMER_DELETED)
     {
       // and add timer
       scheduler_timers[i].timer = func;
