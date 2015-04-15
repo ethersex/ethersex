@@ -75,6 +75,9 @@
 /* Timer ticks needed for ~one second. */
 #define PERIODIC_TTICKS_PER_SEC (PERIODIC_TOP * CONF_MTICKS_PER_SEC)
 
+/* Macro to convert milliseconds to periodic milliticks */
+#define PERIODIC_MS2MTICKS(msecs) ((msecs) * CONF_MTICKS_PER_SEC / 1000)
+
 /* Periodic milliticks usability check -
  * there should be at least ~1000 CPU-Cycles per periodic millitick
  */

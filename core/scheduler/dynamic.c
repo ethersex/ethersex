@@ -27,22 +27,30 @@
 
 /**
  * Add a dynamic timer.
+ *
+ * Timers can be deleted by means of scheduler_delete_timer().
+ * Note: A timer *MUST NOT* delete itself!
+ *
+ * @param func timer function to add.
+ * @param interval interval at which the timer func is called.
+ *
+ * @return a handle with a positive value on success, a negative value otherwise.
  */
 int
 scheduler_add_timer(timer_t func, uint16_t interval)
 {
-  for(uint8_t i = 0; i < scheduler_timer_max; i++)
+  for(uint8_t index = 0; index < scheduler_timer_max; index++)
   {
     /* find free entry */
-    if ((scheduler_timers[i].state == TIMER_DELETED)
+    if (scheduler_timers[index].state == TIMER_DELETED)
     {
-      // and add timer
-      scheduler_timers[i].timer = func;
-      scheduler_timers[i].delay = interval;
-      scheduler_timers[i].interval = interval;
-      scheduler_timers[i].state = (TIMER_DYNAMIC | TIMER_RUNNABLE);
+      /* and add timer */
+      scheduler_timers[index].timer = func;
+      scheduler_timers[index].delay = interval;
+      scheduler_timers[index].interval = interval;
+      scheduler_timers[index].state = (TIMER_DYNAMIC | TIMER_RUNNABLE);
 
-      return SCHEDULER_OK;
+      return index;
     }
   }
 
@@ -53,26 +61,21 @@ scheduler_add_timer(timer_t func, uint16_t interval)
  * Delete a dynamic timer.
  *
  * Note: A timer *MUST NOT* delete itself!
+ *
+ * @param which the handle returned by scheduler_add_timer().
+ *
+ * @return SCHEDULER_OK (0) on success, <0 otherwise.
  */
 int
-scheduler_delete_timer(timer_t func)
+scheduler_delete_timer(int which)
 {
-  for(uint8_t i = 0; i < scheduler_timer_max; i++)
+  if ((which < scheduler_timer_max) &&
+      ((scheduler_timers[which].state & TIMER_DYNAMIC) == TIMER_DYNAMIC))
   {
-    /* find and delete timer_t */
-    if (scheduler_timers[i].timer == func)
-    {
-      if ((scheduler_timers[i].state & TIMER_STATIC) == TIMER_STATIC)
-      {
-        // attempt to delete a static timer
-        return SCHEDULER_ERR;
-      }
+    scheduler_timers[which].delay = SCHEDULER_INTERVAL_MAX;
+    scheduler_timers[which].state = TIMER_DELETED;
 
-      scheduler_timers[i].delay = SCHEDULER_INTERVAL_MAX;
-      scheduler_timers[i].state = TIMER_DELETED;
-
-      return SCHEDULER_OK;
-    }
+    return SCHEDULER_OK;
   }
 
   return SCHEDULER_INVAL;

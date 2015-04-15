@@ -30,6 +30,14 @@
 
 /**
  * Add a dynamic timer.
+ *
+ * Timers can be deleted by means of scheduler_delete_timer().
+ * Note: A timer *MUST NOT* delete itself!
+ *
+ * @param func timer function to add.
+ * @param interval interval at which the timer func is called.
+ *
+ * @return a handle with a positive value on success, a negative value otherwise.
  */
 int scheduler_add_timer(timer_t func, uint16_t interval);
 
@@ -37,7 +45,11 @@ int scheduler_add_timer(timer_t func, uint16_t interval);
  * Delete a dynamic timer.
  *
  * Note: A timer *MUST NOT* delete itself!
+ *
+ * @param which the handle returned by scheduler_add_timer().
+ *
+ * @return SCHEDULER_OK (0) on success, <0 otherwise.
  */
-int scheduler_delete_timer(timer_t func);
+int scheduler_delete_timer(int which);
 
 #endif /* DYNAMIC_H_ */

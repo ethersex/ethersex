@@ -30,6 +30,18 @@
 
 /**
  * Add a dynamic one-shot timer.
+ *
+ * One-shot timers are a cheap method to add a fully e6-"multitasking"-
+ * compatible-non-blocking delay.
+ *
+ * One-shot timers may be deleted *before* invocation by means of
+ * scheduler_delete_timer(). Note: A one-shot timer *MUST NOT* delete
+ * itself!
+ *
+ * @param func one-shot timer function to add.
+ * @param delay delay until the timer is invoked exactly once.
+ *
+ * @return a handle with a positive value on success, a negative value otherwise.
  */
 int scheduler_add_oneshot_timer(timer_t func, uint16_t delay);
 
