@@ -67,7 +67,7 @@ scheduler_dispatch_timer(void)
       else
       {
         /* auto-delete one-shot timer */
-        scheduler_timers[i].delay = SCHEDULER_INTERVAL_MAX;
+        scheduler_timers[i].delay = 0;
         scheduler_timers[i].state = TIMER_DELETED;
       }
 #endif

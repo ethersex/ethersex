@@ -3,4 +3,3 @@ dep_bool "Enable timer/task scheduler" SCHEDULER_SUPPORT
 dep_bool "Enable dynamic timers/tasks" SCHEDULER_DYNAMIC_SUPPORT $SCHEDULER_SUPPORT
 int "Maximum number of dynamic timers/tasks" CONF_SCHEDULER_NUM_TIMERS \
   $(( ( $(echo -e "#include <avr/io.h>\nRAMEND" | avr-cpp -mmcu=$MCU | sed '$!d') / 256 ) > 32 ? 32 : 8 ))
-dep_bool "Enable one-shot timers" SCHEDULER_ONESHOT_SUPPORT $SCHEDULER_DYNAMIC_SUPPORT $SCHEDULER_SUPPORT
