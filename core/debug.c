@@ -44,25 +44,12 @@ static FILE debug_uart_stream = FDEV_SETUP_STREAM (debug_uart_put, NULL, _FDEV_S
 
 #include "pinning.c"
 
-/* We generate our own usart init, for our usart port,
- * but only if it is not shared with ecmd.
- */
-#if ( (defined(DEBUG_SERIAL_USART_SUPPORT) && \
-       !defined(ECMD_SERIAL_USART_SUPPORT)) || \
-      (defined(DEBUG_SERIAL_USART_SUPPORT) && \
-       defined(ECMD_SERIAL_USART_SUPPORT) && \
-       (DEBUG_USE_USART != ECMD_SERIAL_USART_USE_USART)) )
-#define DEBUG_USART_NEED_INIT
-#endif
-
-#ifdef DEBUG_USART_NEED_INIT
+/* We generate our own usart init, for our usart port */
 generate_usart_init()
-#endif
 
 void
 debug_init_uart(void)
 {
-#ifdef DEBUG_USART_NEED_INIT
   RS485_TE_SETUP;
   RS485_DISABLE_TX;
   usart_init();
@@ -70,7 +57,7 @@ debug_init_uart(void)
   /* disable the receiver interrupt, if enabled.
    * Receiver needs to stay enabled for debug/ecmd handler to work. */
   usart(UCSR, B) &= ~(_BV(usart(RXCIE)));
-#endif
+
   /* open stdout/stderr */
   stdout = &debug_uart_stream;
   stderr = &debug_uart_stream;

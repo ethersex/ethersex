@@ -35,8 +35,20 @@
 #include "pinning.c"
 
 
-/* We generate our own usart init module, for our usart port */
+/* We generate our own usart init, for our usart port,
+ * but only if it is not shared with debug.
+ */
+#if ( (defined(ECMD_SERIAL_USART_SUPPORT) && \
+      !defined(DEBUG_SERIAL_USART_SUPPORT)) || \
+      (defined(ECMD_SERIAL_USART_SUPPORT) && \
+        defined(DEBUG_SERIAL_USART_SUPPORT) && \
+        (ECMD_SERIAL_USART_USE_USART != DEBUG_USE_USART)) )
+#define ECMD_USART_NEED_INIT
+#endif
+
+#ifdef ECMD_USART_NEED_INIT
 generate_usart_init()
+#endif
 
 static char recv_buffer[ECMD_SERIAL_USART_BUFFER_LEN];
 static char write_buffer[ECMD_SERIAL_USART_BUFFER_LEN + 2];
@@ -52,7 +64,9 @@ ecmd_serial_usart_init(void) {
 
   RS485_TE_SETUP;             // configure RS485 transmit enable as output
   RS485_DISABLE_TX;           // disable RS485 transmitter
+#ifdef ECMD_USART_NEED_INIT
   usart_init();               // initialize the usart module
+#endif
 }
 
 void
