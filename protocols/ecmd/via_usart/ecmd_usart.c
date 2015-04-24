@@ -44,9 +44,6 @@
         defined(DEBUG_SERIAL_USART_SUPPORT) && \
         (ECMD_SERIAL_USART_USE_USART != DEBUG_USE_USART)) )
 #define ECMD_USART_NEED_INIT
-#endif
-
-#ifdef ECMD_USART_NEED_INIT
 generate_usart_init()
 #endif
 
@@ -58,13 +55,9 @@ static volatile uint8_t must_parse;
 
 void
 ecmd_serial_usart_init(void) {
-  recv_len = 0;
-  must_parse = 0;
-  write_len = 0;
-
+#ifdef ECMD_USART_NEED_INIT
   RS485_TE_SETUP;             // configure RS485 transmit enable as output
   RS485_DISABLE_TX;           // disable RS485 transmitter
-#ifdef ECMD_USART_NEED_INIT
   usart_init();               // initialize the usart module
 #endif
 }
