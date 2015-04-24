@@ -43,9 +43,9 @@
 
 /* Timer/Task states */
 #define TIMER_DELETED   0x00
-#define TIMER_RUNNABLE  0x01
-#define TIMER_RUNNING   0x02
-/* reserved 0x04 */
+#define TIMER_SUSPENDED 0x01
+#define TIMER_RUNNABLE  0x02
+#define TIMER_RUNNING   0x04
 /* reserved 0x08 */
 #define TIMER_STATIC    0x10
 #define TIMER_DYNAMIC   0x20
@@ -86,6 +86,43 @@ void scheduler_init(void);
  * The scheduler loop.
  */
 void scheduler_dispatch_timer(void);
+
+/**
+ * Suspend a timer.
+ *
+ * Suspend/stop a timer from normal operation. The timer will not expire
+ * and the timer function will not be called until the timer is either
+ * resumed or reset.
+ *
+ * @param func timer function to suspend.
+ *
+ * @return zero or a positive value on success, a negative value otherwise.
+ */
+int scheduler_timer_suspend(timer_t func);
+
+/**
+ * Resume a suspended timer.
+ *
+ * Resume/wake-up a suspended timer. The timer's delay counter is
+ * *NOT* reset, the timer will resume where it has been suspended.
+ *
+ * @param func timer function to resume.
+ *
+ * @return zero or a positive value on success, a negative value otherwise.
+ */
+int scheduler_timer_resume(timer_t func);
+
+/**
+ * Reset/Restart a timer.
+ *
+ * Reset/restart a timer by setting the delay counter to the initial
+ * interval. If the timer is currently suspended it will be resumed.
+ *
+ * @param func timer function to reset.
+ *
+ * @return zero or a positive value on success, a negative value otherwise.
+ */
+int scheduler_timer_reset(timer_t func);
 
 /**
  * 'Millitick' the scheduler.

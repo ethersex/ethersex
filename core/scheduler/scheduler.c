@@ -23,6 +23,8 @@
 
 #include "scheduler.h"
 
+#include <util/atomic.h>
+
 /**
  * Initialize the scheduler.
  */
@@ -76,6 +78,98 @@ scheduler_dispatch_timer(void)
 
   return;
 }
+
+/**
+ * Suspend a timer.
+ *
+ * Suspend/stop a timer from normal operation. The timer will not expire
+ * and the timer function will not be called until the timer is either
+ * resumed or reset.
+ *
+ * @param func timer function to suspend.
+ *
+ * @return zero or a positive value on success, a negative value otherwise.
+ */
+int
+scheduler_timer_suspend(timer_t func)
+{
+  for(uint8_t i = 0; i < scheduler_timer_max; i++)
+  {
+    if (scheduler_timers[i].timer == func)
+    {
+      ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+      {
+        scheduler_timers[i].state &= (uint8_t)~TIMER_RUNNABLE;
+        scheduler_timers[i].state |= TIMER_SUSPENDED;
+      }
+      return i;
+    }
+  }
+
+  return SCHEDULER_INVAL;
+}
+
+/**
+ * Resume a suspended timer.
+ *
+ * Resume/wake-up a suspended timer. The timer's delay counter is
+ * *NOT* reset, the timer will resume where it has been suspended.
+ *
+ * @param func timer function to resume.
+ *
+ * @return zero or a positive value on success, a negative value otherwise.
+ */
+int
+scheduler_timer_resume(timer_t func)
+{
+  for(uint8_t i = 0; i < scheduler_timer_max; i++)
+  {
+    if (scheduler_timers[i].timer == func)
+    {
+      ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+      {
+        scheduler_timers[i].state &= (uint8_t)~TIMER_SUSPENDED;
+        scheduler_timers[i].state |= TIMER_RUNNABLE;
+      }
+      return i;
+    }
+  }
+
+  return SCHEDULER_INVAL;
+}
+
+/**
+ * Reset/Restart a timer.
+ *
+ * Reset/restart a timer by setting the delay counter to the initial
+ * interval. If the timer is currently suspended it will be resumed.
+ *
+ * @param func timer function to reset.
+ *
+ * @return zero or a positive value on success, a negative value otherwise.
+ */
+int
+scheduler_timer_reset(timer_t func)
+{
+  for(uint8_t i = 0; i < scheduler_timer_max; i++)
+  {
+    if (scheduler_timers[i].timer == func)
+    {
+      ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+      {
+        // reset delay
+        scheduler_timers[i].delay = scheduler_timers[i].interval;
+        // and (always) reset SUSPENDED flags, simply ignore if it's not set
+        scheduler_timers[i].state &= (uint8_t)~TIMER_SUSPENDED;
+        scheduler_timers[i].state |= TIMER_RUNNABLE;
+      }
+      return i;
+    }
+  }
+
+  return SCHEDULER_INVAL;
+}
+
 
 /*
   -- Ethersex META --
