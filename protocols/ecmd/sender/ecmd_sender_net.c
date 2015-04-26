@@ -32,6 +32,46 @@
 
 typedef int (*fptr_t) (char *, size_t, const char *, va_list);
 
+
+static void
+ecmd_sender_net_main(void)
+{
+  struct ecmd_sender_connection_state_t *state =
+    &uip_conn->appstate.ecmd_sender;
+
+  /* Response */
+  if (uip_newdata() && uip_len > 0)
+  {
+    if (state->callback != NULL)
+    {
+      state->callback(uip_appdata, uip_len);
+      state->callback = NULL;   /* we must set this to NULL, because 
+                                 * otherwise it would be called on close */
+    }
+    uip_close();
+  }
+
+  if (uip_closed() && state->callback != NULL)
+  {
+    state->callback(NULL, 0);
+    state->callback = NULL;
+  }
+
+  if (uip_acked())
+    state->sent = 1;
+
+  if (uip_rexmit() || uip_acked() || uip_connected() || uip_poll())
+  {
+    /* Send one bufer of data */
+    if (!state->sent)
+    {
+      strncpy((char *) uip_appdata, state->buf, uip_mss() - 1);
+      ((char *) uip_appdata)[uip_mss() - 2] = 0;
+      uip_send((char *) uip_appdata, strlen((char *) uip_appdata));
+    }
+  }
+}
+
 static uip_conn_t *
 ecmd_sender_send(fptr_t f, uip_ipaddr_t * ipaddr,
                  client_return_text_callback_t callback,
@@ -79,43 +119,6 @@ ecmd_sender_send_command(uip_ipaddr_t * ipaddr,
                                       callback, message, va);
   va_end(va);
   return conn;
-}
-
-void
-ecmd_sender_net_main(void)
-{
-  struct ecmd_sender_connection_state_t *state =
-    &uip_conn->appstate.ecmd_sender;
-
-  if (uip_newdata() && uip_len > 0)
-  {
-    if (state->callback != NULL)
-    {
-      state->callback(uip_appdata, uip_len);
-      state->callback = NULL;   /* we must set this to NULL, because 
-                                 * otherwise it would be called on close */
-    }
-    uip_close();
-  }
-
-  if (uip_closed() && state->callback != NULL)
-  {
-    state->callback(NULL, 0);
-    state->callback = NULL;
-  }
-
-  if (uip_acked())
-    state->sent = 1;
-  if (uip_rexmit() || uip_acked() || uip_connected() || uip_poll())
-  {
-    /* Send one bufer of data */
-    if (!state->sent)
-    {
-      strncpy((char *) uip_appdata, state->buf, uip_mss() - 1);
-      ((char *) uip_appdata)[uip_mss() - 2] = 0;
-      uip_udp_send(strlen((char *) uip_appdata));
-    }
-  }
 }
 
 /*

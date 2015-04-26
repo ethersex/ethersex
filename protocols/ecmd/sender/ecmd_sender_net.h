@@ -32,22 +32,18 @@
 
 typedef void (*client_return_text_callback_t) (char *, uint8_t);
 
-uip_conn_t *ecmd_sender_send_command_P(uip_ipaddr_t * ipaddr,
-                                       client_return_text_callback_t callback,
-                                       PGM_P message, ...);
-uip_conn_t *ecmd_sender_send_command(uip_ipaddr_t * ipaddr,
-                                     client_return_text_callback_t callback,
-                                     const char *message, ...);
-void ecmd_sender_net_main(void);
+uip_conn_t *ecmd_sender_send_command_P(uip_ipaddr_t *,
+                                       client_return_text_callback_t,
+                                       PGM_P, ...);
+uip_conn_t *ecmd_sender_send_command(uip_ipaddr_t *,
+                                     client_return_text_callback_t,
+                                     const char *, ...);
 
-void uecmd_sender_pgm_send_command(uip_ipaddr_t * ipaddr,
-                                   PGM_P pgm_data,
-                                   client_return_text_callback_t callback);
-void uecmd_sender_pgm_net_main(void);
-
-void uecmd_sender_send_command(uip_ipaddr_t * ipaddr,
-                               char *data,
-                               client_return_text_callback_t callback);
-void uecmd_sender_net_main(void);
+uip_udp_conn_t *uecmd_sender_send_command_P(uip_ipaddr_t *,
+                                            client_return_text_callback_t,
+                                            PGM_P, ...);
+uip_udp_conn_t *uecmd_sender_send_command(uip_ipaddr_t *,
+                                          client_return_text_callback_t,
+                                          const char *, ...);
 
 #endif /* ECMD_SENDER_NET_H */

@@ -1,6 +1,6 @@
 /*
- *
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2015 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,78 +20,104 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include "config.h"
-#include "ecmd_sender_net.h"
-#include "protocols/uip/uip.h"
-#include "core/debug.h"
-#include "protocols/uip/uip_router.h"
-
+#include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
+#include <stdarg.h>
 
-static uip_udp_conn_t *ecmd_conn;
-char* send_data = NULL;
-uint8_t resend_counter;
-client_return_text_callback_t ucallback = NULL;
+#include "config.h"
+#include "core/debug.h"
+#include "protocols/uip/uip.h"
+#include "services/clock/clock.h"
+#include "ecmd_sender_net.h"
 
-void
-uecmd_sender_net_main(void) 
+typedef int (*fptr_t) (char *, size_t, const char *, va_list);
+
+
+static void
+uecmd_sender_net_main(void)
 {
-  if (uip_newdata()) {
-    if(ucallback) {
-      ucallback(uip_appdata, uip_len);
+  struct ecmd_sender_connection_state_t *state =
+    &uip_udp_conn->appstate.uecmd_sender;
+
+  if (uip_newdata() && uip_len > 0)
+  {
+    if (state->callback != NULL)
+    {
+      state->callback(uip_appdata, uip_len);
+      state->callback = NULL;
     }
-    free(send_data);
-    send_data = NULL;
-  }
-  if (send_data) {
-    resend_counter --;
-    if (!resend_counter) {
-      if(ucallback) {
-	ucallback(NULL, 0);
-      }
-      free(send_data);
-      send_data = NULL;
-      return;
-    }
-    uint8_t len = strlen(send_data);
-    memcpy(uip_appdata, send_data, len);
-    uip_slen = len;
-
-    /* build a new connection on the stack */
-    ecmd_conn->rport = HTONS(2701);
-
-    uip_udp_conn = ecmd_conn;
-
-    uip_process(UIP_UDP_SEND_CONN);
-    router_output();
-  }
-}
-
-void
-uecmd_sender_send_command(uip_ipaddr_t *ipaddr, char* data, client_return_text_callback_t callback) 
-{
-  if (send_data) {
-    if(callback) {
-      callback(NULL, 0);
-    }
-    free(data);
+    uip_udp_remove(uip_udp_conn);
     return;
-  }  
-
-  if (!ecmd_conn) {
-    ecmd_conn = uip_udp_new(ipaddr, 0, uecmd_sender_net_main);
-    if (!ecmd_conn) {
-      if(callback) {
-	callback(NULL, 0);
-      }
-      free(data);
-      send_data = NULL;
-      return;
-    }
   }
-  uip_ipaddr_copy(ecmd_conn->ripaddr, ipaddr);
-  send_data = data;
-  ucallback = callback;
-  resend_counter = 7;
+
+  if (--state->retry == 0)
+  {
+    if (state->callback)
+    {
+      state->callback(NULL, 0);
+      state->callback = NULL;
+    }
+    uip_udp_remove(uip_udp_conn);
+    return;
+  }
+
+  strncpy((char *) uip_appdata, state->buf, UIP_BUFSIZE - UIP_LLH_LEN - UIP_IPUDPH_LEN);
+  ((char *) uip_appdata)[UIP_BUFSIZE - UIP_LLH_LEN - UIP_IPUDPH_LEN - 1] = 0;
+  uip_udp_send(strlen((char *) uip_appdata));
 }
 
+static uip_udp_conn_t *
+uecmd_sender_send(fptr_t f, uip_ipaddr_t * ipaddr,
+                  client_return_text_callback_t callback,
+                  const char *message, va_list ap)
+{
+  uip_udp_conn_t *conn = uip_udp_new(ipaddr, HTONS(ECMD_TCP_PORT),
+                                     uecmd_sender_net_main);
+  if (conn)
+  {
+    struct ecmd_sender_connection_state_t *state =
+      &conn->appstate.uecmd_sender;
+    f(state->buf, sizeof(state->buf), message, ap);
+    state->buf[sizeof(state->buf) - 1] = 0;
+    state->callback = callback;
+    state->retry = 7;
+  }
+  else
+  {
+    callback(NULL, 0);
+  }
+  return conn;
+}
+
+uip_udp_conn_t *
+uecmd_sender_send_command_P(uip_ipaddr_t * ipaddr,
+                            client_return_text_callback_t callback,
+                            const char *message, ...)
+{
+  va_list va;
+  va_start(va, message);
+  uip_udp_conn_t *conn = uecmd_sender_send(&vsnprintf_P, ipaddr,
+                                           callback, message, va);
+  va_end(va);
+  return conn;
+}
+
+uip_udp_conn_t *
+uecmd_sender_send_command(uip_ipaddr_t * ipaddr,
+                          client_return_text_callback_t callback,
+                          const char *message, ...)
+{
+  va_list va;
+  va_start(va, message);
+  uip_udp_conn_t *conn = uecmd_sender_send(&vsnprintf, ipaddr,
+                                           callback, message, va);
+  va_end(va);
+  return conn;
+}
+
+/*
+  -- Ethersex META --
+  state_header(protocols/ecmd/sender/ecmd_sender_state.h)
+  state_udp(struct ecmd_sender_connection_state_t uecmd_sender)
+*/
