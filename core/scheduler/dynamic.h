@@ -39,7 +39,7 @@
  *
  * @return a handle with a positive value on success, a negative value otherwise.
  */
-int scheduler_add_timer(timer_t func, uint16_t interval);
+int8_t scheduler_add_timer(timer_t func, uint16_t interval);
 
 /**
  * Add a dynamic one-shot timer.
@@ -56,7 +56,7 @@ int scheduler_add_timer(timer_t func, uint16_t interval);
  *
  * @return a handle with a positive value on success, a negative value otherwise.
  */
-int scheduler_add_oneshot_timer(timer_t func, uint16_t delay);
+int8_t scheduler_add_oneshot_timer(timer_t func, uint16_t delay);
 
 /**
  * Delete a dynamic timer.
@@ -67,6 +67,62 @@ int scheduler_add_oneshot_timer(timer_t func, uint16_t delay);
  *
  * @return SCHEDULER_OK (0) on success, <0 otherwise.
  */
-int scheduler_delete_timer(int which);
+int8_t scheduler_delete_timer(int8_t which);
+
+/**
+ * Suspend a timer.
+ *
+ * Suspend/stop a timer from normal operation. The timer will not expire
+ * and the timer function will not be called until the timer is either
+ * resumed or reset.
+ *
+ * @param which the handle returned by scheduler_add_timer().
+ *
+ * @return SCHEDULER_OK (0) on success, <0 otherwise.
+ */
+int8_t scheduler_suspend_timer(int8_t which);
+
+/**
+ * Resume a suspended timer.
+ *
+ * Resume/wake-up a suspended timer. The timer's delay counter is
+ * *NOT* reset, the timer will resume where it has been suspended.
+ *
+ * @param which the handle returned by scheduler_add_timer().
+ *
+ * @return SCHEDULER_OK (0) on success, <0 otherwise.
+ */
+int8_t scheduler_resume_timer(int8_t which);
+
+/**
+ * Reset/Restart a timer.
+ *
+ * Reset/restart a timer by setting the delay counter to the initial
+ * interval. If the timer is currently suspended it will be resumed.
+ *
+ * @param which the handle returned by scheduler_add_timer().
+ *
+ * @return SCHEDULER_OK (0) on success, <0 otherwise.
+ */
+int8_t scheduler_reset_timer(int8_t which);
+
+/**
+ * Get a timer's current interval setting.
+ *
+ * @param which the handle returned by scheduler_add_timer().
+ *
+ * @return the timer's current interval, or zero if the handle passed in is invalid
+ */
+uint16_t scheduler_get_timer_interval(int8_t which);
+
+/**
+ * Set a timer's current interval.
+ *
+ * @param which the handle returned by scheduler_add_timer().
+ * @param new_interval the timer's new_interval.
+ *
+ * @return SCHEDULER_OK (0) on success, <0 otherwise.
+ */
+int8_t scheduler_set_timer_interval(int8_t which, uint16_t new_interval);
 
 #endif /* DYNAMIC_H_ */

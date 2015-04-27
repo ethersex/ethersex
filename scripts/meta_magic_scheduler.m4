@@ -101,8 +101,9 @@ dnl NASTY DRAGON INSIDE! m4-scripts for ecmd, SOAP, etc. use diverts from 1 up t
 define(`timer_divert', `eval(prototypes` + 12')')dnl
 define(`timer_divert_static_start', `eval(timer_divert` + 1')')dnl
 define(`timer_divert_static_end', `eval(timer_divert_static_start` + 1')')dnl
-define(`timer_divert_end', `eval(timer_divert_static_end` + 1')')dnl
-define(`implementation_start_divert', `eval(timer_divert_end` + 1')')dnl
+define(`timer_divert_static_control_start', `eval(timer_divert_static_end` + 1')')dnl
+define(`timer_divert_static_control_end', `eval(timer_divert_static_control_start` + 1')')dnl
+define(`implementation_start_divert', `eval(timer_divert_static_control_end` + 1')')dnl
 define(`initearly_divert', `eval(implementation_start_divert` + 1')')dnl
 define(`init_divert', `eval(initearly_divert` + 1')')dnl
 define(`net_init_divert', `eval(init_divert` + 1')')dnl
@@ -113,7 +114,7 @@ define(`periodic_process_divert', `eval(mainloop_divert` + 1')')dnl
 define(`postamble_divert', `eval(periodic_process_divert` + 1')')dnl
 
 dnl timer(n, func)
-dnl old-style timer(n, func) macros are rewritten to 
+dnl old-style timer(n, func) macros are rewritten to
 dnl millitimer(i, func) macros with i = n * 20 ms intervals
 define(`timer', `ifelse($#, 0, ``$0'', $1,,,dnl
 `millitimer(eval(`($1) * 20'), `$2')')')dnl
@@ -165,8 +166,11 @@ dnl print_millitimer(func, startval, ival)
 dnl return a formatted static timer C array entry
 define(`print_millitimer',
 `pushdivert()divert(timer_divert_static_start)dnl
-format(`    { %s, %d, %d, (TIMER_STATIC | TIMER_RUNNABLE) }, /* static timer */
-', `$1', `$2', `$3')popdivert()')
+format(`    { %s, %d }, /* static timer */
+', `$1', `$3')popdivert()dnl
+pushdivert()divert(timer_divert_static_control_start)dnl
+format(`    { %d, TIMER_RUNNABLE }, /* %s() static timer control */
+', `$2', `$1')popdivert()')
 
 dnl statictimer()
 dnl sort and distribute static timers
@@ -208,16 +212,6 @@ forloop(`chars', 1, array_get(`profile_array', iter), `+')
 ')popdivert()dnl
 dnl ')dnl comment to enable debugging output
 ')dnl
-
-dnl dynamictimer(num)
-dnl add num empty elements to timer array for dynamic timers
-define(`dynamictimer',`ifelse($#, 0, ``$0'', $1,,,dnl
-`pushdivert()divert(timer_divert_static_end)dnl
-forloop(`iter', 1, $1 - 1,dnl
-    `{ NULL, 0, 0, TIMER_DELETED }, /* dynamic timer slot 'iter` */
-')dnl
-    `{ NULL, 0, 0, TIMER_DELETED }  /* dynamic timer slot '$1` */
-'popdivert()')')dnl
 
 
 dnl forloop(`iter', 1, array_get(`profile_array', size), `
@@ -273,19 +267,27 @@ dnl Timer foo
 dnl
 divert(timer_divert)
 /*
- * All the millitimer functions invoked by the scheduler.
+ * All the static millitimer functions invoked by the scheduler.
  */
-timer_cb_t scheduler_timers[] = {
- /* { timer_t timer, uint16_t delay, uint16_t interval, uint8_t state } */
+const static_timer_func_t PROGMEM scheduler_static_timers[] = {
+ /* { timer_t timer, uint16_t interval } */
 divert(timer_divert_static_start)dnl
 divert(timer_divert_static_end)dnl
-divert(timer_divert_end)dnl
+};
+
+/*
+ * Static millitimers control block in RAM.
+ */
+static_timer_cb_t scheduler_static_timers_control[] = {
+ /* { uint16_t delay, uint8_t state } */
+divert(timer_divert_static_control_start)dnl
+divert(timer_divert_static_control_end)dnl
 };
 
 /*
  * Actual number of millitimer entries in array is only known here, propagate.
  */
-const uint8_t scheduler_timer_max = sizeof(scheduler_timers) / sizeof(scheduler_timers[0]);
+const uint8_t scheduler_static_timer_max = sizeof(scheduler_static_timers) / sizeof(scheduler_static_timers[0]);
 
 dnl
 dnl functions follow
@@ -475,8 +477,4 @@ divert(-1)dnl
 dnl
 dnl postprocess static timers after all files have been read
 m4wrap(`statictimer')
-
-dnl postprocess dynamic timers
-m4wrap(`ifdef(`conf_SCHEDULER_DYNAMIC', `dynamictimer(`eval(value_SCHEDULER_NUM_TIMERS`')')')')
-
 

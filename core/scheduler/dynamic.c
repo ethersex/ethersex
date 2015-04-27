@@ -25,30 +25,32 @@
 
 #include "dynamic.h"
 
+#include <util/atomic.h>
+
 /**
  * Add a dynamic timer.
  */
-static int add_timer(timer_t func, uint16_t delay, uint16_t interval, uint8_t flags);
+static int8_t add_timer(timer_t func, uint16_t delay, uint16_t interval, uint8_t flags);
 
 
 /**
  * Add a dynamic timer.
  */
-static int
+static int8_t
 add_timer(timer_t func, uint16_t delay, uint16_t interval, uint8_t flags)
 {
-  for(uint8_t index = 0; index < scheduler_timer_max; index++)
+  for(uint8_t index = 0; index < scheduler_dynamic_timer_max; index++)
   {
     /* find free entry */
-    if (scheduler_timers[index].state == TIMER_DELETED)
+    if (scheduler_dynamic_timers[index].state == TIMER_DELETED)
     {
       /* and add timer */
-      scheduler_timers[index].timer = func;
-      scheduler_timers[index].delay = delay;
-      scheduler_timers[index].interval = interval;
-      scheduler_timers[index].state = flags;
+      scheduler_dynamic_timers[index].timer = func;
+      scheduler_dynamic_timers[index].delay = delay;
+      scheduler_dynamic_timers[index].interval = interval;
+      scheduler_dynamic_timers[index].state = flags;
 
-      return index;
+      return (int8_t)index;
     }
   }
 
@@ -67,10 +69,10 @@ add_timer(timer_t func, uint16_t delay, uint16_t interval, uint8_t flags)
  *
  * @return a handle with a positive value on success, a negative value otherwise.
  */
-int
+int8_t
 scheduler_add_timer(timer_t func, uint16_t interval)
 {
-  return add_timer(func, interval, interval, (TIMER_DYNAMIC | TIMER_RUNNABLE));
+  return add_timer(func, interval, interval, TIMER_RUNNABLE);
 }
 
 
@@ -89,10 +91,10 @@ scheduler_add_timer(timer_t func, uint16_t interval)
  *
  * @return a handle with a positive value on success, a negative value otherwise.
  */
-int
+int8_t
 scheduler_add_oneshot_timer(timer_t func, uint16_t delay)
 {
-  return add_timer(func, delay, 0, (TIMER_ONESHOT | TIMER_DYNAMIC | TIMER_RUNNABLE));
+  return add_timer(func, delay, 0, (TIMER_ONESHOT | TIMER_RUNNABLE));
 }
 
 
@@ -105,17 +107,139 @@ scheduler_add_oneshot_timer(timer_t func, uint16_t delay)
  *
  * @return SCHEDULER_OK (0) on success, <0 otherwise.
  */
-int
-scheduler_delete_timer(int which)
+int8_t
+scheduler_delete_timer(int8_t which)
 {
-  if ((which < scheduler_timer_max) &&
-      ((scheduler_timers[which].state & TIMER_DYNAMIC) == TIMER_DYNAMIC))
+  if ((which >= 0) && (which < scheduler_dynamic_timer_max))
   {
-    scheduler_timers[which].delay = SCHEDULER_INTERVAL_MAX;
-    scheduler_timers[which].state = TIMER_DELETED;
+    scheduler_dynamic_timers[which].delay = SCHEDULER_INTERVAL_MAX;
+    scheduler_dynamic_timers[which].state = TIMER_DELETED;
 
     return SCHEDULER_OK;
   }
 
   return SCHEDULER_INVAL;
 }
+
+
+/**
+ * Suspend a timer.
+ *
+ * Suspend/stop a timer from normal operation. The timer will not expire
+ * and the timer function will not be called until the timer is either
+ * resumed or reset.
+ *
+ * Note: A timer must not manipulate itself.
+ *
+ * @param func timer function to suspend.
+ *
+ * @return zero or a positive value on success, a negative value otherwise.
+ */
+int8_t
+scheduler_suspend_timer(int8_t which)
+{
+  if ((which >= 0) && (which < scheduler_dynamic_timer_max))
+  {
+    scheduler_dynamic_timers[which].state &= (uint8_t)~TIMER_RUNNABLE;
+    scheduler_dynamic_timers[which].state |= TIMER_SUSPENDED;
+
+    return SCHEDULER_OK;
+  }
+
+  return SCHEDULER_INVAL;
+}
+
+
+/**
+ * Resume a suspended timer.
+ *
+ * Resume/wake-up a suspended timer. The timer's delay counter is
+ * *NOT* reset, the timer will resume where it has been suspended.
+ *
+ * Note: A timer must not manipulate itself.
+ *
+ * @param func timer function to resume.
+ *
+ * @return zero or a positive value on success, a negative value otherwise.
+ */
+int8_t
+scheduler_resume_timer(int8_t which)
+{
+  if ((which >= 0) && (which < scheduler_dynamic_timer_max))
+  {
+    scheduler_dynamic_timers[which].state &= (uint8_t)~TIMER_SUSPENDED;
+    scheduler_dynamic_timers[which].state |= TIMER_RUNNABLE;
+
+    return SCHEDULER_OK;
+  }
+
+  return SCHEDULER_INVAL;
+}
+
+
+/**
+ * Reset/Restart a timer.
+ *
+ * Reset/restart a timer by setting the delay counter to the initial
+ * interval. If the timer is currently suspended it will be resumed.
+ *
+ * Note: A timer must not manipulate itself.
+ *
+ * @param func timer function to reset.
+ *
+ * @return zero or a positive value on success, a negative value otherwise.
+ */
+int8_t
+scheduler_reset_timer(int8_t which)
+{
+  if ((which >= 0) && (which < scheduler_dynamic_timer_max))
+  {
+    // reset delay
+    scheduler_dynamic_timers[which].delay = scheduler_dynamic_timers[which].interval;
+
+    // and (always) reset SUSPENDED flags, simply ignore if it's not set
+    scheduler_dynamic_timers[which].state &= (uint8_t)~TIMER_SUSPENDED;
+    scheduler_dynamic_timers[which].state |= TIMER_RUNNABLE;
+
+    return SCHEDULER_OK;
+  }
+
+  return SCHEDULER_INVAL;
+}
+
+/**
+ * Get a timer's current interval setting.
+ *
+ * @param which the handle returned by scheduler_add_timer().
+ *
+ * @return the timer's current interval, or zero if the handle passed in is invalid
+ */
+uint16_t scheduler_get_timer_interval(int8_t which)
+{
+  if ((which >= 0) && (which < scheduler_dynamic_timer_max))
+  {
+    return scheduler_dynamic_timers[which].interval;
+  }
+
+  return 0;
+}
+
+/**
+ * Set a timer's current interval.
+ *
+ * @param which the handle returned by scheduler_add_timer().
+ *
+ * @return SCHEDULER_OK (0) on success, <0 otherwise.
+ */
+int8_t scheduler_set_timer_interval(int8_t which, uint16_t new_interval)
+{
+  if ((which >= 0) && (which < scheduler_dynamic_timer_max))
+  {
+    scheduler_dynamic_timers[which].interval = new_interval;
+
+    return SCHEDULER_OK;
+  }
+
+  return SCHEDULER_INVAL;
+}
+
