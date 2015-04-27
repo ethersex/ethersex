@@ -24,6 +24,7 @@
 #include <util/twi.h>
 
 #include "config.h"
+#include "core/bit-macros.h"
 #include "i2c_master.h"
 #include "i2c_ds13x7.h"
 #include <string.h>
@@ -140,7 +141,7 @@ i2c_ds13x7_get(uint8_t reg)
 uint8_t
 b2i(uint8_t bcd)
 {
-  return 10 * (bcd >> 4) + (bcd & 0xf);
+  return 10 * HI4(bcd) + LO4(bcd);
 }
 
 uint8_t

@@ -24,6 +24,7 @@
 #include <util/parity.h>
 
 #include "config.h"
+#include "core/bit-macros.h"
 
 #include "rfm12.h"
 #include "rfm12_fs20_lib.h"
@@ -148,12 +149,12 @@ cksum3(uint8_t * buf, uint8_t len)
   while (len)
   {
     uint8_t d = buf[--len];
-    x ^= (d >> 4);
-    y += (d >> 4);
+    x ^= HI4(d);
+    y += HI4(d);
     if (!nibble || cnt)
     {
-      x ^= (d & 0xf);
-      y += (d & 0xf);
+      x ^= LO4(d);
+      y += LO4(d);
     }
     cnt++;
   }
@@ -362,15 +363,15 @@ analyze_TX3(bucket_t * b)
     {
       n = getbits(&in, 8, 1);
     }
-    crc = crc + (n >> 4) + (n & 0xf);
+    crc = crc + HI4(n) + LO4(n);
     obuf[oby] = n;
   }
 
   obuf[oby] = getbits(&in, 7, 1) << 1;
-  crc = (crc + (obuf[oby] >> 4)) & 0xF;
+  crc = LO4(crc + HI4(obuf[oby]));
   oby++;
 
-  if ((crc >> 4) != 0 || (obuf[0] >> 4) != 0xA)
+  if (HI4(crc) != 0 || HI4(obuf[0]) != 0xA)
     return 0;
 
   return 1;

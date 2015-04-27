@@ -25,6 +25,7 @@
 
 #include "config.h"
 #include "core/util/byte2hex.h"
+#include "core/bit-macros.h"
 
 /* this could easily be done by using sprintf, but the lib has a much to big
  * memory footprint, so we convert the data into a hex string on our own */
@@ -32,12 +33,12 @@
 uint8_t byte2hex (uint8_t value, char *string)
 {
   // convert high nibble into hex ascii
-  string[0] = (value >> 4) + '0';
+  string[0] = HI4(value) + '0';
   if(string[0] > '9')
     string[0] += 'A' - '0' - 10;
 
   // convert low nibble into hex ascii
-  string[1] = (value & 0X0F) + '0';
+  string[1] = LO4(value) + '0';
   if (string[1] > '9')
     string[1] += 'A' - '0' - 10;
 

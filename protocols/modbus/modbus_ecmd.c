@@ -26,6 +26,7 @@
 
 #include "config.h"
 #include "core/debug.h"
+#include "core/bit-macros.h"
 #include "modbus.h"
 #include "modbus_net.h"
 
@@ -79,8 +80,8 @@ int16_t parse_cmd_modbus_recv(char *cmd, char *output, uint16_t len)
 
   for (i = 0; i < recv_len - 2; i++) {
     if ((len - i*2) < 2) break;
-    output[i * 2] = NIBBLE_TO_HEX(buffer[i] >> 4);
-    output[i * 2 + 1] = NIBBLE_TO_HEX(buffer[i] & 0x0f);
+    output[i * 2] = NIBBLE_TO_HEX(HI4(buffer[i]));
+    output[i * 2 + 1] = NIBBLE_TO_HEX(LO4(buffer[i]));
   }
 
   return ECMD_FINAL(i * 2);
