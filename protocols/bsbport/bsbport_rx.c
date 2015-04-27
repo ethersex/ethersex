@@ -196,7 +196,7 @@ bsbport_calc_value(struct bsbport_msg *msg)
            && msg->p.data.p3 == 0x00
            && msg->p.data.p4 == 0x9A)   // Msg with errorcode in byte 2 received
   {
-    msg->value = (uint8_t) msg->data[DATA + 1];
+    msg->value = (uint8_t) msg->data[1];
   }
   else if (msg->type == ANSWER && msg->data_length == 3)        // Msg with 3 Databytes received
   {
