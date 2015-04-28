@@ -32,7 +32,6 @@
  * Add a dynamic timer.
  *
  * Timers can be deleted by means of scheduler_delete_timer().
- * Note: A timer *MUST NOT* delete itself!
  *
  * @param func timer function to add.
  * @param interval interval at which the timer func is called.
@@ -47,10 +46,6 @@ int8_t scheduler_add_timer(timer_t func, uint16_t interval);
  * One-shot timers are a cheap method to add a fully e6-"multitasking"-
  * compatible-non-blocking delay.
  *
- * One-shot timers may be deleted *before* invocation by means of
- * scheduler_delete_timer(). Note: A one-shot timer *MUST NOT* delete
- * itself!
- *
  * @param func one-shot timer function to add.
  * @param delay delay until the timer is invoked exactly once.
  *
@@ -60,8 +55,6 @@ int8_t scheduler_add_oneshot_timer(timer_t func, uint16_t delay);
 
 /**
  * Delete a dynamic timer.
- *
- * Note: A timer *MUST NOT* delete itself!
  *
  * @param which the handle returned by scheduler_add_timer().
  *

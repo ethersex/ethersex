@@ -26,6 +26,13 @@
 
 #include <stdint.h>
 
+#ifdef DEBUG_SCHEDULER_SUPPORT
+#include "core/debug.h"
+#define SCHEDULERDEBUG(a...)    debug_printf("scheduler: " a)
+#else
+#define SCHEDULERDEBUG(a...)
+#endif /* DEBUG_SCHEDULER_SUPPORT */
+
 /**
  * Return values for the scheduler functions.
  */
@@ -45,9 +52,9 @@
 #define TIMER_RUNNABLE  0x02
 #define TIMER_RUNNING   0x04
 /* reserved 0x08 */
-// #define TIMER_STATIC    0x10
-// #define TIMER_DYNAMIC   0x20
-#define TIMER_ONESHOT   0x40
+#define TIMER_ONESHOT   0x10
+/* reserved 0x20 */
+/* reserved 0x40 */
 /* reserved 0x80 */
 
 /**
@@ -114,6 +121,9 @@ void scheduler_dispatch_timer(void);
 
 /**
  * 'Millitick' the scheduler.
+ *
+ * This function will be inlined into the periodic ISR.
+ * Keep it SHORT and simple.
  *
  * We definitely want to inline all millitickers.
  */

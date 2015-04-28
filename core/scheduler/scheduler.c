@@ -26,7 +26,6 @@
 #include "scheduler.h"
 
 #include <avr/pgmspace.h>
-#include <util/atomic.h>
 
 #ifdef SCHEDULER_DYNAMIC_SUPPORT
 /*

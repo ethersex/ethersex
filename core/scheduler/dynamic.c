@@ -62,7 +62,6 @@ add_timer(timer_t func, uint16_t delay, uint16_t interval, uint8_t flags)
  * Add a dynamic timer.
  *
  * Timers can be deleted by means of scheduler_delete_timer().
- * Note: A timer *MUST NOT* delete itself!
  *
  * @param func timer function to add.
  * @param interval interval at which the timer func is called.
@@ -82,10 +81,6 @@ scheduler_add_timer(timer_t func, uint16_t interval)
  * One-shot timers are a cheap method to add a fully e6-"multitasking"-
  * compatible-non-blocking delay.
  *
- * One-shot timers may be deleted *before* invocation by means of
- * scheduler_delete_timer(). Note: A one-shot timer *MUST NOT* delete
- * itself!
- *
  * @param func one-shot timer function to add.
  * @param delay delay until the timer is invoked exactly once.
  *
@@ -100,8 +95,6 @@ scheduler_add_oneshot_timer(timer_t func, uint16_t delay)
 
 /**
  * Delete a dynamic timer.
- *
- * Note: A timer *MUST NOT* delete itself!
  *
  * @param which the handle returned by scheduler_add_timer().
  *
@@ -129,11 +122,9 @@ scheduler_delete_timer(int8_t which)
  * and the timer function will not be called until the timer is either
  * resumed or reset.
  *
- * Note: A timer must not manipulate itself.
+ * @param which the handle returned by scheduler_add_timer().
  *
- * @param func timer function to suspend.
- *
- * @return zero or a positive value on success, a negative value otherwise.
+ * @return SCHEDULER_OK (0) on success, <0 otherwise.
  */
 int8_t
 scheduler_suspend_timer(int8_t which)
@@ -156,11 +147,9 @@ scheduler_suspend_timer(int8_t which)
  * Resume/wake-up a suspended timer. The timer's delay counter is
  * *NOT* reset, the timer will resume where it has been suspended.
  *
- * Note: A timer must not manipulate itself.
+ * @param which the handle returned by scheduler_add_timer().
  *
- * @param func timer function to resume.
- *
- * @return zero or a positive value on success, a negative value otherwise.
+ * @return SCHEDULER_OK (0) on success, <0 otherwise.
  */
 int8_t
 scheduler_resume_timer(int8_t which)
@@ -183,11 +172,9 @@ scheduler_resume_timer(int8_t which)
  * Reset/restart a timer by setting the delay counter to the initial
  * interval. If the timer is currently suspended it will be resumed.
  *
- * Note: A timer must not manipulate itself.
+ * @param which the handle returned by scheduler_add_timer().
  *
- * @param func timer function to reset.
- *
- * @return zero or a positive value on success, a negative value otherwise.
+ * @return SCHEDULER_OK (0) on success, <0 otherwise.
  */
 int8_t
 scheduler_reset_timer(int8_t which)
@@ -228,6 +215,7 @@ uint16_t scheduler_get_timer_interval(int8_t which)
  * Set a timer's current interval.
  *
  * @param which the handle returned by scheduler_add_timer().
+ * @param new_interval the timer's new_interval.
  *
  * @return SCHEDULER_OK (0) on success, <0 otherwise.
  */
