@@ -25,6 +25,7 @@
 #define DYNAMIC_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "scheduler.h"
 
@@ -39,7 +40,7 @@
  *
  * @return a handle with a positive value on success, a negative value otherwise.
  */
-int8_t scheduler_add_timer(timer_t func, uint16_t interval, uint8_t suspended);
+int8_t scheduler_add_timer(timer_t func, uint16_t interval, bool suspended);
 
 /**
  * Add a dynamic one-shot timer.

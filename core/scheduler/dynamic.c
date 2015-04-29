@@ -65,15 +65,15 @@ add_timer(timer_t func, uint16_t delay, uint16_t interval, uint8_t flags)
  *
  * @param func timer function to add.
  * @param interval interval at which the timer func is called.
- * @param suspended timer will not start
+ * @param suspended if true, the timer will be initialized in suspended state.
  *
  * @return a handle with a positive value on success, a negative value otherwise.
  */
 int8_t
-scheduler_add_timer(timer_t func, uint16_t interval, uint8_t suspended)
+scheduler_add_timer(timer_t func, uint16_t interval, bool suspended)
 {
-  return add_timer(func, interval, interval, suspended ? TIMER_SUSPENDED
-                                                       : TIMER_RUNNABLE);
+  return add_timer(func, interval, interval,
+                   suspended ? TIMER_SUSPENDED : TIMER_RUNNABLE);
 }
 
 
