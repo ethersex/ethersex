@@ -21,8 +21,7 @@
  */
 
 #include "core/bit-macros.h"
-
-#define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A')) 
+#include "core/util/byte2hex.h"
 
 static uint8_t print_port(char *output, uint8_t len, uint8_t port, uint8_t value) 
 {
@@ -34,8 +33,7 @@ static uint8_t print_port(char *output, uint8_t len, uint8_t port, uint8_t value
         memcpy_P(output, PSTR("port P: 0x"), strlen("port P: 0x"));
         /* Convert to number :) */
         output[5] = port + 48;
-        output[10] = NIBBLE_TO_HEX(HI4(value));
-        output[11] = NIBBLE_TO_HEX(LO4(value));
+        byte2hex(value, output + 10);
         return 12;
 #endif
 }

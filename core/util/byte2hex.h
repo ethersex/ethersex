@@ -24,6 +24,8 @@
 #ifndef _UTIL_BTOH_H_
 #define _UTIL_BTOH_H_
 
+#define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A'))
+
 uint8_t byte2hex (uint8_t value, char *string);
 
 #endif

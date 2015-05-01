@@ -33,14 +33,10 @@
 uint8_t byte2hex (uint8_t value, char *string)
 {
   // convert high nibble into hex ascii
-  string[0] = HI4(value) + '0';
-  if(string[0] > '9')
-    string[0] += 'A' - '0' - 10;
+  string[0] = NIBBLE_TO_HEX(HI4(value));
 
   // convert low nibble into hex ascii
-  string[1] = LO4(value) + '0';
-  if (string[1] > '9')
-    string[1] += 'A' - '0' - 10;
+  string[1] = NIBBLE_TO_HEX(LO4(value));
 
   return (2);
 }
