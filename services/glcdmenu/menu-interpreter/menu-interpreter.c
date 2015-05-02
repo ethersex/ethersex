@@ -21,6 +21,7 @@
 
 #include "menu-interpreter.h"
 #include "menu-text.h"
+#include "core/bit-macros.h"
 
 #include "stdlib.h"
 
@@ -254,9 +255,9 @@ static void menu_basicbutton(unsigned char hasfocus, unsigned char offx, unsigne
 	printf("Drawing button %i, %i with font %i, storage %i, addr %i\n", px, py, fonts, storage, textaddr);
 #endif
 	if (hasfocus) {
-		fonts = fonts >>4;
+		fonts = HI4(fonts);
 	} else
-		fonts = fonts & 0x0f;
+		fonts = LO4(fonts);
 	menu_text_draw(px+offx, py+offy, fonts, storage, textaddr);
 	if (options & (1 << MENU_OPTIONS_RECTANGLE))
 		menu_draw_border(px, py, sx, sy, 1, hasfocus);
@@ -320,8 +321,7 @@ void menu_radiobutton(unsigned char hasfocus) {
 #endif
 	menu_basicbutton(hasfocus, 10, 0);
 	unsigned char radionumber = menu_byte_get_next();
-	unsigned char radioselect = radionumber >> 4;
-	radionumber &= 0x0f;
+	unsigned char radioselect = HI4(radionumber);
 	menu_draw_border(px, py, 8, 7, 1, 0);
 	unsigned char color = 0;
 	if (hasfocus)
@@ -492,7 +492,7 @@ void menu_list(unsigned char hasfocus) {
 	//draw the text
 	unsigned short textlines = menu_list_lines(baseaddr, storage); //lines of the list to display
 	unsigned short selectedline = menu_listindexstate[listnumber];
-	SCREENPOS fontheight = menu_font_heigth(fonts & 0x0f)+1;
+	SCREENPOS fontheight = menu_font_heigth(LO4(fonts))+1;
 	SCREENPOS linesonscreen = (sy - 3)/ (fontheight); //maximum lines which could be displayed
 	/*remove the -1 if on lists which can display even number of lines, should put 3 unselected lines
 	 *before* the selected one, not after
@@ -520,9 +520,9 @@ void menu_list(unsigned char hasfocus) {
 	unsigned short t;
 	for (t = beginningline; t < (beginningline+linesonscreen); t++) { //now draw each line
 		x = px +2;
-		unsigned char font = fonts & 0x0f;
+		unsigned char font = LO4(fonts);
 		if (t == selectedline)
-			font = fonts >> 4;
+			font = HI4(fonts);
 		if (menu_text_byte_get(baseaddr, textpos, storage) == '\0')
 			break;
 #ifdef DEBUG
@@ -776,8 +776,7 @@ static void menu_handle_checkbox(MENUADDR addr) {
 
 static void menu_handle_radiobutton(MENUADDR addr) {
 	unsigned char groupindex = menu_byte_get(addr+MENU_CKRAD_OFF+2*MENU_ADDR_BYTES);
-	unsigned char value = groupindex >> 4;
-	groupindex &= 0x0f;
+	unsigned char value = HI4(groupindex);
 	if (groupindex < MENU_RADIOBUTTON_MAX)
 		menu_radiobuttonstate[groupindex] = value;
 	menu_redraw(); //Improvement: May be faster if only the radiobutton gets redrawn
@@ -798,7 +797,7 @@ static void menu_handle_listbox(MENUADDR addr, unsigned char key) {
 	MENUADDR baseaddr  = menu_assemble_addr();
 	unsigned char fonts = menu_byte_get_next();
 	unsigned short listindex = menu_byte_get_next();
-	SCREENPOS fontheight = menu_font_heigth(fonts & 0x0f)+1;
+	SCREENPOS fontheight = menu_font_heigth(LO4(fonts))+1;
 	SCREENPOS linesonscreen = (sy - 3)/ (fontheight);
 	if (listindex < MENU_LIST_MAX) { //if index is valid
 		unsigned short nvalue = menu_listindexstate[listindex];

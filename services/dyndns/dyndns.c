@@ -25,6 +25,8 @@
 #include "protocols/uip/uip.h"
 #include "protocols/dns/resolv.h"
 #include "core/debug.h"
+#include "core/bit-macros.h"
+#include "core/util/byte2hex.h"
 #include "dyndns.h"
 
 
@@ -102,8 +104,6 @@ dyndns_query_cb(char *name, uip_ipaddr_t * ipaddr)
 #endif /* TCP and not TEENSY */
 }
 
-/* Helper functions */
-#define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'a'))
 #if !defined(TCP_SUPPORT) || defined(TEENSY_SUPPORT)
 #ifdef IPV6_SUPPORT
 static char *
@@ -115,7 +115,7 @@ uint16toa(char *p, uint16_t i)
   do
   {
     x -= 4;
-    tmp = (i >> x) & 0x0F;
+    tmp = LO4(i >> x);
     if (tmp || p != begin || x == 0)
       *p++ = NIBBLE_TO_HEX(tmp);
   }

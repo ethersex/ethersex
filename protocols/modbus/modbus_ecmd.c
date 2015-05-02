@@ -26,6 +26,7 @@
 
 #include "config.h"
 #include "core/debug.h"
+#include "core/util/byte2hex.h"
 #include "modbus.h"
 #include "modbus_net.h"
 
@@ -33,7 +34,6 @@
 
 
 #define STATE(a) ((a)->appstate.modbus)
-#define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'a'))
 
 extern int16_t *modbus_recv_len_ptr;
 
@@ -79,8 +79,7 @@ int16_t parse_cmd_modbus_recv(char *cmd, char *output, uint16_t len)
 
   for (i = 0; i < recv_len - 2; i++) {
     if ((len - i*2) < 2) break;
-    output[i * 2] = NIBBLE_TO_HEX(buffer[i] >> 4);
-    output[i * 2 + 1] = NIBBLE_TO_HEX(buffer[i] & 0x0f);
+    byte2hex(buffer[i], output + (i * 2));
   }
 
   return ECMD_FINAL(i * 2);

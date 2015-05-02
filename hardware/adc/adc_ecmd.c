@@ -26,6 +26,8 @@
 
 #include "config.h"
 #include "core/debug.h"
+#include "core/bit-macros.h"
+#include "core/util/byte2hex.h"
 
 #include "adc.h"
 
@@ -36,8 +38,6 @@
 #include <stdlib.h>
 #endif /*ADC_VOLTAGE_SUPPORT */
 
-
-#define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A'))
 
 int16_t
 parse_cmd_adc_get(char *cmd, char *output, uint16_t len)
@@ -61,9 +61,9 @@ parse_cmd_adc_get(char *cmd, char *output, uint16_t len)
   {
     adc = adc_get(channel);
   adc_out:
-    output[0] = NIBBLE_TO_HEX((adc >> 8) & 0x0F);
-    output[1] = NIBBLE_TO_HEX((adc >> 4) & 0x0F);
-    output[2] = NIBBLE_TO_HEX(adc & 0x0F);
+    output[0] = NIBBLE_TO_HEX(LO4(HI8(adc)));
+    output[1] = NIBBLE_TO_HEX(HI4(adc));
+    output[2] = NIBBLE_TO_HEX(LO4(adc));
     output[3] = ' ';
     output[4] = 0;
     ret += 4;

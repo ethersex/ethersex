@@ -35,9 +35,6 @@
 #include "protocols/ecmd/ecmd-base.h"
 
 
-#define NIBBLE_TO_HEX(a) ((a) < 10 ? (a) + '0' : ((a) - 10 + 'A')) 
-
-
 int16_t parse_cmd_kty_get(char *cmd, char *output, uint16_t len)
 {
   while (*cmd == ' ')
