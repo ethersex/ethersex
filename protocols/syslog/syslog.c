@@ -56,12 +56,8 @@ syslog_send_cb(void *data)
   uip_udp_send(strlen(p));
 
   for (uint8_t i = 0; i < MAX_LINES_SYSLOG_BUFFER; i++)
-  {
     if (p == send_buffer[i])
       p[0] = 0;
-    if (i == act_char_line)
-      act_char_line = -1;
-  }
 }
 
 uint8_t
@@ -83,7 +79,7 @@ syslog_send(const char *message)
 
       return syslog_insert_callback(syslog_send_cb, (void *) send_buffer[i]);
     }
-  return 1;
+  return 0; /*  Buffer full */
 }
 
 uint8_t
@@ -105,19 +101,24 @@ syslog_send_char(const char c)
     send_buffer[act_char_line][offset] = c;
     send_buffer[act_char_line][offset + 1] = 0;
 
-    if (!offset)
-      /* If there used to be a few bytes in the buffer already, we don't have
-         to insert the callback, since it should have been added already. */
-      if (syslog_insert_callback
+    if (c == '\n' || offset + 2 >= MAX_LENGTH_SYSLOG_BUFFER)
+    {
+      // Newline or buffer full -> add callback
+      if(!syslog_insert_callback
           (syslog_send_cb, (void *) send_buffer[act_char_line]))
-        return 1;
-
-    if (c == '\n')              // Newline start new message on next char
+      {
+        // No free callback -> drop message
+        send_buffer[act_char_line][0] = 0;
+        act_char_line = -1;
+        return 0;
+      }
       act_char_line = -1;
+      return 1;
+    }
 
-    return 0;
+    return 1;
   }
-  return 1;
+  return 0; /*  Buffer full */
 }
 
 uint8_t
@@ -136,7 +137,7 @@ syslog_sendf(const char *message, ...)
 
       return syslog_insert_callback(syslog_send_cb, (void *) send_buffer[i]);
     }
-  return 1;
+  return 0; /*  Buffer full */
 }
 
 uint8_t
