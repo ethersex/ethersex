@@ -2,6 +2,7 @@
  *
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2015 by Daniel Lindner <daniel.lindner@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,8 +33,7 @@ static FILE syslog_stream = FDEV_SETUP_STREAM (syslog_debug_put, NULL, _FDEV_SET
 int
 syslog_debug_put (char d, FILE *stream)
 {
-  char buf[2] = { d, 0 };
-  syslog_send (buf);
+  syslog_send_char (d);
 
   return 0;
 }
