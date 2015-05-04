@@ -75,9 +75,13 @@ syslog_send(const char *message)
       if (strlen(message) + 1 > MAX_LENGTH_SYSLOG_BUFFER)
         return 0;
 
-      strncpy(send_buffer[i], message, strlen(message) + 1);
+      strcpy(send_buffer[i], message);//, strlen(message) + 1);
 
-      return syslog_insert_callback(syslog_send_cb, (void *) send_buffer[i]);
+      if(syslog_insert_callback(syslog_send_cb, (void *) send_buffer[i]))
+        return 1;
+      // No free callback -> drop message
+      send_buffer[i][0] = 0;
+      return 0;
     }
   return 0; /*  Buffer full */
 }
@@ -85,8 +89,8 @@ syslog_send(const char *message)
 uint8_t
 syslog_send_char(const char c)
 {
+  // Search free send_buffer line
   if (act_char_line < 0)
-    // Search free send_buffer
     for (uint8_t i = 0; i < MAX_LINES_SYSLOG_BUFFER; i++)
       if (send_buffer[i][0] == 0)
         act_char_line = i;
@@ -104,16 +108,15 @@ syslog_send_char(const char c)
     if (c == '\n' || offset + 2 >= MAX_LENGTH_SYSLOG_BUFFER)
     {
       // Newline or buffer full -> add callback
-      if(!syslog_insert_callback
-          (syslog_send_cb, (void *) send_buffer[act_char_line]))
+      if(syslog_insert_callback(syslog_send_cb, (void *) send_buffer[act_char_line]))
       {
-        // No free callback -> drop message
-        send_buffer[act_char_line][0] = 0;
         act_char_line = -1;
-        return 0;
+        return 1;
       }
+      // No free callback -> drop message
+      send_buffer[act_char_line][0] = 0;
       act_char_line = -1;
-      return 1;
+      return 0;
     }
 
     return 1;
@@ -135,7 +138,11 @@ syslog_sendf(const char *message, ...)
 
       send_buffer[i][MAX_LENGTH_SYSLOG_BUFFER] = 0;
 
-      return syslog_insert_callback(syslog_send_cb, (void *) send_buffer[i]);
+      if(syslog_insert_callback(syslog_send_cb, (void *) send_buffer[i]))
+        return 1;
+      // No free callback -> drop message
+      send_buffer[i][0] = 0;
+      return 0;
     }
   return 0; /*  Buffer full */
 }
@@ -154,9 +161,13 @@ syslog_sendf_P(PGM_P message, ...)
 
       send_buffer[i][MAX_LENGTH_SYSLOG_BUFFER] = 0;
 
-      return syslog_insert_callback(syslog_send_cb, (void *) send_buffer[i]);
+      if(syslog_insert_callback(syslog_send_cb, (void *) send_buffer[i]))
+        return 1;
+      // No free callback -> drop message
+      send_buffer[i][0] = 0;
+      return 0;
     }
-  return 1;
+  return 0; /*  Buffer full */
 }
 
 uint8_t

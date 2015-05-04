@@ -29,7 +29,7 @@
 #include "protocols/uip/uip.h"
 
 #define MAX_LENGTH_SYSLOG_BUFFER 100
-#define MAX_LINES_SYSLOG_BUFFER 5
+#define MAX_LINES_SYSLOG_BUFFER 7
 
 uint8_t syslog_send_P(PGM_P message);
 uint8_t syslog_send(const char *message);

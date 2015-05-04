@@ -26,7 +26,7 @@
 
 /* constants */
 #define SYSLOG_PORT 514
-#define SYSLOG_CALLBACKS 7
+#define SYSLOG_CALLBACKS 10
 
 /* This callback is called when the syslog connection is able to send data to
  * the syslog server
