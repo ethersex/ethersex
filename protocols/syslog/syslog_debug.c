@@ -26,21 +26,31 @@
 #include "protocols/syslog/syslog.h"
 #include "protocols/syslog/syslog_debug.h"
 
+#define MAX_SYSLOG_DEBUG_BUFFER 80
 
 static FILE syslog_stream = FDEV_SETUP_STREAM (syslog_debug_put, NULL, _FDEV_SETUP_WRITE);
+static char syslog_debug_buf[MAX_SYSLOG_DEBUG_BUFFER + 1];
 
 int
 syslog_debug_put (char d, FILE *stream)
 {
-  char buf[2] = { d, 0 };
-  syslog_send (buf);
-
+  uint8_t offset = strlen(syslog_debug_buf);
+  
+  syslog_debug_buf[offset] = d;
+  syslog_debug_buf[offset + 1] = 0;
+  
+  if(d == '\n' || offset >= MAX_SYSLOG_DEBUG_BUFFER)
+  {
+    syslog_send (syslog_debug_buf);
+    syslog_debug_buf[0] = 0;
+  }
   return 0;
 }
 
 void
 syslog_debug_init (void)
 {
+  syslog_debug_buf[0] = 0;
   stdout = &syslog_stream;
   stderr = &syslog_stream;
 }

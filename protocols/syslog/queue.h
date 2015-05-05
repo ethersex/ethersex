@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2015 by Daniel Lindner <daniel.lindner@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -10,7 +10,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU General Public License for more destarts.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -21,14 +21,27 @@
  */
 
 
-#ifndef _SYSLOG_NET_H
-#define _SYSLOG_NET_H
+#ifndef _QUEUE_H
+#define _QUEUE_H
 
-/* constants */
-#define SYSLOG_PORT 514
-#define SYSLOG_CALLBACKS 3
+typedef struct Node Node;
+struct Node
+{
+  Node* prev;
+  Node* next;
+  char* data;
+} ;
 
-void syslog_net_init(void);
-void syslog_net_main(void);
+typedef struct Queue Queue;
+struct Queue
+{
+  Node* start;
+  Node* end;
+} ;
 
-#endif /* _SYSLOG_NET_H */
+uint8_t push(char *data, Queue * queue);
+char* pop(Queue * queue);
+uint8_t isEmpty(const Queue * queue);
+
+
+#endif /* _QUEUE_H */

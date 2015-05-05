@@ -32,95 +32,68 @@
 #include "protocols/uip/check_cache.h"
 #include "syslog.h"
 #include "syslog_net.h"
+#include "queue.h"
 
-
-static char send_buffer[MAX_DYNAMIC_SYSLOG_BUFFER + 1];
 extern uip_udp_conn_t *syslog_conn;
-static struct SyslogCallbackCtx syslog_callbacks[SYSLOG_CALLBACKS];
+static Queue syslog_queue = {NULL,NULL};
 
-static void syslog_send_cb_P(void *data) 
-{
-  strcpy_P(uip_appdata, data);
-  uip_udp_send(strlen_P(data));
-}
-
-static void syslog_send_cb(void *data) 
-{
-  char *p = data;
-
-  strcpy(uip_appdata, p);
-  uip_udp_send(strlen(p));
-
-  if (p == send_buffer)
-    p[0] = 0;
-}
-
-
-uint8_t 
-syslog_send_P(PGM_P message)
-{
-  return syslog_insert_callback(syslog_send_cb_P, (void *)message);
-}
-
-uint8_t 
+uint8_t
 syslog_send(const char *message)
 {
-  uint16_t offset = strlen (send_buffer);
-
-  if (strlen (message) + offset + 1 > MAX_DYNAMIC_SYSLOG_BUFFER)
+  char* data = malloc(strlen(message) +1);
+  if(data == NULL)
     return 0;
+  strcpy(data, message);
 
-  strcat (send_buffer + offset, message);
+  return push(data, &syslog_queue);    
+}
 
-  if (! offset)
-    /* If there used to be a few bytes in the buffer already, we don't have
-       to insert the callback, since it should have been added already. */
-    return syslog_insert_callback(syslog_send_cb, (void *)send_buffer);
-  return 1;
+uint8_t
+syslog_send_P(PGM_P message)
+{
+  char* data = malloc(strlen_P(message) +1);
+  if(data == NULL)
+    return 0;
+  strcpy_P(data, message);
+
+  return push(data, &syslog_queue);    
 }
 
 uint8_t 
 syslog_sendf(const char *message, ...)
 {
   va_list va;
-  uint16_t offset = strlen (send_buffer);
-
+  char* data = malloc(MAX_DYNAMIC_SYSLOG_BUFFER + 1);
+  
+  if(data == NULL)
+    return 0;
+  
   va_start(va, message);
-  vsnprintf(send_buffer + offset, MAX_DYNAMIC_SYSLOG_BUFFER - offset, 
-            message, va);
+  vsnprintf(data, MAX_DYNAMIC_SYSLOG_BUFFER, message, va);
   va_end(va);
 
-  send_buffer[MAX_DYNAMIC_SYSLOG_BUFFER] = 0;
+  data[MAX_DYNAMIC_SYSLOG_BUFFER] = 0;
 
-  if (!offset)
-    return syslog_insert_callback(syslog_send_cb, (void *)send_buffer);
-  return 1;
+  return push(data, &syslog_queue);  
 }
 
 uint8_t
 syslog_sendf_P(PGM_P message, ...)
 {
   va_list va;
-  uint16_t offset = strlen (send_buffer);
+  char* data = malloc(MAX_DYNAMIC_SYSLOG_BUFFER + 1);
+  
+  if(data == NULL)
+    return 0;
 
   va_start(va, message);
-  vsnprintf_P(send_buffer + offset, MAX_DYNAMIC_SYSLOG_BUFFER - offset,
-            message, va);
+  vsnprintf_P(data, MAX_DYNAMIC_SYSLOG_BUFFER, message, va);
   va_end(va);
 
-  send_buffer[MAX_DYNAMIC_SYSLOG_BUFFER] = 0;
+  data[MAX_DYNAMIC_SYSLOG_BUFFER] = 0;
 
-  if (!offset)
-    return syslog_insert_callback(syslog_send_cb, (void *)send_buffer);
-  return 1;
+  return push(data, &syslog_queue);  
 }
-
-uint8_t 
-syslog_send_ptr(void *message)
-{
-  return syslog_insert_callback(syslog_send_cb, message);
-}
-
 
 void
 syslog_flush (void)
@@ -131,38 +104,27 @@ syslog_flush (void)
 				   here (would flood, wait for poll event). */
 #endif  /* ETHERNET_SUPPORT */
 
-  uip_slen = 0;
-  uip_appdata = uip_sappdata = uip_buf + UIP_IPUDPH_LEN + UIP_LLH_LEN;
+  if(!isEmpty(&syslog_queue))
+  {
+    uip_slen = 0;
+    uip_appdata = uip_sappdata = uip_buf + UIP_IPUDPH_LEN + UIP_LLH_LEN;
+  
+    char* data = pop(&syslog_queue);
 
-  for (uint8_t i = 0; i < SYSLOG_CALLBACKS; i++)
-    if (syslog_callbacks[i].callback != NULL) {
-      syslog_callbacks[i].callback(syslog_callbacks[i].data);
-      syslog_callbacks[i].callback = NULL;
-      break;
-    }
+    strcpy(uip_appdata, data);
+    uip_udp_send(strlen(data));
 
-  if (! uip_slen)
-    return;
+    free(data);
 
-  uip_udp_conn = syslog_conn;
-  uip_process (UIP_UDP_SEND_CONN);
-  router_output ();
+    if (!uip_slen)
+      return;
 
-  uip_slen = 0;
-}
+    uip_udp_conn = syslog_conn;
+    uip_process (UIP_UDP_SEND_CONN);
+    router_output ();
 
-
-uint8_t
-syslog_insert_callback(syslog_callback_t callback, void *data)
-{
-  uint8_t i;
-  for (i = 0; i < SYSLOG_CALLBACKS; i++)
-    if (syslog_callbacks[i].callback == NULL) {
-      syslog_callbacks[i].callback = callback;
-      syslog_callbacks[i].data = data;
-      return 1;
-    }
-  return 0; /* No empty callback found */
+    uip_slen = 0;
+  }
 }
 
 /*
