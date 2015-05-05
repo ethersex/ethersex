@@ -31,6 +31,12 @@
 #include "bsbport_helper.h"
 #include "bsbport_rx.h"
 
+#ifdef DEBUG_BSBPORT_RX
+#define BSBPORT_DEBUG(s, args...) debug_printf("BSB " s "\n", ## args);
+#else
+#define BSBPORT_DEBUG(a...) do {} while(0)
+#endif
+
 struct bsbport_buffer_msg bsbport_msg_buffer;
 
 void
@@ -48,9 +54,7 @@ bsbport_rx_periodic(void)
   while (bsbport_recv_buffer.len > bsbport_recv_buffer.read)
 //      && bsbport_recv_buffer.len > 11)        // Minimal Message Size reached 
   {
-#ifdef DEBUG_BSBPORT_RX
-    debug_printf("Start Read: %u bytes avail ", bsbport_recv_buffer.len);
-#endif
+    BSBPORT_DEBUG("Start Read: %u bytes avail", bsbport_recv_buffer.len);
 
     // Read serial data...
     if (bsbport_recv_buffer.data[bsbport_recv_buffer.read++] == SOT_BYTE) /* ... until SOT detected (= 0xDC)  */
@@ -78,14 +82,13 @@ bsbport_rx_periodic(void)
         // Seems to have received all data
         if (bsbport_crc(buffer, i) == 0)
         {
-#ifdef DEBUG_BSBPORT_RX
-          debug_printf
-            ("Valid: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x Len:%d\n",
+          BSBPORT_DEBUG
+            ("Valid: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x Len:%d",
              buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5],
              buffer[6], buffer[7], buffer[8], buffer[9], buffer[10],
              buffer[11], buffer[12], buffer[13], buffer[14], buffer[15],
              buffer[16], buffer[17], buffer[18], buffer[19], i);
-#endif
+
           bsbport_rx_ok++;
           /*      Store Messages which contain information                                           */
           /*      Store Messages which are addressed to us                                           */
@@ -101,14 +104,12 @@ bsbport_rx_periodic(void)
         }
         else                    /*  CRC Error */
         {
-#ifdef DEBUG_BSBPORT_RX
-          debug_printf
-            ("CRC Error: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x Len:%d\n",
+          BSBPORT_DEBUG
+            ("CRC Error: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x Len:%d",
              buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5],
              buffer[6], buffer[7], buffer[8], buffer[9], buffer[10],
              buffer[11], buffer[12], buffer[13], buffer[14], buffer[15],
              buffer[16], buffer[17], buffer[18], buffer[19], i);
-#endif
           bsbport_rx_crcerror++;
         }
       }
@@ -121,26 +122,22 @@ bsbport_rx_periodic(void)
       // Length error
       else if (i > LEN && i < buffer[LEN])
       {
-#ifdef DEBUG_BSBPORT_RX
-        debug_printf
-          ("LUV Error: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x Len:%d\n",
+        BSBPORT_DEBUG
+          ("LUV Error: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x Len:%d",
            buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5],
            buffer[6], buffer[7], buffer[8], buffer[9], buffer[10], buffer[11],
            buffer[12], buffer[13], buffer[14], buffer[15], buffer[16],
            buffer[17], buffer[18], buffer[19], i);
-#endif
         bsbport_rx_lenghtunder++;
       }
       else if (i > LEN && i > buffer[LEN])
       {
-#ifdef DEBUG_BSBPORT_RX
-        debug_printf
-          ("LOV Error: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x Len:%d\n",
+        BSBPORT_DEBUG
+          ("LOV Error: %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x %02x Len:%d",
            buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5],
            buffer[6], buffer[7], buffer[8], buffer[9], buffer[10], buffer[11],
            buffer[12], buffer[13], buffer[14], buffer[15], buffer[16],
            buffer[17], buffer[18], buffer[19], i);
-#endif
         bsbport_rx_lenghtover++;
       }
     }
@@ -149,9 +146,7 @@ bsbport_rx_periodic(void)
       bsbport_rx_dropped++;
     }
 
-#ifdef DEBUG_BSBPORT_RX
-    debug_printf("Delete Bytes: %u ", bsbport_recv_buffer.read);
-#endif
+    BSBPORT_DEBUG("Delete Bytes: %u ", bsbport_recv_buffer.read);
 
     /* data we have read can be cleared from buffer */
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
@@ -168,10 +163,8 @@ bsbport_rx_periodic(void)
 void
 bsbport_calc_value(struct bsbport_msg *msg)
 {
-#ifdef DEBUG_BSBPORT_PARSE
-    debug_printf("DATA: %02x %02x %02x Len:%d TYPE: %u ", msg->data[0],
+  BSBPORT_DEBUG("DATA: %02x %02x %02x Len:%d TYPE: %u", msg->data[0],
                  msg->data[1], msg->data[2], msg->data_length, msg->type);
-#endif
 // Nach Nachrichten Typ entscheiden
   if (msg->type == INFO)
   {
@@ -213,13 +206,9 @@ bsbport_calc_value(struct bsbport_msg *msg)
   else
   {
     //Unknown Type
-#ifdef DEBUG_BSBPORT_PARSE
-    debug_printf("Unknown Messagetype received: %02x \n", msg->type);
-#endif
+    BSBPORT_DEBUG("Unknown Messagetype received: %02x", msg->type);
   }
-#ifdef DEBUG_BSBPORT_PARSE
-  debug_printf("Parsed as RAW %d", msg->value);
-#endif
+  BSBPORT_DEBUG("Parsed as RAW %d", msg->value);
 
 }
 
@@ -227,9 +216,7 @@ void
 bsbport_store_msg(const uint8_t * const msg, const uint8_t len)
 {
   uint8_t saved = 0;
-#ifdef DEBUG_BSBPORT_RX
-  debug_printf("Store MSG at POS: %d ", bsbport_msg_buffer.act);
-#endif
+  BSBPORT_DEBUG("Store MSG at POS: %d", bsbport_msg_buffer.act);
   for (uint8_t i = 0; i < BSBPORT_MESSAGE_BUFFER_LEN; i++)
   {
     if ((0x7F & bsbport_msg_buffer.msg[i].src) == (0x7F & msg[SRC])

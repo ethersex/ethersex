@@ -33,6 +33,12 @@
 #include "protocols/bsbport/bsbport_tx.h"
 #include "protocols/ecmd/ecmd-base.h"
 
+#ifdef DEBUG_BSBPORT_ECMD
+#define BSBPORT_DEBUG(s, args...) debug_printf("BSB " s "\n", ## args);
+#else
+#define BSBPORT_DEBUG(a...) do {} while(0)
+#endif
+
 int16_t
 parse_cmd_bsbport_stats(const char *const cmd, char *output,
                         const uint16_t len)
@@ -68,9 +74,7 @@ parse_cmd_bsbport_list(char *const cmd, char *output, const uint16_t len)
       || (bsbport_msg_buffer.msg[i].p.raw == 0))
     return ECMD_FINAL_OK;
 
-#ifdef DEBUG_BSBPORT_ECMD
-  debug_printf("ECMD(%d) list MSG: %d ", len, i);
-#endif
+  BSBPORT_DEBUG("ECMD(%d) list MSG: %d ", len, i);
 
   int16_t ret = 0;
   ret =
@@ -98,9 +102,7 @@ parse_cmd_bsbport_list(char *const cmd, char *output, const uint16_t len)
 
   i++;
 
-#ifdef DEBUG_BSBPORT_ECMD
-  debug_printf("ECMD list write %d bytes", ret);
-#endif
+  BSBPORT_DEBUG("ECMD list write %d bytes", ret);
 
   cmd[1] = i;
   return ECMD_AGAIN(ret);
@@ -128,10 +130,8 @@ parse_cmd_bsbport_get(const char *cmd, char *output, const uint16_t len)
     sscanf_P(cmd, PSTR("%hhi %hhi %hhi %hhi %hhi %3s"), &p1, &p2, &p3, &p4,
              &src, type);
 
-#ifdef DEBUG_BSBPORT_ECMD
-  debug_printf("ECMD(%d) get MSG ARGS:%d %3s %02x %02x %02x %02x ", len, ret,
+  BSBPORT_DEBUG("ECMD(%d) get MSG ARGS:%d %3s %02x %02x %02x %02x ", len, ret,
                type, p1, p2, p3, p4);
-#endif
 
   if (ret == 6)
   {
@@ -144,9 +144,8 @@ parse_cmd_bsbport_get(const char *cmd, char *output, const uint16_t len)
           && bsbport_msg_buffer.msg[i].p.data.p4 == p4
           && (bsbport_msg_buffer.msg[i].src & 0x0F) == src)
       {
-#ifdef DEBUG_BSBPORT_ECMD
-        debug_printf("ECMD get MSG found at: %02d ", i);
-#endif
+        BSBPORT_DEBUG("ECMD get MSG found at: %02d ", i);
+
         if (strcmp_P(type, PSTR("RAW")) == 0)
         {
           ret =
@@ -179,9 +178,8 @@ parse_cmd_bsbport_get(const char *cmd, char *output, const uint16_t len)
         else
           return ECMD_ERR_PARSE_ERROR;
 
-#ifdef DEBUG_BSBPORT_ECMD
-        debug_printf("ECMD get write %d bytes", ret);
-#endif
+        BSBPORT_DEBUG("ECMD get write %d bytes", ret);
+
         return ECMD_FINAL(ret);
       }
     }
@@ -235,10 +233,8 @@ parse_cmd_bsbport_set(const char *const cmd, char *output, const uint16_t len)
   sscanf_P(strvalue, PSTR("%i"), &raw_val);
   next_int16_fp(strvalue, &fp_val, 1);
 
-#ifdef DEBUG_BSBPORT_ECMD
-  debug_printf("ECMD(%d) set MSG ARGS:%d %02x %02x %02x %02x %3s %s %d %u\n",
+  BSBPORT_DEBUG("ECMD(%d) set MSG ARGS:%d %02x %02x %02x %02x %3s %s %d %u\n",
                len, ret, p1, p2, p3, p4, type, strvalue, fp_val, raw_val);
-#endif
 
   if (ret == 7)
   {
@@ -277,10 +273,8 @@ parse_cmd_bsbport_set(const char *const cmd, char *output, const uint16_t len)
     else
       return ECMD_ERR_PARSE_ERROR;
 
-#ifdef DEBUG_BSBPORT_ECMD
-    debug_printf("ECMD set parsed data: %02x %02x %02x %02d ", data[0],
+    BSBPORT_DEBUG("ECMD set parsed data: %02x %02x %02x %02d ", data[0],
                  data[1], data[2], datalen);
-#endif
 
     if (bsbport_set(p1, p2, p3, p4, dest, data, datalen))
       return ECMD_FINAL_OK;

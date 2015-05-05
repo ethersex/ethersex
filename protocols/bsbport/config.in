@@ -21,7 +21,6 @@ if [ "$BSBPORT_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
 	comment  "Debugging Flags"
 	dep_bool 'BSBPORT Debug Rx' DEBUG_BSBPORT_RX $BSBPORT_SUPPORT
 	dep_bool 'BSBPORT Debug Tx' DEBUG_BSBPORT_TX $BSBPORT_SUPPORT
-	dep_bool 'BSBPORT Debug Message Parsing' DEBUG_BSBPORT_PARSE $BSBPORT_SUPPORT
 	dep_bool 'BSBPORT Debug ECMD Output' DEBUG_BSBPORT_ECMD $BSBPORT_SUPPORT
 	endmenu
 else
