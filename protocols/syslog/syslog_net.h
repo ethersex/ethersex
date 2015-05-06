@@ -26,7 +26,6 @@
 
 /* constants */
 #define SYSLOG_PORT 514
-#define SYSLOG_CALLBACKS 3
 
 void syslog_net_init(void);
 void syslog_net_main(void);

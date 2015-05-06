@@ -37,10 +37,4 @@ uint8_t syslog_sendf_P(PGM_P message, ...);
 
 void syslog_flush (void);
 
-/* Check the ARP/Neighbor cache for the necessary entries;
-   return 0 if it's safe to send syslog data. */
-uint8_t syslog_check_cache(void);
-
-uip_ipaddr_t *syslog_getserver(void);
-
 #endif /* _SYSLOG_H */

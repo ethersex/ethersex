@@ -34,6 +34,7 @@
 #include "syslog_net.h"
 #include "queue.h"
 
+#define UIP_MAX_LENGTH (UIP_BUFSIZE - UIP_IPUDPH_LEN - UIP_LLH_LEN)
 extern uip_udp_conn_t *syslog_conn;
 static Queue syslog_queue = {NULL,NULL};
 
@@ -111,10 +112,10 @@ syslog_flush (void)
   
     char* data = pop(&syslog_queue);
 
-    strcpy(uip_appdata, data);
+    strncpy(uip_appdata, data, UIP_MAX_LENGTH);
     uip_udp_send(strlen(data));
-
     free(data);
+
 
     if (!uip_slen)
       return;

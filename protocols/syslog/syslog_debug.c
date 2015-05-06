@@ -36,8 +36,8 @@ syslog_debug_put (char d, FILE *stream)
 {
   uint8_t offset = strlen(syslog_debug_buf);
   
-  syslog_debug_buf[offset] = d;
-  syslog_debug_buf[offset + 1] = 0;
+  syslog_debug_buf[offset++] = d;
+  syslog_debug_buf[offset] = 0;
   
   if(d == '\n' || offset >= MAX_SYSLOG_DEBUG_BUFFER)
   {
