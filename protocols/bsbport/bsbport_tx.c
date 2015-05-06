@@ -32,7 +32,7 @@
 #include "bsbport_tx.h"
 
 #ifdef DEBUG_BSBPORT_TX
-#define BSBPORT_DEBUG(s, args...) debug_printf("BSB " s , ## args);
+#define BSBPORT_DEBUG(s, ...) debug_printf("BSB " s , ## __VA_ARGS__);
 #else
 #define BSBPORT_DEBUG(a...) do {} while(0)
 #endif
