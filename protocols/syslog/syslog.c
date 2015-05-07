@@ -2,6 +2,7 @@
  *
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2015 by Daniel Lindner <daniel.lindner@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -34,56 +35,59 @@
 #include "queue.h"
 
 #define UIP_MAX_LENGTH (UIP_BUFSIZE - UIP_IPUDPH_LEN - UIP_LLH_LEN)
+
 extern uip_udp_conn_t *syslog_conn;
-static Queue syslog_queue = {NULL,NULL};
+static Queue syslog_queue = { NULL, NULL };
 
 uint8_t
 syslog_send(const char *message)
 {
-  char* data = malloc(strlen(message) +1);
-  if(data == NULL)
+  char *data = malloc(strlen(message) + 1);
+
+  if (data == NULL)
     return 0;
   strcpy(data, message);
 
-  return push(data, &syslog_queue);    
+  return push(data, &syslog_queue);
 }
 
 uint8_t
 syslog_send_P(PGM_P message)
 {
-  char* data = malloc(strlen_P(message) +1);
-  if(data == NULL)
+  char *data = malloc(strlen_P(message) + 1);
+
+  if (data == NULL)
     return 0;
   strcpy_P(data, message);
 
-  return push(data, &syslog_queue);    
+  return push(data, &syslog_queue);
 }
 
-uint8_t 
+uint8_t
 syslog_sendf(const char *message, ...)
 {
   va_list va;
-  char* data = malloc(MAX_DYNAMIC_SYSLOG_BUFFER + 1);
-  
-  if(data == NULL)
+  char *data = malloc(MAX_DYNAMIC_SYSLOG_BUFFER + 1);
+
+  if (data == NULL)
     return 0;
-  
+
   va_start(va, message);
   vsnprintf(data, MAX_DYNAMIC_SYSLOG_BUFFER, message, va);
   va_end(va);
 
   data[MAX_DYNAMIC_SYSLOG_BUFFER] = 0;
 
-  return push(data, &syslog_queue);  
+  return push(data, &syslog_queue);
 }
 
 uint8_t
 syslog_sendf_P(PGM_P message, ...)
 {
   va_list va;
-  char* data = malloc(MAX_DYNAMIC_SYSLOG_BUFFER + 1);
-  
-  if(data == NULL)
+  char *data = malloc(MAX_DYNAMIC_SYSLOG_BUFFER + 1);
+
+  if (data == NULL)
     return 0;
 
   va_start(va, message);
@@ -92,24 +96,24 @@ syslog_sendf_P(PGM_P message, ...)
 
   data[MAX_DYNAMIC_SYSLOG_BUFFER] = 0;
 
-  return push(data, &syslog_queue);  
+  return push(data, &syslog_queue);
 }
 
 void
-syslog_flush (void)
+syslog_flush(void)
 {
 #ifdef ETHERNET_SUPPORT
-  if (! syslog_conn || uip_check_cache (&syslog_conn->ripaddr))
-    return;			/* ARP cache not ready, don't send request
-				   here (would flood, wait for poll event). */
-#endif  /* ETHERNET_SUPPORT */
+  if (!syslog_conn || uip_check_cache(&syslog_conn->ripaddr))
+    return;                     /* ARP cache not ready, don't send request
+                                 * here (would flood, wait for poll event). */
+#endif /* ETHERNET_SUPPORT */
 
-  if(!isEmpty(&syslog_queue))
+  if (!isEmpty(&syslog_queue))
   {
     uip_slen = 0;
     uip_appdata = uip_sappdata = uip_buf + UIP_IPUDPH_LEN + UIP_LLH_LEN;
-  
-    char* data = pop(&syslog_queue);
+
+    char *data = pop(&syslog_queue);
 
     strncpy(uip_appdata, data, UIP_MAX_LENGTH);
     uip_udp_send(strlen(data));
@@ -120,8 +124,8 @@ syslog_flush (void)
       return;
 
     uip_udp_conn = syslog_conn;
-    uip_process (UIP_UDP_SEND_CONN);
-    router_output ();
+    uip_process(UIP_UDP_SEND_CONN);
+    router_output();
 
     uip_slen = 0;
   }

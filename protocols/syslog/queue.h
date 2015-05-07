@@ -27,20 +27,20 @@
 typedef struct Node Node;
 struct Node
 {
-  Node* prev;
-  Node* next;
-  char* data;
-} ;
+  Node *prev;
+  Node *next;
+  char *data;
+};
 
 typedef struct Queue Queue;
 struct Queue
 {
-  Node* start;
-  Node* end;
-} ;
+  Node *start;
+  Node *end;
+};
 
 uint8_t push(char *data, Queue * queue);
-char* pop(Queue * queue);
+char *pop(Queue * queue);
 uint8_t isEmpty(const Queue * queue);
 
 

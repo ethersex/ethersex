@@ -2,6 +2,7 @@
  *
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2015 by Daniel Lindner <daniel.lindner@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -28,21 +29,22 @@
 
 #define MAX_SYSLOG_DEBUG_BUFFER 100
 
-static FILE syslog_stream = FDEV_SETUP_STREAM (syslog_debug_put, NULL, _FDEV_SETUP_WRITE);
+static FILE syslog_stream =
+FDEV_SETUP_STREAM(syslog_debug_put, NULL, _FDEV_SETUP_WRITE);
 static char syslog_debug_buf[MAX_SYSLOG_DEBUG_BUFFER + 1];
 
 int
-syslog_debug_put (char d, FILE *stream)
+syslog_debug_put(char d, FILE * stream)
 {
   uint8_t offset = strlen(syslog_debug_buf);
-  
-  if(d != '\n')
+
+  if (d != '\n')
   {
     syslog_debug_buf[offset++] = d;
     syslog_debug_buf[offset] = 0;
   }
-  
-  if(d == '\n' || offset >= MAX_SYSLOG_DEBUG_BUFFER)
+
+  if (d == '\n' || offset >= MAX_SYSLOG_DEBUG_BUFFER)
   {
     syslog_send(syslog_debug_buf);
     syslog_debug_buf[0] = 0;
@@ -51,7 +53,7 @@ syslog_debug_put (char d, FILE *stream)
 }
 
 void
-syslog_debug_init (void)
+syslog_debug_init(void)
 {
   syslog_debug_buf[0] = 0;
   stdout = &syslog_stream;

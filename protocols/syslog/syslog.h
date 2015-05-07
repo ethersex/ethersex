@@ -2,6 +2,7 @@
  *
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2015 by Daniel Lindner <daniel.lindner@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -35,6 +36,6 @@ uint8_t syslog_sendf(const char *message, ...);
 uint8_t syslog_sendf_P(PGM_P message, ...);
 #define syslog_send_ptr(a) syslog_send(a)
 
-void syslog_flush (void);
+void syslog_flush(void);
 
 #endif /* _SYSLOG_H */

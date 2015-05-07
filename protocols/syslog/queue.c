@@ -28,10 +28,10 @@ uint8_t
 push(char *data, Queue * queue)
 {
   Node *help = malloc(sizeof(Node));
-  
-  if(help == NULL)
+
+  if (help == NULL)
     return 0;
-  
+
   help->prev = NULL;
   help->data = data;
 
@@ -42,11 +42,11 @@ push(char *data, Queue * queue)
 
   help->next = queue->start;
   queue->start = help;
-  
+
   return 1;
 }
 
-char*
+char *
 pop(Queue * queue)
 {
   Node *help;
