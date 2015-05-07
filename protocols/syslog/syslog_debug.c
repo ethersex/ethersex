@@ -26,7 +26,7 @@
 #include "protocols/syslog/syslog.h"
 #include "protocols/syslog/syslog_debug.h"
 
-#define MAX_SYSLOG_DEBUG_BUFFER 80
+#define MAX_SYSLOG_DEBUG_BUFFER 100
 
 static FILE syslog_stream = FDEV_SETUP_STREAM (syslog_debug_put, NULL, _FDEV_SETUP_WRITE);
 static char syslog_debug_buf[MAX_SYSLOG_DEBUG_BUFFER + 1];
