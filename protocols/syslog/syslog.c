@@ -32,7 +32,7 @@
 #include "protocols/uip/check_cache.h"
 #include "syslog.h"
 #include "syslog_net.h"
-#include "queue.h"
+#include "syslog_queue.h"
 
 #define UIP_MAX_LENGTH (UIP_BUFSIZE - UIP_IPUDPH_LEN - UIP_LLH_LEN)
 
@@ -48,7 +48,7 @@ syslog_send(const char *message)
     return 0;
   strcpy(data, message);
 
-  return push(data, &syslog_queue);
+  return syslog_push(data, &syslog_queue);
 }
 
 uint8_t
@@ -60,7 +60,7 @@ syslog_send_P(PGM_P message)
     return 0;
   strcpy_P(data, message);
 
-  return push(data, &syslog_queue);
+  return syslog_push(data, &syslog_queue);
 }
 
 uint8_t
@@ -78,7 +78,7 @@ syslog_sendf(const char *message, ...)
 
   data[MAX_DYNAMIC_SYSLOG_BUFFER] = 0;
 
-  return push(data, &syslog_queue);
+  return syslog_push(data, &syslog_queue);
 }
 
 uint8_t
@@ -96,7 +96,7 @@ syslog_sendf_P(PGM_P message, ...)
 
   data[MAX_DYNAMIC_SYSLOG_BUFFER] = 0;
 
-  return push(data, &syslog_queue);
+  return syslog_push(data, &syslog_queue);
 }
 
 void
@@ -108,12 +108,12 @@ syslog_flush(void)
                                  * here (would flood, wait for poll event). */
 #endif /* ETHERNET_SUPPORT */
 
-  if (!isEmpty(&syslog_queue))
+  if (!syslog_isEmpty(&syslog_queue))
   {
     uip_slen = 0;
     uip_appdata = uip_sappdata = uip_buf + UIP_IPUDPH_LEN + UIP_LLH_LEN;
 
-    char *data = pop(&syslog_queue);
+    char *data = syslog_pop(&syslog_queue);
 
     strncpy(uip_appdata, data, UIP_MAX_LENGTH);
     uip_udp_send(strlen(data));
