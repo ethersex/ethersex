@@ -31,12 +31,18 @@
 #include "bsbport_helper.h"
 #include "bsbport_tx.h"
 
+#ifdef DEBUG_BSBPORT_TX
+#define BSBPORT_DEBUG(s, ...) debug_printf("BSB " s , ## __VA_ARGS__);
+#else
+#define BSBPORT_DEBUG(a...) do {} while(0)
+#endif
+
 // Low-Level sending of message to bus
 uint8_t
 bsbport_send(uint8_t * const msg)
 {
 
-  msg[SOT] = 0xDC;
+  msg[SOT] = SOT_BYTE;
   msg[SRC] = 0x80 | BSBPORT_OWNADDRESS;
 
   {
@@ -45,17 +51,16 @@ bsbport_send(uint8_t * const msg)
     msg[msg[LEN] - 1] = LO8(crc);
   }
 
-#ifdef DEBUG_BSBPORT_TX
-  debug_printf("Send MSG: %02x%02x%02x%02x%02x%02x%02x%02x%02x ", msg[SOT],
+  BSBPORT_DEBUG("Send MSG: %02x%02x%02x%02x%02x%02x%02x%02x%02x \n", msg[SOT],
                msg[SRC], msg[DEST], msg[LEN], msg[TYPE], msg[P1], msg[P2],
                msg[P3], msg[P4]);
-  debug_printf("Data:");
+  BSBPORT_DEBUG("Data:");
   for (uint8_t i = DATA; i < msg[LEN] - 2; i++)
   {
-    debug_printf("%02x", msg[i]);
+    BSBPORT_DEBUG("%02x", msg[i]);
   }
-  debug_printf("CRC: %02x%02x ", msg[msg[LEN] - 2], msg[msg[LEN] - 1]);
-#endif
+  BSBPORT_DEBUG("CRC: %02x%02x \n", msg[msg[LEN] - 2], msg[msg[LEN] - 1]);
+
   return bsbport_txstart(msg, msg[LEN]);
 }
 

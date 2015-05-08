@@ -99,7 +99,6 @@ enum msg_src
 void bsbport_init(void);
 uint8_t bsbport_txstart(const uint8_t * const data, const uint16_t len);
 
-extern struct bsbport_buffer_net bsbport_sendnet_buffer;
 extern struct bsbport_buffer_net bsbport_recvnet_buffer;
 extern struct bsbport_buffer_net bsbport_send_buffer;
 extern struct bsbport_buffer_rx bsbport_recv_buffer;

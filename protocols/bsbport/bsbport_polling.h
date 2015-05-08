@@ -23,8 +23,6 @@
 #ifndef BSBPORT_POLLING_H
 #define BSBPORT_POLLING_H
 
-#ifdef BSBPORT_POLLING
 void bsbport_polling_periodic(void);
-#endif
 
 #endif /* BSBPORT_POLLING_H */

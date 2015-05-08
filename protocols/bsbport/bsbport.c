@@ -129,7 +129,7 @@ ISR(usart(USART, _RX_vect))
       else
         bsbport_rx_bufferfull++;
 #if BSBPORT_FLUSH > 0
-      if (v == 0x23)
+      if ((v ^ 0xFF) == SOT_BYTE)
         bsbport_lf = 1;
 #endif
     }
