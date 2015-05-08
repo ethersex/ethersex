@@ -3224,3 +3224,19 @@ BSBPORT_POLLING_SUPPORT
    * BSBPort Support (BSBPORT_SUPPORT)
 
   If activated one query defined in bsbport_polling.c get executed every 3sec.
+
+BSBPORT MQTT Support
+BSBPORT_MQTT_SUPPORT
+  Depends on:
+   * MQTT client (MQTT_SUPPORT)
+
+  Publish every received message to mqtt broker. Broker setup must be done unter mqtt static configuration.
+  There is one mqtt callback slot used, so make sure there are enough free slots.
+
+MQTT topic
+BSBPORT_MQTT_TOPIC
+
+  This is the base path for all mqtt messages.
+  Topic for publish BSBPORT_MQTT_TOPIC/SOURCE/MSG_ADDRESS/VALUE_TYPE payload is the value.
+  Topic for querys BSBPORT_MQTT_TOPIC/query/DESTINATION/MSG_ADDRESS payload can by anything.
+  Topic for setting values BSBPORT_MQTT_TOPIC/set/DESTINATION/MSG_ADDRESS/VALUE_TYPE payload is the value send.
