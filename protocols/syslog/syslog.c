@@ -24,6 +24,7 @@
 
 #include <avr/pgmspace.h>
 #include <stdarg.h>
+#include <stdlib.h>
 
 #include "protocols/uip/uip.h"
 #include "config.h"
@@ -46,37 +47,7 @@ syslog_send(const char *message)
 
   if (data == NULL)
     return 0;
-  strcpy(data, message);
-
-  return push(data, &syslog_queue);
-}
-
-uint8_t
-syslog_send_P(PGM_P message)
-{
-  char *data = malloc(strlen_P(message) + 1);
-
-  if (data == NULL)
-    return 0;
-  strcpy_P(data, message);
-
-  return push(data, &syslog_queue);
-}
-
-uint8_t
-syslog_sendf(const char *message, ...)
-{
-  va_list va;
-  char *data = malloc(MAX_DYNAMIC_SYSLOG_BUFFER + 1);
-
-  if (data == NULL)
-    return 0;
-
-  va_start(va, message);
-  vsnprintf(data, MAX_DYNAMIC_SYSLOG_BUFFER, message, va);
-  va_end(va);
-
-  data[MAX_DYNAMIC_SYSLOG_BUFFER] = 0;
+  strncpy(data, message, strlen(message) + 1);
 
   return push(data, &syslog_queue);
 }

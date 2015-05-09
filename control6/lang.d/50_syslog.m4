@@ -16,7 +16,7 @@ define(`REQUIRE_SYSLOG', `SYSLOG_USED()
 ')
 
 define(`SYSLOG', `SYSLOG_USED()#ifdef SYSLOG_SUPPORT
-ifelse(`$#', 1, `syslog_send_P(PSTR($1))', `syslog_sendf($*)');
+ifelse(`$#', 1, `syslog_sendf_P(PSTR($1))', `syslog_sendf_P(PSTR($1), shift($*))');
 #endif  /* SYSLOG_SUPPORT */
 ')
 

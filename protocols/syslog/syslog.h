@@ -30,11 +30,8 @@
 
 #define MAX_DYNAMIC_SYSLOG_BUFFER 100
 
-uint8_t syslog_send_P(PGM_P message);
 uint8_t syslog_send(const char *message);
-uint8_t syslog_sendf(const char *message, ...);
 uint8_t syslog_sendf_P(PGM_P message, ...);
-#define syslog_send_ptr(a) syslog_send(a)
 
 void syslog_flush(void);
 
