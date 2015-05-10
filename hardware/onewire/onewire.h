@@ -278,6 +278,10 @@ typedef struct
 } ow_sensor_t;
 
 extern ow_sensor_t ow_sensors[OW_SENSORS_COUNT];
+#ifdef ONEWIRE_MQTT_SUPPORT
+extern uint8_t ow_mqtt_new;
+#endif
+#endif
 
 /*
  * global variables
