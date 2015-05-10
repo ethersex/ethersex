@@ -3472,3 +3472,22 @@ MODBUS_USART_CONFIG_8N1
   8E1 stands for: 8 data bits, even parity, 1 stop bit (Modbus default)
   8N1 stands for: 8 data bits, no parity, 1 stop bit
 
+
+Onewire MQTT support
+ONEWIRE_MQTT_SUPPORT
+  Depends on: 
+   * MQTT client (MQTT_SUPPORT)
+   * Onewire Polling (ONEWIRE_POLLING_SUPPORT)
+
+  After each pollcycle all temperature sensor values are published to mqtt broker.
+  Broker setup must be done unter mqtt static configuration.
+  There is one mqtt callback slot used, so make sure there are enough free slots.
+
+MQTT Topic
+ONEWIRE_MQTT_TOPIC
+
+  This is the base path for all mqtt messages.
+  Topic for publish ONEWIRE_MQTT_TOPIC/ROMCODE payload is the value.
+  If naming support is activated and sensors are named over ecmd
+  value is also published to ONEWIRE_MQTT_TOPIC/NAME.
+
