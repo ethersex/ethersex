@@ -55,7 +55,6 @@ syslog_debug_put(char d, FILE * stream)
 void
 syslog_debug_init(void)
 {
-  syslog_debug_buf[0] = 0;
   stdout = &syslog_stream;
   stderr = &syslog_stream;
 }
