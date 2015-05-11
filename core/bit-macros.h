@@ -27,7 +27,7 @@
 #define HI8(x)  ((uint8_t)((x) >> 8))
 #define LO8(x)  ((uint8_t)(x))
 
-#define HI4(x)  ((uint8_t)((x) >> 4))
+#define HI4(x)  (((uint8_t)(x)) >> 4)
 #define LO4(x)  ((uint8_t)((x) & 0xF))
 
 #define HTONL(x) ((uint32_t)(((x) & 0xFF000000) >> 24) \
