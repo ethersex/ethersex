@@ -43,11 +43,12 @@ static Queue syslog_queue = { NULL, NULL };
 uint8_t
 syslog_send(const char *message)
 {
-  char *data = malloc(strlen(message) + 1);
+  uint16_t len = strlen(message) + 1;
+  char *data = malloc(len);
 
   if (data == NULL)
     return 0;
-  strncpy(data, message, strlen(message) + 1);
+  strncpy(data, message, len);
 
   return push(data, &syslog_queue);
 }
