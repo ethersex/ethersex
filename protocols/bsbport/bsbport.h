@@ -46,21 +46,21 @@ struct bsbport_msg
 
 struct bsbport_buffer_msg
 {
-  uint16_t act;
+  uint8_t act;
   struct bsbport_msg msg[BSBPORT_MESSAGE_BUFFER_LEN];
 };
 
 struct bsbport_buffer_net
 {
-  uint16_t len;
-  uint16_t sent;
+  uint8_t len;
+  uint8_t sent;
   uint8_t data[BSBPORT_BUFFER_LEN];
 };
 
 struct bsbport_buffer_rx
 {
-  uint16_t len;
-  uint16_t read;
+  uint8_t len;
+  uint8_t read;
   uint8_t data[BSBPORT_BUFFER_LEN];
 };
 
@@ -120,26 +120,5 @@ extern uint16_t bsbport_eth_retransmit;
 #if BSBPORT_FLUSH > 0
 extern uint8_t bsbport_lf;
 #endif
-
-/* init the usart module ( 8O1 )*/
-#define generate_bsbport_usart_init_8O1() \
-static void \
-usart_init(void) \
-{\
-  /* The ATmega644 datasheet suggests to clear the global \
-   * interrupt flags on initialization ... */\
-  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) \
-  { \
-    usart(UBRR,H) = UBRRH_VALUE; \
-    usart(UBRR,L) = UBRRL_VALUE; \
-    /* set mode 8O1: 8 bits, 1 stop, odd parity, asynchronous usart \
-     * and set URSEL, if present, */ \
-    usart(UCSR,C) = _BV(usart(UPM,0)) | _BV(usart(UPM,1)) | _BV(usart(UCSZ,0)) | _BV(usart(UCSZ,1)) | _BV_URSEL; \
-    /* Enable the RX interrupt and receiver and transmitter */ \
-    usart(UCSR,B) |= _BV(usart(TXEN)) | _BV(usart(RXEN)) | _BV(usart(RXCIE)); \
-    /* Set or not set the 2x mode */ \
-    USART_2X(); \
-  } \
-}
 
 #endif /* _BSBPORT_H */

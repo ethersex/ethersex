@@ -24,10 +24,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <avr/pgmspace.h>
-#include <util/delay.h>
 #include <string.h>
-#include "core/eeprom.h"
 #include "config.h"
 #include "bsbport.h"
 #include "bsbport_net.h"
@@ -39,7 +36,7 @@
 #include "core/usart.h"
 
 /* We generate our own usart init module, for our usart port */
-generate_bsbport_usart_init_8O1();
+generate_usart_init_8O1();
 
 struct bsbport_buffer_net bsbport_recvnet_buffer;
 struct bsbport_buffer_net bsbport_send_buffer;

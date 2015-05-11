@@ -20,13 +20,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <avr/io.h>
-#include <util/delay.h>
-#include <util/atomic.h>
-#include <string.h>
-#include "core/eeprom.h"
-#include "core/bit-macros.h"
 #include "config.h"
+#include "core/debug.h"
+#include "core/bit-macros.h"
 #include "bsbport.h"
 #include "bsbport_helper.h"
 #include "bsbport_tx.h"

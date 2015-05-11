@@ -21,16 +21,14 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#include <avr/io.h>
-#include <avr/interrupt.h>
 #include <util/atomic.h>
 #include <string.h>
+#include "config.h"
 #include "bsbport_net.h"
 #include "protocols/uip/uip.h"
 #include "core/debug.h"
 #include "bsbport.h"
 
-#include "config.h"
 
 uip_conn_t *bsbport_conn = NULL;
 #if BSBPORT_FLUSH > 0
@@ -97,10 +95,7 @@ bsbport_net_main(void)
   /* retransmit last packet */
   if (uip_rexmit() && bsbport_conn == uip_conn)
   {
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    {
-      uip_send(bsbport_recvnet_buffer.data, bsbport_recvnet_buffer.sent);
-    }
+    uip_send(bsbport_recvnet_buffer.data, bsbport_recvnet_buffer.sent);
     bsbport_eth_retransmit++;
   }
   else
@@ -126,15 +121,13 @@ bsbport_net_main(void)
       )
     {
       /* we have enough uart data, send it via tcp */
-      ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-      {
-        uip_send(bsbport_recvnet_buffer.data, bsbport_recvnet_buffer.len);
-        bsbport_recvnet_buffer.sent = bsbport_recvnet_buffer.len;
+      uint8_t len = bsbport_recvnet_buffer.len;
+      uip_send(bsbport_recvnet_buffer.data, len);
+      bsbport_recvnet_buffer.sent = len;
 #if BSBPORT_FLUSH > 0
-        bsbport_lastservice = 0;
-        bsbport_lf = 0;
+      bsbport_lastservice = 0;
+      bsbport_lf = 0;
 #endif
-      }
     }
   }
 }

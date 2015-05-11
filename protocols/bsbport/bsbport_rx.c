@@ -21,8 +21,6 @@
  */
 
 #include "config.h"
-#include <avr/io.h>
-#include <util/delay.h>
 #include <util/atomic.h>
 #include <string.h>
 
@@ -155,8 +153,8 @@ bsbport_rx_periodic(void)
       memmove(bsbport_recv_buffer.data,
               bsbport_recv_buffer.data + bsbport_recv_buffer.read,
               bsbport_recv_buffer.len);
-      bsbport_recv_buffer.read = 0;
     }
+    bsbport_recv_buffer.read = 0;
   }
 }
 
@@ -226,39 +224,33 @@ bsbport_store_msg(const uint8_t * const msg, const uint8_t len)
         && bsbport_msg_buffer.msg[i].p.data.p4 == msg[P4])
     {
       // Mark message valid 
-      ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-      {
-        memcpy(bsbport_msg_buffer.msg[i].data, msg + DATA,
-               msg[LEN] - DATA - 2);
-        bsbport_msg_buffer.msg[i].data_length = msg[LEN] - DATA - 2;
-        bsbport_calc_value(&bsbport_msg_buffer.msg[i]);
+      memcpy(bsbport_msg_buffer.msg[i].data, msg + DATA,
+             msg[LEN] - DATA - 2);
+      bsbport_msg_buffer.msg[i].data_length = msg[LEN] - DATA - 2;
+      bsbport_calc_value(&bsbport_msg_buffer.msg[i]);
 #ifdef BSBPORT_MQTT_SUPPORT
-        bsbport_msg_buffer.msg[i].mqtt_new = 1;
+      bsbport_msg_buffer.msg[i].mqtt_new = 1;
 #endif
-        saved = 1;
-      }
+      saved = 1;
     }
   }
   if (!saved)
   {                             // Mark message valid 
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-    {
-      memcpy(bsbport_msg_buffer.msg[bsbport_msg_buffer.act].data, msg + DATA,
-             msg[LEN] - DATA - 2);
-      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].data_length =
-        msg[LEN] - DATA - 2;
-      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].src = msg[SRC];
-      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].dest = msg[DEST];
-      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].type = msg[TYPE];
-      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].p.data.p1 = msg[P1];
-      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].p.data.p2 = msg[P2];
-      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].p.data.p3 = msg[P3];
-      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].p.data.p4 = msg[P4];
+    memcpy(bsbport_msg_buffer.msg[bsbport_msg_buffer.act].data, msg + DATA,
+           msg[LEN] - DATA - 2);
+    bsbport_msg_buffer.msg[bsbport_msg_buffer.act].data_length =
+      msg[LEN] - DATA - 2;
+    bsbport_msg_buffer.msg[bsbport_msg_buffer.act].src = msg[SRC];
+    bsbport_msg_buffer.msg[bsbport_msg_buffer.act].dest = msg[DEST];
+    bsbport_msg_buffer.msg[bsbport_msg_buffer.act].type = msg[TYPE];
+    bsbport_msg_buffer.msg[bsbport_msg_buffer.act].p.data.p1 = msg[P1];
+    bsbport_msg_buffer.msg[bsbport_msg_buffer.act].p.data.p2 = msg[P2];
+    bsbport_msg_buffer.msg[bsbport_msg_buffer.act].p.data.p3 = msg[P3];
+    bsbport_msg_buffer.msg[bsbport_msg_buffer.act].p.data.p4 = msg[P4];
 #ifdef BSBPORT_MQTT_SUPPORT
-      bsbport_msg_buffer.msg[bsbport_msg_buffer.act].mqtt_new = 1;
+    bsbport_msg_buffer.msg[bsbport_msg_buffer.act].mqtt_new = 1;
 #endif
-      bsbport_calc_value(&bsbport_msg_buffer.msg[bsbport_msg_buffer.act++]);
-    }
+    bsbport_calc_value(&bsbport_msg_buffer.msg[bsbport_msg_buffer.act++]);
   }
   if (bsbport_msg_buffer.act >= BSBPORT_MESSAGE_BUFFER_LEN)
     bsbport_msg_buffer.act = 0;
