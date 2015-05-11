@@ -18,7 +18,7 @@ if [ "$BSBPORT_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
     int    "BSBPort Message Max Length" BSBPORT_MESSAGE_MAX_LEN 25
     int    'BSBPORT Address' BSBPORT_OWNADDRESS 7
     dep_bool 'BSBPORT Polling Support' BSBPORT_POLLING_SUPPORT $BSBPORT_SUPPORT
-    dep_bool 'BSBPORT MQTT Support' BSBPORT_MQTT_SUPPORT $MQTT_SUPPORT
+    dep_bool 'BSBPORT MQTT Support' BSBPORT_MQTT_SUPPORT $MQTT_SUPPORT $BSBPORT_SUPPORT
     if [ "$BSBPORT_MQTT_SUPPORT" = y ]; then
       string 'MQTT topic' BSBPORT_MQTT_TOPIC "bsb"
     fi
