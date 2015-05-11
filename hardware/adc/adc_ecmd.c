@@ -62,7 +62,7 @@ parse_cmd_adc_get(char *cmd, char *output, uint16_t len)
     adc = adc_get(channel);
   adc_out:
     output[0] = NIBBLE_TO_HEX(LO4(HI8(adc)));
-    output[1] = NIBBLE_TO_HEX(HI4(adc));
+    output[1] = NIBBLE_TO_HEX(HI4(LO8(adc)));
     output[2] = NIBBLE_TO_HEX(LO4(adc));
     output[3] = ' ';
     output[4] = 0;
