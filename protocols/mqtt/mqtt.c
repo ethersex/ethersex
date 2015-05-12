@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2014 by Philip Matura <ike@tura-home.de>
+ * Copyright (c) 2015 by Daniel Lindner <daniel.lindner@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -29,8 +30,12 @@
  * *Usage*:
  *
  *  - create a mqtt_connection_config_t structure somewhere
- *  - call mqtt_set_connection_config(.)
+ *    and call mqtt_set_connection_config(.) or use the static
+ *    connection setting in menuconfig
  *  - the connection will be established in the next uip_poll cycle
+ *  - create a mqtt_callback_config_t structure in PROGMEM and supply your
+ *    callback functions
+ *  - call mqtt_register_callback(.)
  *  - the connack_callback will be fired (if supplied)
  *  - you may subscribe to topics using mqtt_construct_subscribe_packet(.)
  *  - the poll_callback will be fired each uip_poll cycle (if supplied)
@@ -87,6 +92,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <avr/pgmspace.h>
 
 #include "config.h"
 #include "core/bit-macros.h"
@@ -118,7 +124,7 @@ static bool mqtt_ping_outstanding;
 // GENERAL STATE STRUCTURES
 
 static mqtt_connection_config_t const *mqtt_con_config = NULL;
-static mqtt_callback_config_t mqtt_callbacks[MQTT_CALLBACK_SLOTS];
+static mqtt_callback_config_t const *mqtt_callbacks[MQTT_CALLBACK_SLOTS];
 static mqtt_connection_state_t mqtt_con_state;
 static uip_conn_t *mqtt_uip_conn;
 
@@ -172,7 +178,6 @@ static void mqtt_main(void);
 static void mqtt_init(void);
 void mqtt_periodic(void);
 
-void mqtt_set_connection_config(mqtt_connection_config_t const *config);
 bool mqtt_is_connected(void);
 
 
@@ -984,24 +989,42 @@ static void
 mqtt_fire_connack_callback(void)
 {
   for (int i = 0; i < MQTT_CALLBACK_SLOTS; ++i)
-    if (mqtt_callbacks[i].connack_callback != NULL)
-      mqtt_callbacks[i].connack_callback();
+  {
+    if(mqtt_callbacks[i]!=NULL)
+    {
+      connack_callback cb = (connack_callback)pgm_read_word(&mqtt_callbacks[i]->connack_callback);
+      if (cb != NULL)
+        cb();
+    }
+  }
 }
 
 static void
 mqtt_fire_poll_callback(void)
 {
   for (int i = 0; i < MQTT_CALLBACK_SLOTS; ++i)
-    if (mqtt_callbacks[i].poll_callback != NULL)
-      mqtt_callbacks[i].poll_callback();
+  {
+    if(mqtt_callbacks[i]!=NULL)
+    {
+    poll_callback cb = (poll_callback)pgm_read_word(&mqtt_callbacks[i]->poll_callback);
+    if (cb != NULL)
+      cb();
+    }
+  }
 }
 
 static void
 mqtt_fire_close_callback(void)
 {
   for (int i = 0; i < MQTT_CALLBACK_SLOTS; ++i)
-    if (mqtt_callbacks[i].close_callback != NULL)
-      mqtt_callbacks[i].close_callback();
+  {
+    if(mqtt_callbacks[i]!=NULL)
+    {
+    close_callback cb = (close_callback)pgm_read_word(&mqtt_callbacks[i]->close_callback);
+    if (cb != NULL)
+      cb();
+    }
+  }
 }
 
 static void
@@ -1009,9 +1032,14 @@ mqtt_fire_publish_callback(char const *topic, uint16_t topic_length,
     const void *payload, uint16_t payload_length)
 {
   for (int i = 0; i < MQTT_CALLBACK_SLOTS; ++i)
-    if (mqtt_callbacks[i].publish_callback != NULL)
-      mqtt_callbacks[i].publish_callback(topic, topic_length,
-          payload, payload_length);
+  {
+    if(mqtt_callbacks[i]!=NULL)
+    {
+    publish_callback cb = (publish_callback)pgm_read_word(&mqtt_callbacks[i]->publish_callback);
+    if (cb != NULL)
+      cb(topic, topic_length, payload, payload_length);
+    }
+  }
 }
 
 
@@ -1162,7 +1190,7 @@ mqtt_init(void)
 
 // Set the connection config for mqtt
 void
-mqtt_set_connection_config(mqtt_connection_config_t const *config)
+mqtt_set_connection_config(mqtt_connection_config_t const * const config)
 {
   mqtt_con_config = config;
 }
@@ -1171,17 +1199,13 @@ mqtt_set_connection_config(mqtt_connection_config_t const *config)
 // Return the assigned slot id, which can be used to unregister the
 // callbacks later. Return 0xff if there is no free slot.
 uint8_t
-mqtt_register_callback(mqtt_callback_config_t *callbacks)
+mqtt_register_callback(mqtt_callback_config_t const * const callbacks)
 {
   // search a free slot
   for (uint8_t i = 0; i < MQTT_CALLBACK_SLOTS; ++i)
-    if (mqtt_callbacks[i].connack_callback == NULL
-        && mqtt_callbacks[i].poll_callback == NULL
-        && mqtt_callbacks[i].close_callback == NULL
-        && mqtt_callbacks[i].publish_callback == NULL)
+    if (mqtt_callbacks[i] == NULL)
     {
-      memcpy(&mqtt_callbacks[i], callbacks,
-          sizeof(mqtt_callback_config_t));
+      mqtt_callbacks[i] = callbacks;
       return i;
     }
   return 0xff;
@@ -1194,10 +1218,7 @@ mqtt_unregister_callback(uint8_t slot_id)
   if (slot_id >= MQTT_CALLBACK_SLOTS)
     return;
 
-  mqtt_callbacks[slot_id].connack_callback = NULL;
-  mqtt_callbacks[slot_id].poll_callback = NULL;
-  mqtt_callbacks[slot_id].close_callback = NULL;
-  mqtt_callbacks[slot_id].publish_callback = NULL;
+  mqtt_callbacks[slot_id] = NULL;
 }
 
 bool

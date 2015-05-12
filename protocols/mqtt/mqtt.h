@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2014 by Philip Matura <ike@tura-home.de>
+ * Copyright (c) 2015 by Daniel Lindner <daniel.lindner@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -92,15 +93,18 @@
 
 
 // CONFIG STRUCTURE
-
+typedef void (*connack_callback)(void);
+typedef void (*poll_callback)(void);
+typedef void (*close_callback)(void);
+typedef void (*publish_callback)(char const *topic, uint16_t topic_length,
+                                 void const *payload, uint16_t payload_length);
 typedef struct
 {
   // see mqtt.c for explanation
-  void (*connack_callback)(void);
-  void (*poll_callback)(void);
-  void (*close_callback)(void);
-  void (*publish_callback)(char const *topic, uint16_t topic_length,
-    const void *payload, uint16_t payload_length);
+  connack_callback connack_callback;
+  poll_callback poll_callback;
+  close_callback close_callback;
+  publish_callback publish_callback;
 } mqtt_callback_config_t;
 
 typedef struct
@@ -123,8 +127,8 @@ typedef struct
 
 // PUBLIC FUNCTIONS
 
-void mqtt_set_connection_config(mqtt_connection_config_t const *config);
-uint8_t mqtt_register_callback(mqtt_callback_config_t *callbacks);
+void mqtt_set_connection_config(mqtt_connection_config_t const * const config);
+uint8_t mqtt_register_callback(mqtt_callback_config_t const * const callbacks);
 void mqtt_unregister_callback(uint8_t slot_id);
 bool mqtt_is_connected(void);
 
