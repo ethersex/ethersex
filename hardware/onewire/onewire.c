@@ -836,6 +836,9 @@ ow_periodic(void)
   #endif
       }
     }
+#ifdef ONEWIRE_MQTT_SUPPORT
+    ow_mqtt_new = 1;
+#endif
   }
 
   if (--ow_polling_interval == 0)

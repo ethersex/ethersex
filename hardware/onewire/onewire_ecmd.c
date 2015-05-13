@@ -340,7 +340,7 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 
   while (*cmd == ' ')
     cmd++;
-  debug_printf("called onewire_get with: \"%s\"\n", cmd);
+  OW_DEBUG_GET("called onewire_get with: \"%s\"\n", cmd);
 
   ret = parse_ow_rom(cmd, &rom);
   if (ret < 0)
@@ -367,20 +367,20 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
   }
   else if (ow_eeprom(&rom))
   {
-    debug_printf("reading mac\n");
+    OW_DEBUG_GET("reading mac\n");
 
     uint8_t mac[6];
     ret = ow_eeprom_read(&rom, mac);
 
     if (ret != 0)
     {
-      debug_printf("mac read failed: %d\n", ret);
+      OW_DEBUG_GET("mac read failed: %d\n", ret);
       return ECMD_ERR_READ_ERROR;
     }
 
-    debug_printf("successfully read mac\n");
+    OW_DEBUG_GET("successfully read mac\n");
 
-    debug_printf("mac: %02x:%02x:%02x:%02x:%02x:%02x\n",
+    OW_DEBUG_GET("mac: %02x:%02x:%02x:%02x:%02x:%02x\n",
                  mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     ret = snprintf_P(output, len,
@@ -390,7 +390,7 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
   }
   else
   {
-    debug_printf("unknown sensor type\n");
+    OW_DEBUG_GET("unknown sensor type\n");
 #ifdef TEENSY_SUPPORT
     strncpy_P(output, PSTR("unknown sensor type"), len);
     ret = strlen(output);
@@ -409,7 +409,7 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 
   while (*cmd == ' ')
     cmd++;
-  debug_printf("called onewire_get with: \"%s\"\n", cmd);
+  OW_DEBUG_GET("called onewire_get with: \"%s\"\n", cmd);
 
   ret = parse_ow_rom(cmd, &rom);
   if (ret < 0)
@@ -425,40 +425,40 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
 
   if (ow_temp_sensor(&rom))
   {
-    debug_printf("reading temperature\n");
+    OW_DEBUG_GET("reading temperature\n");
 
     ow_temp_scratchpad_t sp;
     ret = ow_temp_read_scratchpad(&rom, &sp);
 
     if (ret != 1)
     {
-      debug_printf("scratchpad read failed: %d\n", ret);
+      OW_DEBUG_GET("scratchpad read failed: %d\n", ret);
       return ECMD_ERR_READ_ERROR;
     }
 
-    debug_printf("successfully read scratchpad\n");
+    OW_DEBUG_GET("successfully read scratchpad\n");
     ow_temp_t temp = ow_temp_normalize(&rom, &sp);
     ret = itoa_fixedpoint(temp.val, temp.twodigits + 1, output, len);
-    debug_printf("temperature: %s\n", output);
+    OW_DEBUG_GET("temperature: %s\n", output);
 
 #ifdef ONEWIRE_DS2502_SUPPORT
   }
   else if (ow_eeprom(&rom))
   {
-    debug_printf("reading mac\n");
+    OW_DEBUG_GET("reading mac\n");
 
     uint8_t mac[6];
     ret = ow_eeprom_read(&rom, mac);
 
     if (ret != 0)
     {
-      debug_printf("mac read failed: %d\n", ret);
+      OW_DEBUG_GET("mac read failed: %d\n", ret);
       return ECMD_ERR_READ_ERROR;
     }
 
-    debug_printf("successfully read mac\n");
+    OW_DEBUG_GET("successfully read mac\n");
 
-    debug_printf("mac: %02x:%02x:%02x:%02x:%02x:%02x\n",
+    OW_DEBUG_GET("mac: %02x:%02x:%02x:%02x:%02x:%02x\n",
                  mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
     ret = snprintf_P(output, len,
@@ -468,7 +468,7 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
   }
   else
   {
-    debug_printf("unknown sensor type\n");
+    OW_DEBUG_GET("unknown sensor type\n");
 #ifdef TEENSY_SUPPORT
     strncpy_P(output, PSTR("unknown sensor type"), len);
     ret = strlen(output);

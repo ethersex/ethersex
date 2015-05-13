@@ -69,6 +69,12 @@
 #define OW_DEBUG_POLL(...)    ((void) 0)
 #endif
 
+#ifdef DEBUG_ECMD_OW_GET
+#include "core/debug.h"
+#define OW_DEBUG_GET(str...) debug_printf ("OW-GET: " str)
+#else
+#define OW_DEBUG_GET(...)    ((void) 0)
+#endif
 
 /* rom commands */
 #define OW_ROM_SEARCH_ROM     0xF0
@@ -277,6 +283,9 @@ typedef struct
 } ow_sensor_t;
 
 extern ow_sensor_t ow_sensors[OW_SENSORS_COUNT];
+#ifdef ONEWIRE_MQTT_SUPPORT
+extern uint8_t ow_mqtt_new;
+#endif
 #endif
 
 /*
