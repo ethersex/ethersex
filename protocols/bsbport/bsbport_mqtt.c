@@ -29,7 +29,7 @@
 #include "protocols/bsbport/bsbport_tx.h"
 #include "protocols/mqtt/mqtt.h"
 
-#define BSBPORT_PUBLISH_FORMAT          BSBPORT_MQTT_TOPIC "/%02x/%02x%02x%02x%02x/%3s"
+#define BSBPORT_PUBLISH_FORMAT          BSBPORT_MQTT_TOPIC "/%02x/%02x%02x%02x%02x/"
 #define BSBPORT_SUBSCRIBE_SET_TOPIC     BSBPORT_MQTT_TOPIC "/set/#"
 #define BSBPORT_SUBSCRIBE_QUERY_TOPIC   BSBPORT_MQTT_TOPIC "/query/#"
 #define BSBPORT_SUBSCRIBE_SET_FORMAT    BSBPORT_MQTT_TOPIC "/set/%2hhx/%2hhx%2hhx%2hhx%2hhx/%3s"
@@ -55,18 +55,22 @@ bsbport_poll_cb(void)
     if (bsbport_msg_buffer.msg[i].mqtt_new)
     {
       uint8_t len;
+      uint8_t topic_len;
       char buf[DATA_LENGTH];
       char topic[TOPIC_LENGTH];
 
       bsbport_msg_buffer.msg[i].mqtt_new = 0;
 
-      // RAW
-      snprintf_P(topic, TOPIC_LENGTH, publish_topic_format,
+      // Topic
+      topic_len = snprintf_P(topic, TOPIC_LENGTH, publish_topic_format,
                  LO4(bsbport_msg_buffer.msg[i].src),
                  bsbport_msg_buffer.msg[i].p.data.p1,
                  bsbport_msg_buffer.msg[i].p.data.p2,
                  bsbport_msg_buffer.msg[i].p.data.p3,
-                 bsbport_msg_buffer.msg[i].p.data.p4, "RAW");
+                 bsbport_msg_buffer.msg[i].p.data.p4);
+
+      // RAW
+      strncat_P(topic, PSTR("RAW"), TOPIC_LENGTH - topic_len - 1); 
       len =
         snprintf_P(buf, DATA_LENGTH, PSTR("%u"),
                    bsbport_msg_buffer.msg[i].value);
@@ -74,12 +78,8 @@ bsbport_poll_cb(void)
       BSBDEBUG("%s=%s", topic, buf);
 
       // STA
-      snprintf_P(topic, TOPIC_LENGTH, publish_topic_format,
-                 LO4(bsbport_msg_buffer.msg[i].src),
-                 bsbport_msg_buffer.msg[i].p.data.p1,
-                 bsbport_msg_buffer.msg[i].p.data.p2,
-                 bsbport_msg_buffer.msg[i].p.data.p3,
-                 bsbport_msg_buffer.msg[i].p.data.p4, "STA");
+      topic[topic_len]=0;
+      strncat_P(topic, PSTR("STA"), TOPIC_LENGTH - topic_len - 1); 
       len =
         snprintf_P(buf, DATA_LENGTH, PSTR("%u"),
                    HI8(bsbport_msg_buffer.msg[i].value));
@@ -87,12 +87,8 @@ bsbport_poll_cb(void)
       BSBDEBUG("%s=%s", topic, buf);
 
       // TMP
-      snprintf_P(topic, TOPIC_LENGTH, publish_topic_format,
-                 LO4(bsbport_msg_buffer.msg[i].src),
-                 bsbport_msg_buffer.msg[i].p.data.p1,
-                 bsbport_msg_buffer.msg[i].p.data.p2,
-                 bsbport_msg_buffer.msg[i].p.data.p3,
-                 bsbport_msg_buffer.msg[i].p.data.p4, "TMP");
+      topic[topic_len]=0;
+      strncat_P(topic, PSTR("TMP"), TOPIC_LENGTH - topic_len - 1); 
       len =
         itoa_fixedpoint(((int32_t) bsbport_msg_buffer.msg[i].value * 100) /
                         64, 2, buf, DATA_LENGTH);
@@ -100,24 +96,16 @@ bsbport_poll_cb(void)
       BSBDEBUG("%s=%s", topic, buf);
 
       // FP1
-      snprintf_P(topic, TOPIC_LENGTH, publish_topic_format,
-                 LO4(bsbport_msg_buffer.msg[i].src),
-                 bsbport_msg_buffer.msg[i].p.data.p1,
-                 bsbport_msg_buffer.msg[i].p.data.p2,
-                 bsbport_msg_buffer.msg[i].p.data.p3,
-                 bsbport_msg_buffer.msg[i].p.data.p4, "FP1");
+      topic[topic_len]=0;
+      strncat_P(topic, PSTR("FP1"), TOPIC_LENGTH - topic_len - 1); 
       len =
         itoa_fixedpoint(bsbport_msg_buffer.msg[i].value, 1, buf, DATA_LENGTH);
       mqtt_construct_publish_packet(topic, buf, len, BSBPORT_MQTT_RETAIN);
       BSBDEBUG("%s=%s", topic, buf);
 
       // FP5
-      snprintf_P(topic, TOPIC_LENGTH, publish_topic_format,
-                 LO4(bsbport_msg_buffer.msg[i].src),
-                 bsbport_msg_buffer.msg[i].p.data.p1,
-                 bsbport_msg_buffer.msg[i].p.data.p2,
-                 bsbport_msg_buffer.msg[i].p.data.p3,
-                 bsbport_msg_buffer.msg[i].p.data.p4, "FP5");
+      topic[topic_len]=0;
+      strncat_P(topic, PSTR("FP5"), TOPIC_LENGTH - topic_len - 1); 
       len =
         itoa_fixedpoint(bsbport_msg_buffer.msg[i].value * 10 / 2, 1, buf,
                         DATA_LENGTH);
@@ -144,7 +132,7 @@ bsbport_publish_cb(char const *topic, uint16_t topic_length,
   int16_t fp_val = 0;
   uint16_t raw_val = 0;
 
-  if (strncmp_P(topic + 4, PSTR("set"), 3) == 0)
+  if (topic[sizeof(BSBPORT_MQTT_TOPIC)] == 's')
   {
     char *strvalue = malloc(payload_length + 1);
     ret =
@@ -163,34 +151,37 @@ bsbport_publish_cb(char const *topic, uint16_t topic_length,
       uint8_t data[3];
       uint8_t datalen = 3;
       data[0] = 0x01;
-      if (strcmp_P(type, PSTR("RAW")) == 0)
+      if (type[0] == 'R') //set RAW value
       {
         data[1] = HI8(raw_val);
         data[2] = LO8(raw_val);
       }
-      else if (strcmp_P(type, PSTR("SEL")) == 0)
+      else if (type[0] == 'S') //set SELECT/SEL value
       {
         data[1] = LO8(raw_val);
         datalen = 2;
       }
-      else if (strcmp_P(type, PSTR("TMP")) == 0)
+      else if (type[0] == 'T') //set TEMP/TMP value
       {
         int16_t tmp;
         tmp = ((int32_t) fp_val * 64) / 10;
         data[1] = HI8(tmp);
         data[2] = LO8(tmp);
       }
-      else if (strcmp_P(type, PSTR("FP1")) == 0)
+      else if (type[0] == 'F') //set FP1/FP5 value
       {
-        data[1] = HI8(fp_val);
-        data[2] = LO8(fp_val);
-      }
-      else if (strcmp_P(type, PSTR("FP5")) == 0)
-      {
-        int16_t tmp;
-        tmp = fp_val * 2 / 10;
-        data[1] = HI8(tmp);
-        data[2] = LO8(tmp);
+        if (type[2] == '1') //set FP1 value
+        {
+          data[1] = HI8(fp_val);
+          data[2] = LO8(fp_val);
+        }
+        else if (type[2] == '5') //set FP1 value
+        {
+          int16_t tmp;
+          tmp = fp_val * 2 / 10;
+          data[1] = HI8(tmp);
+          data[2] = LO8(tmp);
+        }
       }
       else
       {
@@ -204,7 +195,7 @@ bsbport_publish_cb(char const *topic, uint16_t topic_length,
     else
       BSBDEBUG("MQTT set parse error");
   }
-  else if (strncmp_P(topic + 4, PSTR("query"), 5) == 0)
+  if (topic[sizeof(BSBPORT_MQTT_TOPIC)] == 'q')
   {
     ret =
       sscanf_P(topic, PSTR(BSBPORT_SUBSCRIBE_QUERY_FORMAT), &dest, &p1, &p2,
