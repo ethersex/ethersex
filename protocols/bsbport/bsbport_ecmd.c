@@ -146,34 +146,37 @@ parse_cmd_bsbport_get(const char *cmd, char *output, const uint16_t len)
       {
         BSBPORT_DEBUG("ECMD get MSG found at: %02d ", i);
 
-        if (strcmp_P(type, PSTR("RAW")) == 0)
+        if (type[0] == 'R') //get RAW value
         {
           ret =
             snprintf_P(output, len, PSTR("%u"),
                        bsbport_msg_buffer.msg[i].value);
         }
-        else if (strcmp_P(type, PSTR("STA")) == 0)
+        else if (type[0] == 'S') //get SELECT/SEL value
         {
           ret =
             snprintf_P(output, len, PSTR("%u"),
                        HI8(bsbport_msg_buffer.msg[i].value));
         }
-        else if (strcmp_P(type, PSTR("TMP")) == 0)
+        else if (type[0] == 'T') //get TEMP/TMP value
         {
           ret =
             itoa_fixedpoint(((int32_t) bsbport_msg_buffer.msg[i].value *
                              100) / 64, 2, output, len);
         }
-        else if (strcmp_P(type, PSTR("FP1")) == 0)
+        else if (type[0] == 'F') //get FP1/FP5 value
         {
-          ret =
-            itoa_fixedpoint(bsbport_msg_buffer.msg[i].value, 1, output, len);
-        }
-        else if (strcmp_P(type, PSTR("FP5")) == 0)
-        {
-          ret =
-            itoa_fixedpoint(bsbport_msg_buffer.msg[i].value * 10 / 2, 1,
-                            output, len);
+          if (type[2] == '1') //set FP1 value
+          {
+            ret =
+              itoa_fixedpoint(bsbport_msg_buffer.msg[i].value, 1, output, len);
+          }
+          else if (type[2] == '5') //get FP5 value
+          {
+            ret =
+              itoa_fixedpoint(bsbport_msg_buffer.msg[i].value * 10 / 2, 1,
+                              output, len);
+          }
         }
         else
           return ECMD_ERR_PARSE_ERROR;
@@ -241,34 +244,37 @@ parse_cmd_bsbport_set(const char *const cmd, char *output, const uint16_t len)
     uint8_t data[3];
     uint8_t datalen = 3;
     data[0] = 0x01;
-    if (strcmp_P(type, PSTR("RAW")) == 0)
+    if (type[0] == 'R') //set RAW value
     {
       data[1] = HI8(raw_val);
       data[2] = LO8(raw_val);
     }
-    else if (strcmp_P(type, PSTR("SEL")) == 0)
+    else if (type[0] == 'S') //set SELECT/SEL value
     {
       data[1] = LO8(raw_val);
       datalen = 2;
     }
-    else if (strcmp_P(type, PSTR("TMP")) == 0)
+    else if (type[0] == 'T') //set TEMP/TMP value
     {
       int16_t tmp;
       tmp = ((int32_t) fp_val * 64) / 10;
       data[1] = HI8(tmp);
       data[2] = LO8(tmp);
     }
-    else if (strcmp_P(type, PSTR("FP1")) == 0)
+    else if (type[0] == 'F') //set FP1/FP5 value
     {
-      data[1] = HI8(fp_val);
-      data[2] = LO8(fp_val);
-    }
-    else if (strcmp_P(type, PSTR("FP5")) == 0)
-    {
-      int16_t tmp;
-      tmp = fp_val * 2 / 10;
-      data[1] = HI8(tmp);
-      data[2] = LO8(tmp);
+      if (type[2] == '1') //set FP1 value
+      {
+        data[1] = HI8(fp_val);
+        data[2] = LO8(fp_val);
+      }
+      else if (type[2] == '5') //set FP1 value
+      {
+        int16_t tmp;
+        tmp = fp_val * 2 / 10;
+        data[1] = HI8(tmp);
+        data[2] = LO8(tmp);
+      }
     }
     else
       return ECMD_ERR_PARSE_ERROR;
