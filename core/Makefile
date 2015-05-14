@@ -39,3 +39,4 @@ SUBSUBDIRS += core/gui
 SUBSUBDIRS += core/util
 SUBSUBDIRS += core/vfs
 SUBSUBDIRS += core/crc
+SUBSUBDIRS += core/queue

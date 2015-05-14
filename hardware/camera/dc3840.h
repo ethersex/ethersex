@@ -95,13 +95,7 @@ extern uint16_t dc3840_data_length;
 /* Store LEN bytes of image data to DATA, starting with OFFSET */
 uint8_t dc3840_get_data (uint8_t *data, uint16_t offset, uint16_t len);
 
-/* (SYSLOG) debugging support */
-#if 1 && defined(SYSLOG_SUPPORT)
-#include "protocols/syslog/syslog.h"
-/* FIXME We ought to put the format string in program space. */
-# define DC3840_DEBUG(a...) syslog_sendf(a)
-#else
-# define DC3840_DEBUG(a...) do { } while(0)
-#endif	/* SYSLOG debugging */
+/* debugging support */
+#define DC3840_DEBUG(a, ...) debug_printf("dc3840: " a, ## __VA_ARGS_)
 
 #endif	/* DC3840_H */
