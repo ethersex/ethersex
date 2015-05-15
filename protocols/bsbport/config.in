@@ -1,29 +1,34 @@
 usart_count_used
 if [ "$BSBPORT_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
-	dep_bool_menu "BSBPort Support" BSBPORT_SUPPORT $TCP_SUPPORT $ARCH_AVR
-		choice '    BSBPort usart select' "$(usart_choice BSBPORT)"
-		usart_process_choice BSBPORT
-		int    "BSBPort TCP Port" BSBPORT_PORT 3000
-		int    "BSBPort Baudrate" BSBPORT_BAUDRATE 4800
+  dep_bool_menu "BSBPort Support" BSBPORT_SUPPORT $TCP_SUPPORT $ARCH_AVR
+    choice '    BSBPort usart select' "$(usart_choice BSBPORT)"
+    usart_process_choice BSBPORT
+    int    "BSBPort TCP Port" BSBPORT_PORT 3000
+    int    "BSBPort Baudrate" BSBPORT_BAUDRATE 4800
 
-		if [ "$BSBPORT_BUFFER_LEN" = "" ] ; then
-			BSBPORT_BUFFER_LEN=32
-		fi
-		if [ "$BSBPORT_BUFFER_LEN" -gt "$NET_MAX_FRAME_LENGTH" ] ; then
-			BSBPORT_BUFFER_LEN=$NET_MAX_FRAME_LENGTH
-		fi
-		int    "BSBPort Buffer Length" BSBPORT_BUFFER_LEN 32
-		int    "BSBPort Max Buffer Flush Interval (N*20ms)" BSBPORT_FLUSH 25
-		int    "BSBPort Message History Size" BSBPORT_MESSAGE_BUFFER_LEN 10
-		int    "BSBPort Message Max Length" BSBPORT_MESSAGE_MAX_LEN 25
-		int    'BSBPORT Address' BSBPORT_OWNADDRESS 7
-		dep_bool 'BSBPORT Polling Support' BSBPORT_POLLING_SUPPORT $BSBPORT_SUPPORT
-	comment  "Debugging Flags"
-	dep_bool 'BSBPORT Debug Rx' DEBUG_BSBPORT_RX $BSBPORT_SUPPORT
-	dep_bool 'BSBPORT Debug Tx' DEBUG_BSBPORT_TX $BSBPORT_SUPPORT
-	dep_bool 'BSBPORT Debug ECMD Output' DEBUG_BSBPORT_ECMD $BSBPORT_SUPPORT
-	endmenu
+    if [ "$BSBPORT_BUFFER_LEN" = "" ] ; then
+      BSBPORT_BUFFER_LEN=32
+    fi
+    if [ "$BSBPORT_BUFFER_LEN" -gt "$NET_MAX_FRAME_LENGTH" ] ; then
+      BSBPORT_BUFFER_LEN=$NET_MAX_FRAME_LENGTH
+    fi
+    int    "BSBPort Buffer Length" BSBPORT_BUFFER_LEN 32
+    int    "BSBPort Max Buffer Flush Interval (N*20ms)" BSBPORT_FLUSH 25
+    int    "BSBPort Message History Size" BSBPORT_MESSAGE_BUFFER_LEN 10
+    int    "BSBPort Message Max Length" BSBPORT_MESSAGE_MAX_LEN 25
+    int    'BSBPORT Address' BSBPORT_OWNADDRESS 7
+    dep_bool 'BSBPORT Polling Support' BSBPORT_POLLING_SUPPORT $BSBPORT_SUPPORT
+    dep_bool 'BSBPORT MQTT Support' BSBPORT_MQTT_SUPPORT $MQTT_SUPPORT $BSBPORT_SUPPORT
+    if [ "$BSBPORT_MQTT_SUPPORT" = y ]; then
+      string 'MQTT topic' BSBPORT_MQTT_TOPIC "bsb"
+    fi
+    comment  "Debugging Flags"
+    dep_bool 'BSBPORT Debug Rx' DEBUG_BSBPORT_RX $BSBPORT_SUPPORT
+    dep_bool 'BSBPORT Debug Tx' DEBUG_BSBPORT_TX $BSBPORT_SUPPORT
+    dep_bool 'BSBPORT Debug ECMD Output' DEBUG_BSBPORT_ECMD $BSBPORT_SUPPORT
+    dep_bool 'BSBPORT Debug MQTT' DEBUG_BSBPORT_MQTT $BSBPORT_MQTT_SUPPORT
+  endmenu
 else
-	define_bool BSBPORT_SUPPORT n
-	comment "BSBPORT not available. No free usart. ($USARTS_USED/$USARTS)"
+  define_bool BSBPORT_SUPPORT n
+  comment "BSBPORT not available. No free usart. ($USARTS_USED/$USARTS)"
 fi
