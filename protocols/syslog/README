@@ -2,31 +2,13 @@ Usage of the syslog module
 ==========================
 
 there are three cheap possibilities:
-  - syslog_send("error"): here the string "error" is copied to an internal
-                          buffer. this buffer is MAX_DYNAMIC_SYSLOG_BUFFER
-                          big (default: 40 characters; defined in
-                          syslog/syslog.h). Because of this buffer, the last
-                          message had to be flushed before syslog_send can be
-                          called again.
- - syslog_send_ptr(pointer): here is only the pointer copied. The user must
-                          ensure that the buffer is long enough valid.
- - syslog_send_P(PSTR("error")): here the message is taken from the
-                          programspace.
+  - syslog_send("error: some error"): here the string is copied to an internal
+                          buffer. This buffer is dynamically allocated.
+  - syslog_sendf_P(PSTR("error: %u"), errornum): here the string "error:" is taken from
+                          programspace send through printf and is copied to an internal
+                          buffer. This buffer is MAX_DYNAMIC_SYSLOG_BUFFER big (default 100).
 
-All the syslog calls will be queue in an SYSLOG_CALLBACKS ( defaut: 3, defined
-in net/syslog_net.h) long queue. Every time the syslog connection is called
-one entry from the queue is sent. Through this queue there is another
-possibility to send an syslog message:
-
-void
-my_syslog_message(void *data)
-{
-  strcpy(uip_appdata, "error")
-  uip_udp_send(5);
-}
-
-...
-syslog_insert_callback(my_syslog_message, NULL);
-...
+All the syslog calls will be queued. Every time the syslog connection is called
+one entry from the queue is sent.
 
 All the syslog_* will return 1 on success or 0 on failure

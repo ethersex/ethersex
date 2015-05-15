@@ -47,7 +47,7 @@ extern void soft_uart_putchar(uint8_t c);
 
 #ifdef DEBUG_MCUF
 #  include "core/debug.h"
-#  define MCUF_DEBUG(str...) debug_printf ("mcuf: " str)
+#  define MCUF_DEBUG(str, ...) debug_printf ("mcuf: " str "\n", ## __VA_ARGS__)
 #else
 #  define MCUF_DEBUG(...)    ((void) 0)
 #endif
@@ -148,7 +148,7 @@ void mcuf_init(void) {
   usart(UCSR,B) &= ~_BV(usart(RXCIE));
 #endif
 #endif
-  MCUF_DEBUG("init...\n");
+  MCUF_DEBUG("init...");
   buffer.len = 0;
   buffer.sent = 0;
 #ifdef LEDRG_SUPPORT
@@ -168,7 +168,7 @@ void mcuf_newdata(void) {
   /* If we send a packet, drop the new packet */
   if (buffer.sent < buffer.len) return;
 
-  MCUF_DEBUG("newdata\n");
+  MCUF_DEBUG("newdata");
   blp_toc=242;
 
     uint16_t height = 0;
@@ -182,7 +182,7 @@ void mcuf_newdata(void) {
     uint16_t channels = htons(pkt->channels);
     if (channels < 1) {
 #ifdef SYSLOG_SUPPORT
-      syslog_sendf("Warning: forced channels of MCUF-Frame to 1 (orig value: %d)", channels);
+      syslog_sendf_P(PSTR("Warning: forced channels of MCUF-Frame to 1 (orig value: %d)"), channels);
 #endif
       MCUF_DEBUG("Warning: forced channels of MCUF-Frame to 1 (orig value: %d)", channels);
       channels = 1;
@@ -194,9 +194,9 @@ void mcuf_newdata(void) {
 
     if ( height * width > MCUF_MAX_PCKT_SIZE - 12 ) {
 #ifdef SYSLOG_SUPPORT
-      syslog_sendf("Warning: skipped MCUF-Frame because of height or width"
+      syslog_sendf_P(PSTR("Warning: skipped MCUF-Frame because of height or width"
                    " to big (max pckt size: %d inkl 12 byte header):"
-                   " %d * %d * %d", MCUF_MAX_PCKT_SIZE, channels, height, width);
+                   " %d * %d * %d"), MCUF_MAX_PCKT_SIZE, channels, height, width);
 #endif
       MCUF_DEBUG("Warning: skipped MCUF-Frame because of height or width"
                    " to big (max pckt size: %d inkl 12 byte header):"
@@ -273,7 +273,7 @@ void mcuf_newdata(void) {
       for (x = 0; x < width; x++) {
         if (pkt->data[x + (y * width)] > 1) {
           maxvalue = 255; //everything is fine and as described in the doku - use 255 as maxvalue
-          //syslog_sendf("Notice: found value bigger 1 on x %d y %d value %d", x, y, pkt->data[x + (y * width)]);
+          //syslog_sendf_P(PSTR("Notice: found value bigger 1 on x %d y %d value %d"), x, y, pkt->data[x + (y * width)]);
           goto workaround_break_label;
         }
       }
@@ -281,7 +281,7 @@ void mcuf_newdata(void) {
     workaround_break_label:
 #ifdef SYSLOG_SUPPORT
     if (maxvalue == 1) {
-      //syslog_send_P(PSTR("Notice: Using maxvalue-workaround!"));
+      //syslog_sendf_P(PSTR("Notice: Using maxvalue-workaround!"));
     }
 #endif
 #else
@@ -525,7 +525,7 @@ void mcuf_show_clock(uint8_t clockswitch) {
              weekdays + date.dow * 4, date.day, date.month, date.year, date.hour, date.min, date.sec);
 
 #ifdef SYSLOG_SUPPORT
-    syslog_sendf("mcuf: clock-textbuffer %s\n", textbuff);
+    syslog_sendf_P(PSTR("mcuf: clock-textbuffer %s"), textbuff);
 #endif
 
     scrolltext(MCUF_MIN_SCREEN_HEIGHT,0xF0,0,10);
@@ -534,7 +534,7 @@ void mcuf_show_clock(uint8_t clockswitch) {
     {
     if (buffer.sent <= buffer.len) return;
 #ifdef SYSLOG_SUPPORT
-    syslog_sendf("mcuf: clock-out: %.2d:%.2d\n", date.hour, date.min);
+    syslog_sendf_P(PSTR("mcuf: clock-out: %.2d:%.2d"), date.hour, date.min);
 #endif
     draw_box(0, MCUF_MIN_SCREEN_HEIGHT, MCUF_MAX_SCREEN_WIDTH, MCUF_SPLIT_SCREEN_HEIGHT, 0, 0);
     draw_tinynumber(date.hour, 0 , MCUF_MAX_SCREEN_HEIGHT-7, 0xff);
@@ -586,7 +586,7 @@ void mcuf_show_string(char * x) {
   blp_toc=242;
   memcpy(textbuff,x,36);
 #ifdef SYSLOG_SUPPORT
-  syslog_sendf("mcuf: textbuffer %s\n", textbuff);
+  syslog_sendf_P(PSTR("mcuf: textbuffer %s"), textbuff);
 #endif
   scrolltext(MCUF_MIN_SCREEN_HEIGHT,0xff,0,4);
 //   updateframe();

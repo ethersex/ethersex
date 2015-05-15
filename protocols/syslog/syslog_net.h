@@ -1,6 +1,7 @@
 /*
  *
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2015 by Daniel Lindner <daniel.lindner@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,20 +27,8 @@
 
 /* constants */
 #define SYSLOG_PORT 514
-#define SYSLOG_CALLBACKS 3
-
-/* This callback is called when the syslog connection is able to send data to
- * the syslog server
- */
-typedef void (*syslog_callback_t)(void *data);
-
-struct SyslogCallbackCtx {
-  syslog_callback_t callback;
-  void *data;
-};
 
 void syslog_net_init(void);
 void syslog_net_main(void);
-uint8_t syslog_insert_callback(syslog_callback_t callback, void *data);
 
 #endif /* _SYSLOG_NET_H */
