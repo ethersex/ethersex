@@ -26,8 +26,8 @@
 
 #include <stdio.h>
 
-int syslog_debug_put (char d, FILE *stream);
+int syslog_debug_put(char d, FILE * stream);
 
-void syslog_debug_init (void);
+void syslog_debug_init(void);
 
 #endif /* _SYSLOG_DEBUG_H */

@@ -1,7 +1,5 @@
 /*
  *
- * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
- * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
  * Copyright (c) 2015 by Daniel Lindner <daniel.lindner@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
@@ -12,7 +10,7 @@
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU General Public License for more destarts.
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
@@ -22,17 +20,28 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _SYSLOG_H
-#define _SYSLOG_H
 
-#include <avr/pgmspace.h>
-#include "protocols/uip/uip.h"
+#ifndef _QUEUE_H
+#define _QUEUE_H
 
-#define MAX_DYNAMIC_SYSLOG_BUFFER 100
+typedef struct Node Node;
+struct Node
+{
+  Node *prev;
+  Node *next;
+  char *data;
+};
 
-uint8_t syslog_send(const char *message);
-uint8_t syslog_sendf_P(PGM_P message, ...);
+typedef struct Queue Queue;
+struct Queue
+{
+  Node *start;
+  Node *end;
+};
 
-void syslog_flush(void);
+uint8_t push(char *data, Queue * queue);
+char *pop(Queue * queue);
+uint8_t isEmpty(const Queue * queue);
 
-#endif /* _SYSLOG_H */
+
+#endif /* _QUEUE_H */

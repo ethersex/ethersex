@@ -39,25 +39,27 @@ syslog_net_init(void)
 
   syslog_conn = uip_udp_new(&ip, HTONS(SYSLOG_PORT), syslog_net_main);
 
-  if(! syslog_conn) {
+  if (!syslog_conn)
+  {
+#ifndef DEBUG_USE_SYSLOG
     debug_printf("syslog: couldn't create connection\n");
+#endif
     return;
   }
 
   uip_udp_bind(syslog_conn, HTONS(SYSLOG_PORT));
 
-  syslog_send_P(PSTR("booting ethersex (" VERSION_STRING_LONG ")\n"));
 }
 
 void
-syslog_net_main(void) 
+syslog_net_main(void)
 {
-  if (! uip_poll ())
+  if (!uip_poll())
     return;
 
 #ifdef ENC28J60_SUPPORT
-  if (uip_check_cache (&syslog_conn->ripaddr))
-    uip_slen = 1;		/* Trigger xmit to do force ARP lookup. */
+  if (uip_check_cache(&syslog_conn->ripaddr))
+    uip_slen = 1;               /* Trigger xmit to do force ARP lookup. */
 #endif
 }
 

@@ -240,9 +240,9 @@ decode_key(uint8_t keycode)
 #ifdef SYSLOG_SUPPORT
     /* For debugging purposes we send the keycode via syslog */
     if (key.extended && keycode == 0x6c)
-      syslog_send_P(PSTR("HOME"));
+      syslog_sendf_P(PSTR("HOME"));
 
-    syslog_sendf("Key: %x %c", data, key.shift 
+    syslog_sendf_P(PSTR("Key: %x %c"), data, key.shift
                  ? pgm_read_byte(&keycodes_shift[keycode])
                  : pgm_read_byte(&keycodes[keycode]));
 #endif
