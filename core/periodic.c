@@ -167,36 +167,47 @@ periodic_milliticks(periodic_timestamp_t * now)
 #define FRAGMENTS_PER_TICK (PERIODIC_TOP + 1)
 #endif
 
+#include "core/debug.h"
+
 uint32_t
 periodic_micros_elapsed(periodic_timestamp_t * last)
 {
-  uint32_t ticks;
-  uint32_t fragments;
+  periodic_timestamp_t now;
+  periodic_milliticks(&now);
+  return periodic_micros_diff(last, &now);
+}
 
-  ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-  {
-    fragments = PERIODIC_COUNTER_CURRENT;
-    ticks = periodic_mticks_count;
-  }
+uint32_t
+periodic_micros_diff(periodic_timestamp_t * t1, periodic_timestamp_t * t2)
+{
+  uint32_t ticks = t2->ticks;
+  uint32_t fragments = t2->fragments;
+
+#ifdef DEBUG_PERIODIC
+  if (t1->ticks == ticks && t1->fragments > fragments)
+    debug_printf("periodic_micros_diff: l=%lu,%u n=%lu,%lu\n",
+                 t1->ticks, t1->fragments, ticks, fragments);
+#endif
 
   /* calculate elapsed time in microseconds */
-  if (last->ticks <= ticks)
+  if (t1->ticks <= ticks)
   {
-    ticks = ticks - last->ticks;
+    ticks = ticks - t1->ticks;
   }
   else
   {
-    ticks = UINT32_MAX - last->ticks + ticks;
+    ticks = UINT32_MAX - t1->ticks + ticks;
   }
 
-  if (last->fragments <= fragments)
+  if (t1->fragments <= fragments)
   {
-    fragments = fragments - last->fragments;
+    fragments = fragments - t1->fragments;
   }
   else
   {
-    fragments = FRAGMENTS_PER_TICK - last->fragments + fragments;
-    ticks -= 1;
+    fragments = FRAGMENTS_PER_TICK - t1->fragments + fragments;
+    if (ticks != 0)
+      ticks -= 1;
   }
 
   return (uint32_t) (((1000000ULL * (uint64_t) ticks) / CONF_MTICKS_PER_SEC) +
@@ -204,11 +215,6 @@ periodic_micros_elapsed(periodic_timestamp_t * last)
                       (CONF_MTICKS_PER_SEC * FRAGMENTS_PER_TICK)));
 }
 
-uint32_t
-periodic_millis_elapsed(periodic_timestamp_t * last)
-{
-  return periodic_micros_elapsed(last) / 1000;
-}
 #endif
 
 #ifdef FREQCOUNT_SUPPORT

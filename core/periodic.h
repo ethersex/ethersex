@@ -137,10 +137,22 @@ void periodic_milliticks(periodic_timestamp_t * now);
 uint32_t periodic_micros_elapsed(periodic_timestamp_t * last);
 
 /**
+ * Returns the number of microseconds between timestamps t1 and t2.
+ */
+uint32_t periodic_micros_diff(periodic_timestamp_t * t1,
+                              periodic_timestamp_t * t2);
+
+/**
  * Returns the number of milliseconds that have elapsed between
  * last and now.
  */
-uint32_t periodic_millis_elapsed(periodic_timestamp_t * last);
+#define periodic_millis_elapsed(t) (periodic_micros_elapsed(t)/1000)
+
+/**
+ * Returns the number of milliseconds thbetween timestamps t1 and t2.
+ */
+#define periodic_millis_diff(t1,t2) (periodic_micros_diff(t1,t2)/1000)
+
 #endif
 
 #ifdef PERIODIC_ADJUST_SUPPORT
