@@ -242,12 +242,11 @@ timeout_func(void)
   rfm12_fs20_lib_rx_timeout();
 }
 
-#ifndef FS20_TIMER_USE_PERIODIC
 ISR(RFM12_FS20INT_VECTOR)
-#else
-ISR(RFM12_FS20INT_VECTOR, ISR_NOBLOCK)
-#endif
 {
+  _EIMSK &= ~_BV(RFM12_FS20INT_PIN);
+  sei();
+
 #ifndef FS20_TIMER_USE_PERIODIC
   uint8_t count = TC2_COUNTER_CURRENT;
 #else
@@ -263,6 +262,9 @@ ISR(RFM12_FS20INT_VECTOR, ISR_NOBLOCK)
     PIN_CLEAR(STATUSLED_RFM12_RX);
 #endif
   rfm12_fs20_lib_rx_level_changed(count, is_raising_edge);
+
+  cli();
+  _EIMSK |= _BV(RFM12_FS20INT_PIN);
 }
 
 static void
