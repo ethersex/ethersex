@@ -71,7 +71,7 @@ if [ "$ARCH_AVR" = "y" ]; then
 
 	define_hex FLASH_SIZE "$(printf '0x%X\n' $FLASH_SIZE)"
 	define_hex EEPROM_SIZE "$(printf '0x%X\n' $((`echo -e "#include <avr/io.h>\nE2END" | avr-cpp -mmcu=$MCU | sed '$!d'` + 1)))"
-	define_hex RAM_SIZE "$(printf '0x%X\n' $((`echo -e "#include <avr/io.h>\nRAMEND" | avr-cpp -mmcu=$MCU | sed '$!d'` + 1)))"
+	define_hex RAM_SIZE "$(printf '0x%X\n' $((`echo -e "#include <avr/io.h>\nRAMEND-RAMSTART" | avr-cpp -mmcu=$MCU | sed '$!d'` + 1)))"
 	define_hex FLASH_PAGESIZE "$(printf '0x%X\n' $((`echo -e "#include <avr/io.h>\nSPM_PAGESIZE" | avr-cpp -mmcu=$MCU | sed '$!d'`)))"
 	define_hex EEPROM_PAGESIZE "$(printf '0x%X\n' $((`echo -e "#include <avr/io.h>\nE2PAGESIZE" | avr-cpp -mmcu=$MCU | sed '$!d'`)))"
 
