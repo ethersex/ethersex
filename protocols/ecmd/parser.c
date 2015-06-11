@@ -194,7 +194,6 @@ parse_cmd_free(char *cmd, char *output, uint16_t len)
 
   size_t f =
     (size_t) (__brkval ? (size_t) __brkval : (size_t) & __heap_start);
-  size_t allram = RAMEND;
 
   /* we want an output like this:
    * free: 16234/32768
@@ -206,7 +205,7 @@ parse_cmd_free(char *cmd, char *output, uint16_t len)
     case 0:
       return ECMD_AGAIN(snprintf_P(output, len,
                                    PSTR("free: %u/%u"),
-                                   SP - f, allram));
+                                   SP - f, RAM_SIZE));
     case 1:
       return ECMD_AGAIN(snprintf_P(output, len,
                                    PSTR("heap: %u"),
