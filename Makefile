@@ -125,10 +125,10 @@ meta.defines: autoconf.h pinning.c
 
 $(y_META_SRC): meta.defines
 
-meta.c: $(y_META_SRC)
+meta.c: $(y_META_SRC) meta.defines
 	$(M4) `cat meta.defines` $^ > $@
 
-meta.h: scripts/meta_header_magic.m4 meta.m4
+meta.h: scripts/meta_header_magic.m4 meta.m4 meta.defines
 	$(M4) `cat meta.defines` $^ > $@
 
 ##############################################################################
