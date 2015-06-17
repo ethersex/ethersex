@@ -155,8 +155,35 @@ dmx_fx_watersimulation(uint8_t fxslot_number)
 }
 #endif /*Water end */
 
-
-
+#ifdef DMX_FX_RGB
+void
+dmx_fx_rgb(uint8_t fxslot_number)
+{
+  switch (fxslot[fxslot_number].effect_variable[0])
+  {
+    case(1):
+      fxslot[fxslot_number].device_channel[0] = 0;
+      fxslot[fxslot_number].device_channel[1] = 255;
+      fxslot[fxslot_number].device_channel[2] = 0;
+      fxslot[fxslot_number].effect_variable[0] = 2;
+      break;
+    case(2):
+      fxslot[fxslot_number].device_channel[0] = 0;
+      fxslot[fxslot_number].device_channel[1] = 0;
+      fxslot[fxslot_number].device_channel[2] = 255;
+      fxslot[fxslot_number].effect_variable[0] = 0;
+      break;
+    case(0):
+    default:
+      fxslot[fxslot_number].device_channel[0] = 255;
+      fxslot[fxslot_number].device_channel[1] = 0;
+      fxslot[fxslot_number].device_channel[2] = 0;
+      fxslot[fxslot_number].effect_variable[0] = 1;
+      break;
+   }
+   dmx_fxslot_setchannels(fxslot_number);
+}
+#endif
 
 void
 dmx_fxslot_init(uint8_t fxslot_number)
@@ -201,6 +228,12 @@ dmx_fxslot_init(uint8_t fxslot_number)
       fxslot[fxslot_number].effect_variable[3] = 0;
       break;
 #endif
+#ifdef DMX_FX_RGB
+    case DMX_FXLIST_RGB:
+      fxslot[fxslot_number].max_device_channels = 3;
+      fxslot[fxslot_number].effect_variable[0] = 0;
+      break;
+#endif
   }
   fxslot[fxslot_number].speedcounter = fxslot[fxslot_number].speed;
 }
@@ -242,6 +275,11 @@ dmx_fxslot_process()
 #ifdef DMX_FX_WATER
           case DMX_FXLIST_WATERSIMULATION:     //Watersimulation
             dmx_fx_watersimulation(i);
+            break;
+#endif
+#ifdef DMX_FX_RGB
+          case DMX_FXLIST_RGB:
+            dmx_fx_rgb(i);
             break;
 #endif
         }
