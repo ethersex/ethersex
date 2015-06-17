@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2011 by Maximilian Güntner <maximilian.guentner@gmail.com>
+ * Copyright (c) 2011-2015 by Maximilian Güntner <maximilian.guentner@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -87,6 +87,14 @@ get_dmx_channel_slot(uint8_t universe, uint16_t channel, int8_t slot)
   if (slot < DMX_STORAGE_SLOTS && slot >= 0)
     dmx_universes[universe].slots[slot].slot_state = DMX_UNCHANGED;
   return get_dmx_channel(universe, channel);
+}
+
+uint8_t
+get_dmx_channel_slot_raw(uint8_t universe, uint16_t channel, int8_t slot)
+{
+  if (slot < DMX_STORAGE_SLOTS && slot >= 0)
+    dmx_universes[universe].slots[slot].slot_state = DMX_UNCHANGED;
+  return get_dmx_channel_raw(universe, channel);
 }
 
 uint8_t
