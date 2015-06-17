@@ -174,7 +174,7 @@ starburst_update(void)
     for (uint8_t i = 0; i < STARBURST_PCA9685_CHANNELS; i++)
     {
       tmp =
-        get_dmx_channel_slot(STARBURST_PCA9685_UNIVERSE,
+        get_dmx_channel_slot_raw(STARBURST_PCA9685_UNIVERSE,
                              i + STARBURST_PCA9685_OFFSET +
                              STARBURST_PCA9685_CHANNELS, pca9685_dmx_conn_id);
       pca9685_channels[i].mode = tmp;
