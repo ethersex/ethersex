@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2011-2013 by Maximilian Güntner <maximilian.guentner@gmail.com>
+ * Copyright (c) 2011-2015 by Maximilian Güntner <maximilian.guentner@gmail.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -58,7 +58,7 @@ struct dmx_universe
   uint8_t dimmer;
 };
 
-/** 
+/**
  *  @name Functions
  */
 /**
@@ -70,7 +70,7 @@ int8_t dmx_storage_connect(uint8_t universe);
 /**
 *	@brief Disconnects a module from a universe of dmx-storage
 *	@param universe
-*	@param slot 
+*	@param slot
 *	@return none
 */
 void dmx_storage_disconnect(uint8_t universe, int8_t slot);
@@ -95,9 +95,19 @@ uint8_t get_dmx_channel_raw(uint8_t universe, uint16_t channel);
 *	@param universe
 *	@param channel
 *	@param slot
-*	@return the channel value 
+*	@return the channel value
 */
 uint8_t get_dmx_channel_slot(uint8_t universe, uint16_t channel, int8_t slot);
+/**
+*	@brief Returns a channel of a universe of dmx-storage using a slot
+*
+*	the same as get_dmx_channel_slot without applying a dimmer
+*	@param universe
+*	@param channel
+*	@param slot
+*	@return the channel value
+*/
+uint8_t get_dmx_channel_slot_raw(uint8_t universe, uint16_t channel, int8_t slot);
 /**
 *	@brief Sets a channel of a universe of dmx-storage
 *	@param universe

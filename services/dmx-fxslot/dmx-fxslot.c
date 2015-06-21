@@ -164,10 +164,10 @@ dmx_fxslot_init(uint8_t fxslot_number)
   switch (fxslot[fxslot_number].effect)
   {
       /*
-       * add new effect inits as new case: 
-       * 
-       * you have to to define the channels per device changed through the effect by: 
-       * fxslot[fxslot_number].max_device_channels='number of channels' 
+       * add new effect inits as new case:
+       *
+       * you have to to define the channels per device changed through the effect by:
+       * fxslot[fxslot_number].max_device_channels='number of channels'
        */
 
 #ifdef DMX_FX_RAINBOW           //Rainbow init
@@ -202,7 +202,7 @@ dmx_fxslot_init(uint8_t fxslot_number)
       break;
 #endif
   }
-
+  fxslot[fxslot_number].speedcounter = fxslot[fxslot_number].speed;
 }
 
 void
