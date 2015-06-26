@@ -10,6 +10,7 @@ dep_bool_menu "SD/MMC-Card Reader" SD_READER_SUPPORT $ARCH_AVR
     else
       define_bool SD_WRITE_SUPPORT "n"
     fi
+    dep_bool "FAT date/time support" SD_DATETIME_SUPPORT $VFS_SD_SUPPORT $CLOCK_SUPPORT $CLOCK_DATETIME_SUPPORT
     
     bool "Use read-timeout" SD_READ_TIMEOUT
     dep_bool "Ping-read SD card every 10s" SD_PING_READ $SD_READER_SUPPORT $SD_READ_TIMEOUT
