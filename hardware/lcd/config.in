@@ -31,6 +31,13 @@ mainmenu_option next_comment
       define_bool I2C_MASTER_SUPPORT y
       define_bool I2C_PCF8574X_SUPPORT y
     fi
+
+    if [ "$HD44780_I2CSUPPORT" = "y" ]; then
+      if [ "$HD44780_TYPE" = "HD44780_WDC2704" ]; then
+        define_string CONF_HD44780_TYPE "HD44780_WDC2704"
+      fi
+    fi
+
     dep_bool "Invert Backlight switch" HD44780_BACKLIGHT_INV $HD44780_SUPPORT
   endmenu
 
@@ -56,5 +63,6 @@ mainmenu_option next_comment
   comment  "Debugging Flags"
   dep_bool 'HD44780' DEBUG_HD44780 $DEBUG $HD44780_SUPPORT
   dep_bool 'LCD Menu' DEBUG_LCD_MENU $DEBUG $LCD_MENU_SUPPORT
-        
+  dep_bool 'HD44780_I2C' DEBUG_HD44780_I2C $DEBUG $HD44780_I2CSUPPORT
+
 endmenu
