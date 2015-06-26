@@ -66,7 +66,6 @@ clock_rw(uint8_t read, uint8_t en)
     /* Datenbyte von PCF lesen, daten_nibble maskiert */
     uint8_t i2c_read_data;
     i2c_read_data = i2c_pcf8574x_read(HD44780_PCF8574x_ADR);
-
     if (i2c_read_data & _BV(HD44780_PCF8574x_DB4))
       data |= _BV(0);
     if (i2c_read_data & _BV(HD44780_PCF8574x_DB5))
@@ -125,6 +124,7 @@ output_nibble(uint8_t rs, uint8_t nibble, uint8_t en)
   else
     lcd_data &= ~(_BV(HD44780_PCF8574x_BL));
 #endif
+
   /* toggle EN, daten uebertragen */
   clock_write(en);
 }
@@ -156,7 +156,6 @@ input_nibble(uint8_t rs, uint8_t en)
 void
 hd44780_backlight(uint8_t state)
 {
-#if HD44780_TYPE != HD44780_WDC2704
   back_light = state;
 
   /* backlight status falls vorhanden uebernehmen */
@@ -166,7 +165,6 @@ hd44780_backlight(uint8_t state)
     lcd_data &= ~(_BV(HD44780_PCF8574x_BL));
   /* backlight status direkt uebertragen */
   i2c_pcf8574x_set(HD44780_PCF8574x_ADR, lcd_data);
-#endif
 }
 #endif
 
@@ -175,11 +173,9 @@ hd44780_hw_init(void)
 {
   /* alle ausgaenge auf 0 setzen */
   lcd_data = 0;
-#if HD44780_TYPE != HD44780_WDC2704
 #ifdef HD44780_BACKLIGHT_INV
   back_light = 1;
   lcd_data |= _BV(HD44780_PCF8574x_BL);
-#endif
 #endif
 
   i2c_pcf8574x_set(HD44780_PCF8574x_ADR, lcd_data);
