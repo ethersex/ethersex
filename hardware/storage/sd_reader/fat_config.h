@@ -51,7 +51,7 @@ extern "C"
  * 
  * Set to 1 to enable FAT date and time stamping support.
  */
-#define FAT_DATETIME_SUPPORT 0
+#define FAT_DATETIME_SUPPORT SD_DATETIME_SUPPORT
 
 /**
  * \ingroup fat_config

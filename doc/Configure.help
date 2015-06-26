@@ -3240,3 +3240,15 @@ BSBPORT_MQTT_TOPIC
   Topic for publish BSBPORT_MQTT_TOPIC/SOURCE/MSG_ADDRESS/VALUE_TYPE payload is the value.
   Topic for querys BSBPORT_MQTT_TOPIC/query/DESTINATION/MSG_ADDRESS payload can by anything.
   Topic for setting values BSBPORT_MQTT_TOPIC/set/DESTINATION/MSG_ADDRESS/VALUE_TYPE payload is the value send.
+
+FAT date/time support
+SD_DATETIME_SUPPORT
+  Depends on: 
+   * SD/MMC-Card Filesystem (VFS_SD_SUPPORT)
+   * System clock support (CLOCK_SUPPORT)
+   * Date and Time support (CLOCK_DATETIME_SUPPORT)
+
+  Support saving modification date and time for files and folders on FAT file systems.
+  If not enabled, files will have a modification date of the 1. January 1980.
+
+
