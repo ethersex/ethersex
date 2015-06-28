@@ -20,9 +20,7 @@
 #if USE_DYNAMIC_MEMORY
     #include <stdlib.h>
 #endif
-#if FAT_DATETIME_SUPPORT
-    #include "services/clock/clock.h"
-#endif
+
 /**
  * \addtogroup fat FAT support
  *
@@ -2365,21 +2363,6 @@ uint8_t fat_delete_dir(struct fat_fs_struct* fs, struct fat_dir_entry_struct* di
  */
 #ifdef DOXYGEN
 uint8_t fat_move_dir(struct fat_fs_struct* fs, struct fat_dir_entry_struct* dir_entry, struct fat_dir_struct* parent_new, const char* dir_new);
-#endif
-
-#if FAT_DATETIME_SUPPORT
-void get_datetime(uint16_t* year, uint8_t* month, uint8_t* day, uint8_t* hour, uint8_t* min, uint8_t* sec)
-{
-    clock_datetime_t date;
-    clock_current_localtime(&date);
-
-    *day = date.day;
-    *month = date.month;
-    *year = date.year + 1900;
-    *hour = date.hour;
-    *min = date.min;
-    *sec = date.sec;
-}
 #endif
 
 #if DOXYGEN || FAT_DATETIME_SUPPORT
