@@ -25,15 +25,17 @@
 /*
  * see fat_config.h for documentation
  */
-void get_datetime(uint16_t* year, uint8_t* month, uint8_t* day, uint8_t* hour, uint8_t* min, uint8_t* sec)
+void
+get_datetime(uint16_t * year, uint8_t * month, uint8_t * day, uint8_t * hour,
+             uint8_t * min, uint8_t * sec)
 {
-    clock_datetime_t date;
-    clock_current_localtime(&date);
+  clock_datetime_t date;
+  clock_current_localtime(&date);
 
-    *day = date.day;
-    *month = date.month;
-    *year = date.year + 1900;
-    *hour = date.hour;
-    *min = date.min;
-    *sec = date.sec;
+  *day = date.day;
+  *month = date.month;
+  *year = date.year + 1900;
+  *hour = date.hour;
+  *min = date.min;
+  *sec = date.sec;
 }
