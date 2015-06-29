@@ -3242,7 +3242,7 @@ BSBPORT_MQTT_TOPIC
   Topic for setting values BSBPORT_MQTT_TOPIC/set/DESTINATION/MSG_ADDRESS/VALUE_TYPE payload is the value send.
 
 FAT date/time support
-SD_DATETIME_SUPPORT
+FAT_DATETIME_SUPPORT
   Depends on: 
    * SD/MMC-Card Filesystem (VFS_SD_SUPPORT)
    * System clock support (CLOCK_SUPPORT)
