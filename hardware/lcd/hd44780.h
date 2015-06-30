@@ -42,7 +42,7 @@
 
 /*Definition for different display types
   Add some new Displays here*/
-#if HD44780_TYPE == HD44780_ORIGINAL
+#if CONF_HD44780_TYPE == HD44780_ORIGINAL
     #define LCD_CHAR_PER_LINE 20 	
     #define LCD_LINES 4 		
     #define LCD_LINE_1_ADR 0x00
@@ -53,7 +53,7 @@
     #define LCD_LINE_2_EN 1
     #define LCD_LINE_3_EN 1
     #define LCD_LINE_4_EN 1
-#elif HD44780_TYPE == HD44780_DISPTECH
+#elif CONF_HD44780_TYPE == HD44780_DISPTECH
     #define LCD_CHAR_PER_LINE 20 	
     #define LCD_LINES 4 		
     #define LCD_LINE_1_ADR 0x00
@@ -64,7 +64,7 @@
     #define LCD_LINE_2_EN 1
     #define LCD_LINE_3_EN 1
     #define LCD_LINE_4_EN 1
-#elif HD44780_TYPE == HD44780_KS0067B
+#elif CONF_HD44780_TYPE == HD44780_KS0067B
     #define LCD_CHAR_PER_LINE 20 	
     #define LCD_LINES 4 		
     #define LCD_LINE_1_ADR 0x00
@@ -75,7 +75,7 @@
     #define LCD_LINE_2_EN 1
     #define LCD_LINE_3_EN 1
     #define LCD_LINE_4_EN 1
-#elif HD44780_TYPE == HD44780_KS0066U
+#elif CONF_HD44780_TYPE == HD44780_KS0066U
     #define LCD_CHAR_PER_LINE 20 	
     #define LCD_LINES 4 		
     #define LCD_LINE_1_ADR 0x00
@@ -86,7 +86,7 @@
     #define LCD_LINE_2_EN 1
     #define LCD_LINE_3_EN 1
     #define LCD_LINE_4_EN 1
-#elif HD44780_TYPE == HD44780_WDC2704
+#elif CONF_HD44780_TYPE == HD44780_WDC2704
     #define LCD_CHAR_PER_LINE 27 	
     #define LCD_LINES 4 		
     #define LCD_LINE_1_ADR 0x00
@@ -97,7 +97,7 @@
     #define LCD_LINE_2_EN 1
     #define LCD_LINE_3_EN 2
     #define LCD_LINE_4_EN 2
-#elif HD44780_TYPE == HD44780_SPLC780D
+#elif CONF_HD44780_TYPE == HD44780_SPLC780D
     #define LCD_CHAR_PER_LINE 16
     #define LCD_LINES 4
     #define LCD_LINE_1_ADR 0x80

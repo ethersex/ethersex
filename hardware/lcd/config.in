@@ -12,7 +12,7 @@ mainmenu_option next_comment
                ks0066u                  HD44780_KS0066U         \
                WD_C2704M                HD44780_WDC2704         \
                SPLC780D                 HD44780_SPLC780D"       \
-              'Original'                HD44780_TYPE
+              'Original'                CONF_HD44780_TYPE
       define_bool LCD_SUPPORT y
       choice 'Connection type'                                  \
               "Direkt                   HD44780_DIREKT          \

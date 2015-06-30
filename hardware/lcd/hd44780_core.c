@@ -139,7 +139,7 @@ void hd44780_init(void)
     hd44780_hw_init();
     _delay_ms(40);
 
-#if HD44780_TYPE == HD44780_KS0066U
+#if CONF_HD44780_TYPE == HD44780_KS0066U
     /* Hardware initialisiert -> Standardprozedur KS0066U Datenblatt 4bit Mode */
     output_nibble(0, 0x02, 1);
 #else
@@ -164,7 +164,7 @@ void hd44780_init(void)
     output_nibble(0, 0x02,1);		//4bit mode
     _delay_ms(1);
     /* init done */
-#endif /*HD44780_TYPE*/
+#endif /*CONF_HD44780_TYPE*/
 
     /* configure for 4 bit, 2 lines, 5x8 font (datasheet, page 24) */
     output_byte(0, CMD_FUNCTIONSET(0, 1, 0), 1);
@@ -186,7 +186,7 @@ void hd44780_init(void)
     hd44780_hw_init();
     _delay_ms(40);
 
-#if HD44780_TYPE == HD44780_KS0066U
+#if CONF_HD44780_TYPE == HD44780_KS0066U
     /* Hardware initialisiert -> Standardprozedur KS0066U Datenblatt 4bit Mode */
     output_nibble(0, 0x02, 2);
 #else
