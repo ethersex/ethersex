@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2014 by Philip Matura <ike@tura-home.de>
+ * Copyright (c) 2015 by Daniel Lindner <daniel.lindner@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -32,22 +33,22 @@
 // DEBUG MACROS
 
 #ifdef MQTT_DEBUG
-  #define MQTTDEBUG(...) debug_printf(__VA_ARGS__)
+#define MQTTDEBUG(...) debug_printf(__VA_ARGS__)
 #else
-  #define MQTTDEBUG(...)
+#define MQTTDEBUG(...)
 #endif
 
 #ifdef MQTT_PARSE_DEBUG
-  #define MQTTPARSEDEBUG(...) debug_printf(__VA_ARGS__)
+#define MQTTPARSEDEBUG(...) debug_printf(__VA_ARGS__)
 #else
-  #define MQTTPARSEDEBUG(...)
+#define MQTTPARSEDEBUG(...)
 #endif
 
 
 // KEEP ALIVE
 
 #ifndef MQTT_KEEPALIVE
-  #define MQTT_KEEPALIVE 60
+#define MQTT_KEEPALIVE 60
 #endif
 
 // SENDBUFFER LENGTH
@@ -55,7 +56,7 @@
 // don't increase this one over 256 without increasing the state variables in
 // mqtt.c to 16 bit
 #ifndef MQTT_SENDBUFFER_LENGTH
-  #define MQTT_SENDBUFFER_LENGTH 256
+#define MQTT_SENDBUFFER_LENGTH 256
 #endif
 
 
@@ -92,15 +93,19 @@
 
 
 // CONFIG STRUCTURE
-
+typedef void (*connack_callback) (void);
+typedef void (*poll_callback) (void);
+typedef void (*close_callback) (void);
+typedef void (*publish_callback) (char const *topic, uint16_t topic_length,
+                                  void const *payload,
+                                  uint16_t payload_length);
 typedef struct
 {
   // see mqtt.c for explanation
-  void (*connack_callback)(void);
-  void (*poll_callback)(void);
-  void (*close_callback)(void);
-  void (*publish_callback)(char const *topic, uint16_t topic_length,
-    const void *payload, uint16_t payload_length);
+  connack_callback connack_callback;
+  poll_callback poll_callback;
+  close_callback close_callback;
+  publish_callback publish_callback;
 } mqtt_callback_config_t;
 
 typedef struct
@@ -108,7 +113,7 @@ typedef struct
   char const *client_id;
   char const *user;
   char const *pass;
-  char const *will_topic; // A value != NULL enables the will feature
+  char const *will_topic;       // A value != NULL enables the will feature
   uint8_t will_qos;
   bool will_retain;
   char const *will_message;
@@ -117,21 +122,21 @@ typedef struct
   // Pointer to an array of (char const*) of topic strings to be automatically
   // subscribed to after a connection is established. The array is assumed to
   // be NULL-terminated.
-  char const * const *auto_subscribe_topics;
+  char const *const *auto_subscribe_topics;
 } mqtt_connection_config_t;
 
 
 // PUBLIC FUNCTIONS
 
-void mqtt_set_connection_config(mqtt_connection_config_t const *config);
-uint8_t mqtt_register_callback(mqtt_callback_config_t *callbacks);
+void mqtt_set_connection_config(mqtt_connection_config_t const *const config);
+uint8_t mqtt_register_callback(mqtt_callback_config_t const *const callbacks);
 void mqtt_unregister_callback(uint8_t slot_id);
 bool mqtt_is_connected(void);
 
 // put a packet in the mqtt send queue
 // return false if there is not enough buffer space
 bool mqtt_construct_publish_packet(char const *topic, const void *payload,
-    uint16_t payload_length, bool retain);
+                                   uint16_t payload_length, bool retain);
 bool mqtt_construct_subscribe_packet(char const *topic);
 bool mqtt_construct_unsubscribe_packet(char const *topic);
 bool mqtt_construct_zerolength_packet(uint8_t msg_type);
@@ -142,10 +147,10 @@ bool mqtt_construct_ack_packet(uint8_t msg_type, uint16_t msgid);
 void mqtt_periodic(void);
 
 #ifdef MQTT_STATIC_CONF
-  void mqtt_set_static_conf(void);
+void mqtt_set_static_conf(void);
 #else
-  #define mqtt_set_static_conf(...)
+#define mqtt_set_static_conf(...)
 #endif
 
 
-#endif  /* HAVE_MQTT_H */
+#endif /* HAVE_MQTT_H */

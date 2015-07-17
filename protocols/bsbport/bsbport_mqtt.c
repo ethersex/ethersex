@@ -222,7 +222,7 @@ bsbport_connack_cb(void)
   mqtt_construct_subscribe_packet(BSBPORT_SUBSCRIBE_QUERY_TOPIC);
 }
 
-static mqtt_callback_config_t mqtt_callback_config = {
+static const mqtt_callback_config_t mqtt_callback_config PROGMEM = {
   .connack_callback = bsbport_connack_cb,
   .poll_callback = bsbport_poll_cb,
   .close_callback = NULL,
