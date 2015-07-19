@@ -31,7 +31,9 @@
 /* global variables */
 FILE lcd = FDEV_SETUP_STREAM (hd44780_put, NULL, _FDEV_SETUP_WRITE);
 uint8_t current_pos = 0;
+#ifdef HD44780_BACKLIGHT_SUPPORT
 uint8_t back_light = 0;
+#endif
 
 
 

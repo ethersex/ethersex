@@ -118,7 +118,7 @@ output_nibble(uint8_t rs, uint8_t nibble, uint8_t en)
   if (rs)
     lcd_data |= _BV(HD44780_PCF8574x_RS);
 
-#if HD44780_TYPE != HD44780_WDC2704
+#ifdef HD44780_BACKLIGHT_SUPPORT
   /* backlight status falls vorhanden uebernehmen */
   if (back_light)
     lcd_data |= _BV(HD44780_PCF8574x_BL);
@@ -152,6 +152,7 @@ input_nibble(uint8_t rs, uint8_t en)
 }
 #endif
 
+#ifdef HD44780_BACKLIGHT_SUPPORT
 void
 hd44780_backlight(uint8_t state)
 {
@@ -167,6 +168,7 @@ hd44780_backlight(uint8_t state)
   i2c_pcf8574x_set(HD44780_PCF8574x_ADR, lcd_data);
 #endif
 }
+#endif
 
 void noinline
 hd44780_hw_init(void)

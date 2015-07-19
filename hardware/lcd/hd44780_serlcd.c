@@ -82,8 +82,10 @@ void noinline output_nibble(uint8_t rs, uint8_t nibble,uint8_t en)
     if(rs)
 	data |= (1<<LCD_RS_PIN);
 
+#ifdef HD44780_BACKLIGHT_SUPPORT
     if(back_light)
 	data |= (1<<LCD_LIGHT_PIN);
+#endif
 
     data |= (nibble&0x0f)<<3; //Write Nibble
 
@@ -94,6 +96,7 @@ void noinline output_nibble(uint8_t rs, uint8_t nibble,uint8_t en)
     clock_write(1);
 }
 
+#ifdef HD44780_BACKLIGHT_SUPPORT
 void hd44780_backlight(uint8_t state)
 {
     uint8_t data = 0;
@@ -104,6 +107,7 @@ void hd44780_backlight(uint8_t state)
 
     shift_data_out(data);
 }
+#endif
 
 void noinline hd44780_hw_init(void)
 {
