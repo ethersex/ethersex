@@ -2596,7 +2596,7 @@ HTTPLOG_BUFFER_LEN
 Backlight support
 HD44780_BACKLIGHT_SUPPORT
 
-  Backlight support for HD44780 LCD with direct connection.
+  Backlight support for LCDs based on the HD44780 controller.
 
 Tank level meter
 TANKLEVEL_SUPPORT
@@ -3401,3 +3401,12 @@ I2C_MCP23017_SUPPORT
 
   The MCP23017 is a very common and cheap I2C 16-bit I/O expander
   available in various packages including PDIP.
+
+Invert Backlight switch
+HD44780_BACKLIGHT_INV
+  Depends on: 
+   * HD44780 module driver (Character-LCD) (HD44780_SUPPORT)
+   * Backlight support (HD44780_BACKLIGHT_SUPPORT)
+
+  Backlight is low active. Currently this is implemented for I2C connected HD44780 LCDs only.
+
