@@ -3410,3 +3410,15 @@ HD44780_BACKLIGHT_INV
 
   Backlight is low active. Currently this is implemented for I2C connected HD44780 LCDs only.
 
+Multiple ENABLE support
+HD44780_MULTIENSUPPORT
+  Depends on: 
+   * HD44780 module driver (Character-LCD) (HD44780_SUPPORT)
+
+  Some displays with multiple lines are based on more than one HD44780 controller. 
+  One example is the WDC2704M module with four lines a 27 characters.
+  To display text  on the display's e.G. third line the command needs to be sent to the second controller.
+  Not to double the data lines the different controller can be selected by EN lines.
+  This option takes care of selecting the controller according to the line number.
+
+
