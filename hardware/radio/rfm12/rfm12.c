@@ -119,6 +119,7 @@ rfm12_setfreq(uint16_t freq)
   return rfm12_trans(RFM12_CMD_FREQUENCY | freq);
 }
 
+#ifdef RFM12_IP_SUPPORT
 uint16_t
 rfm12_setbaud(uint16_t baud)
 {
@@ -143,6 +144,7 @@ rfm12_setpower(uint8_t power, uint8_t mod)
                              (uint8_t) ((mod & 15) << 4));
   return rfm12_trans(RFM12_CMD_TXCONF | param);
 }
+#endif /* RFM12_IP_SUPPORT */
 #endif /* !TEENSY_SUPPORT */
 
 uint16_t

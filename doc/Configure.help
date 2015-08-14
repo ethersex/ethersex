@@ -319,6 +319,18 @@ PROTO_INTERTECHNO_SL_SUPPORT
     - Klik aan Klik uit
     - ...
 
+Flamingo FA20RF/ELRO KD101 
+PROTO_FA20RF_SUPPORT
+  Depends on: 
+   * Radio outlets (433MHz) (PROTO_ASK_SUPPORT)
+
+  Enable support for the wireless interconnectable smoke detectors
+  Flamingo FA20RF, ELRO KD101, and compatible.
+
+  Each detector or a group of interconnected detectors has a uniq
+  24bit id. By sending this id the smoke detector switches to alarm
+  mode for five seconds. 
+
 RFM12 ASK external filter enables external filter Support
 RFM12_ASK_EXTERNAL_FILTER_SUPPORT
   Depends on:

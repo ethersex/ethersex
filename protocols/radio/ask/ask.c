@@ -3,7 +3,7 @@
  * Copyright (c) Guido Pannenbecker
  * Copyright (c) Stefan Riepenhausen
  * Copyright (c) 2009 Dirk Pannenbecker <dp@sd-gp.de>
- * Copyright (c) 2012-14 by Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) 2012-15 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,8 +31,8 @@
 #include "ask.h"
 
 
-#define ASK_HARDWARE_RFM12   1
-#define ASK_HARDWARE_GENERIC 2
+#define ASK_HARDWARE_RFM12     1
+#define ASK_HARDWARE_GENERIC   2
 
 #if ASK_HARDWARE == ASK_HARDWARE_RFM12
 #include "hardware/radio/rfm12/rfm12_ask.h"
@@ -43,8 +43,8 @@
 #endif
 
 
-#define INTERTECHNO_PERIOD 264  // produces pulse of 360 us
-#define INTERTECHNO_SL_PERIOD 216
+#define INTERTECHNO_PERIOD     264      // produces pulse of 360 us
+#define INTERTECHNO_SL_PERIOD  216
 
 
 #ifdef PROTO_TEVION_SUPPORT
@@ -78,10 +78,10 @@ ask_tevion_send(uint8_t * housecode, uint8_t * command, uint8_t delay,
   for (uint8_t ii = cnt; ii > 0; ii--)
   {
     wdt_kick();
-    uint8_t rfm12_trigger_level = 0;
+    uint8_t ask_trigger_level = 0;
     for (uint8_t i = 0; i < 41; i++)
     {
-      ASK_TX_TRIGGER(rfm12_trigger_level ^= 1, code[i] * delay);
+      ASK_TX_TRIGGER(ask_trigger_level ^= 1, code[i] * delay);
     }
     ASK_TX_TRIGGER(0, 24 * delay);
   }
@@ -284,10 +284,10 @@ ask_2272_1527_send(uint8_t * command, uint8_t delay, uint8_t cnt,
   for (uint8_t ii = cnt; ii > 0; ii--)
   {
     wdt_kick();
-    uint8_t rfm12_trigger_level = 0;
+    uint8_t ask_trigger_level = 0;
     for (uint8_t i = 0; i < 49; i++)
     {
-      ASK_TX_TRIGGER(rfm12_trigger_level ^= 1, code[i] * delay);
+      ASK_TX_TRIGGER(ask_trigger_level ^= 1, code[i] * delay);
     }
     ASK_TX_TRIGGER(0, sync * delay);
   }
@@ -348,10 +348,10 @@ ask_oase_send(uint8_t * command, uint8_t delay, uint8_t cnt)
   for (uint8_t ii = cnt; ii > 0; ii--)
   {
     wdt_kick();
-    uint8_t rfm12_trigger_level = 1;
+    uint8_t ask_trigger_level = 1;
     for (uint8_t i = 0; i < 51; i++)
     {
-      ASK_TX_TRIGGER(rfm12_trigger_level ^= 1, code[i] * delay);
+      ASK_TX_TRIGGER(ask_trigger_level ^= 1, code[i] * delay);
     }
     ASK_TX_TRIGGER(0, 64 * delay);
   }
@@ -359,3 +359,44 @@ ask_oase_send(uint8_t * command, uint8_t delay, uint8_t cnt)
   ASK_TX_DISABLE;
 }
 #endif /* PROTO_OASEFMMASTER_SUPPORT */
+
+#ifdef PROTO_FA20RF_SUPPORT
+#define FA20RF_SBIT_HITIME     6080     // 8100us
+#define FA20RF_SBIT_LOTIME     610      //  960us
+#define FA20RF_ONE_HITIME      640      //  740us
+#define FA20RF_ONE_LOTIME      1965     // 2800us
+#define FA20RF_ZERO_HITIME     640      //  740us
+#define FA20RF_ZERO_LOTIME     945      // 1400us
+
+void
+ask_fa20rf_send(uint32_t device, uint8_t repeat)
+{
+  uint16_t code[50];
+  uint16_t *p = code;
+
+  *p++ = FA20RF_SBIT_HITIME;
+  *p++ = FA20RF_SBIT_LOTIME;
+
+  for (uint32_t mask = 0x800000; mask; mask >>= 1)
+  {
+    *p++ = (device & mask) ? FA20RF_ONE_HITIME : FA20RF_ZERO_HITIME;
+    *p++ = (device & mask) ? FA20RF_ONE_LOTIME : FA20RF_ZERO_LOTIME;
+  }
+
+  ASK_TX_ENABLE;
+
+  while (repeat--)
+  {
+    wdt_kick();
+    uint8_t ask_trigger_level = 0;
+    for (uint8_t i = 0; i < 50; i++)
+    {
+      ASK_TX_TRIGGER(ask_trigger_level ^= 1, code[i]);
+    }
+    ASK_TX_TRIGGER(1, 640);
+    ASK_TX_TRIGGER(0, 12000);
+  }
+
+  ASK_TX_DISABLE;
+}
+#endif /* PROTO_FA20RF_SUPPORT */

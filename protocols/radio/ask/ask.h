@@ -1,7 +1,7 @@
 /*
  * Copyright (c) Gregor B.
  * Copyright (c) 2009 Dirk Pannenbecker <dp@sd-gp.de>
- * Copyright (c) 2012-14 by Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) 2012-15 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,5 +32,6 @@ void ask_1527_send(uint8_t *, uint8_t, uint8_t);
 void ask_intertechno_send(uint8_t, uint8_t, uint8_t, uint8_t);
 void ask_intertechno_sl_send(uint32_t, uint8_t, uint8_t, int8_t);
 void ask_oase_send(uint8_t *, uint8_t, uint8_t);
+void ask_fa20rf_send(uint32_t, uint8_t);
 
 #endif /* __ASK_H */
