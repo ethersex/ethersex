@@ -23,13 +23,16 @@
 #ifndef ECMD_SENDER_STATE_H
 #define ECMD_SENDER_STATE_H
 
-#include "ecmd_sender_net.h"
 #include <avr/pgmspace.h>
 
+#include "protocols/ecmd/via_tcp/ecmd_state.h"
+#include "ecmd_sender_net.h"
+
 struct ecmd_sender_connection_state_t {
-    uint16_t sent;
-    PGM_P to_be_sent;
     client_return_text_callback_t callback;
+    char buf[ECMD_INPUTBUF_LENGTH];
+    uint8_t retry;
+    uint8_t sent;
 };
 
 #endif /* ECMD_SENDER_STATE_H */

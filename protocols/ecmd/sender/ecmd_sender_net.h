@@ -1,6 +1,6 @@
 /*
- *
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyright (c) 2015 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,23 +24,26 @@
 #define ECMD_SENDER_NET_H
 
 #include <stdint.h>
-typedef void (*client_return_text_callback_t)(char* text, uint8_t len);
-#include "protocols/uip/uip.h"
 #include <avr/pgmspace.h>
 
-uip_conn_t *ecmd_sender_send_command (uip_ipaddr_t *ipaddr,
-				      const char *pgm_data,
-				      client_return_text_callback_t callback);
-void ecmd_sender_net_main(void);
+#include "config.h"
+#include "protocols/uip/uip.h"
 
-void uecmd_sender_pgm_send_command (uip_ipaddr_t *ipaddr,
-				      PGM_P pgm_data,
-				      client_return_text_callback_t callback);
-void uecmd_sender_pgm_net_main(void);
 
-void uecmd_sender_send_command (uip_ipaddr_t *ipaddr,
-				      char *data,
-				      client_return_text_callback_t callback);
-void uecmd_sender_net_main(void);
+typedef void (*client_return_text_callback_t) (char *, uint8_t);
+
+uip_conn_t *ecmd_sender_send_command_P(uip_ipaddr_t *,
+                                       client_return_text_callback_t,
+                                       PGM_P, ...);
+uip_conn_t *ecmd_sender_send_command(uip_ipaddr_t *,
+                                     client_return_text_callback_t,
+                                     const char *, ...);
+
+uip_udp_conn_t *uecmd_sender_send_command_P(uip_ipaddr_t *,
+                                            client_return_text_callback_t,
+                                            PGM_P, ...);
+uip_udp_conn_t *uecmd_sender_send_command(uip_ipaddr_t *,
+                                          client_return_text_callback_t,
+                                          const char *, ...);
 
 #endif /* ECMD_SENDER_NET_H */
