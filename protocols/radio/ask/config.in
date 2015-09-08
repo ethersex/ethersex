@@ -17,5 +17,11 @@ dep_bool_menu "Radio outlets (433MHz)" PROTO_ASK_SUPPORT $RADIO_HW_ASK $ARCH_AVR
   dep_bool "Intertechno ITS-150" PROTO_INTERTECHNO_SUPPORT $PROTO_ASK_SUPPORT
   dep_bool "Intertechno Self Learning" PROTO_INTERTECHNO_SL_SUPPORT $PROTO_ASK_SUPPORT
   dep_bool "Oase FM Master" PROTO_OASEFMMASTER_SUPPORT $PROTO_ASK_SUPPORT
+  dep_bool "Flamingo FA20RF/ELRO KD101 " PROTO_FA20RF_SUPPORT $PROTO_ASK_SUPPORT
+  if [ "$PROTO_FA20RF_SUPPORT" = "y" ]; then
+    define_bool PROTO_SMOKEDETECTOR_SUPPORT y
+  else
+    define_bool PROTO_SMOKEDETECTOR_SUPPORT n
+  fi
 
 endmenu 

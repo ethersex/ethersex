@@ -9,6 +9,7 @@ $(PROTO_TEVION_SUPPORT)_ECMD_SRC += protocols/radio/ask/ask_tevion_ecmd.c
 $(PROTO_INTERTECHNO_SUPPORT)_ECMD_SRC += protocols/radio/ask/ask_intertechno_ecmd.c
 $(PROTO_INTERTECHNO_SL_SUPPORT)_ECMD_SRC += protocols/radio/ask/ask_intertechno_sl_ecmd.c
 $(PROTO_OASEFMMASTER_SUPPORT)_ECMD_SRC += protocols/radio/ask/ask_oasefmmaster_ecmd.c
+$(PROTO_SMOKEDETECTOR_SUPPORT)_ECMD_SRC += protocols/radio/ask/ask_smokedetector_ecmd.c
 
 
 ##############################################################################
