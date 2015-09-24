@@ -69,8 +69,6 @@ divert(0)dnl
 #include "core/portio/user_config.h"
 #endif
 #include "protocols/uip/uip_router.h"
-#include "protocols/ecmd/sender/ecmd_sender_net.h"
-
 #include "protocols/uip/uip.h"
 #include "control6.h"
 

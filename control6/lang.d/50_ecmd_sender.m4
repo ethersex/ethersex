@@ -9,6 +9,8 @@ divert(globals_divert)
 #error Please define emcd sender tcp support
 #endif
 
+#include "protocols/ecmd/sender/ecmd_sender_net.h"
+
 divert(old_divert)')')
 
 define(`IPADDR', `ifelse(regexp($1, `:'), `-1', `ip4addr_expand(translit(`$1', `.', `,'))', 

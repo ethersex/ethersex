@@ -9,6 +9,8 @@ divert(globals_divert)
 #error Please define emcd sender udp support
 #endif
 
+#include "protocols/ecmd/sender/ecmd_sender_net.h"
+
 divert(old_divert)')')
 
 define(`UESEND', `UECMD_SENDER_USED()dnl
