@@ -227,7 +227,10 @@ ow_temp_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
   }
   uint8_t i = bind->data[0];
 
-  return encode_short(ptr, SNMP_TYPE_INTEGER, ow_sensors[i].temp);
+  // always return as twodigits - even if not accurate enough for second
+  // digit. Simply multiply temp by 10.
+  return encode_short(ptr, SNMP_TYPE_INTEGER, ow_sensors[i].temp.twodigits ?
+		      ow_sensors[i].temp.val : ow_sensors[i].temp.val * 10);
 }
 
 uint8_t
