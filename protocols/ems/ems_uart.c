@@ -50,8 +50,11 @@
 #define STATE_TX_BREAK           5
 
 #define PRESCALE 8
-#define BIT_TIME  ((uint8_t)((F_CPU / BAUD) / PRESCALE))
-#define TX_TIMEOUT 10 /* x100ms = 1 second */
+/* when using ATMEL CPU with 20MHz, we get an 8 bit overflow with BIT_TIME!
+ * so half-sized the value and doubled TX_TIMEOUT and bit_counter
+ */
+#define BIT_TIME  ((uint8_t)((F_CPU / BAUD) / PRESCALE / 2))
+#define TX_TIMEOUT 20 /* x100ms = 1 second */
 
 #ifndef EMS_USE_USART
 #define EMS_USE_USART 1
@@ -175,7 +178,7 @@ start_break(void)
   usart(UCSR,B) &= ~(_BV(usart(UDRIE)) |
                      _BV(usart(TXEN))  |
                      _BV(usart(TXCIE)));
-  bit_counter = 11;
+  bit_counter = 22;
   TC2_COUNTER_COMPARE = BIT_TIME;
   TC2_COUNTER_CURRENT = 0;
   TC2_INT_COMPARE_ON;
