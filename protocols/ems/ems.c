@@ -87,7 +87,7 @@ ems_set_led(uint8_t led, uint8_t enable, uint8_t timeout)
       ACTIVITY_LED_EMS_RX;
       break;
     case LED_RX_FAIL:
-#ifdef STATUSLED_HAVE_EMS_RX_FAIL_SUPPORT
+#ifdef STATUSLED_EMS_RX_FAIL_SUPPORT
       if (enable) PIN_SET(STATUSLED_EMS_RX_FAIL);
       else PIN_CLEAR(STATUSLED_EMS_RX_FAIL);
 #endif
