@@ -49,7 +49,14 @@
 #define STATE_TX_DATA_WAIT_ECHO  4
 #define STATE_TX_BREAK           5
 
+#if F_CPU > 16000000
 #define PRESCALE 32
+#define TC2_PRESCALE TC2_PRESCALER_32
+#else
+#define PRESCALE 8
+#define TC2_PRESCALE TC2_PRESCALER_8
+#endif
+
 #define BIT_TIME  ((uint8_t)((F_CPU / BAUD) / PRESCALE))
 #define TX_TIMEOUT 10 /* x100ms = 1 second */
 
@@ -90,7 +97,7 @@ ems_uart_init(void)
   /* DDR_CONFIG_OUT(TXDn) */
   DDR_CHAR(usart(TXD, _PORT)) |= _BV(usart(TXD, _PIN));
 
-  TC2_PRESCALER_32;
+  TC2_PRESCALE;
   TC2_MODE_CTC;
 }
 
