@@ -49,12 +49,17 @@
 #define STATE_TX_DATA_WAIT_ECHO  4
 #define STATE_TX_BREAK           5
 
-#if F_CPU > 16000000
+#if (F_CPU / BAUD) < 255
+#define PRESCALE 1
+#define TC2_PRESCALE TC2_PRESCALER_1
+#elif (F_CPU / BAUD / 8) < 255
+#define PRESCALE 8
+#define TC2_PRESCALE TC2_PRESCALER_8
+#elif (F_CPU / BAUD / 32) < 255
 #define PRESCALE 32
 #define TC2_PRESCALE TC2_PRESCALER_32
 #else
-#define PRESCALE 8
-#define TC2_PRESCALE TC2_PRESCALER_8
+#error F_CPU too large!
 #endif
 
 #define BIT_TIME  ((uint8_t)((F_CPU / BAUD) / PRESCALE))
