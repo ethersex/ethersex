@@ -35,7 +35,10 @@ void
 httpd_handle_ecmd_setup(char *encoded_cmd)
 {
   char *ptr = STATE->u.ecmd.input;
-  uint8_t maxlen = ECMD_INPUTBUF_LENGTH;
+  /* The maximum length of an url encoded string is
+   * three times the raw string length
+   */
+  uint16_t maxlen = ECMD_INPUTBUF_LENGTH*3;
 
   for (; *encoded_cmd && maxlen; maxlen--, ptr++, encoded_cmd++)
   {
