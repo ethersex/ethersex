@@ -63,11 +63,11 @@ httpd_handle_ecmd_setup(char *encoded_cmd)
   if (maxlen == 0)
   {
     printf("httpd_ecmd: received ecmd too long.\n");
-    return;
+    STATE->handler = httpd_handle_400;
+  } else {
+    *ptr = 0;
+    STATE->handler = httpd_handle_ecmd;
   }
-
-  *ptr = 0;
-  STATE->handler = httpd_handle_ecmd;
 }
 
 
