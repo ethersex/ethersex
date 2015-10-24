@@ -3356,3 +3356,39 @@ DEBUG_PERIODIC_OC1A_SUPPORT
   
   NOTE: Only available if Timer/Counter3 is *not* enabled.
 
+Periodic timer API support
+PERIODIC_TIMER_API_SUPPORT
+
+  Enable support for the timer API.
+
+  The timer API may be used by other e6-modules to access
+  periodic and timer related functions.
+
+  Enable this one if a module in use depends on it.
+  Developers might have a look into the sources below core/periodic*.
+
+Enable timer/task scheduler
+SCHEDULER_SUPPORT
+  Depends on: 
+
+  Enable the new scheduler framework.
+ 
+  Doing this is generally a good thing, unless you are using
+  a *very* low end MCU.
+
+Enable dynamic timers/tasks
+SCHEDULER_DYNAMIC_SUPPORT
+  Depends on: 
+   * Enable timer/task scheduler (SCHEDULER_SUPPORT)
+
+  Enable support for dynamic timers.
+
+  Developers might have a look into the sources below core/Scheduler/.
+
+Maximum number of dynamic timers/tasks
+CONF_SCHEDULER_NUM_DYNAMIC_TIMERS
+
+  Number of dynamic timers.
+
+  Dynamic timers use a few byte RAM per timer.
+
