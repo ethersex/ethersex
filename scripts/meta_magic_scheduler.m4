@@ -21,7 +21,7 @@ dnl   http://www.gnu.org/copyleft/gpl.html
 dnl
 dnl -------------------------
 divert(-1)dnl
-debugfile(`meta_magic_scheduler.trace')dnl
+dnl debugfile(`meta_magic_scheduler.trace')dnl
 dnl debugmode(`V')dnl
 
 dnl
