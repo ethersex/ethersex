@@ -141,6 +141,8 @@ parse_cmd_periodic_reset(char *cmd, char *output, uint16_t len)
   return ECMD_FINAL_OK;
 }
 
+#endif /* DEBUG_PERIODIC_ECMD_SUPPORT */
+
 /*
  -- Ethersex META --
  ecmd_ifdef(PERIODIC_ADJUST_SUPPORT)

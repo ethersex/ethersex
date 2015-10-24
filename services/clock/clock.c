@@ -4,7 +4,7 @@
  * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
  * Copyright (c) 2011-2015 by Erik Kunze <ethersex@erik-kunze.de>
  * (c) by Alexander Neumann <alexander@bumpern.de>
- * Copyright (c) 2014 by Michael Brakemeier <michael@brakemeier.de>
+ * Copyright (c) 2013-2015 by Michael Brakemeier <michael@brakemeier.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

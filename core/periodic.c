@@ -92,35 +92,8 @@ timer_expired(void)
 {
   newtick = 1;
 
-  // TODO check for needed stuff from clock.c ISR
-  //#ifdef DCF77_SUPPORT
-  //  dcf77_tick();
-  //#endif
-  //
-  //#ifdef CLOCK_CPU_SUPPORT
-  //  milliticks = 0;
-  //
-  //  TC1_COUNTER_CURRENT = 65536 - CLOCK_SECONDS;
-  //  TC1_COUNTER_COMPARE = 65536 - CLOCK_SECONDS + CLOCK_TICKS;
-  //#endif
-  //  milliticks = 0;
-  //
-  //  TC1_COUNTER_CURRENT = 65536 - CLOCK_SECONDS;
-  //  TC1_COUNTER_COMPARE = 65536 - CLOCK_SECONDS + CLOCK_TICKS;
-  //#endif
-  //
-  //#if defined(NTP_SUPPORT) || defined(DCF77_SUPPORT)
-  //  if (!sync_timestamp || sync_timestamp == clock_timestamp)
-  //#endif
-  //  {
-  //    clock_timestamp++;
-  //#if defined(WHM_SUPPORT) || defined(UPTIME_SUPPORT) || defined(CONTROL6_SUPPORT)
-  //    uptime_timestamp++;
-  //#endif
-  //  }
-  //
-  //  if (sync_timestamp)
-  //    sync_timestamp++;
+ if (++milliticks >= HZ)
+    milliticks -= HZ;
 }
 #endif
 
