@@ -139,9 +139,9 @@ starburst_process(void)
    */
   static uint8_t pca9685_strobo_counter = 0;
   uint8_t pca9685_strobo =
-    2 * get_dmx_channel_slot(STARBURST_PCA9685_UNIVERSE,
-                             STARBURST_PCA9685_CHANNELS * 2 +
-                             STARBURST_PCA9685_OFFSET, pca9685_dmx_conn_id);
+    2 * get_dmx_channel_slot_raw(STARBURST_PCA9685_UNIVERSE,
+                                 STARBURST_PCA9685_CHANNELS * 2 +
+                                 STARBURST_PCA9685_OFFSET, pca9685_dmx_conn_id);
   if (pca9685_strobo > 0 && pca9685_strobo <= 50)
   {
     if (pca9685_strobo_counter >= 50 / pca9685_strobo)
