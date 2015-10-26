@@ -71,11 +71,4 @@ void debug_process_uart(void);
 int noinline debug_uart_put(char d, FILE * stream);
 void noinline debug_uart_putstr(const char *);
 
-
-#ifdef DEBUG_NTP_ADJUST
-#define NTPADJDEBUG(a...)  debug_printf("ntpadj: " a)
-#else
-#define NTPADJDEBUG(a...)
-#endif
-
 #endif /* _DEBUG_H */

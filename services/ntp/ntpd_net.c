@@ -55,8 +55,8 @@ ntpd_net_main(void)
     uint32_t current_timestamp = 0;
     uint8_t  current_fraction  = 0;
     /*We try to minimize the time between the two calls*/
-    current_timestamp=clock_get_time();
-    current_fraction=TIMER_8_AS_1_COUNTER_CURRENT;
+    current_timestamp = clock_get_time();
+    current_fraction = clock_get_ticks();
     /* Set our time to the packet */
     pkt->rec.seconds = HTONL(current_timestamp + JAN_1970);
     /*  the clock timer is 8-bit and gives us steps of 0.0039 seconds,
@@ -66,7 +66,7 @@ ntpd_net_main(void)
 
     /* set the update time (reference clock) */
     pkt->reftime.seconds = HTONL(last_sync + JAN_1970);
-    pkt->reftime.fraction=HTONL((uint32_t)clock_last_sync_tick() << 24);
+    pkt->reftime.fraction = HTONL((uint32_t)clock_last_sync_tick() << 24);
 
     /* We are an server and there is no error warning */
     pkt->li_vn_mode = 0x24;

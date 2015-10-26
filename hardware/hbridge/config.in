@@ -1,10 +1,12 @@
 dep_bool_menu "H-Bridge" HBRIDGE_SUPPORT
-    if [ "$HBRIDGE_SUPPORT" = "y" ]; then
-	    dep_bool "enable with PWM" HBRIDGE_PWM_SUPPORT $HBRIDGE_SUPPORT
-	    dep_bool "dual hbridge" DUAL_HBRIDGE_SUPPORT $HBRIDGE_SUPPORT
-	    dep_bool "  share enable line" SHARE_ENABLE_HBRIDGE_SUPPORT $DUAL_HBRIDGE_SUPPORT $HBRIDGE_SUPPORT
-	    dep_bool "use inverter IC" HBRIDGE_INVERTER_SUPPORT $HBRIDGE_SUPPORT
+	if [ "$PERIODIC_TIMER3_SUPPORT" = "y" ]; then
+		dep_bool "enable with PWM" HBRIDGE_PWM_SUPPORT $HBRIDGE_SUPPORT
+	else
+		comment "enable with PWM is currently not compatible with core/periodic"
 	fi
+	dep_bool "dual hbridge" DUAL_HBRIDGE_SUPPORT $HBRIDGE_SUPPORT
+	dep_bool "  share enable line" SHARE_ENABLE_HBRIDGE_SUPPORT $DUAL_HBRIDGE_SUPPORT $HBRIDGE_SUPPORT
+	dep_bool "use inverter IC" HBRIDGE_INVERTER_SUPPORT $HBRIDGE_SUPPORT
 	comment  "Debugging Flags"
 	dep_bool 'H-Bridge Debug' DEBUG_HBRIDGE $DEBUG $HBRIDGE_SUPPORT
 endmenu

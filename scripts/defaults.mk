@@ -48,6 +48,7 @@ ifneq ($(VERBOSE),y)
 CFLAGS ?= -Wall -W -Wno-unused-parameter -Wno-sign-compare -Wno-char-subscripts
 else
 CFLAGS ?= -Wall -W -Wno-unused-parameter -Wshadow -Wpointer-arith -Wno-cast-qual -Wcast-align -Wwrite-strings -Wconversion -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -Winline -Wbad-function-cast -Wsign-compare -Wnested-externs
+M4FLAGS ?= --debug=V
 endif
 
 ifeq ($(ARCH_HOST),y)

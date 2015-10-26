@@ -4,7 +4,7 @@
  * Copyright (c) 2009 by Dirk Pannenbecker <dp@sd-gp.de>
  * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
  * Copyright (c) 2010 by Hans Baechle <hans.baechle@gmx.net>
- * Copyright (c) 2011 by Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) 2011-2015 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -36,7 +36,7 @@
 #include "services/ntp/ntpd_net.h"
 #endif
 #include "services/clock/clock.h"
-#ifdef CLOCK_CPU_SUPPORT
+#ifdef CLOCK_PERIODIC_SUPPORT
 #include "core/periodic.h"
 #endif
 #include "dcf77.h"
@@ -48,11 +48,11 @@ static struct
   uint8_t timezone;
   int8_t isdst;
   uint8_t time[0x8];
-  uint8_t ticks;
 #ifdef CLOCK_CRYSTAL_SUPPORT
+  uint8_t ticks;
   uint8_t timerlast;
-#elif CLOCK_CPU_SUPPORT
-  uint32_t timerlast;
+#elif CLOCK_PERIODIC_SUPPORT
+  periodic_timestamp_t timerlast;
 #endif
   uint8_t timebyte;
   uint8_t timeparity;
@@ -71,25 +71,14 @@ static uint32_t last_valid_timestamp = 0;
 
 
 #ifdef DEBUG_DCF77
-# include "core/debug.h"
-# define DCFDEBUG(a...)  debug_printf("dcf77: " a)
-# define DCFDEBUG2(a...) debug_printf(a)
+#include "core/debug.h"
+#define DCFDEBUG(...)  debug_printf("dcf77: " __VA_ARGS__)
 #else
-# define DCFDEBUG(a...) do { } while(0)
+#define DCFDEBUG(...)
 #endif /* DEBUG_DCF77 */
 
-#ifdef CLOCK_CRYSTAL_SUPPORT
-// freq 32768kHz / 128 prescaler / 2^8 timer = 1sec
-#define MS(x)		((uint16_t)(x##UL*256UL/1000UL))        // x*32768/128/1000ms
-#define TICK2MS(x)	((uint16_t)((x)*4))     // x*1000ms/256
-#elif CLOCK_CPU_SUPPORT
-#define MS(x)		((uint32_t)(x##UL*CLOCK_SECONDS/1000UL))        // x*F_CPU/CLOCK_PRESCALER/1000ms
-#define TICK2MS(x)	((uint16_t)((x)*1000UL/CLOCK_SECONDS))  // x*1000ms*CLOCK_PRESCALER/F_CPU
-#else
-#error not supported yet
-#endif
-#define LOW(x)		(x<=MS(160))
-#define HIGH(x)		(x>MS(160))
+#define LOW(x)		(x<=160)
+#define HIGH(x)		(x>160)
 #define BCD2BIN(x)	(x-((x/16)*6))
 
 
@@ -139,7 +128,7 @@ compute_dcf77_timestamp(void)
   dcfdate.hour = BCD2BIN(dcf.time[3]);
   dcfdate.day = BCD2BIN(dcf.time[4]);
   dcfdate.month = BCD2BIN(dcf.time[6]);
-  dcfdate.dow = dcf.time[5]; // nach ISO erster Tag Montag, nicht So!
+  dcfdate.dow = dcf.time[5];    // nach ISO erster Tag Montag, nicht So!
   dcfdate.year = 100 + (BCD2BIN(dcf.time[7]));
   dcfdate.isdst = dcf.isdst;
   return clock_mktime(&dcfdate, 1);
@@ -154,12 +143,14 @@ ISR(ANALOG_COMP_vect)
 #ifdef CLOCK_CRYSTAL_SUPPORT
   uint8_t timertemp = TIMER_8_AS_1_COUNTER_CURRENT;
   uint16_t divtime = (dcf.ticks * (uint16_t) 256) + timertemp - dcf.timerlast;
-#elif CLOCK_CPU_SUPPORT
-  uint16_t timertemp = TC1_COUNTER_CURRENT - (65536 - CLOCK_SECONDS);
-  uint32_t divtime = (dcf.ticks * CLOCK_SECONDS) + timertemp - dcf.timerlast;
+  divtime = divtime << 2;       // TICKS2MS, x*1000ms/256
+#elif CLOCK_PERIODIC_SUPPORT
+  periodic_timestamp_t timertemp;
+  periodic_milliticks(&timertemp);
+  uint32_t divtime = periodic_millis_elapsed(&dcf.timerlast);
 #endif
 
-  if (divtime < MS(20))         // ignore short spikes
+  if (divtime < 20)             // ignore short spikes
     return;
 
 #ifdef HAVE_DCF1
@@ -168,11 +159,11 @@ ISR(ANALOG_COMP_vect)
   if (bit_is_set(ACSR, ACO))
 #endif
   {                             // start of impulse
-    if (divtime > MS(992) || divtime < MS(736))
+    if (divtime > 992 || divtime < 736)
     {
       dcf.bitcount = 0;
     }
-    if (divtime > MS(1700) && divtime < MS(2000) && dcf.bitcount == 0)
+    if (divtime > 1700 && divtime < 2000 && dcf.bitcount == 0)
     {
       if (dcf.valid == 1)
       {
@@ -182,15 +173,15 @@ ISR(ANALOG_COMP_vect)
 #ifdef CLOCK_CRYSTAL_SUPPORT
         timertemp = 0;
         TIMER_8_AS_1_COUNTER_CURRENT = timertemp;
-#elif CLOCK_CPU_SUPPORT
-        TC1_COUNTER_COMPARE =
-          65536 - CLOCK_SECONDS + (timertemp % CLOCK_TICKS);
-        timertemp = 65536 - CLOCK_SECONDS;
-        TC1_COUNTER_CURRENT = timertemp;
+#elif CLOCK_PERIODIC_SUPPORT_SUPPORT
+        timertemp = clock_get_time();
+        clock_set_time_raw_hr(timertemp, 0);
 #endif
         last_valid_timestamp = timestamp;
         set_dcf_count(1);
+#ifdef NTP_SUPPORT
         set_ntp_count(0);
+#endif
 #ifdef NTPD_SUPPORT
         // our DCF-77 Clock ist a primary; intern stratum 0; so we offer stratum+1 ! //
         ntp_setstratum(0);
@@ -201,16 +192,18 @@ ISR(ANALOG_COMP_vect)
       DCFDEBUG("start sync\n");
       dcf.bitcount = 1;
     }
+#ifdef CLOCK_CRYSTAL_SUPPORT
     dcf.ticks = 0;              // start time meassure for new bit
+#endif
   }
   else
   {                             // end of impulse
     DCFDEBUG("pulse: %2u %4ums %c\n",
              dcf.bitcount,
-             TICK2MS(divtime),
-             (char) ((divtime > MS(250) || divtime < MS(40)) ?
+             divtime,
+             (char) ((divtime > 250 || divtime < 40) ?
                      'F' : HIGH(divtime) ? '1' : '0'));
-    if (divtime > MS(250) || divtime < MS(40))
+    if (divtime > 250 || divtime < 40)
     {                           // invalid pulse
       dcf.bitcount = 0;
       dcf.valid = 0;
@@ -239,7 +232,7 @@ ISR(ANALOG_COMP_vect)
             break;
           case 19:
             DCFDEBUG("%S\n", LOW(divtime) ? PSTR("MESZ") : PSTR("MEZ"));
-	    dcf.isdst = LOW(divtime) ? 1 : 0;
+            dcf.isdst = LOW(divtime) ? 1 : 0;
             break;
           case 20:
             DCFDEBUG("%S\n", LOW(divtime) ?
@@ -351,11 +344,13 @@ dcf77_get_last_valid_timestamp(void)
   return last_valid_timestamp;
 }
 
+#ifdef CLOCK_CRYSTAL_SUPPORT
 void
 dcf77_tick(void)
 {
   dcf.ticks++;
 }
+#endif
 
 /*
  -- Ethersex META --

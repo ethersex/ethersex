@@ -1,5 +1,5 @@
 DCFENABLE="n"
-if [ "$CLOCK_CRYSTAL_SUPPORT" = "y" -o "$CLOCK_CPU_SUPPORT" = "y" ]; then
+if [ "$CLOCK_CRYSTAL_SUPPORT" = "y" -o "$CLOCK_PERIODIC_SUPPORT" = "y" ]; then
   DCFENABLE="y"
 fi
 dep_bool_menu "Synchronize using DCF77 signal" DCF77_SUPPORT $ARCH_AVR $DCFENABLE

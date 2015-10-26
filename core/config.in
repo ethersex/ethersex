@@ -1,3 +1,32 @@
+mainmenu_option next_comment
+	comment "Periodic / Scheduler"
+
+	comment "Periodic"
+	int_min_max_step 'Periodic ticks per second' CONF_MTICKS_PER_SEC 50 50 20000 50
+	MCU_HAS_TIMER_3_SUPPORT=$(mcu_has_timer_3_support)
+	dep_bool "Periodic use Timer/Counter 3" PERIODIC_TIMER3_SUPPORT $MCU_HAS_TIMER_3_SUPPORT
+	if [ "$PERIODIC_TIMER3_SUPPORT" = y ]; then
+		define_symbol CONF_PERIODIC_USE_TIMER 3
+	else
+		define_symbol CONF_PERIODIC_USE_TIMER 1
+	fi
+	bool "Periodic timer API support" PERIODIC_TIMER_API_SUPPORT
+	bool "Periodic adjust support" PERIODIC_ADJUST_SUPPORT
+
+	dep_bool_menu "Periodic general debugging" DEBUG_PERIODIC $DEBUG
+		dep_bool "Read periodic debug stats via ECMD" DEBUG_PERIODIC_ECMD_SUPPORT $DEBUG_PERIODIC $ECMD_PARSER_SUPPORT
+		dep_bool "Toggle pins in periodic tick" DEBUG_PERIODIC_WAVEFORMS_SUPPORT $DEBUG_PERIODIC
+		if [ "$PERIODIC_TIMER3_SUPPORT" = y ]; then
+			dep_bool "Enable toggling of Timer/Counter OC1A-Pin" DEBUG_PERIODIC_OC1A_SUPPORT n
+		else
+			dep_bool "Enable toggling of Timer/Counter OC1A-Pin" DEBUG_PERIODIC_OC1A_SUPPORT $DEBUG_PERIODIC_WAVEFORMS_SUPPORT $DEBUG_PERIODIC
+		fi
+	endmenu
+
+	source core/scheduler/config.in
+
+endmenu
+
 dep_bool_menu "Status LEDs" STATUSLEDS $ARCH_AVR
 	dep_bool "Status LED (Power)"		STATUSLED_POWER_SUPPORT		$STATUSLEDS
 	dep_bool "Status LED (Booted)"		STATUSLED_BOOTED_SUPPORT	$STATUSLEDS
@@ -26,9 +55,9 @@ dep_bool_menu "Status LEDs" STATUSLEDS $ARCH_AVR
 endmenu
 
 if [ "$STATUSLED_HEARTBEAT_SUPPORT" = "y" ]; then
-  if [ "$BOOTLOADER_SUPPORT" = "y" ]; then
-    define_bool STATUSLED_HEARTBEAT_BOOTLOADER_SUPPORT y
-  else
-    define_bool STATUSLED_HEARTBEAT_STANDARD_SUPPORT y
-  fi
+	if [ "$BOOTLOADER_SUPPORT" = "y" ]; then
+		define_bool STATUSLED_HEARTBEAT_BOOTLOADER_SUPPORT y
+	else
+		define_bool STATUSLED_HEARTBEAT_STANDARD_SUPPORT y
+	fi
 fi

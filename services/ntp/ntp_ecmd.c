@@ -85,7 +85,6 @@ int16_t parse_cmd_ntp_status(char *cmd, char *output, uint16_t len)
     enum {
 	CNT_UPDATE = 0,
 	CNT_DELTA,
-	CNT_OCR1A,
 	CNT_DCFNTP,
 	CNT_RESYN,
 	CNT_LAST = CNT_RESYN
@@ -98,8 +97,6 @@ int16_t parse_cmd_ntp_status(char *cmd, char *output, uint16_t len)
 	case CNT_DELTA:
 	    return ECMD_AGAIN(snprintf_P(output, len, PSTR("Delta:   %+d"),
 					 clock_last_delta()));
-	case CNT_OCR1A:
-	    return ECMD_AGAIN(snprintf_P(output, len, PSTR("OCR1A:   %u"), TC1_COUNTER_COMPARE));
 	case CNT_DCFNTP:
 	    return ECMD_AGAIN(snprintf_P(output, len, PSTR("DCF/NTP: %u/%u"),
 					 clock_dcf_count(), clock_ntp_count()));

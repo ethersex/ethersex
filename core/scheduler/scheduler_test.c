@@ -1,5 +1,7 @@
 /*
- * Copyright (c) 2012-15 Erik Kunze <ethersex@erik-kunze.de>
+ * scheduler/scheduler_test.c
+ *
+ * Copyright (c) 2013-2015 by Michael Brakemeier <michael@brakemeier.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,30 +21,26 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef __RFM12_FS20_LIB_H
-#define __RFM12_FS20_LIB_H
+#include "config.h"
 
-#include <stdint.h>
+#include "scheduler.h"
 
-#ifdef RFM12_ASK_ESA_SUPPORT
-#define FS20_MAXMSG         20  /* ESA messages */
-#else
-#define FS20_MAXMSG         12  /* EMEM messages */
-#endif
+#include "scheduler_test.h"
 
-typedef struct
+#include <services/clock/clock.h>
+
+void scheduler_test_periodic_t50(void)
 {
-  uint8_t datatype;
-  uint8_t count;
-  uint8_t nibble;
-  uint8_t data[FS20_MAXMSG];
-} fs20_data_t;
+  SCHEDULERDEBUG("test timer(50, ...) - %lu\n", clock_get_time());
+}
 
-extern uint8_t rx_report;
-
-static void rfm12_fs20_lib_init(void);
-static void rfm12_fs20_lib_rx_timeout(void);
-static void rfm12_fs20_lib_rx_level_changed(uint8_t, uint8_t);
-static int rfm12_fs20_lib_process(fs20_data_t *);
-
-#endif /* __RFM12_FS20_LIB_H */
+void scheduler_test_periodic_mt1000(void)
+{
+  SCHEDULERDEBUG("test millitimer(1000, ...) - %lu\n", clock_get_time());
+}
+/*
+  -- Ethersex META --
+  header(core/scheduler/scheduler_test.h)
+  ifdef(`conf_DEBUG_SCHEDULER',`timer(50, scheduler_test_periodic_t50)')
+  ifdef(`conf_DEBUG_SCHEDULER',`millitimer(1000, scheduler_test_periodic_mt1000)')
+*/

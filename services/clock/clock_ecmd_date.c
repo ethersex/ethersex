@@ -62,7 +62,7 @@ generate_time_string(clock_datetime_t * date, char *output, uint16_t len)
   return ECMD_FINAL(snprintf_P(output, len,
                                PSTR("%c%c%c %02d.%02d.%04d %02d:%02d:%02d"
                                     _TZ_FORMAT_STRING
-#ifdef CLOCK_DEBUG
+#ifdef CLOCKDEBUG
                                     " (doy=%d,woy=%d,dst=%d)"
 #endif
 				    ),
@@ -76,7 +76,7 @@ generate_time_string(clock_datetime_t * date, char *output, uint16_t len)
                                date->min,
                                date->sec,
 			       tz.quot, tz.rem
-#ifdef CLOCK_DEBUG
+#ifdef CLOCKDEBUG
                                ,date->yday + 1,
                                clock_woy(date->day, date->month, date->year),
                                date->isdst

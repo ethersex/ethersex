@@ -20,6 +20,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include "config.h"
 #include "core/bit-macros.h"
 #include "protocols/uip/uip.h"
 #include "protocols/uip/uip_router.h"
@@ -27,8 +28,13 @@
 #include "services/clock/clock.h"
 #include "ntp.h"
 #include "ntpd_net.h"
+
+#ifdef DEBUG_NTP
 #include "core/debug.h"
-#include "config.h"
+#define NTPDEBUG(...)  debug_printf("ntp: " __VA_ARGS__)
+#else
+#define NTPDEBUG(...)
+#endif /* DEBUG_NTP */
 
 static uip_udp_conn_t *ntp_conn = NULL;
 #ifdef DNS_SUPPORT
@@ -37,18 +43,15 @@ static uint8_t ntp_tries = 0;
 
 #ifdef DNS_SUPPORT
 void
-ntp_dns_query_cb(char *name, uip_ipaddr_t *ipaddr)
+ntp_dns_query_cb(char *name, uip_ipaddr_t * ipaddr)
 {
   ntp_conf(ipaddr);
-
-#ifdef DEBUG_NTP
-    debug_printf("NTP: query connected\n");
-#endif
+  NTPDEBUG("query connected\n");
 }
 #endif
 
 void
-ntp_conf(uip_ipaddr_t *ntpserver)
+ntp_conf(uip_ipaddr_t * ntpserver)
 {
   if (ntp_conn != NULL)
     uip_udp_remove(ntp_conn);
@@ -59,7 +62,7 @@ uip_ipaddr_t *
 ntp_getserver(void)
 {
   uip_ipaddr_t *ntpaddr = NULL;
-  
+
   if (ntp_conn != NULL)
     ntpaddr = (uip_ipaddr_t *) ntp_conn->ripaddr;
 
@@ -70,7 +73,7 @@ void
 ntp_init()
 {
 #ifdef DNS_SUPPORT
-  ntp_tries = 0; // reset try counter
+  ntp_tries = 0;                // reset try counter
   uip_ipaddr_t *ipaddr;
   if (ntp_conn != NULL || !(ipaddr = resolv_lookup(NTP_SERVER)))
     resolv_query(NTP_SERVER, ntp_dns_query_cb);
@@ -90,41 +93,38 @@ void
 ntp_send_packet(void)
 {
 #ifdef DNS_SUPPORT
-  if (++ntp_tries >= 5) {
- #ifdef DEBUG_NTP
-    debug_printf("NTP ntp_send_packet: re-init after %d unsuccessful tries\n", ntp_tries);
- #endif
+  if (++ntp_tries >= 5)
+  {
+    NTPDEBUG("ntp_send_packet: re-init after %d unsuccessful tries\n",
+             ntp_tries);
     ntp_init();
     return;
   }
 #endif
 
-  if (ntp_conn == NULL || ntp_conn->ripaddr == NULL) {
-#ifdef DEBUG_NTP
-    debug_printf("NTP ntp_send_packet: skip send, ntp not initialized\n");
-#endif
+  if (ntp_conn == NULL || ntp_conn->ripaddr == NULL)
+  {
+    NTPDEBUG("ntp_send_packet: skip send, ntp not initialized\n");
     return;
-  } 
- 
+  }
+
   /* LLH len defined in UIP depending on stacks (i.e. 14 for ethernet frame),
-  may be already suitable for tunneling! */
+   * may be already suitable for tunneling! */
   struct ntp_packet *pkt = (void *) &uip_buf[UIP_LLH_LEN + UIP_IPUDPH_LEN];
 
   uip_slen = sizeof(struct ntp_packet);
   memset(pkt, 0, uip_slen);
 
-  pkt->li_vn_mode = 0xe3; /* Clock not synchronized, Version 4, Client Mode */
-  pkt->ppoll = 12; /* About an hour */
-  pkt->precision = 0xfa; /* 0.015625 seconds */
-  pkt->rootdelay = HTONL(0x10000); /* 1 second */
+  pkt->li_vn_mode = 0xe3;       /* Clock not synchronized, Version 4, Client Mode */
+  pkt->ppoll = 12;              /* About an hour */
+  pkt->precision = 0xfa;        /* 0.015625 seconds */
+  pkt->rootdelay = HTONL(0x10000);      /* 1 second */
   pkt->rootdispersion = HTONL(0x10000); /* 1 second */
 
   /* push the packet out ... */
   uip_udp_conn = ntp_conn;
   uip_process(UIP_UDP_SEND_CONN);
-#ifdef DEBUG_NTP
-  debug_printf("NTP: send packet\n");
-#endif
+  NTPDEBUG("send packet\n");
   router_output();
   uip_slen = 0;
 }
@@ -132,16 +132,15 @@ ntp_send_packet(void)
 void
 ntp_newdata(void)
 {
-  if (!uip_newdata ()) return;
+  if (!uip_newdata())
+    return;
 
   uint32_t ntp_timestamp;
   struct ntp_packet *pkt = uip_appdata;
   /* We must save a unix timestamp */
   ntp_timestamp = NTOHL(pkt->rec.seconds) - JAN_1970;
 
-#ifdef DEBUG_NTP
-    debug_printf("NTP: Set new time: %lu\n",ntp_timestamp);
-#endif
+  NTPDEBUG("set new time: %lu\n", ntp_timestamp);
   clock_set_time(ntp_timestamp);
   set_dcf_count(0);
   set_ntp_count(1);
@@ -150,7 +149,7 @@ ntp_newdata(void)
 #endif
 
 #ifdef DNS_SUPPORT
-  ntp_tries = 0; // reset try counter
+  ntp_tries = 0;                // reset try counter
 #endif
 }
 

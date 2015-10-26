@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-13 Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) 2012-15 Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -38,44 +38,92 @@
 
 #ifdef RFM12_ASK_FS20_RX_SUPPORT
 
+#if defined(PERIODIC_TIMER_API_SUPPORT) &&  \
+    defined(SCHEDULER_DYNAMIC_SUPPORT) && \
+    CONF_MTICKS_PER_SEC > 499
+#define FS20_TIMER_USE_PERIODIC
+#endif
+
 /* FS20 read routines use timer 2 */
 /* Determine best prescaler depending on F_CPU */
-#define FS20_SILENCE         4100
+#define FS20_SILENCE            4100
 
-#define FS20_MAX_OVERFLOW    255UL
+#define FS20_MAX_OVERFLOW       255UL
 #if (F_CPU/1000000*FS20_SILENCE) < FS20_MAX_OVERFLOW
-#define FS20_PRESCALER       1UL
+#define FS20_PRESCALER          1UL
 #elif (F_CPU/1000000*FS20_SILENCE/8) < FS20_MAX_OVERFLOW
-#define FS20_PRESCALER       8UL
+#define FS20_PRESCALER          8UL
 #elif (F_CPU/1000000*FS20_SILENCE/64) < FS20_MAX_OVERFLOW
-#define FS20_PRESCALER       64UL
+#define FS20_PRESCALER          64UL
 #elif (F_CPU/1000000*FS20_SILENCE/128) < FS20_MAX_OVERFLOW
-#define FS20_PRESCALER       128UL
+#define FS20_PRESCALER          128UL
 #elif (F_CPU/1000000*FS20_SILENCE/256) < FS20_MAX_OVERFLOW
-#define FS20_PRESCALER       256UL
+#define FS20_PRESCALER          256UL
 #elif (F_CPU/1000000*FS20_SILENCE/1024) < FS20_MAX_OVERFLOW
-#define FS20_PRESCALER       1024UL
+#define FS20_PRESCALER          1024UL
 #else
 #error F_CPU to large
 #endif
 
+#ifndef FS20_TIMER_USE_PERIODIC
 /* Scaling time to enable 8bit arithmetic */
-#define US2TICK(x)           (uint8_t)(F_CPU/1000000*(x)/FS20_PRESCALER)
-#define TICK2US(x)           (uint16_t)(1000000*FS20_PRESCALER*(x)/F_CPU)
+#define US2TICK(x)              (uint8_t)(F_CPU/1000000*(x)/FS20_PRESCALER)
+#define TICK2US(x)              (uint16_t)(1000000*FS20_PRESCALER*(x)/F_CPU)
 
-#define FS20_TIMER_INT_ON    TC2_INT_COMPARE_ON
-#define FS20_TIMER_INT_OFF   TC2_INT_COMPARE_OFF
-#define FS20_TIMER_INT_CLR   TC2_INT_COMPARE_CLR
-#define FS20_TIMER_CNT_CURR  TC2_COUNTER_CURRENT
-#define FS20_TIMER_CNT_COMP  TC2_COUNTER_COMPARE
-#define ticks                TC1_COUNTER_CURRENT
-#define ticks_per_second     CLOCK_SECONDS
+#define FS20_TIMER_INIT
+#define FS20_TIMER_START        TC2_INT_COMPARE_ON
+#define FS20_TIMER_STOP         TC2_INT_COMPARE_OFF
+#define FS20_TIMER_INT_CLR      TC2_INT_COMPARE_CLR
+#define FS20_TIMER_RESTART      TC2_COUNTER_CURRENT = 0
+#define FS20_TIMER_TIMEOUT(x)   TC2_COUNTER_COMPARE = US2TICK(x)
+#define FS20_TIMER_TICKS        periodic_mticks_count
+#define FS20_TIMER_TICKSPERSEC  CONF_MTICKS_PER_SEC
+#else
+#include "core/scheduler/scheduler.h"
+#include "core/scheduler/dynamic.h"
+
+static void timeout_func(void);
+
+static int timer;
+static uint16_t timeout;
+static periodic_timestamp_t last;
+static periodic_timestamp_t now;
+static bool suspended;
+
+#define US2TICK(x)              (uint8_t)((x) >> 3)
+#define TICK2US(x)              (uint16_t)((x) << 3)
+
+#define FS20_TIMER_INIT         {\
+                                  suspended = true;\
+                                  timer = scheduler_add_timer(timeout_func, timeout, true);\
+                                }
+#define FS20_TIMER_START        {\
+                                  scheduler_set_timer_interval(timer, timeout);\
+                                  scheduler_reset_timer(timer);\
+                                  suspended = false;\
+                                }
+#define FS20_TIMER_STOP         {\
+                                  scheduler_suspend_timer(timer);\
+                                  suspended = true;\
+                                }
+#define FS20_TIMER_INT_CLR
+#define FS20_TIMER_RESTART      {\
+                                  last = now; \
+                                  if (!suspended)\
+                                    scheduler_reset_timer(timer);\
+                                }
+#define FS20_TIMER_TIMEOUT(x)   {\
+                                  timeout = x;\
+                                }
+#define FS20_TIMER_TICKS        periodic_mticks_count
+#define FS20_TIMER_TICKSPERSEC  CONF_MTICKS_PER_SEC
+#endif
 
 /* culfw decoding routines */
 #include "rfm12_fs20_lib.c"
 
-#define FIFO_SIZE            8
-#define FIFO_NEXT(x)         (((x)+1)&(FIFO_SIZE-1))
+#define FIFO_SIZE               8
+#define FIFO_NEXT(x)            (((x)+1)&(FIFO_SIZE-1))
 
 typedef struct
 {
@@ -184,14 +232,28 @@ rfm12_fht_send(uint16_t house, uint8_t addr, uint8_t cmd, uint8_t data)
 #endif /* RFM12_ASK_FS20_TX_SUPPORT */
 
 #ifdef RFM12_ASK_FS20_RX_SUPPORT
+#ifndef FS20_TIMER_USE_PERIODIC
 ISR(TC2_VECTOR_COMPARE)
+#else
+static void
+timeout_func(void)
+#endif
 {
   rfm12_fs20_lib_rx_timeout();
 }
 
 ISR(RFM12_FS20INT_VECTOR)
 {
+  _EIMSK &= ~_BV(RFM12_FS20INT_PIN);
+  sei();
+
+#ifndef FS20_TIMER_USE_PERIODIC
   uint8_t count = TC2_COUNTER_CURRENT;
+#else
+  periodic_milliticks(&now);
+  uint32_t el = periodic_micros_diff(&last, &now);
+  uint8_t count = US2TICK(el);
+#endif
   uint8_t is_raising_edge = PIN_HIGH(RFM12_FS20IN);
 #ifdef STATUSLED_RFM12_RX_SUPPORT
   if (is_raising_edge)
@@ -200,6 +262,9 @@ ISR(RFM12_FS20INT_VECTOR)
     PIN_CLEAR(STATUSLED_RFM12_RX);
 #endif
   rfm12_fs20_lib_rx_level_changed(count, is_raising_edge);
+
+  cli();
+  _EIMSK |= _BV(RFM12_FS20INT_PIN);
 }
 
 static void
@@ -207,6 +272,7 @@ rfm12_fs20_init_rx(void)
 {
   rfm12_fs20_lib_init();
 
+#ifndef FS20_TIMER_USE_PERIODIC
   /* configure timer2 for receiving fs20 */
   TC2_COUNTER_CURRENT = 0;
 #if FS20_PRESCALER == 1UL
@@ -230,6 +296,9 @@ rfm12_fs20_init_rx(void)
 #ifdef DEBUG_ASK_FS20
   debug_printf("rfm12_fs20 prescaler %u, tick %u us\n",
                (uint16_t) FS20_PRESCALER, (uint16_t) TICK2US(1));
+#endif
+#else
+  periodic_milliticks(&last);
 #endif
 
   /* Initialize Interrupt */
@@ -294,7 +363,7 @@ rfm12_fs20_process(void)
   if (rfm12_fs20_lib_process(&fs20_data))
   {
 #ifdef RFM12_ASK_FS20_SYSLOG
-    uint8_t buf[2 * FS20_MAXMSG + 2];
+    char buf[2 * FS20_MAXMSG + 2];
     buf[0] = fs20_data.datatype;
     uint8_t count = fs20_data.count;
     if (fs20_data.nibble)

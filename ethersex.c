@@ -232,7 +232,7 @@ main (void)
       write_mbr();
 #endif
 #ifdef CLOCK_CRYSTAL_SUPPORT
-      TC2_INT_OVERFLOW_OFF;
+      TIMER_8_AS_1_INT_OVERFLOW_OFF;
 #endif
 #ifdef DCF77_SUPPORT
       ACSR &= ~_BV (ACIE);

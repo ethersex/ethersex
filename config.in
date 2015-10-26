@@ -1,4 +1,5 @@
 source scripts/usart-config.sh
+source scripts/periodic-config.sh
 source scripts/rfm12-config.sh
 source scripts/namedPinCopy.sh
 source scripts/avrdude_config.sh
@@ -284,7 +285,6 @@ mainmenu_option next_comment
 	dep_bool '  OpenVPN' DEBUG_OPENVPN $DEBUG
 	dep_bool '  Router' DEBUG_ROUTER $DEBUG
 	dep_bool '  uIP' DEBUG_UIP $DEBUG
-	dep_bool '  NTP' DEBUG_NTP $DEBUG
 	dep_bool '  Unknown packets' DEBUG_UNKNOWN_PACKETS $DEBUG_NET
 
 endmenu

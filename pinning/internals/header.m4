@@ -378,7 +378,25 @@ define(`HD44780_PCF8574x_MAPPING', `dnl
 #define HD44780_PCF8574x_BL ($9)
 ')
 
-divert(1)
+define(`PERIODIC_USE_TIMER', `dnl
+
+/* Configure 16 Bit timer/counter used from core/periodic.
+ * Default is timer/counter unit 1, but some MCUs support
+ * a second 16 Bit timer/counter unit numbered 3.
+ */
+#define PERIODIC_MODE_PWMFAST_OCR     format(TC%s_MODE_PWMFAST_OCR, $1)
+#define PERIODIC_PRESCALER_1          format(TC%s_PRESCALER_1, $1)
+#define PERIODIC_PRESCALER_8          format(TC%s_PRESCALER_8, $1)
+#define PERIODIC_PRESCALER_64         format(TC%s_PRESCALER_64, $1)
+#define PERIODIC_INT_COMPARE_ON       format(TC%s_INT_COMPARE_ON, $1)
+#define PERIODIC_INT_OVERFLOW_ON      format(TC%s_INT_OVERFLOW_ON, $1)
+#define PERIODIC_COUNTER_CURRENT      format(TC%s_COUNTER_CURRENT, $1)
+#define PERIODIC_COUNTER_COMPARE      format(TC%s_COUNTER_COMPARE, $1)
+#define PERIODIC_VECTOR_COMPARE       format(TC%s_VECTOR_COMPARE, $1)
+#define PERIODIC_VECTOR_OVERFLOW      format(TC%s_VECTOR_OVERFLOW, $1)
+')
+
+divert(define_divert)
 `
 #ifndef _PINNING_HEADER
 #define _PINNING_HEADER
@@ -409,3 +427,5 @@ divert(1)
 #define PIN_PULSE(pin) do { PORT_CHAR(pin ## _PORT) &= ~_BV(pin ## _PIN); \
                             PORT_CHAR(pin ## _PORT) ^=  _BV(pin ## _PIN); \
                           } while(0)'
+
+PERIODIC_USE_TIMER(value_PERIODIC_USE_TIMER)
