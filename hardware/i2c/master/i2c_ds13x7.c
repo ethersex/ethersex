@@ -200,12 +200,10 @@ i2c_ds13x7_read(void)
   d.day = b2i(rtc.date);
   d.month = b2i(rtc.month & 0x1f);
   d.year = b2i(rtc.year);
-#if I2C_DS13X7_TYPE == DS1307
-  // DS1307 does not have a century flag,
-  // always assume century overflow
-  rtc.century = 1;
-#endif
+#if I2C_DS13X7_TYPE != DS1307
+  // DS1307 does not have a century flag
   if (rtc.century)
+#endif
     d.year += 100;
   return clock_mktime(&d, 1);
 #else
