@@ -56,8 +56,10 @@ int16_t parse_cmd_i2c_mcp23017_get_olat(char *cmd, char *output,
 int16_t parse_cmd_i2c_mcp23017_get_port(char *cmd, char *output,
                                         uint16_t len);
 int16_t parse_cmd_i2c_mcp23017_set_pin(char *cmd, char *output, uint16_t len);
-int16_t parse_cmd_i2c_mcp23017_clear_pin(char *cmd, char *output, uint16_t len);
-int16_t parse_cmd_i2c_mcp23017_pulse_pin(char *cmd, char *output, uint16_t len);
+int16_t parse_cmd_i2c_mcp23017_clear_pin(char *cmd, char *output,
+                                         uint16_t len);
+int16_t parse_cmd_i2c_mcp23017_pulse_pin(char *cmd, char *output,
+                                         uint16_t len);
 
 int16_t
 parse_cmd_i2c_mcp23017_setreg(char *cmd, char *output, uint16_t len)
@@ -345,7 +347,7 @@ cmd_change_pin(char *cmd, char *output, uint16_t len, bool state)
 #ifdef ECMD_MIRROR_REQUEST
     return
       ECMD_FINAL(snprintf_P
-                 (output, len, PSTR("mcp23017 %s pin %u %c 0x%X"),
+                 (output, len, PSTR("mcp23017 %S pin %u %c 0x%X"),
                   (state ? PSTR("set") : PSTR("clear")), address, port, tmp));
 #else
     return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%X"), tmp));
@@ -401,7 +403,7 @@ parse_cmd_i2c_mcp23017_pulse_pin(char *cmd, char *output, uint16_t len)
     return
       ECMD_FINAL(snprintf_P
                  (output, len, PSTR("mcp23017 pulse pin %u %c %u %u 0x%X"),
-                  address, port, tmp));
+                  address, port, bit, time, tmp));
 #else
     return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%X"), tmp));
 #endif

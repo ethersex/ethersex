@@ -61,7 +61,7 @@ i2c_mcp23017_read_register(uint8_t address, uint8_t reg, uint8_t * data)
       if (i2c_master_start() == TW_REP_START)
       {
         /* select slave in read mode */
-        TWDR = (uint8_t)(address << 1) | TW_READ;
+        TWDR = (uint8_t) (address << 1) | TW_READ;
         if (i2c_master_transmit() == TW_MR_SLA_ACK)
         {
           /* read register */
@@ -83,6 +83,7 @@ i2c_mcp23017_read_register(uint8_t address, uint8_t reg, uint8_t * data)
 
   return result;
 }
+
 
 /**
  * Write data to register reg.
@@ -119,6 +120,10 @@ i2c_mcp23017_write_register(uint8_t address, uint8_t reg, uint8_t data)
   return result;
 }
 
+
+/**
+ * Set or clear pin.
+ */
 uint8_t
 i2c_mcp23017_modify_pin(uint8_t address, uint8_t reg, uint8_t * data,
                         uint8_t bit, bool state)
@@ -132,9 +137,9 @@ i2c_mcp23017_modify_pin(uint8_t address, uint8_t reg, uint8_t * data,
   {
     /* bit set or clear */
     if (state)
-      tmp |= (uint8_t)(1 << (bit));
+      tmp |= (uint8_t) (1 << (bit));
     else
-      tmp &= (uint8_t)~(1 << (bit));
+      tmp &= (uint8_t) ~ (1 << (bit));
 
     if (i2c_mcp23017_write_register(address, reg, tmp) > 0)
     {
@@ -146,6 +151,10 @@ i2c_mcp23017_modify_pin(uint8_t address, uint8_t reg, uint8_t * data,
   return 0;
 }
 
+
+/**
+ * Toggle pin to create a pulse with duration time.
+ */
 uint8_t
 i2c_mcp23017_pulse_pin(uint8_t address, uint8_t reg, uint8_t * data,
                        uint8_t bit, uint16_t time)
@@ -158,7 +167,7 @@ i2c_mcp23017_pulse_pin(uint8_t address, uint8_t reg, uint8_t * data,
   if (i2c_mcp23017_read_register(address, reg, &tmp) > 0)
   {
     /* bit flip */
-    tmp ^= (uint8_t)(1 << (bit));
+    tmp ^= (uint8_t) (1 << (bit));
     if (i2c_mcp23017_write_register(address, reg, tmp) > 0)
     {
       /* and delay... */
@@ -167,7 +176,7 @@ i2c_mcp23017_pulse_pin(uint8_t address, uint8_t reg, uint8_t * data,
       if (i2c_mcp23017_read_register(address, reg, &tmp) > 0)
       {
         /* flip bit back */
-        tmp ^= (uint8_t)(1 << (bit));
+        tmp ^= (uint8_t) (1 << (bit));
         if (i2c_mcp23017_write_register(address, reg, tmp) > 0)
         {
           *data = tmp;
