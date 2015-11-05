@@ -48,6 +48,7 @@ dep_bool_menu "I2C master" I2C_MASTER_SUPPORT "$(not $I2C_SLAVE_SUPPORT)" $ARCH_
   dep_bool "I2C PCF8574X 8-bit port extension" I2C_PCF8574X_SUPPORT $I2C_MASTER_SUPPORT
   dep_bool "I2C PCA9555 16-bit port extension" I2C_PCA9555_SUPPORT $I2C_MASTER_SUPPORT
   dep_bool "I2C MAX7311 16-bit port extension" I2C_MAX7311_SUPPORT $I2C_MASTER_SUPPORT
+  dep_bool "I2C MCP23017 16-bit port extension" I2C_MCP23017_SUPPORT $I2C_MASTER_SUPPORT
   dep_bool "I2C to UDP gateway" I2C_UDP_SUPPORT $I2C_MASTER_SUPPORT $UDP_SUPPORT
   if [ "$I2C_UDP_SUPPORT" = "y" ]; then
     int "I2C to UDP gateway port" I2C_PORT 8995 $I2C_UDP_SUPPORT
