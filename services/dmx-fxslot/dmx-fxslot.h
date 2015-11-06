@@ -35,6 +35,7 @@
 #define DMX_FXLIST_RANDOM 2
 #define DMX_FXLIST_FIRESIMULATION 3
 #define DMX_FXLIST_WATERSIMULATION 4
+#define DMX_FXLIST_RGB 5
 
 
 struct fxslot_struct
@@ -81,6 +82,10 @@ void dmx_fx_firesimulation(uint8_t);
 
 #ifdef DMX_FX_WATER
 void dmx_fx_watersimulation(uint8_t);
+#endif
+
+#ifdef DMX_FX_RGB
+void dmx_fx_rgb(uint8_t);
 #endif
 
 void dmx_fxslot_init(uint8_t);

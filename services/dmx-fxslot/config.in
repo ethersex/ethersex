@@ -10,5 +10,6 @@ dep_bool_menu "DMX FXslots for effects and animations" DMX_FXSLOT_SUPPORT $DMX_S
 	bool "Random Colors" DMX_FX_RANDOM
 	bool "Fire Simulation" DMX_FX_FIRE
 	bool "Water Simulation" DMX_FX_WATER
+	bool "RGB Channels" DMX_FX_RGB
 
 endmenu
