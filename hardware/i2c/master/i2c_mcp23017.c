@@ -126,7 +126,7 @@ i2c_mcp23017_write_register(uint8_t address, uint8_t reg, uint8_t data)
  */
 uint8_t
 i2c_mcp23017_modify_pin(uint8_t address, uint8_t reg, uint8_t * data,
-                        uint8_t bit, bool state)
+                        uint8_t bit, i2c_mcp23017_output_state state)
 {
   uint8_t tmp;
 
@@ -135,11 +135,19 @@ i2c_mcp23017_modify_pin(uint8_t address, uint8_t reg, uint8_t * data,
   /* read-modify-write */
   if (i2c_mcp23017_read_register(address, reg, &tmp) > 0)
   {
-    /* bit set or clear */
-    if (state)
-      tmp |= (uint8_t) (1 << (bit));
-    else
-      tmp &= (uint8_t) ~ (1 << (bit));
+    /* bit set, clear or toggle*/
+    switch (state)
+    {
+      case ON:
+        tmp |= (uint8_t) (1 << (bit));
+        break;
+      case OFF:
+        tmp &= (uint8_t) ~ (1 << (bit));
+        break;
+      case TOGGLE:
+        tmp ^= (uint8_t) (1 << (bit));
+        break;
+    }
 
     if (i2c_mcp23017_write_register(address, reg, tmp) > 0)
     {

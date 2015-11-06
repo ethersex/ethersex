@@ -24,7 +24,6 @@
 #define I2C_MCP23017_H
 
 #include <stdint.h>
-#include <stdbool.h>
 #include <avr/io.h>
 
 #include "config.h"
@@ -65,6 +64,14 @@
 #define MCP23017_OLATB          0x15    // OL7 OL6 OL5 OL4 OL3 OL2 OL1 OL0              0000 0000
 
 
+typedef enum _i2c_mcp23017_output_state
+{
+  ON,
+  OFF,
+  TOGGLE
+} i2c_mcp23017_output_state;
+
+
 /**
  * Read data from register reg.
  */
@@ -81,7 +88,7 @@ uint8_t i2c_mcp23017_write_register(uint8_t address, uint8_t reg,
  * Set or clear pin.
  */
 uint8_t i2c_mcp23017_modify_pin(uint8_t address, uint8_t reg, uint8_t * data,
-                                uint8_t bit, bool state);
+                                uint8_t bit, i2c_mcp23017_output_state state);
 
 /**
  * Toggle pin to create a pulse with duration time.

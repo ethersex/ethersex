@@ -21,7 +21,6 @@
  */
 
 #include <stdint.h>
-#include <stdbool.h>
 #include <string.h>
 
 #include <avr/io.h>
@@ -58,8 +57,14 @@ int16_t parse_cmd_i2c_mcp23017_get_port(char *cmd, char *output,
 int16_t parse_cmd_i2c_mcp23017_set_pin(char *cmd, char *output, uint16_t len);
 int16_t parse_cmd_i2c_mcp23017_clear_pin(char *cmd, char *output,
                                          uint16_t len);
+int16_t parse_cmd_i2c_mcp23017_toggle_pin(char *cmd, char *output,
+                                          uint16_t len);
 int16_t parse_cmd_i2c_mcp23017_pulse_pin(char *cmd, char *output,
                                          uint16_t len);
+
+static int16_t cmd_change_pin(char *cmd, char *output, uint16_t len,
+                              i2c_mcp23017_output_state state);
+
 
 int16_t
 parse_cmd_i2c_mcp23017_setreg(char *cmd, char *output, uint16_t len)
@@ -318,7 +323,8 @@ parse_cmd_i2c_mcp23017_get_port(char *cmd, char *output, uint16_t len)
 
 
 static int16_t
-cmd_change_pin(char *cmd, char *output, uint16_t len, bool state)
+cmd_change_pin(char *cmd, char *output, uint16_t len,
+               i2c_mcp23017_output_state state)
 {
   uint8_t address;
   uint8_t reg;
@@ -361,14 +367,20 @@ cmd_change_pin(char *cmd, char *output, uint16_t len, bool state)
 int16_t
 parse_cmd_i2c_mcp23017_set_pin(char *cmd, char *output, uint16_t len)
 {
-  return cmd_change_pin(cmd, output, len, true);
+  return cmd_change_pin(cmd, output, len, ON);
 }
 
 
 int16_t
 parse_cmd_i2c_mcp23017_clear_pin(char *cmd, char *output, uint16_t len)
 {
-  return cmd_change_pin(cmd, output, len, false);
+  return cmd_change_pin(cmd, output, len, OFF);
+}
+
+int16_t
+parse_cmd_i2c_mcp23017_toggle_pin(char *cmd, char *output, uint16_t len)
+{
+  return cmd_change_pin(cmd, output, len, TOGGLE);
 }
 
 int16_t
@@ -425,5 +437,6 @@ parse_cmd_i2c_mcp23017_pulse_pin(char *cmd, char *output, uint16_t len)
   ecmd_feature(i2c_mcp23017_get_port, "mcp23017 get port", ADDR PORT, Get Port Register (i.e. Port Pin State) for PORT A or B )
   ecmd_feature(i2c_mcp23017_set_pin, "mcp23017 set pin", ADDR PORT BIT, Set Port BIT for PORT A or B )
   ecmd_feature(i2c_mcp23017_clear_pin, "mcp23017 clear pin", ADDR PORT BIT, Clear Port BIT for PORT A or B )
+  ecmd_feature(i2c_mcp23017_toggle_pin, "mcp23017 toggle pin", ADDR PORT BIT, Toggle Port BIT for PORT A or B )
   ecmd_feature(i2c_mcp23017_pulse_pin, "mcp23017 pulse pin", ADDR PORT BIT TIME, Toggle-Pulse Port BIT for PORT A or B for TIME ms)
 */
