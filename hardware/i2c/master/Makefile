@@ -41,6 +41,9 @@ $(I2C_PCF8574X_SUPPORT)_ECMD_SRC += hardware/i2c/master/i2c_pcf8574x_ecmd.c
 $(I2C_MAX7311_SUPPORT)_SRC += hardware/i2c/master/i2c_max7311.c
 $(I2C_MAX7311_SUPPORT)_ECMD_SRC += hardware/i2c/master/i2c_max7311_ecmd.c
 
+$(I2C_MCP23017_SUPPORT)_SRC += hardware/i2c/master/i2c_mcp23017.c
+$(I2C_MCP23017_SUPPORT)_ECMD_SRC += hardware/i2c/master/i2c_mcp23017_ecmd.c
+
 $(I2C_PCA9685_SUPPORT)_SRC += hardware/i2c/master/i2c_pca9685.c
 
 $(I2C_TMP175_SUPPORT)_SRC += hardware/i2c/master/i2c_tmp175.c
