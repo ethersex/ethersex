@@ -62,8 +62,27 @@ int16_t parse_cmd_i2c_mcp23017_toggle_pin(char *cmd, char *output,
 int16_t parse_cmd_i2c_mcp23017_pulse_pin(char *cmd, char *output,
                                          uint16_t len);
 
-static int16_t cmd_change_pin(char *cmd, char *output, uint16_t len,
-                              i2c_mcp23017_output_state state);
+#ifdef ECMD_MIRROR_REQUEST
+static int16_t cmd_i2c_mcp23017_read_register(char *cmd, char *output,
+                                              uint16_t len, uint8_t reg_A,
+                                              uint8_t reg_B,
+                                              const char *ecmd_mirror);
+static int16_t cmd_i2c_mcp23017_write_register(char *cmd, char *output,
+                                               uint16_t len, uint8_t reg_A,
+                                               uint8_t reg_B,
+                                               const char *ecmd_mirror);
+#else
+static int16_t cmd_i2c_mcp23017_read_register(char *cmd, char *output,
+                                              uint16_t len, uint8_t reg_A,
+                                              uint8_t reg_B);
+static int16_t cmd_i2c_mcp23017_write_register(char *cmd, char *output,
+                                               uint16_t len, uint8_t reg_A,
+                                               uint8_t reg_B);
+#endif
+
+static int16_t cmd_i2c_mcp23017_modify_pin(char *cmd, char *output,
+                                           uint16_t len,
+                                           i2c_mcp23017_output_state state);
 
 
 int16_t
@@ -75,7 +94,8 @@ parse_cmd_i2c_mcp23017_setreg(char *cmd, char *output, uint16_t len)
 
   sscanf_P(cmd, PSTR("%hhu %hhu %hhx"), &address, &reg, &data);
 
-  if ((address < 0x20) || (address > 0x27) || (reg > 0x15))
+  if ((address < I2C_SLA_MCP23017) || (address > (I2C_SLA_MCP23017 + 7)) ||
+      (reg > 0x15))
     return ECMD_ERR_PARSE_ERROR;
 
   if (i2c_mcp23017_write_register(address, reg, data) > 0)
@@ -103,7 +123,8 @@ parse_cmd_i2c_mcp23017_getreg(char *cmd, char *output, uint16_t len)
 
   sscanf_P(cmd, PSTR("%hhu %hhu"), &address, &reg);
 
-  if ((address < 0x20) || (address > 0x27) || (reg > 0x15))
+  if ((address < I2C_SLA_MCP23017) || (address > (I2C_SLA_MCP23017 + 7)) ||
+      (reg > 0x15))
     return ECMD_ERR_PARSE_ERROR;
 
   if (i2c_mcp23017_read_register(address, reg, &data) > 0)
@@ -122,8 +143,64 @@ parse_cmd_i2c_mcp23017_getreg(char *cmd, char *output, uint16_t len)
 }
 
 
-int16_t
-parse_cmd_i2c_mcp23017_set_iodir(char *cmd, char *output, uint16_t len)
+#ifdef ECMD_MIRROR_REQUEST
+static int16_t
+cmd_i2c_mcp23017_read_register(char *cmd, char *output, uint16_t len,
+                               uint8_t reg_A, uint8_t reg_B,
+                               const char *ecmd_mirror)
+#else
+static int16_t
+cmd_i2c_mcp23017_read_register(char *cmd, char *output, uint16_t len,
+                               uint8_t reg_A, uint8_t reg_B)
+#endif
+{
+  uint8_t address;
+  uint8_t reg;
+  uint8_t data;
+  char port;
+
+  sscanf_P(cmd, PSTR("%hhu %c"), &address, &port);
+
+  if ((address < I2C_SLA_MCP23017) || (address > (I2C_SLA_MCP23017 + 7)))
+    return ECMD_ERR_PARSE_ERROR;
+
+  if ((port == 'a') || (port == 'A'))
+  {
+    reg = reg_A;
+  }
+  else if ((port == 'b') || (port == 'B'))
+  {
+    reg = reg_B;
+  }
+  else
+    return ECMD_ERR_PARSE_ERROR;
+
+  if (i2c_mcp23017_read_register(address, reg, &data) > 0)
+  {
+#ifdef ECMD_MIRROR_REQUEST
+    return
+      ECMD_FINAL(snprintf_P
+                 (output, len, PSTR("mcp23017 %S %u %c 0x%X"), ecmd_mirror,
+                  address, port, data));
+#else
+    return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%X"), data));
+#endif
+  }
+
+  return ECMD_ERR_READ_ERROR;
+}
+
+
+#ifdef ECMD_MIRROR_REQUEST
+static int16_t
+cmd_i2c_mcp23017_write_register(char *cmd, char *output, uint16_t len,
+                                uint8_t reg_A, uint8_t reg_B,
+                                const char *ecmd_mirror)
+#else
+static int16_t
+cmd_i2c_mcp23017_write_register(char *cmd, char *output, uint16_t len,
+                                uint8_t reg_A, uint8_t reg_B)
+#endif
 {
   uint8_t address;
   uint8_t reg;
@@ -132,16 +209,16 @@ parse_cmd_i2c_mcp23017_set_iodir(char *cmd, char *output, uint16_t len)
 
   sscanf_P(cmd, PSTR("%hhu %c %hhx"), &address, &port, &data);
 
-  if ((address < 0x20) || (address > 0x27))
+  if ((address < I2C_SLA_MCP23017) || (address > (I2C_SLA_MCP23017 + 7)))
     return ECMD_ERR_PARSE_ERROR;
 
   if ((port == 'a') || (port == 'A'))
   {
-    reg = MCP23017_IODIRA;
+    reg = reg_A;
   }
   else if ((port == 'b') || (port == 'B'))
   {
-    reg = MCP23017_IODIRB;
+    reg = reg_B;
   }
   else
     return ECMD_ERR_PARSE_ERROR;
@@ -151,180 +228,85 @@ parse_cmd_i2c_mcp23017_set_iodir(char *cmd, char *output, uint16_t len)
 #ifdef ECMD_MIRROR_REQUEST
     return
       ECMD_FINAL(snprintf_P
-                 (output, len, PSTR("mcp23017 set iodir %u %c 0x%X"), address,
-                  port, data));
+                 (output, len, PSTR("mcp23017 %S %u %c 0x%X"), ecmd_mirror,
+                  address, port, data));
 #else
     return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%X"), data));
 #endif
   }
 
   return ECMD_ERR_WRITE_ERROR;
+}
+
+
+int16_t
+parse_cmd_i2c_mcp23017_set_iodir(char *cmd, char *output, uint16_t len)
+{
+#ifdef ECMD_MIRROR_REQUEST
+  return cmd_i2c_mcp23017_write_register(cmd, output, len, MCP23017_IODIRA,
+                                         MCP23017_IODIRB, PSTR("set iodir"));
+#else
+  return cmd_i2c_mcp23017_write_register(cmd, output, len, MCP23017_IODIRA,
+                                         MCP23017_IODIRB);
+#endif
 }
 
 
 int16_t
 parse_cmd_i2c_mcp23017_get_iodir(char *cmd, char *output, uint16_t len)
 {
-  uint8_t address;
-  uint8_t reg;
-  uint8_t data;
-  char port;
-
-  sscanf_P(cmd, PSTR("%hhu %c"), &address, &port);
-
-  if ((address < 0x20) || (address > 0x27))
-    return ECMD_ERR_PARSE_ERROR;
-
-  if ((port == 'a') || (port == 'A'))
-  {
-    reg = MCP23017_IODIRA;
-  }
-  else if ((port == 'b') || (port == 'B'))
-  {
-    reg = MCP23017_IODIRB;
-  }
-  else
-    return ECMD_ERR_PARSE_ERROR;
-
-  if (i2c_mcp23017_read_register(address, reg, &data) > 0)
-  {
 #ifdef ECMD_MIRROR_REQUEST
-    return
-      ECMD_FINAL(snprintf_P
-                 (output, len, PSTR("mcp23017 get iodir %u %c 0x%X"), address,
-                  port, data));
+  return cmd_i2c_mcp23017_read_register(cmd, output, len, MCP23017_IODIRA,
+                                        MCP23017_IODIRB, PSTR("get iodir"));
 #else
-    return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%X"), data));
+  return cmd_i2c_mcp23017_read_register(cmd, output, len, MCP23017_IODIRA,
+                                        MCP23017_IODIRB);
 #endif
-  }
-
-  return ECMD_ERR_READ_ERROR;
 }
 
 
 int16_t
 parse_cmd_i2c_mcp23017_set_olat(char *cmd, char *output, uint16_t len)
 {
-  uint8_t address;
-  uint8_t reg;
-  uint8_t data;
-  char port;
-
-  sscanf_P(cmd, PSTR("%hhu %c %hhx"), &address, &port, &data);
-
-  if ((address < 0x20) || (address > 0x27))
-    return ECMD_ERR_PARSE_ERROR;
-
-  if ((port == 'a') || (port == 'A'))
-  {
-    reg = MCP23017_OLATA;
-  }
-  else if ((port == 'b') || (port == 'B'))
-  {
-    reg = MCP23017_OLATB;
-  }
-  else
-    return ECMD_ERR_PARSE_ERROR;
-
-  if (i2c_mcp23017_write_register(address, reg, data) > 0)
-  {
 #ifdef ECMD_MIRROR_REQUEST
-    return
-      ECMD_FINAL(snprintf_P
-                 (output, len, PSTR("mcp23017 set olat %u %c 0x%X"), address,
-                  port, data));
+  return cmd_i2c_mcp23017_write_register(cmd, output, len, MCP23017_OLATA,
+                                         MCP23017_OLATB, PSTR("set olat"));
 #else
-    return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%X"), data));
+  return cmd_i2c_mcp23017_write_register(cmd, output, len, MCP23017_OLATA,
+                                         MCP23017_OLATB);
 #endif
-  }
-
-  return ECMD_ERR_WRITE_ERROR;
 }
 
 
 int16_t
 parse_cmd_i2c_mcp23017_get_olat(char *cmd, char *output, uint16_t len)
 {
-  uint8_t address;
-  uint8_t reg;
-  uint8_t data;
-  char port;
-
-  sscanf_P(cmd, PSTR("%hhu %c"), &address, &port);
-
-  if ((address < 0x20) || (address > 0x27))
-    return ECMD_ERR_PARSE_ERROR;
-
-  if ((port == 'a') || (port == 'A'))
-  {
-    reg = MCP23017_OLATA;
-  }
-  else if ((port == 'b') || (port == 'B'))
-  {
-    reg = MCP23017_OLATB;
-  }
-  else
-    return ECMD_ERR_PARSE_ERROR;
-
-  if (i2c_mcp23017_read_register(address, reg, &data) > 0)
-  {
 #ifdef ECMD_MIRROR_REQUEST
-    return
-      ECMD_FINAL(snprintf_P
-                 (output, len, PSTR("mcp23017 get olat %u %c 0x%X"), address,
-                  port, data));
+  return cmd_i2c_mcp23017_read_register(cmd, output, len, MCP23017_OLATA,
+                                        MCP23017_OLATB, PSTR("get olat");
 #else
-    return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%X"), data));
+  return cmd_i2c_mcp23017_read_register(cmd, output, len, MCP23017_OLATA,
+                                        MCP23017_OLATB);
 #endif
-  }
-
-  return ECMD_ERR_READ_ERROR;
 }
 
 
 int16_t
 parse_cmd_i2c_mcp23017_get_port(char *cmd, char *output, uint16_t len)
 {
-  uint8_t address;
-  uint8_t reg;
-  uint8_t data;
-  char port;
-
-  sscanf_P(cmd, PSTR("%hhu %c"), &address, &port);
-
-  if ((address < 0x20) || (address > 0x27))
-    return ECMD_ERR_PARSE_ERROR;
-
-  if ((port == 'a') || (port == 'A'))
-  {
-    reg = MCP23017_GPIOA;
-  }
-  else if ((port == 'b') || (port == 'B'))
-  {
-    reg = MCP23017_GPIOB;
-  }
-  else
-    return ECMD_ERR_PARSE_ERROR;
-
-  if (i2c_mcp23017_read_register(address, reg, &data) > 0)
-  {
 #ifdef ECMD_MIRROR_REQUEST
-    return
-      ECMD_FINAL(snprintf_P
-                 (output, len, PSTR("mcp23017 get port %u %c 0x%X"), address,
-                  port, data));
+  return cmd_i2c_mcp23017_read_register(cmd, output, len, MCP23017_GPIOA,
+                                        MCP23017_GPIOB, PSTR("get port");
 #else
-    return ECMD_FINAL(snprintf_P(output, len, PSTR("0x%X"), data));
+  return cmd_i2c_mcp23017_read_register(cmd, output, len, MCP23017_GPIOA,
+                                        MCP23017_GPIOB);
 #endif
-  }
-
-  return ECMD_ERR_READ_ERROR;
 }
 
 
 static int16_t
-cmd_change_pin(char *cmd, char *output, uint16_t len,
-               i2c_mcp23017_output_state state)
+cmd_i2c_mcp23017_modify_pin(char *cmd, char *output, uint16_t len,
+                            i2c_mcp23017_output_state state)
 {
   uint8_t address;
   uint8_t reg;
@@ -333,7 +315,8 @@ cmd_change_pin(char *cmd, char *output, uint16_t len,
 
   sscanf_P(cmd, PSTR("%hhu %c %hhu"), &address, &port, &bit);
 
-  if ((address < 0x20) || (address > 0x27) || (bit > 7))
+  if ((address < I2C_SLA_MCP23017) || (address > (I2C_SLA_MCP23017 + 7)) ||
+      (bit > 7))
     return ECMD_ERR_PARSE_ERROR;
 
   if ((port == 'a') || (port == 'A'))
@@ -367,21 +350,23 @@ cmd_change_pin(char *cmd, char *output, uint16_t len,
 int16_t
 parse_cmd_i2c_mcp23017_set_pin(char *cmd, char *output, uint16_t len)
 {
-  return cmd_change_pin(cmd, output, len, ON);
+  return cmd_i2c_mcp23017_modify_pin(cmd, output, len, ON);
 }
 
 
 int16_t
 parse_cmd_i2c_mcp23017_clear_pin(char *cmd, char *output, uint16_t len)
 {
-  return cmd_change_pin(cmd, output, len, OFF);
+  return cmd_i2c_mcp23017_modify_pin(cmd, output, len, OFF);
 }
+
 
 int16_t
 parse_cmd_i2c_mcp23017_toggle_pin(char *cmd, char *output, uint16_t len)
 {
-  return cmd_change_pin(cmd, output, len, TOGGLE);
+  return cmd_i2c_mcp23017_modify_pin(cmd, output, len, TOGGLE);
 }
+
 
 int16_t
 parse_cmd_i2c_mcp23017_pulse_pin(char *cmd, char *output, uint16_t len)
@@ -394,7 +379,8 @@ parse_cmd_i2c_mcp23017_pulse_pin(char *cmd, char *output, uint16_t len)
 
   sscanf_P(cmd, PSTR("%hhu %c %hhu %hu"), &address, &port, &bit, &time);
 
-  if ((address < 0x20) || (address > 0x27) || (bit > 7))
+  if ((address < I2C_SLA_MCP23017) || (address > (I2C_SLA_MCP23017 + 7)) ||
+      (bit > 7))
     return ECMD_ERR_PARSE_ERROR;
 
   if ((port == 'a') || (port == 'A'))

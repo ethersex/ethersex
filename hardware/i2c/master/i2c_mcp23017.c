@@ -135,7 +135,7 @@ i2c_mcp23017_modify_pin(uint8_t address, uint8_t reg, uint8_t * data,
   /* read-modify-write */
   if (i2c_mcp23017_read_register(address, reg, &tmp) > 0)
   {
-    /* bit set, clear or toggle*/
+    /* bit set, clear or toggle */
     switch (state)
     {
       case ON:
