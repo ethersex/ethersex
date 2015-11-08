@@ -36,6 +36,7 @@
  *
  */
 #define I2C_SLA_MCP23017 0x20
+#define I2C_SLA_TOP_MCP23017 (I2C_SLA_MCP23017 + 7)
 
 // CONTROL REGISTER SUMMARY (IOCON.BANK = 0)
 //       Register            Address(hex)   bit7 bit6 bit5 bit4 bit3 bit2 bit1 bit0      POR/RST value
