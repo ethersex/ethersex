@@ -33,12 +33,6 @@
 
 #include "i2c_mcp23017.h"
 
-#ifdef DEBUG_I2C
-#define DEBUG_MCP23017(fnc, msg...) debug_printf("I2C: %s: ", fnc); debug_printf(msg)
-#else
-#define DEBUG_MCP23017(fnc, msg...)
-#endif
-
 /*
  * Prototypes
  */

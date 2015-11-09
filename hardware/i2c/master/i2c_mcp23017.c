@@ -31,9 +31,9 @@
 #include "i2c_mcp23017.h"
 
 #ifdef DEBUG_I2C
-#define DEBUG_MCP23017(fnc, msg...) debug_printf("I2C: %s: ", fnc); debug_printf(msg)
+#define DEBUG_MCP23017(fnc, s, msg...) printf_P(PSTR("D: I2C: " #fnc ": " s), ## msg)
 #else
-#define DEBUG_MCP23017(fnc, msg...)
+#define DEBUG_MCP23017(fnc, s, msg...)
 #endif
 
 /**
@@ -46,7 +46,7 @@ i2c_mcp23017_read_register(uint8_t address, uint8_t reg, uint8_t * data)
 
   *data = 0;
 
-  DEBUG_MCP23017("i2c_mcp23017_read_register",
+  DEBUG_MCP23017(i2c_mcp23017_read_register,
                  "addr 0x%02X (%d) reg 0x%02X (%d)\n", address, address, reg,
                  reg);
 
@@ -78,7 +78,7 @@ i2c_mcp23017_read_register(uint8_t address, uint8_t reg, uint8_t * data)
   /* always send stop */
   i2c_master_stop();
 
-  DEBUG_MCP23017("i2c_mcp23017_read_register",
+  DEBUG_MCP23017(i2c_mcp23017_read_register,
                  "result: %d, data: 0x%02X (%d)\n", result, *data, *data);
 
   return result;
@@ -93,7 +93,7 @@ i2c_mcp23017_write_register(uint8_t address, uint8_t reg, uint8_t data)
 {
   uint8_t result = 0;
 
-  DEBUG_MCP23017("i2c_mcp23017_write_register",
+  DEBUG_MCP23017(i2c_mcp23017_write_register,
                  "addr 0x%02X (%d) reg 0x%02X (%d) data 0x%02X (%d)\n",
                  address, address, reg, reg, data, data);
 
@@ -115,7 +115,7 @@ i2c_mcp23017_write_register(uint8_t address, uint8_t reg, uint8_t data)
 
   i2c_master_stop();
 
-  DEBUG_MCP23017("i2c_mcp23017_write_register", "result: %d\n", result);
+  DEBUG_MCP23017(i2c_mcp23017_write_register, "result: %d\n", result);
 
   return result;
 }
