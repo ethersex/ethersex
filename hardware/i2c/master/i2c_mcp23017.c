@@ -30,11 +30,12 @@
 
 #include "i2c_mcp23017.h"
 
-#ifdef DEBUG_I2C
+#if defined(DEBUG_I2C) && !defined(TEENSY_SUPPORT)
 #define DEBUG_MCP23017(fnc, s, msg...) printf_P(PSTR("D: I2C: " #fnc ": " s), ## msg)
 #else
 #define DEBUG_MCP23017(fnc, s, msg...)
 #endif
+
 
 /**
  * Read data from register reg.
