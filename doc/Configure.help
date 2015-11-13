@@ -3392,3 +3392,12 @@ CONF_SCHEDULER_NUM_DYNAMIC_TIMERS
 
   Dynamic timers use a few byte RAM per timer.
 
+I2C MCP23017 16-bit port extension
+I2C_MCP23017_SUPPORT
+  Depends on: 
+   * I2C master (I2C_MASTER_SUPPORT)
+
+  Microchip MCP23017 16-bit I/O Expander support.
+
+  The MCP23017 is a very common and cheap I2C 16-bit I/O expander
+  available in various packages including PDIP.
