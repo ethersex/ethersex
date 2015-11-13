@@ -1,58 +1,38 @@
-/*
- * Copyright (c) 2008 by Jochen Roessner <jochen@lugrot.de>
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License (either version 2 or
- * version 3) as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- * For more information on the GPL, please go to:
- * http://www.gnu.org/copyleft/gpl.html
- */
-
-#include <string.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <util/delay.h>
 
 #include "config.h"
 #include "core/global.h"
-#include "protocols/uip/uip.h"
+
 #include "i2c_slave.h"
-#include "i2c_slave_state.h"
 
-static uip_udp_conn_t *i2c_slave_conn;
+#define TWI_ADDR 0x04
 
-#define STATS (i2c_slave_conn->appstate.i2c_slave)
-#define SLAVE (i2c_slave_conn->appstate.i2c_slave.slavedata)
+static char rx_buffer[TWI_BUFFER_LEN];
+static char tx_buffer[TWI_BUFFER_LEN];
+static int16_t rx_len, tx_len,tx_total_len, twi_parse;
 
-/*
- * direkter zugriff zum packet buffer
- */
-#define BUF ((struct uip_udpip_hdr *) (uip_appdata - UIP_IPUDPH_LEN))
+#ifdef DEBUG_TWI_SLAVE
+static char twi_debug_buffer[60];
+static int16_t twi_debug_len;
+static int8_t twi_debug;
+#endif
 
 void
-init_twi(void)
-{
-
-  TWCR = 0;                     //fuer das Initialisieren bei einem status fehler
+twi_init(void){
+  /*fuer das Initialisieren bei einem status fehler*/
+  TWCR = 0;
 
   /* INIT fuer den TWI i2c
-   * hier wird die Addresse des µC festgelegt
+   * hier wird die Addresse des ï¿½C festgelegt
    * (in den oberen 7 Bit, das LSB(niederwertigstes Bit)
-   * steht dafür ob der µC auf einen general callreagiert
+   * steht dafï¿½r ob der ï¿½C auf einen general callreagiert
    */
-  TWAR = TWIADDR << 1;
+   
+  TWAR = TWI_ADDR << 1;
 
-  /* TWI Control Register, hier wird der TWI aktiviert, 
+  /* TWI Control Register, hier wird der TWI aktiviert,
    * der Interrupt aktiviert und solche Sachen
    */
   TWCR = (1 << TWIE) | (1 << TWEN) | (1 << TWEA);
@@ -62,134 +42,193 @@ init_twi(void)
 }
 
 
-
-
-void
-i2c_slave_core_init(uip_udp_conn_t * conn)
+unsigned char 
+twi_busy( void )
 {
-  init_twi();
-  i2c_slave_conn = conn;
+	return ( TWCR & (1<<TWIE) );  
+}
+
+int16_t 
+twi_rx_len(void)
+{
+	return rx_len;
 }
 
 void
-i2c_slave_core_periodic(void)
+twi_get_rx_data(char *cmd)
 {
-  /* error detection on i2c bus */
-  if ((TWSR & 0xF8) == 0x00)
-    init_twi();
+	int16_t i;
+
+	for (i=0; i<TWI_BUFFER_LEN; i++)
+	{
+		cmd[i] = rx_buffer[i];
+		rx_buffer[i]='\0';
+	}
+}
+
+void 
+twi_set_tx_data(char *cmd)
+{
+	int16_t i;
+	
+	TWIDEBUG("cmd %s\n",cmd);
+	
+	for (i=0; i<TWI_BUFFER_LEN; i++)
+	{
+		tx_buffer[i] = cmd[i];	
+	}
+
+	for (i=0; i<TWI_BUFFER_LEN; i++)
+	{
+		cmd[i] = '\0';	
+	}
 }
 
 void
-i2c_slave_core_newdata(void)
+parse_rawdata_twi_slave(void)
 {
-  struct i2c_slave_request_t *REQ = uip_appdata;
+	char cmd_rx_buffer[TWI_BUFFER_LEN];
+	char cmd_tx_buffer[TWI_BUFFER_LEN];
+	
 
-  uip_udp_conn_t return_conn;
-  //if ( uip_datalen() == 1 && REQ->type == 0)
+	TWIDEBUG("parse_rawdata_twi_slave %s\n",cmd_rx_buffer);
+	
+	twi_get_rx_data(cmd_rx_buffer);
 
-  uip_ipaddr_copy(return_conn.ripaddr, BUF->srcipaddr);
-  return_conn.rport = BUF->srcport;
-  return_conn.lport = HTONS(I2C_SLAVE_PORT);
-
-  uip_send(&STATS, sizeof(struct i2c_slave_connection_state_t));
-
-  uip_udp_conn = &return_conn;
-  /* Send immediately */
-  uip_process(UIP_UDP_SEND_CONN);
-  router_output();
-  uip_slen = 0;
-  SLAVE.kommando = 0;
+	//i2cset -y 1 0x04 0x01 0x02
+	if (cmd_rx_buffer[0] == 0x01)
+		if (cmd_rx_buffer[1] == 0x02)
+			status.request_wdreset =1;
+		
+	if (cmd_rx_buffer[0] == 0x06)
+		status.request_reset = 1;	
+	
+	if (cmd_rx_buffer[0] == 0x07)
+	{
+		cmd_tx_buffer[0] = 0x67;
+		
+	}
+	twi_set_tx_data(cmd_tx_buffer);	
 }
 
-#define BLINK_PORT PORTB
-#define BLINK_PIN _BV(PB6)
-
-
-/* Interruptroutine des TWI
- */
-ISR(TWI_vect)
+void
+twi_periodic(void)
 {
+    if((TWSR & 0xF8) == 0x00)
+		twi_init();
 
-  switch (TWSR & 0xF8)
-  {
-    case 0x80:
-      /* Datenbyte wurde empfangen
-       * TWDR auslesen
-       */
-      if (SLAVE.byteanzahl == 0)
-      {
-        SLAVE.smbuscommand = TWDR;
-      }
-      else if (SLAVE.byteanzahl == 1)
-      {
-        SLAVE.smbuscount = TWDR;
-      }
+	#ifndef ECMD_TWI_SLAVE_SUPPORT
+	if (!twi_busy()) //wait until TWI interrupt is disabled
+	{
+		TWIDEBUG("ecmd_twi_periodic\n");		
 
-      if (SLAVE.smbuscommand == 0xF0 && SLAVE.smbuscount == 1 && 0xF1 == TWDR)
-      {
-#ifdef BOOTLOADER_JUMP
-        status.request_bootloader = 1;
-#endif
-      }
-      else if (SLAVE.smbuscommand == 0x40)
-      {
-        if (SLAVE.byteanzahl > 1)
-        {
-          SLAVE.buf[SLAVE.byteanzahl - 2] = TWDR;
-          if (--SLAVE.smbuscount == 0)
-            SLAVE.kommando = SLAVE.buf[0];
-        }
-      }
-      SLAVE.byteanzahl++;
-      break;
-    case 0x60:
-      /* Der Avr wurde mit seiner Adresse angesprochen  */
-      SLAVE.byteanzahl = 0;
-#ifdef BLINK_PORT
-      BLINK_PORT |= BLINK_PIN;
-#endif
-      break;
-
-      /* hier wird an den Master gesendet */
-    case 0xA8:
-      switch (SLAVE.smbuscommand)
-      {
-        case 0x44:
-          TWDR = 0x20;
-          SLAVE.smbuscount = 0x00;
-          break;
-        default:
-          TWDR = 0x10;          //zur demo den zaehler txbyte senden
-          break;
-      }
-      break;
-    case 0xB8:
-      switch (SLAVE.smbuscommand)
-      {
-        case 0x44:
-          if (SLAVE.smbuscount < 0x20)
-          {
-            TWDR = SLAVE.buf[SLAVE.smbuscount++];
-          }
-          break;
-        default:
-          TWDR++;
-          break;
-      }
-      SLAVE.byteanzahl++;
-      break;
-    default:
-#ifdef BLINK_PORT
-      BLINK_PORT &= ~BLINK_PIN;
-#endif
-      break;
-      /* fuer einen zukuenftigen general call */
-      /* 
-       * if((TWSR & 0xF8) == 0x70){
-       * //general call
-       * motorschalter = 2;
-       * }
-       */
-  }
-  TWCR |= (1 << TWINT);         //TWI wieder aktivieren
+		parse_rawdata_twi_slave();
+	
+		TWCR = 	(1<<TWEN)|                                 // TWI Interface enabled
+				(1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
+				(1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
+				(0<<TWWC);   
+	}
+	#endif
+	
+	//if (twi_debug)
+		//twi_debug_twsr();
 }
+
+/* twi interrupt */
+ISR (TWI_vect)
+{
+	#ifdef DEBUG_TWI_SLAVE
+	if (TWSR& 0xF8)
+		if (twi_debug_len < (sizeof(twi_debug_buffer) - 1))
+			twi_debug_buffer[twi_debug_len++]=TWSR; 
+	#endif
+	
+	switch (TWSR & 0xF8)
+	{	
+	//slave receiver		
+		case TWI_SRX_ADR_ACK : 								//0x60 //Own SLA+W has been received;ACK has been returned	      
+	      rx_len=0;		  
+		  
+		  TWCR = (1<<TWEN)|                                 // TWI Interface enabled
+			     (1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
+			     (1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
+			     (0<<TWWC);   
+		break;
+		case TWI_SRX_ADR_DATA_ACK :							//0x80 //Previously addressed with own SLA+W; data has been received; ACK has been returned
+          if (rx_len < (sizeof(rx_buffer) - 1))
+			rx_buffer[rx_len++] = TWDR;
+
+		  TWCR = (1<<TWEN)|                                 // TWI Interface enabled
+			     (1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
+			     (1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
+			     (0<<TWWC);   			
+		break;
+		case TWI_SRX_STOP_RESTART:							//0xA0   A STOP condition or repeated START condition has been received while still addressed as Slave    
+			TWCR = (1<<TWEN)|                               // Enable TWI-interface and release TWI pins
+					(0<<TWIE)|(0<<TWINT)|                      // Disable Interupt
+					(0<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Do not acknowledge on any new requests.
+					(0<<TWWC);                                 //			
+        break; 			
+
+	//slave transmitter
+		case TWI_STX_ADR_ACK:								//0xA8 //Own SLA+R has been received;ACK has been returned
+			tx_len=0;
+			TWDR=tx_buffer[tx_len++];
+			TWCR = (1<<TWEN)|                                 // TWI Interface enabled
+					(1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
+					(1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
+					(0<<TWWC);   
+			break;
+		case TWI_STX_DATA_ACK :								//0xB8 //Data byte in TWDR has been transmitted; ACK has been received			
+			//if (tx_len < (sizeof(tx_buffer) - 1)) 		//if uncommented the data is sending borked to the master 
+				TWDR=tx_buffer[tx_len++];
+			//else
+				//TWDR= twi_parse ? '\n': 0;
+
+			TWCR = (1<<TWEN)|                                 // TWI Interface enabled
+					(1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
+					(1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
+					(0<<TWWC);   						
+		break;		   	
+		case TWI_STX_DATA_NACK:          					//0xC0   Data byte in TWDR has been transmitted; NACK has been received. 		
+			#ifdef DEBUG_TWI_SLAVE
+			twi_debug=1;
+			#endif
+			TWCR = (1<<TWEN)|                                 // TWI Interface enabled
+					(1<<TWIE)|(1<<TWINT)|                      // Enable TWI Interupt and clear the flag to send byte
+					(1<<TWEA)|(0<<TWSTA)|(0<<TWSTO)|           // Send ACK after next reception
+					(0<<TWWC);   
+		break;	 
+		
+		//case TWI_BUS_ERROR:
+		//need to fix 		
+	}
+}
+
+#ifdef DEBUG_TWI_SLAVE
+void 
+twi_debug_twsr(void)
+{
+		twi_debug=0;
+		uint16_t i;
+		TWIDEBUG("twi_debug_buffer:\n");
+		for (i = 0; i < twi_debug_len; i++)
+		{			
+			TWIDEBUG("%d %02X\n",i, twi_debug_buffer[i]);
+		}	
+
+		for (i = 0; i < twi_debug_len; i++)
+		{			
+			twi_debug_buffer[i] = '\0';
+		}	
+		twi_debug_len=0;
+}
+#endif
+
+/*
+  -- Ethersex META --
+  header(hardware/i2c/slave/i2c_slave.h)
+  init(twi_init)
+  timer(1, twi_periodic())
+*/

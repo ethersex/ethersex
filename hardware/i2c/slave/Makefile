@@ -1,8 +1,9 @@
 TOPDIR ?= ..
 include $(TOPDIR)/.config
 
-$(I2C_SLAVE_SUPPORT)_SRC += hardware/i2c/slave/i2c_slave.c \
-	hardware/i2c/slave/i2c_slave_net.c
+$(ECMD_TWI_SLAVE_SUPPORT)_TWISLAVE += hardware/i2c/slave/i2c_slave_ecmd.c
+$(TWI_SLAVE_SUPPORT)_SRC += hardware/i2c/slave/i2c_slave.c \
+	$(y_TWISLAVE) 
 
 ##############################################################################
 # generic fluff
