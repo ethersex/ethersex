@@ -113,6 +113,7 @@ tftp_handle_packet(void)
   uint16_t i;
   flash_base_t base;
   struct tftp_hdr *pk = uip_appdata;
+  int finish_transfer;
 
   switch (HTONS(pk->type))
   {
@@ -153,10 +154,11 @@ tftp_handle_packet(void)
 
       /* base overflowed ! */
 #if FLASHEND == UINT16_MAX
-      if (uip_udp_conn->appstate.tftp.transfered && base == 0)
+      finish_transfer = uip_udp_conn->appstate.tftp.transfered && base == 0;
 #else
-      if (base > FLASHEND)
+      finish_transfer = base > FLASHEND;
 #endif
+      if (finish_transfer)
       {
         uip_udp_send(4);        /* send empty packet to finish transfer */
         uip_udp_conn->appstate.tftp.finished = 1;
