@@ -3422,3 +3422,11 @@ HD44780_MULTIENSUPPORT
   This option takes care of selecting the controller according to the line number.
 
 
+HD44780_I2C
+DEBUG_HD44780_I2C
+  Depends on: 
+   * Enable Debugging (DEBUG)
+   *  (HD44780_I2CSUPPORT)
+
+  This logs the commands send to and read from to LCD via I2C
+

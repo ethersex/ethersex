@@ -378,6 +378,30 @@ define(`HD44780_PCF8574x_MAPPING', `dnl
 #define HD44780_PCF8574x_BL ($9)
 ')
 
+dnl Map LCD with multiple HD44780 to PCF8574x I2C-Expander
+dnl
+dnl HD44780_PCF8574x_MAPPING(ADR,RS,RW,EN1,EN2,DB4,DB5,DB6,DB7)
+dnl ADR - PCF8574x I2C address
+dnl RS, RW, EN1, EN2 - LCD control
+dnl DB4..DB7 - LCD data (4-Bit mode)
+dnl
+dnl Note: Map PCF8574x PORT-numbers, not Pin-Numbers.
+define(`HD44780_PCF8574x_MULTI_MAPPING', `dnl
+
+/* Map LCD with multiple HD44780 (e.g. WDC2704M))
+ * to PCF8574x connection
+ */
+#define HD44780_PCF8574x_ADR ($1)
+#define HD44780_PCF8574x_RS ($2)
+#define HD44780_PCF8574x_WR ($3)
+#define HD44780_PCF8574x_EN1 ($4)
+#define HD44780_PCF8574x_EN2 ($5)
+#define HD44780_PCF8574x_DB4 ($6)
+#define HD44780_PCF8574x_DB5 ($7)
+#define HD44780_PCF8574x_DB6 ($8)
+#define HD44780_PCF8574x_DB7 ($9)
+')
+
 define(`PERIODIC_USE_TIMER', `dnl
 
 /* Configure 16 Bit timer/counter used from core/periodic.

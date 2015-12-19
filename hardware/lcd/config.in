@@ -58,5 +58,6 @@ mainmenu_option next_comment
   comment  "Debugging Flags"
   dep_bool 'HD44780' DEBUG_HD44780 $DEBUG $HD44780_SUPPORT
   dep_bool 'LCD Menu' DEBUG_LCD_MENU $DEBUG $LCD_MENU_SUPPORT
-        
+  dep_bool 'HD44780_I2C' DEBUG_HD44780_I2C $DEBUG $HD44780_I2CSUPPORT
+
 endmenu
