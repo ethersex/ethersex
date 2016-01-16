@@ -32,7 +32,8 @@
     defined(DATAFLASH_SUPPORT)      || \
     defined(USTREAM_SUPPORT)        || \
     defined(SPI_CS_SD_READER_PIN)   || \
-    defined(S1D15G10_SUPPORT)
+    defined(S1D15G10_SUPPORT)		|| \
+    defined(CAN_SUPPORT)
 
 void
 spi_init(void)
@@ -72,6 +73,10 @@ spi_init(void)
 
 #ifdef S1D15G10_SUPPORT
   PIN_SET(S1D15G10_CS);
+#endif
+
+#ifdef CAN_SUPPORT
+  PIN_SET(SPI_CS_MCP2515);
 #endif
 
 #ifndef SOFT_SPI_SUPPORT

@@ -1,0 +1,8 @@
+dep_bool_menu "CAN MCP2515" CAN_SUPPORT $ARCH_AVR
+		dep_bool "Extended CANId" SUPPORT_EXTENDED_CANID $CAN_SUPPORT
+
+		dep_bool "Interrupt aktivieren" MCP2515_INTERRUPT $CAN_SUPPORT		
+		
+		comment  "Debugging Flags"
+ 		dep_bool "CAN" DEBUG_CAN $DEBUG $CAN_SUPPORT
+endmenu

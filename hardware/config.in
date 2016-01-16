@@ -12,6 +12,7 @@ mainmenu_option next_comment
 
 endmenu
 
+source hardware/can/config.in
 source hardware/lcd/config.in
 source hardware/storage/config.in
 source hardware/i2c/config.in
