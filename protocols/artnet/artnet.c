@@ -100,8 +100,8 @@ artnet_init(void)
   strcpy_P(artnet_shortName, PSTR("e6ArtNode"));
   strcpy_P(artnet_longName, PSTR("e6ArtNode hostname: " CONF_HOSTNAME));
 
-  uip_ipaddr_copy(artnet_pollReplyTarget,all_ones_addr);
-  
+  uip_ipaddr_copy(artnet_pollReplyTarget, all_ones_addr);
+
   /* dmx storage connection */
   artnet_conn_id = dmx_storage_connect(artnet_inputUniverse);
   if (artnet_conn_id != -1)
@@ -234,7 +234,8 @@ artnet_sendDmxPacket(void)
   msg->lengthHi = HI8(DMX_STORAGE_CHANNELS);
   msg->length = LO8(DMX_STORAGE_CHANNELS);
   for (uint8_t i = 0; i < DMX_STORAGE_CHANNELS; i++)
-	msg->dataStart[i] = get_dmx_channel_slot(artnet_inputUniverse, i, artnet_conn_id);
+    msg->dataStart[i] =
+      get_dmx_channel_slot(artnet_inputUniverse, i, artnet_conn_id);
   /* broadcast the packet */
   artnet_send(sizeof(struct artnet_dmx) + DMX_STORAGE_CHANNELS);
 }
@@ -254,14 +255,14 @@ processPollPacket(struct artnet_poll *poll)
   else
     artnet_sendPollReplyOnChange = FALSE;
   if ((poll->talkToMe & 1) == 1)
-	  uip_ipaddr_copy(artnet_pollReplyTarget,uip_hostaddr);
+    uip_ipaddr_copy(artnet_pollReplyTarget, uip_hostaddr);
   else
-	  uip_ipaddr_copy(artnet_pollReplyTarget,all_ones_addr);
+    uip_ipaddr_copy(artnet_pollReplyTarget, all_ones_addr);
   artnet_sendPollReply();
-  
+
   /* we send a dmx packet on a poll packet, if artnet_sendPollReplyOnChange is active */
   if (artnet_sendPollReplyOnChange)
-	  artnet_sendDmxPacket();
+    artnet_sendDmxPacket();
 }
 
 void
@@ -316,7 +317,8 @@ artnet_get(void)
         if (artnet_dmxDirection == 0)
         {
           uint16_t len = ((dmx->lengthHi << 8) + dmx->length);
-          set_dmx_channels((const uint8_t *)&dmx->dataStart, artnet_outputUniverse, 0, len);
+          set_dmx_channels((const uint8_t *) &dmx->dataStart,
+                           artnet_outputUniverse, 0, len);
           if (artnet_sendPollReplyOnChange == TRUE)
           {
             artnet_pollReplyCounter++;
