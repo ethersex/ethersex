@@ -47,6 +47,7 @@
 #include <avr/interrupt.h>
 #include <avr/wdt.h>
 #include "config.h"
+#include "version.h"
 #include "s1d15g10.h"
 #include "core/spi.h"
 

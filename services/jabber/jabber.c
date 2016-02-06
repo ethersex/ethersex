@@ -28,6 +28,7 @@
 #include <string.h>
 
 #include "config.h"
+#include "version.h"
 #include "protocols/uip/uip.h"
 #include "core/eeprom.h"
 #include "jabber.h"

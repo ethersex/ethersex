@@ -146,8 +146,11 @@ OBJECTS += $(patsubst %.c,%.o,${SRC} ${y_SRC} meta.c)
 OBJECTS += $(patsubst %.c,%.o,${AUTOGEN_SRC} ${y_AUTOGEN_SRC})
 OBJECTS += $(patsubst %.S,%.o,${ASRC} ${y_ASRC})
 
+# Do not add version.c to SRC or OBJECTS!
+# Compile version.c at link time ensures correct built time, ref. issue #448
 $(TARGET): $(OBJECTS)
-	$(CC) $(LDFLAGS) -o $@ $(OBJECTS) -lm -lc # Pixie Dust!!! (Bug in avr-binutils)
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c version.c
+	$(CC) $(LDFLAGS) -o $@ $(OBJECTS) version.o -lm -lc # Pixie Dust!!! (Bug in avr-binutils)
 
 SIZEFUNCARG ?= -e printf -e scanf -e divmod
 size-check: $(OBJECTS) ethersex

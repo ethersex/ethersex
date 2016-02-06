@@ -35,11 +35,6 @@
 #define ENC28J60_REV5_WORKAROUND
 #define ENC28J60_REV6_WORKAROUND  /* rev is 6; but microchip calls it B7 */
 
-/* global version defines */
-
-#define VERSION_STRING GIT_VERSION
-#define VERSION_STRING_LONG GIT_VERSION " built on " __DATE__ " " __TIME__
-
 /* configure duplex mode */
 #define NET_FULL_DUPLEX 0
 
