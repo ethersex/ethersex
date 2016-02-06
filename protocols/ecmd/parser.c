@@ -28,6 +28,7 @@
 #include <avr/eeprom.h>
 
 #include "config.h"
+#include "buildtime.h"
 #include "core/debug.h"
 #include "core/heartbeat.h"
 #include "protocols/uip/uip.h"

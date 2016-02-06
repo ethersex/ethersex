@@ -43,6 +43,8 @@
 
 #include "autoconf.h"
 
+#include "buildtime.h"
+
 /* global configuration */
 global_status_t status;
 
