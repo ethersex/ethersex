@@ -22,6 +22,8 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
+#include <avr/pgmspace.h>
+
 /* define these menu choices before including autoconf.h */
 #define BMP085_OSS_0 0
 #define BMP085_OSS_1 1
@@ -39,6 +41,8 @@
 
 #define VERSION_STRING GIT_VERSION
 #define VERSION_STRING_LONG GIT_VERSION " built on " __DATE__ " " __TIME__
+/* exported from buildtime.c */
+extern const char PROGMEM pstr_VERSION_STRING_LONG[];
 
 /* configure duplex mode */
 #define NET_FULL_DUPLEX 0
