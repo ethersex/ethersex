@@ -147,7 +147,8 @@ OBJECTS += $(patsubst %.c,%.o,${AUTOGEN_SRC} ${y_AUTOGEN_SRC})
 OBJECTS += $(patsubst %.S,%.o,${ASRC} ${y_ASRC})
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(LDFLAGS) -o $@ $(OBJECTS) -lm -lc # Pixie Dust!!! (Bug in avr-binutils)
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c buildtime.c
+	$(CC) $(LDFLAGS) -o $@ $(OBJECTS) buildtime.o -lm -lc # Pixie Dust!!! (Bug in avr-binutils)
 
 SIZEFUNCARG ?= -e printf -e scanf -e divmod
 size-check: $(OBJECTS) ethersex
