@@ -34,7 +34,7 @@ $(STATUSLED_HB_ACT_SUPPORT)_SRC += core/heartbeat.c
 
 $(ARCH_AVR)_AUTOGEN_SRC += core/periodic_milliticks.c
 
-core/periodic_milliticks.c: scripts/meta_periodic_milliticks.m4 meta.m4
+core/periodic_milliticks.c: scripts/meta_periodic_milliticks.m4 meta.m4 meta.defines
 	$(M4) `cat meta.defines` $^ > $@
 
 ##############################################################################
