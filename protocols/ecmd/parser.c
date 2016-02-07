@@ -28,6 +28,7 @@
 #include <avr/eeprom.h>
 
 #include "config.h"
+#include "version.h"
 #include "core/debug.h"
 #include "core/heartbeat.h"
 #include "protocols/uip/uip.h"
@@ -222,7 +223,9 @@ parse_cmd_version(char *cmd, char *output, uint16_t len)
 {
   (void) cmd;
 
-  return ECMD_FINAL(snprintf_P(output, len, PSTR("ethersex " VERSION_STRING_LONG)));
+  strncpy_P(output, pstr_E6_VERSION_STRING_LONG, len);
+
+  return ECMD_FINAL(strlen(output));
 }
 
 int16_t
