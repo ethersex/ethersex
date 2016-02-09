@@ -32,7 +32,7 @@
 #define HD44780_DISPTECH 2
 #define HD44780_KS0067B  3
 #define HD44780_KS0066U  4
-//#define HD44780_WDC2704  5
+#define HD44780_WDC2704  5
 #define HD44780_SPLC780D 6
 
 #define HD44780_DIREKT 16
@@ -42,7 +42,7 @@
 
 /*Definition for different display types
   Add some new Displays here*/
-#if HD44780_TYPE == HD44780_ORIGINAL
+#if CONF_HD44780_TYPE == HD44780_ORIGINAL
     #define LCD_CHAR_PER_LINE 20 	
     #define LCD_LINES 4 		
     #define LCD_LINE_1_ADR 0x00
@@ -53,7 +53,7 @@
     #define LCD_LINE_2_EN 1
     #define LCD_LINE_3_EN 1
     #define LCD_LINE_4_EN 1
-#elif HD44780_TYPE == HD44780_DISPTECH
+#elif CONF_HD44780_TYPE == HD44780_DISPTECH
     #define LCD_CHAR_PER_LINE 20 	
     #define LCD_LINES 4 		
     #define LCD_LINE_1_ADR 0x00
@@ -64,7 +64,7 @@
     #define LCD_LINE_2_EN 1
     #define LCD_LINE_3_EN 1
     #define LCD_LINE_4_EN 1
-#elif HD44780_TYPE == HD44780_KS0067B
+#elif CONF_HD44780_TYPE == HD44780_KS0067B
     #define LCD_CHAR_PER_LINE 20 	
     #define LCD_LINES 4 		
     #define LCD_LINE_1_ADR 0x00
@@ -75,7 +75,7 @@
     #define LCD_LINE_2_EN 1
     #define LCD_LINE_3_EN 1
     #define LCD_LINE_4_EN 1
-#elif HD44780_TYPE == HD44780_KS0066U
+#elif CONF_HD44780_TYPE == HD44780_KS0066U
     #define LCD_CHAR_PER_LINE 20 	
     #define LCD_LINES 4 		
     #define LCD_LINE_1_ADR 0x00
@@ -86,7 +86,7 @@
     #define LCD_LINE_2_EN 1
     #define LCD_LINE_3_EN 1
     #define LCD_LINE_4_EN 1
-#elif HD44780_TYPE == HD44780_WDC2704
+#elif CONF_HD44780_TYPE == HD44780_WDC2704
     #define LCD_CHAR_PER_LINE 27 	
     #define LCD_LINES 4 		
     #define LCD_LINE_1_ADR 0x00
@@ -97,7 +97,7 @@
     #define LCD_LINE_2_EN 1
     #define LCD_LINE_3_EN 2
     #define LCD_LINE_4_EN 2
-#elif HD44780_TYPE == HD44780_SPLC780D
+#elif CONF_HD44780_TYPE == HD44780_SPLC780D
     #define LCD_CHAR_PER_LINE 16
     #define LCD_LINES 4
     #define LCD_LINE_1_ADR 0x80
@@ -116,7 +116,9 @@
 /* lcd stream */
 extern FILE lcd;
 extern uint8_t current_pos;
+#ifdef HD44780_BACKLIGHT_SUPPORT
 extern uint8_t back_light;
+#endif
 
 #define clock_write(en) clock_rw(0,en)
 #define clock_read(en) clock_rw(1,en)
@@ -127,7 +129,9 @@ extern uint8_t back_light;
 void hd44780_init(void);
 void hd44780_config(uint8_t cursor, uint8_t blink, uint8_t en);
 void hd44780_define_char(uint8_t n_char, uint8_t *data, uint8_t en);
+#ifdef HD44780_BACKLIGHT_SUPPORT
 void hd44780_backlight(uint8_t state);
+#endif
 void noinline hd44780_clear();
 void noinline hd44780_home(void);
 void noinline hd44780_goto(uint8_t line, uint8_t pos);

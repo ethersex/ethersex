@@ -121,6 +121,7 @@ void noinline output_nibble(uint8_t rs, uint8_t nibble, uint8_t en)
 	clock_write(1);
 }
 
+#ifdef HD44780_BACKLIGHT_SUPPORT
 void hd44780_backlight(uint8_t state)
 {
   /* Don't know what this function is used for so it does nothing ATM.
@@ -128,6 +129,7 @@ void hd44780_backlight(uint8_t state)
    */
     back_light = state;
 }
+#endif
 
 void noinline hd44780_hw_init(void)
 {

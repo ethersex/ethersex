@@ -12,7 +12,7 @@ mainmenu_option next_comment
                ks0066u                  HD44780_KS0066U         \
                WD_C2704M                HD44780_WDC2704         \
                SPLC780D                 HD44780_SPLC780D"       \
-              'Original'                HD44780_TYPE
+              'Original'                CONF_HD44780_TYPE
       define_bool LCD_SUPPORT y
       choice 'Connection type'                                  \
               "Direkt                   HD44780_DIREKT          \
@@ -22,16 +22,18 @@ mainmenu_option next_comment
               'Direkt'                  CONF_HD44780_CONNECTION
     fi
 
+    dep_bool "Backlight support" HD44780_BACKLIGHT_SUPPORT $HD44780_SUPPORT
+    dep_bool "Multiple ENABLE support" HD44780_MULTIENSUPPORT $HD44780_SUPPORT
+
     if [ "$HD44780_DIREKT" = "y" ]; then
       dep_bool "Readback support" HD44780_READBACK $HD44780_SUPPORT
-      dep_bool "Multiple ENABLE support" HD44780_MULTIENSUPPORT $HD44780_DIREKT $HD44780_SUPPORT
-      dep_bool "Backlight support" HD44780_BACKLIGHT_SUPPORT $HD44780_SUPPORT
     elif [ "$HD44780_I2CSUPPORT" = "y" ]; then
       dep_bool "Readback support" HD44780_READBACK $HD44780_SUPPORT
       define_bool I2C_MASTER_SUPPORT y
       define_bool I2C_PCF8574X_SUPPORT y
     fi
-    dep_bool "Invert Backlight switch" HD44780_BACKLIGHT_INV $HD44780_SUPPORT
+
+    dep_bool "Invert Backlight switch" HD44780_BACKLIGHT_INV $HD44780_SUPPORT $HD44780_BACKLIGHT_SUPPORT
   endmenu
 
   if [ "$TEENSY_SUPPORT" = "y" ]; then
@@ -56,5 +58,6 @@ mainmenu_option next_comment
   comment  "Debugging Flags"
   dep_bool 'HD44780' DEBUG_HD44780 $DEBUG $HD44780_SUPPORT
   dep_bool 'LCD Menu' DEBUG_LCD_MENU $DEBUG $LCD_MENU_SUPPORT
-        
+  dep_bool 'HD44780_I2C' DEBUG_HD44780_I2C $DEBUG $HD44780_I2CSUPPORT
+
 endmenu
