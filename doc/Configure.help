@@ -2577,10 +2577,23 @@ CONF_ARTNET_PORT
 
   on which UDP port ethersex listens for artnet data
 
+Output IP
+CONF_ARTNET_OUTPUT_IP
+
+  the target for artnet data
+
+Send Poll Reply
+CONF_ARTNET_SEND_POLL_REPLY
+
+  When true, an acknowledge poll reply will be sent after
+  each data frame.
+  Set to false to reduce traffic.
+
 Art-Net Node
 ARTNET_SUPPORT
   Depends on:
    * DMX Storage (DMX_STORAGE_SUPPORT)
+   * UDP broadcast support (BROADCAST_SUPPORT)
    * UDP support (UDP_SUPPORT)
    * NET_MAX_FRAME_LENGTH > 571
 

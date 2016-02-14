@@ -32,6 +32,7 @@
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include "config.h"
+#include "protocols/uip/uip.h"
 #include "protocols/artnet/artnet_net.h"
 #ifndef _ARTNET_H
 #define _ARTNET_H
@@ -212,7 +213,7 @@ struct artnet_dmx
 };
 
 void artnet_init(void);
-void artnet_sendPollReply(void);
+void artnet_sendPollReply(const uip_ipaddr_t *dest);
 void artnet_main(void);
 void artnet_get(void);
 
