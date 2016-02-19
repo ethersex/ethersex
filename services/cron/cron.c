@@ -70,6 +70,15 @@ cron_load()
 #else
   uint16_t position = sizeof(count);
   eeprom_restore_offset(crontab, 0, &count, sizeof(uint8_t));
+
+  /* do not read a bogus crontab from empty eeprom */
+  if (count == 0xFF)
+  {
+#ifdef DEBUG_CRON
+    debug_printf("cron: found bogus cronjob count 0xFF, reset count to zero\n");
+#endif
+    count = 0;
+  }
 #endif
 #ifdef DEBUG_CRON
   debug_printf("cron: file with %i entries found\n", count);

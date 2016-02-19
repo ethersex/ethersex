@@ -33,7 +33,7 @@
     defined(USTREAM_SUPPORT)        || \
     defined(SPI_CS_SD_READER_PIN)   || \
     defined(S1D15G10_SUPPORT)		|| \
-    defined(CAN_SUPPORT)
+    defined(MCP2515_SUPPORT)
 
 void
 spi_init(void)
@@ -75,8 +75,8 @@ spi_init(void)
   PIN_SET(S1D15G10_CS);
 #endif
 
-#ifdef CAN_SUPPORT
-  PIN_SET(SPI_CS_MCP2515);
+#ifdef MCP2515_SUPPORT
+  PIN_SET(MCP2515_SPI_CS);
 #endif
 
 #ifndef SOFT_SPI_SUPPORT

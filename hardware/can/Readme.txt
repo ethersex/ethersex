@@ -20,70 +20,70 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
  
-Anleitung zur Integration eines CAN-Bus Controllers MCP2515 an ein Ethersex System:
+Instructions for integrating a CAN bus controller MCP2515 a Ethersex system:
 
-a) Hardware/Software
+a) Hard-/Software
 ------------------------------------------------------------------------------------
-Der CAN-Bus Controller kann über zwei Möglichkeiten an den AVR angebunden 
-werden - wobei MISO, MOSI, SCK und CS immer benötigt werden:
+The CAN bus controller can be connected in two ways to the AVR be - 
+with MISO, MOSI, SCK and CS are always required::
 
-1. Ohne INT Pin (12) des MCP2515
-Diese Anbindung spart einen Portpin am AVR, ist aber nicht performant da permanent
-der Status des MCP2515 über SPI abgefragt werden muss. Daher nicht empfehlenswert.
+1. Without INT pin (12) of the MCP2515
+This connection saves a port pin on the AVR, but is not performing as permanent
+the status of the MCP2515 should be queried via SPI. Therefore I do not recommend.
 
-2. INT PIN (12) des MCP2515 an einen Portpin (INT0/1/2) des AVR angebunden
-Bei dieser Variante sind nun zwei Softwareoptionen möglich:
+2. INT PIN (12) of the MCP2515 to a port pin (INT0 / 1/2) of the AVR
+In this variant, two software options are now possible:
 
-  2.1 Pollen der Messagebuffer des MCP2515 
-  Bei dieser Variante ist regelmäßig zu prüfen ob CAN-Messages eingegangen sind. 
-  Dies wird durch einen Low-Pegel am INT-Pin (12) des MCP2515 erkannt.
+  2.1 Pollen of MessageBuffer the MCP2515. In this variant is to be checked 
+  regularly whether CAN messages have been received. This is detected by a 
+  low level on the INT pin (12) of the MCP2515.
 
-  2.2 Interruptgenerierung beim Empfang einer CAN-Nachricht
-  Wird diese Einstellung gewählt, werden über eine Interruptroutine die eingehenden
-  CAN-Nachrichten in ein FIFO Buffer eingelesen. Aus diesem können die empfangenen 
-  Nachrichten geholt werden. 
+  2.2 Interrupt generation upon reception of a CAN message. If you select 
+  this setting, be read through an interrupt the incoming CAN messages in 
+  a FIFO buffer. For this, the received message can be retrieved.
   
 
-b) Konfiguration:
+b) Configuration:
 ------------------------------------------------------------------------------------
-1. In make menuconfig 
-	- IO: "CAN MCP2515" aktivieren
-	- "Extended CANId" aktivieren für Extended CAN-Messages
-	- "Interrupt aktivieren" für Interruptempfang
+1. make menuconfig 
+	- "IO" 
+	-   "CAN" activate
+	-     "MCP2515" activate
+	-       "Extended CANID" activate for Extended CAN-Messages
+	-       "MCP2515 example" activate for Example
+	-       "RX Interrupt" für interrupt reception
 
-2. CS und INT definieren
-In "/pinning/hardware/" in der entsprechenden *.m4 Datei des verwendeten Boards die
-Zeilen
- 
-pin(MCP2515_INT, PD2, INPUT)
+2. define CS und INT
+In "/pinning/hardware/" in the corresponding * .m4 file of the board used the rows
 
-/* port the MCP2515 CS is attached to */
-pin(SPI_CS_MCP2515, PB0, OUTPUT)
+ifdef(`conf_MCP2515', `
+  pin(MCP2515_INT, PD2, INPUT)
+  pin(MCP2515_SPI_CS, PB0, OUTPUT)
+')
 
-anfügen und die verdrahteten Pins eintragen.
+enter append and wired pins.
 
-Bei Interruptbetrieb in der Datei "/hardware/can/can.c" in den Zeilen 111,114 und
-125 den verwendeten INT eintragen.
+In interrupt mode in the file "/hardware/can/can_mcp2515.c" in lines from 285 - 300
+enter the INT used.
 
-c) Testen:
+
+c) Test:
 ------------------------------------------------------------------------------------
-Zum Testen des CAN-Bus können die Testroutinen in der Datei can_example.c verwendet
-werden.
+For testing of the CAN bus, the test routines in the file can "can_example.c" can be used.
 
-In der Datei "/hardware/can/ Makefile" die Zeile 
-	#$(CAN_SUPPORT)_SRC += hardware/can/can_example.c
-auskommentieren.
+make menuconfig: "MCP2515 example" activate for Example
 
-Damit werden eingehende CAN-Messages auf der seriellen Schnittstelle ausgegeben. Auch
-wird jede Sekunde eine Test-Message versendet.
+This incoming CAN messages are output on the serial interface. Also is every second 
+sent a test message.
 
-d) Erweiterte Konfiguration
+
+d) Advanced configuration
 ------------------------------------------------------------------------------------
-Der MCP2515 CAN-Controller verfügt über zwei konfigurierbare Portpins RX0BF und RX1BF.
-Diese können aus GPIO als Ausgang konfiguriert werden. Dazu im der 
-"/hardware/can/can.h" den Eintrag: MCP2515_RXnBF_OUTPUT auf "1" setzen.
+The MCP2515 CAN controller has two configurable port pins RX0BF and RX1BF. This can 
+be configured from GPIO as output. Given in the "/hardware/can/can_mcp2515.h" the 
+entry: MCP2515_RXnBF_OUTPUT set to "1".
 
 
-Viel Erfolg
+I wish you success
 
 Michael

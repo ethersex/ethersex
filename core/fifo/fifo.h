@@ -20,10 +20,30 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-extern void can_test_init(void);
-extern void can_test_get_message(void);
-extern void can_test_send_message(void);
-extern void can_test_statistic(void);
-extern void can_test_errors(void);
-extern void can_test_rxnbf(void);
-extern void can_test_send_tx_fifo(void);
+#ifndef FIFO_H_
+#define FIFO_H_
+
+#include <stdbool.h>
+
+typedef struct
+{
+  void *fifo;
+  void *fifo_end;
+  uint16_t fifo_size;
+  uint8_t count;
+  uint8_t item_size;
+  void *head;
+  void *tail;
+} fifo_t;
+
+bool fifo_init(fifo_t * fifo, uint16_t fifo_size, uint8_t item_size);
+
+void fifo_free(fifo_t * fifo);
+
+bool fifo_put(fifo_t * fifo, const void *item);
+
+bool fifo_get(fifo_t * fifo, void *item);
+
+bool fifo_empty(fifo_t * fifo);
+
+#endif // FIFO_H_

@@ -1,8 +1,15 @@
-dep_bool_menu "CAN MCP2515" CAN_SUPPORT $ARCH_AVR
-		dep_bool "Extended CANId" SUPPORT_EXTENDED_CANID $CAN_SUPPORT
+dep_bool_menu "CAN" CAN_SUPPORT $ARCH_AVR
 
-		dep_bool "Interrupt aktivieren" MCP2515_INTERRUPT $CAN_SUPPORT		
-		
-		comment  "Debugging Flags"
- 		dep_bool "CAN" DEBUG_CAN $DEBUG $CAN_SUPPORT
+  dep_bool_menu "MCP2515" MCP2515_SUPPORT $CAN_SUPPORT $ARCH_AVR
+    dep_bool "Extended CANID" SUPPORT_EXTENDED_CANID $MCP2515_SUPPORT
+    dep_bool "RX Interrupt" MCP2515_INTERRUPT $MCP2515_SUPPORT		
+    comment  "Example MCP2515 integration"
+    dep_bool "MCP2515 example" MCP2515_EXAMPLE $MCP2515_SUPPORT
+    if [ "$MCP2515_EXAMPLE" = "y" ]; then
+      define_bool DEBUG_MCP2515 y
+    fi
+    comment  "Debugging Flags"
+    dep_bool "MCP2515" DEBUG_MCP2515 $DEBUG $MCP2515_SUPPORT
+  endmenu
+	
 endmenu
