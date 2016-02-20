@@ -2,6 +2,7 @@ SUBSUBDIRS += hardware/adc
 SUBSUBDIRS += hardware/adc/kty
 SUBSUBDIRS += hardware/adc/ads7822
 SUBSUBDIRS += hardware/avr
+SUBSUBDIRS += hardware/can
 SUBSUBDIRS += hardware/dac
 SUBSUBDIRS += hardware/clock/dcf77
 SUBSUBDIRS += hardware/camera

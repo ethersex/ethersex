@@ -95,3 +95,8 @@ ifdef(`conf_TANKLEVEL', `
 ifdef(`conf_TANKLEVEL_LOCK', `
   pin(TANKLEVEL_LOCK, PA2, INPUT)
 ')
+
+ifdef(`conf_MCP2515', `
+  pin(MCP2515_INT, PD2, INPUT)
+  pin(MCP2515_SPI_CS, PB0, OUTPUT)
+')

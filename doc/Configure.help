@@ -3443,3 +3443,11 @@ DEBUG_HD44780_I2C
 
   This logs the commands send to and read from to LCD via I2C
 
+CAN
+CAN_SUPPORT
+  controller area network (CAN bus)
+  
+CAN MCP2515
+MCP2515_SUPPORT
+  CAN bus driver for the Microchip MCP2515 CAN-controller
+     
