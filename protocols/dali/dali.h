@@ -36,6 +36,6 @@
 void dali_send(uint16_t *frame);
 int8_t dali_read(uint8_t *frame);
 
-#endif /* SHT_SUPPORT */
+#endif /* DALI_SUPPORT */
 
-#endif /* SHT_H */
+#endif /* DALI_H */
