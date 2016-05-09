@@ -28,6 +28,7 @@
 #include "protocols/uip/uip.h"
 #include <stdint.h>
 #include <stdbool.h>
+#include "core/debug.h"
 
 
 // DEBUG MACROS
