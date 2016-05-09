@@ -25,6 +25,7 @@
  */
 
 #include <string.h>
+#include <stdlib.h>
 #include <avr/io.h>
 #include <util/delay.h>
 #include <avr/interrupt.h>
@@ -139,10 +140,19 @@
 #define irmp_get_data irmp_rx_get
 #define irmp_protocol_names irmp_proto_names
 #define IRMP_LOGGING 0
-#ifdef DEBUG_IRMP
+#if defined(DEBUG_IRMP) || defined(IRMP_RX_MQTT_SUPPORT)
 #define IRMP_PROTOCOL_NAMES 1
 #endif
 #include "lib/irmp.c"
+#ifdef IRMP_RX_MQTT_SUPPORT
+#include "core/queue/queue.h"
+#include "protocols/mqtt/mqtt.h"
+#define IRMP_RX_PUBLISH_TOPIC     IRMP_RX_MQTT_TOPIC "/%.10S/%04" PRIX16
+#define IRMP_MQTT_RETAIN            false
+#define DATA_LENGTH                     5
+#define TOPIC_LENGTH                    sizeof(IRMP_RX_MQTT_TOPIC) + 17
+static Queue mqtt_irmp_queue = { NULL, NULL };
+#endif
 #endif
 #ifdef IRMP_TX_SUPPORT
 #define IRSND_SUPPORT
@@ -240,6 +250,47 @@ irmp_init(void)
 
 #ifdef IRMP_RX_SUPPORT
 
+#ifdef IRMP_RX_MQTT_SUPPORT
+void
+irmp_poll_cb(void)
+{
+  uint8_t len;
+  char buf[DATA_LENGTH];
+  char topic[TOPIC_LENGTH];
+
+  // IRMP publish
+  while (!isEmpty(&mqtt_irmp_queue))
+  {
+    irmp_data_t *data;
+    data = (irmp_data_t *) pop(&mqtt_irmp_queue);
+    snprintf_P(topic, TOPIC_LENGTH, PSTR(IRMP_RX_PUBLISH_TOPIC),
+               pgm_read_word(&irmp_proto_names[data->protocol]),
+               data->address);
+    len = snprintf_P(buf, DATA_LENGTH, PSTR("%04" PRIX16), data->command);
+    if (!mqtt_construct_publish_packet(topic, buf, len, IRMP_MQTT_RETAIN))
+    {
+      // Error no space left in buffer
+      push((char *) data, &mqtt_irmp_queue);
+      return;
+    }
+    free(data);
+  }
+}
+
+static const mqtt_callback_config_t mqtt_callback_config PROGMEM = {
+  .connack_callback = NULL,
+  .poll_callback = irmp_poll_cb,
+  .close_callback = NULL,
+  .publish_callback = NULL,
+};
+
+void
+irmp_mqtt_init()
+{
+  mqtt_register_callback(&mqtt_callback_config);
+}
+#endif
+
 irmp_data_t *
 irmp_read(void)
 {
@@ -255,6 +306,19 @@ irmp_read(void)
            irmp_data_p->protocol,
            pgm_read_word(&irmp_proto_names[irmp_data_p->protocol]),
            irmp_data_p->address, irmp_data_p->command, irmp_data_p->flags);
+#endif
+#ifdef  IRMP_RX_MQTT_SUPPORT
+#ifdef IRMP_RX_MQTT_REPEATED
+  uint8_t send_command = 1;
+#else
+  uint8_t send_command = irmp_data_p->flags ? 0 : 1;
+#endif
+  if (send_command)
+  {
+    irmp_data_t *mqtt_data_p = malloc(sizeof(irmp_data_t));
+    *mqtt_data_p = *irmp_data_p;
+    push((char *) mqtt_data_p, &mqtt_irmp_queue);
+  }
 #endif
   return irmp_data_p;
 }
@@ -394,4 +458,7 @@ ISR(TC0_VECTOR_COMPARE)
   -- Ethersex META --
   header(hardware/ir/irmp/irmp.h)
   init(irmp_init)
+  ifdef(`conf_IRMP_RX_MQTT', `dnl 
+    net_init(irmp_mqtt_init)
+    ')
 */

@@ -3472,3 +3472,22 @@ MODBUS_USART_CONFIG_8N1
   8E1 stands for: 8 data bits, even parity, 1 stop bit (Modbus default)
   8N1 stands for: 8 data bits, no parity, 1 stop bit
 
+Send received IR codes to MQTT
+IRMP_RX_MQTT_SUPPORT
+  Depends on: 
+   * Receive IR-codes (IRMP_RX_SUPPORT)
+   * MQTT client (MQTT_SUPPORT)
+
+  If irmp_read is called received commands are mirrored to mqtt topic. Minimum example
+  is provided in control6/control6.src for calling irmp_read.
+
+  Format for topic is [IRMP_TOPIC]/[IR_PROTOCOL]/[ADDRESS] the command is provided as payload
+
+
+Send repeated IR codes to MQTT
+IRMP_RX_MQTT_REPEATED
+  Depends on: 
+   * Send received IR codes to MQTT (IRMP_RX_MQTT_SUPPORT)
+
+  If option is not set only first received command is send over mqtt. Repeated commands are discarded.
+

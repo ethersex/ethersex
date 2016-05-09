@@ -88,7 +88,7 @@ typedef struct
   uint8_t flags;                /* repeated key */
 } irmp_data_t;
 
-#ifdef DEBUG_IRMP
+#if defined(DEBUG_IRMP) || defined(IRMP_RX_MQTT_SUPPORT)
 extern const PGM_P const irmp_proto_names[] PROGMEM;
 #endif
 
@@ -97,6 +97,9 @@ void irmp_init(void);
 irmp_data_t * irmp_read(void);
 void irmp_write(irmp_data_t *);
 void irmp_process(void);
+#ifdef IRMP_RX_MQTT_SUPPORT
+void irmp_mqtt_init();
+#endif
 
 #endif /* IRMP_SUPPORT */
 #endif /* __IRMP_H */

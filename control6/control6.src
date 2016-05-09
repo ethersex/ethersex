@@ -110,6 +110,12 @@ dnl END
 dnl // die ecmd syntax ist "c6 get Wassersoll" oder "c6 set Wassersoll 255"
 dnl // die werte koennen von 0 bis 255 gehen.
 
+dnl // liest irmp commands damit diese über debug oder mqtt ausgegeben werden
+dnl CONTROL_START
+dnl   ON IRMP_READ > 0 DO
+dnl   END
+dnl CONTROL_END
+
 
 CONTROL_END
 
