@@ -153,6 +153,8 @@ bsbport_publish_cb(char const *topic, uint16_t topic_length,
     BSBDEBUG("MQTT set ARGS:%d %02x %02x %02x %02x %02x %3s %s %d %u", ret,
              p1, p2, p3, p4, dest, type, strvalue, fp_val, raw_val);
 
+    free(strvalue);
+    
     if (ret == 6)
     {
       uint8_t data[3];
