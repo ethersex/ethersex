@@ -287,37 +287,46 @@ tank_next(uint8_t * ptr, struct snmp_varbinding * bind)
 uint8_t
 dht_polling_delay_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
 {
-  if (bind->len == 1 && bind->data[0] == 0) {
-    return encode_short(ptr, SNMP_TYPE_INTEGER, dht_global.polling_delay);
-  } else {
+  if (bind->len != 1 && bind->data[0] >= dht_sensors_count) {
+
+
     return 0;
   }
+  uint8_t i = bind->data[0];
+
+  return encode_short(ptr, SNMP_TYPE_INTEGER, dht_sensors[i].polling_delay);
 }
 
 uint8_t
 dht_temp_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
 {
-  if (bind->len == 1 && bind->data[0] == 0) {
-    return encode_short(ptr, SNMP_TYPE_INTEGER, dht_global.temp);
-  } else {
+  if (bind->len != 1 && bind->data[0] >= dht_sensors_count) {
+
+
     return 0;
   }
+  uint8_t i = bind->data[0];
+
+  return encode_short(ptr, SNMP_TYPE_INTEGER, dht_sensors[i].temp);
 }
 
 uint8_t
 dht_humid_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
 {
-  if (bind->len == 1 && bind->data[0] == 0) {
-    return encode_short(ptr, SNMP_TYPE_INTEGER, dht_global.humid);
-  } else {
+  if (bind->len != 1 && bind->data[0] >= dht_sensors_count) {
+
+
     return 0;
   }
+  uint8_t i = bind->data[0];
+
+  return encode_short(ptr, SNMP_TYPE_INTEGER, dht_sensors[i].humid);
 }
 
 uint8_t
 dht_next(uint8_t * ptr, struct snmp_varbinding * bind)
 {
-  return onelevel_next(ptr, bind, 1);
+  return onelevel_next(ptr, bind, dht_sensors_count);
 }
 #endif
 
