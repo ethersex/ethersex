@@ -287,9 +287,7 @@ tank_next(uint8_t * ptr, struct snmp_varbinding * bind)
 uint8_t
 dht_polling_delay_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
 {
-  if (bind->len != 1 && bind->data[0] >= dht_sensors_count) {
-
-
+  if (bind->len != 1 || bind->data[0] >= dht_sensors_count) {
     return 0;
   }
   uint8_t i = bind->data[0];
@@ -300,9 +298,7 @@ dht_polling_delay_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *u
 uint8_t
 dht_temp_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
 {
-  if (bind->len != 1 && bind->data[0] >= dht_sensors_count) {
-
-
+  if (bind->len != 1 || bind->data[0] >= dht_sensors_count) {
     return 0;
   }
   uint8_t i = bind->data[0];
@@ -313,9 +309,7 @@ dht_temp_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
 uint8_t
 dht_humid_reaction(uint8_t * ptr, struct snmp_varbinding * bind, void *userdata)
 {
-  if (bind->len != 1 && bind->data[0] >= dht_sensors_count) {
-
-
+  if (bind->len != 1 || bind->data[0] >= dht_sensors_count) {
     return 0;
   }
   uint8_t i = bind->data[0];
