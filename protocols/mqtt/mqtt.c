@@ -99,6 +99,21 @@
 #include "protocols/uip/uip.h"
 #include "mqtt.h"
 #include "mqtt_state.h"
+#include "core/debug.h"
+
+// DEBUG MACROS
+
+#ifdef MQTT_DEBUG
+#define MQTTDEBUG(...) debug_printf(__VA_ARGS__)
+#else
+#define MQTTDEBUG(...)
+#endif
+
+#ifdef MQTT_PARSE_DEBUG
+#define MQTTPARSEDEBUG(...) debug_printf(__VA_ARGS__)
+#else
+#define MQTTPARSEDEBUG(...)
+#endif
 
 
 #define STATE (&mqtt_con_state)
