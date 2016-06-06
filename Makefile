@@ -130,11 +130,11 @@ meta.defines: autoconf.h pinning.c
 		elif ! diff $@.new $@ >/dev/null; then cp -v $@.new $@; else echo "$@ unaltered"; fi
 	@$(RM) -f $@.tmp $@.new
 
-meta.c: $(y_META_SRC) meta.defines
-	$(M4) $(M4FLAGS) `cat meta.defines` $^ > $@
+meta.c: meta.defines $(y_META_SRC)
+	$(M4) $(M4FLAGS) `cat meta.defines` $(filter-out $<,$^) > $@
 
-meta.h: scripts/meta_header_magic.m4 meta.m4 meta.defines
-	$(M4) `cat meta.defines` $^ > $@
+meta.h: meta.defines scripts/meta_header_magic.m4 meta.m4
+	$(M4) `cat meta.defines` $(filter-out $<,$^) > $@
 
 ##############################################################################
 
