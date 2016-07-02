@@ -85,7 +85,8 @@ yport_net_main(void)
     if (yport_conn == uip_conn)
       yport_conn = NULL;
   }
-  else if (uip_newdata())
+
+  if (uip_newdata() && yport_conn == uip_conn)
   {
     if (uip_len <= YPORT_BUFFER_LEN &&
         yport_rxstart(uip_appdata, uip_len) != 0)

@@ -36,35 +36,48 @@
 extern int16_t *modbus_recv_len_ptr;
 static int16_t recv_len = -2;
 
-void modbus_net_init(void)
+void
+modbus_net_init(void)
 {
   uip_listen(HTONS(MODBUS_PORT), modbus_net_main);
 }
 
-void modbus_net_main(void)
+void
+modbus_net_main(void)
 {
   uint8_t *answer = uip_appdata;
   uint8_t i = 0;
 
-  if(uip_connected()) {
+  if (uip_connected())
+  {
     /* New connection */
     memset(&uip_conn->appstate, 0, sizeof(uip_conn->appstate));
-  } else if (uip_acked()) {
+  }
+  else if (uip_acked())
+  {
     uip_conn->appstate.modbus.state = MODBUS_IDLE;
-  } else if (uip_rexmit()) {
+  }
+  else if (uip_rexmit())
+  {
     if (uip_conn->appstate.modbus.state == MODBUS_MUST_ANSWER)
       goto send_new_data;
-  } else if (uip_closed() || uip_aborted() || uip_timedout()) {
+  }
+  else if (uip_closed() || uip_aborted() || uip_timedout())
+  {
 
-  } else if (uip_newdata()) {
+  }
+  if (uip_newdata())
+  {
     /* Have we space for a new packet? */
-    if (STATE(uip_conn).state != MODBUS_IDLE) {
+    if (STATE(uip_conn).state != MODBUS_IDLE)
+    {
       /* we don't have enough space, sent error */
-      answer[8] = 0x06; // Server busy
+      answer[8] = 0x06;         // Server busy
       goto error_response;
     }
-    if (answer[5] > MODBUS_BUFFER_LEN) {
-      answer[8] = 0x04; // Server failure
+    if (answer[5] > MODBUS_BUFFER_LEN)
+    {
+      answer[8] = 0x04;         // Server failure
       goto error_response;
     }
     memcpy(STATE(uip_conn).data, answer + 6, answer[5]);
@@ -76,47 +89,50 @@ void modbus_net_main(void)
   /* See if we can send new data */
   if (recv_len != 0 || !modbus_recv_len_ptr)
     /* Search for a connetion with data, that had to be send */
-    for (i = 0; i < UIP_CONNS; i ++)
-      if (uip_conns[i].callback == modbus_net_main
-          && uip_conns[i].tcpstateflags != UIP_CLOSED) {
-        if (uip_conns[i].appstate.modbus.state == MODBUS_MUST_SEND) {
+    for (i = 0; i < UIP_CONNS; i++)
+      if (uip_conns[i].callback == modbus_net_main &&
+          uip_conns[i].tcpstateflags != UIP_CLOSED)
+      {
+        if (uip_conns[i].appstate.modbus.state == MODBUS_MUST_SEND)
+        {
           /* Start the transmission */
           recv_len = 0;
-          modbus_rxstart((uint8_t *)STATE(&uip_conns[i]).data,
-                         STATE(&uip_conns[i]).len,
-                         &recv_len);
+          modbus_rxstart((uint8_t *) STATE(&uip_conns[i]).data,
+                         STATE(&uip_conns[i]).len, &recv_len);
           STATE(&uip_conns[i]).state = MODBUS_WAIT_ANSWER;
           break;
-        } else if (STATE(&uip_conns[i]).state == MODBUS_WAIT_ANSWER
-                   && recv_len != 0) {
+        }
+        else if (STATE(&uip_conns[i]).state == MODBUS_WAIT_ANSWER
+                 && recv_len != 0)
+        {
           uip_conn = &uip_conns[i];
           STATE(uip_conn).state = MODBUS_MUST_ANSWER;
-send_new_data:
-          if (recv_len == -1) {
+        send_new_data:
+          if (recv_len == -1)
+          {
             // Send an error message
-            answer[8] = 0x05; // gateway problem
+            answer[8] = 0x05;   // gateway problem
             goto error_response;
           }
           uint16_t crc = modbus_crc_calc(STATE(uip_conn).data, recv_len - 2);
           uint16_t crc_recv =
-            ((STATE(uip_conn).data[recv_len - 1])  << 8)
+            ((STATE(uip_conn).data[recv_len - 1]) << 8)
             | (STATE(uip_conn).data[recv_len - 2]);
-          if (crc != crc_recv) {
+          if (crc != crc_recv)
+          {
             // Send an error message
-            answer[8] = 0x0B; // gateway problem
+            answer[8] = 0x0B;   // gateway problem
             goto error_response;
           }
-          memcpy(answer + 6, STATE(uip_conn).data,
-                 recv_len - 2);
+          memcpy(answer + 6, STATE(uip_conn).data, recv_len - 2);
           memset(answer, 0, 6);
 
           answer[0] = STATE(uip_conn).transaction_id;
           answer[1] = STATE(uip_conn).transaction_id >> 8;
           answer[5] = recv_len - 2;
 
-          uip_udp_send(recv_len -2 + 6);
+          uip_udp_send(recv_len - 2 + 6);
         }
-
       }
 
   return;
