@@ -928,19 +928,6 @@ ECMD_SENDER_SUPPORT
 
   This is especially useful with the option 'Watch IO changes'.
 
-Onewire support
-ONEWIRE_SUPPORT
-  Add support for Dallas 1-wire.
-
-Onewire device detection support
-ONEWIRE_DETECT_SUPPORT
-  Add support for automatic 1-wire device detection, i.e. scan
-  bus for attached devices.
-
-Onewire DS2502 (eeprom) support
-ONEWIRE_DS2502_SUPPORT
-  Support DS2502 1-wire EEPROMs.
-
 Named and logic state I/O
 NAMED_PIN_SUPPORT
   Enable Named-Pin support, i.e. hardware-pin abstraction.
@@ -2124,8 +2111,9 @@ Inline OneWire
 ONEWIRE_INLINE_SUPPORT
   Depends on:
    * Onewire support (ONEWIRE_SUPPORT)
+   * Onewire DS18XX (temperature) support (ONEWIRE_DS18XX_SUPPORT)
+   * 1w list (ONEWIRE_ECMD_LIST_SUPPORT)
    * VFS File Inlining (VFS_INLINE_SUPPORT)
-   * Onewire support (ONEWIRE_SUPPORT)
 
   Powerful page for onewire support, with AJAX and SVG technology.
 
@@ -2242,45 +2230,29 @@ LOME6_SUPPORT
   GUI source (Qt4) is available in services/lome6/lome6-gui
 
 
-Onewire Polling
-ONEWIRE_POLLING_SUPPORT
-  Depends on:
+Onewire support
+ONEWIRE_SUPPORT
+  Add support for Dallas 1-wire.
+
+
+Onewire DS18XX (temperature) support
+ONEWIRE_DS18XX_SUPPORT
+  Depends on: 
    * Onewire support (ONEWIRE_SUPPORT)
-   * Onewire device detection support (ONEWIRE_DETECT_SUPPORT)
 
-  If enabled, ethersex will run a discovery every OW_DISCOVER_DELAY seconds.
-  After the discovery, new sensors will be added to the list and old/defect
-  sensors will be removed from the list.
-  Each sensor discovered will then be polled every OW_READ_DELAY seconds and
-  the temperature stored (cached). The advantage of this feature is that
-  onewire opererates without any noticeable lags compared to the 800 ms lag
-  in normal operation mode. Also it is easier to have multiple applications
-  requesting sensor information since more request will not increase traffic
-  on the onewire bus.
-  The cons include higher memory consumption and a certain delay (max.
-  OW_READ_DELAY).
+  Support DS1820, DS18B20 and DS1822 1-wire temperature sensors.
+
+Onewire DS2502 (eeprom) support
+ONEWIRE_DS2502_SUPPORT
+  Support DS2502 1-wire EEPROMs.
 
 
-ECMD 1w list with values
-ONEWIRE_ECMD_LIST_VALUES_SUPPORT
-  Depends on:
+Onewire DS2450 (4 channel ADC) support
+ONEWIRE_DS2450_SUPPORT
+  Depends on: 
    * Onewire support (ONEWIRE_SUPPORT)
-   * Onewire polling support (ONEWIRE_POLLING_SUPPORT)
 
-  Show values (currently only temperature) on "1w list" command. This saves
-  successive calls to get the value for each sensor. Fields are separated by
-  tab.
-
-
-ECMD 1w list with power mode
-ONEWIRE_ECMD_LIST_POWER_SUPPORT
-  Depends on:
-   * Onewire Polling (ONEWIRE_POLLING_SUPPORT)
-
-  Show the power mode of each onewire node on "1w list" command. Fields are
-  separated by tab.
-  0: parasitic powered
-  1: non-parasitic powered
+  Support DS2450 1-wire 4 channel ADC.
 
 
 Onewire naming support
@@ -2305,7 +2277,6 @@ Onewire SNMP support
 ONEWIRE_SNMP_SUPPORT
   Depends on:
    * Onewire support (ONEWIRE_SUPPORT)
-   * Onewire polling support (ONEWIRE_POLLING_SUPPORT)
    * SNMP Support (SNMP_SUPPORT)
 
   Make the onewire values (currently only temperature) available via SNMP. The
@@ -2320,28 +2291,78 @@ ONEWIRE_SNMP_SUPPORT
   ID corresponds with the ID of the name mapping table.
 
 
-Time between discoveries in 0.8s steps
+Hooks
+ONEWIRE_HOOK_SUPPORT
+  Depends on:
+   * Onewire support (ONEWIRE_SUPPORT)
+
+  Support for callback hooks. For details see hook.def in the top directory.
+
+
+Time between 1w-bus discoveries in 1s steps
 OW_DISCOVER_DELAY
+  Depends on:
+   * Onewire support (ONEWIRE_SUPPORT)
 
-  Time between discoveries of new sensors. 1 unit is 0.8s.
-  Example:
-  Input 750 will lead to a discovery every 10 minutes.
+  Ethersex will run a discovery every OW_DISCOVER_DELAY seconds.  After the
+  discovery, new sensors will be added to the list and old/defect
+  sensors will be removed from the list.
+  Each sensor discovered will then be polled every OW_READ_DELAY seconds and
+  the temperature stored (cached). The advantage of this feature is that
+  onewire opererates without any noticeable lags compared to the 800 ms lag
+  in normal operation mode. Also it is easier to have multiple applications
+  requesting sensor information since more request will not increase traffic
+  on the onewire bus.
+  The cons include higher memory consumption and a certain delay (max.
+  OW_READ_DELAY).
 
-Time between polling in 0.8s steps
-OW_READ_DELAY
 
-  Time between polling for new temperatures. 1 unit is 0.8s.
-  Example:
-  Input 75 will lead to a temperature update-rate of 1 minute.
+Time between polling in 1s steps
+OW_POLLING_INTERVAL
+  Depends on:
+   * Onewire support (ONEWIRE_SUPPORT)
 
-  Please adjust this value if you need more precise data (e.g. climate cabinet).
-  It should be save to go down to 5 seconds (~ 6 units)
+  Each sensor discovered will then be polled every OW_READ_DELAY seconds and
+  the temperature stored (cached).
+
 
 Maximum sensor count
 OW_SENSORS_COUNT
 
   How many sensors you expect in your setup. Make sure this value is high
   enough!
+
+
+1w list
+ONEWIRE_ECMD_LIST_SUPPORT
+  Depends on: 
+   * Onewire support (ONEWIRE_SUPPORT)
+
+  List detected 1-wire sensors.
+
+
+ECMD 1w list with values
+ONEWIRE_ECMD_LIST_VALUES_SUPPORT
+  Depends on:
+   * Onewire DS18XX (temperature) support (ONEWIRE_DS18XX_SUPPORT)
+   * 1w list (ONEWIRE_ECMD_LIST_SUPPORT)
+
+  Show values (currently only temperature) on "1w list" command. This saves
+  successive calls to get the value for each sensor. Fields are separated by
+  tab.
+
+
+ECMD 1w list with power mode
+ONEWIRE_ECMD_LIST_POWER_SUPPORT
+  Depends on:
+   * Onewire DS18XX (temperature) support (ONEWIRE_DS18XX_SUPPORT)
+   * 1w list (ONEWIRE_ECMD_LIST_SUPPORT)
+
+  Show the power mode of each onewire node on "1w list" command. Fields are
+  separated by tab.
+  0: parasitic powered
+  1: non-parasitic powered
+
 
 Frequency counter
 FREQCOUNT_SUPPORT
@@ -2922,12 +2943,6 @@ ELTAKOMS_SUPPORT
   38 Checksum          Checksum 4th digit (ones)
   39 0x03              End
 
-Hooks
-ONEWIRE_HOOK_SUPPORT
-  Depends on:
-   * Onewire Polling (ONEWIRE_POLLING_SUPPORT)
-
-  Support for callback hooks. For details see hook.def in the top directory.
 
 MBR support
 MBR_SUPPORT

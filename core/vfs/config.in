@@ -16,7 +16,7 @@ dep_bool_menu "VFS (Virtual File System) support" VFS_SUPPORT
     dep_bool "Inline IO" VFS_IO_INLINE_SUPPORT $VFS_INLINE_SUPPORT
     dep_bool "Inline KTY" KTY_INLINE_SUPPORT $VFS_INLINE_SUPPORT $KTY_SUPPORT
     dep_bool "Inline ADC" ADC_INLINE_SUPPORT $VFS_INLINE_SUPPORT $ADC_SUPPORT
-    dep_bool "Inline OneWire" ONEWIRE_INLINE_SUPPORT $VFS_INLINE_SUPPORT $ONEWIRE_SUPPORT
+    dep_bool "Inline OneWire" ONEWIRE_INLINE_SUPPORT $VFS_INLINE_SUPPORT $ONEWIRE_ECMD_LIST_SUPPORT $ONEWIRE_DS18XX_SUPPORT
     if [ "$DHT_SUPPORT" = "y" -o "$SHT_SUPPORT" = "y" ]; then
       dep_bool "Inline humidity & temperature sensors" HAT_INLINE_SUPPORT $VFS_INLINE_SUPPORT
     else

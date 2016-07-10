@@ -32,7 +32,6 @@ divert(globals_divert)`
 #include <util/atomic.h>
 #include "hardware/onewire/onewire.h"
 
-#ifdef ONEWIRE_POLLING_SUPPORT
 static int16_t
 ow_read_temp(ow_rom_code_t *rom)
 {
@@ -56,45 +55,6 @@ ow_temp (ow_rom_code_t *rom)
 {
   return ow_read_temp(rom);
 }
-#else /*ONEWIRE_POLLING_SUPPORT is not defined*/
-static int16_t
-ow_read_temp(ow_rom_code_t *rom)
-{
-  int16_t retval = 0x7FFF;  /* error */
-  ow_temp_scratchpad_t sp;
-  int8_t ret;
-
-  ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-  {
-    ret = ow_temp_read_scratchpad(rom, &sp);
-  }
-  if (ret == 1)
-  {
-    ow_temp_t temp = ow_temp_normalize(rom, &sp);
-    retval = (temp.twodigits ? temp.val / 10 : temp.val);
-  }
-
-  return retval;
-}
-
-static int16_t
-ow_temp(ow_rom_code_t *rom)
-{
-  int16_t retval = 0x7FFF;  /* error */
-  int8_t ret;
-
-  ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-  {
-    ret = ow_temp_start_convert_wait(rom);
-  }
-  if (ret == 1)
-  {
-    retval = ow_read_temp(rom);
-  }
-
-  return retval;
-}
-#endif /*ONEWIRE_POLLING_SUPPORT*/
 
 #ifdef ONEWIRE_NAMING_SUPPORT
 static int16_t
@@ -157,10 +117,3 @@ ow_rom_code_t ow_$1 = {{ .bytewise = {
 #endif
 divert(old_divert)ow_read_temp(&ow_$1)')
 
-define(`ONEWIRE_CONVERT', `ONEWIRE_USED()dnl
-define(`old_divert', divnum)dnl
-divert(globals_divert)
-divert(old_divert)
-#ifndef ONEWIRE_POLLING_SUPPORT
-ow_temp_start_convert(NULL,0);
-#endif // dirty workaround for -> ')

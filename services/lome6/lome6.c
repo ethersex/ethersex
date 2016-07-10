@@ -32,16 +32,11 @@ int16_t
 lome6_get_temperature(ow_rom_code_t * rom)
 {
   int16_t retval = 0x7FFF;      /* error */
-  ow_temp_scratchpad_t sp;
-  int8_t ret;
 
-  ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+  ow_sensor_t * sensor = ow_find_sensor(rom);
+  if (sensor != NULL)
   {
-    ret = ow_temp_read_scratchpad(rom, &sp);
-  }
-  if (ret == 1)
-  {
-    ow_temp_t temp = ow_temp_normalize(rom, &sp);
+    ow_temp_t temp = sensor->temp;
     retval = (temp.twodigits ? temp.val / 10 : temp.val);
   }
 
@@ -91,8 +86,6 @@ lome6_startup(void)
   {
     LOME6DEBUG("cannot parse ow rom code for ram sensor\n");
   }
-
-  ow_temp_start_convert_nowait(NULL);
 #endif
 
 #ifdef LOME6_LCD_SUPPORT
@@ -213,9 +206,6 @@ lome6_timer(void)
     wclrtoeol(ttyWindow);
     iLCDPage = 0;
   }
-
-  // start a new convert in next round
-  ow_temp_start_convert_nowait(NULL);
 #endif // LOME6_LCD_SUPPORT
 }
 
