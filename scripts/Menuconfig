@@ -1125,7 +1125,7 @@ Select the default profile you wish to load. \
 			fimser		  "Fieldday Instant Messenger"			0 \
 			probot		  "Conrad Probot"				0 \
 			arduino_duemilanove "Arduino Duemilanove"			0 \
-			arduino_mega256_r3 "Arduino Mega256 R3"				0 \
+			arduino_mega2560_r3 "Arduino Mega2560 R3"			0 \
 			rfm12-teensy	  "RFM12 Standalone"				0 \
 			zbus-teensy	  "ZBUS Standalone"				0 \
 			usb-teensy	  "USB (Network) Standalone"			0 \
