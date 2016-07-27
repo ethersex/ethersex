@@ -107,17 +107,45 @@ int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
   if (cmd == 0)
     return ECMD_ERR_PARSE_ERROR;
   /* translate it to the portaddress */
+  
+#ifndef PINA
   switch (value)
+#else
+  switch (value + 1)
+#endif
   {
 #ifdef PINA
-    case 0: ioptr = &PINA; sysmask = PORTIO_MASK_A; break;
-    case 1: ioptr = &PINB; sysmask = PORTIO_MASK_B; break;
-    case 2: ioptr = &PINC; sysmask = PORTIO_MASK_C; break;
-    case 3: ioptr = &PIND; sysmask = PORTIO_MASK_D; break;
-#else
-    case 0: ioptr = &PINB; sysmask = PORTIO_MASK_B; break;
-    case 1: ioptr = &PINC; sysmask = PORTIO_MASK_C; break;
-    case 2: ioptr = &PIND; sysmask = PORTIO_MASK_D; break;
+    case  0: ioptr = &PINA; sysmask = PORTIO_MASK_A; break;
+#endif
+#ifdef PINB
+    case  1: ioptr = &PINB; sysmask = PORTIO_MASK_B; break;
+#endif
+#ifdef PINC
+    case  2: ioptr = &PINC; sysmask = PORTIO_MASK_C; break;
+#endif
+#ifdef PIND
+    case  3: ioptr = &PIND; sysmask = PORTIO_MASK_D; break;
+#endif
+#ifdef PINE
+    case  4: ioptr = &PINE; sysmask = PORTIO_MASK_E; break;
+#endif
+#ifdef PINF
+    case  5: ioptr = &PINF; sysmask = PORTIO_MASK_F; break;
+#endif
+#ifdef PING
+    case  6: ioptr = &PING; sysmask = PORTIO_MASK_G; break;
+#endif
+#ifdef PINH
+    case  7: ioptr = &PINH; sysmask = PORTIO_MASK_H; break;
+#endif
+#ifdef PINJ
+    case  8: ioptr = &PINJ; sysmask = PORTIO_MASK_J; break;
+#endif
+#ifdef PINK
+    case  9: ioptr = &PINK; sysmask = PORTIO_MASK_K; break;
+#endif
+#ifdef PINL
+    case 10: ioptr = &PINL; sysmask = PORTIO_MASK_L; break;
 #endif
     default: return ECMD_ERR_PARSE_ERROR;
   }
