@@ -46,10 +46,10 @@ uchar key;
 char *send_buf;
 uint8_t send_pos=0;
 #ifdef USB_HID_KEYBOARD_STATIC_SUPPORT
-PROGMEM char usb_text[]= USB_HID_KEYBOARD_TEXT;
+PROGMEM const char usb_text[]= USB_HID_KEYBOARD_TEXT;
 #endif
 
-PROGMEM char usbHidReportDescriptor[35] = { /* USB report descriptor */
+PROGMEM const char usbHidReportDescriptor[35] = { /* USB report descriptor */
     0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
     0x09, 0x06,                    // USAGE (Keyboard)
     0xa1, 0x01,                    // COLLECTION (Application)
