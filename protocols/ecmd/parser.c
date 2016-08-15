@@ -224,6 +224,7 @@ parse_cmd_version(char *cmd, char *output, uint16_t len)
   (void) cmd;
 
   strncpy_P(output, pstr_E6_VERSION_STRING_LONG, len);
+  output[len - 1] = '\0';
 
   return ECMD_FINAL(strlen(output));
 }
