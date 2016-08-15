@@ -3220,6 +3220,7 @@ Remote IRMP
 REMOTE_IRMP_SUPPORT
   Depends on: 
    * IRMP IR (IRMP_SUPPORT)
+   * UDP support (UDP_SUPPORT)
 
   Control your HiFi equipment with your smartphone.
   For details see https://www.mikrocontroller.net/articles/Remote_IRMP

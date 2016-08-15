@@ -42,7 +42,7 @@ dep_bool_menu "IRMP IR" IRMP_SUPPORT $ARCH_AVR
 	dep_bool 'LGAIR' IRMP_SUPPORT_LGAIR_PROTOCOL $IRMP_SUPPORT
 	dep_bool 'RADIO1' IRMP_SUPPORT_RADIO1_PROTOCOL $IRMP_SUPPORT
         comment  "Network"
-        dep_bool "Remote IRMP" REMOTE_IRMP_SUPPORT $IRMP_SUPPORT
+        dep_bool "Remote IRMP" REMOTE_IRMP_SUPPORT $UDP_SUPPORT $IRMP_SUPPORT
         int "UDP port (default 10001)" REMOTE_IRMP_PORT 10001
 	comment  "Debugging Flags"
 	dep_bool 'IRMP' DEBUG_IRMP $IRMP_SUPPORT $DEBUG
