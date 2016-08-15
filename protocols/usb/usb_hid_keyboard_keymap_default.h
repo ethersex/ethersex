@@ -22,7 +22,7 @@
 
 // German keymap file
 
-struct hid_keyboard_map_t keyReport[] PROGMEM = {
+const struct hid_keyboard_map_t keyReport[] PROGMEM = {
 /* none */  {0, {0, 0}},                     /* no key pressed */
 /*  1 */    {'a', {MOD_NONE, KEY_A}},
 /*  2 */    {'b', {MOD_NONE, KEY_B}},

@@ -22,7 +22,7 @@
 
 // mouse position and button file
 
-struct hid_mouse_map_t mousepos[] PROGMEM = {
+const struct hid_mouse_map_t mousepos[] PROGMEM = {
 {0,0,0},
 {0,2,4},
 {0,5,-9},
