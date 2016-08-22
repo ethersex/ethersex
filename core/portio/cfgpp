@@ -28,12 +28,12 @@ eeprom=""
 unique=""
 
 while read line; do
-  port=`echo $line | awk '{print $1}' | cut -c 2 | tr 'ABCDEFabcdef' '012345012345'`
+  port=0x`echo $line | awk '{print $1}' | cut -c 2 | tr 'ABCDEFGHJKLabcdefghjkl' '0123456789A0123456789A'`
   pin=`echo $line | awk '{print $1}' | cut -c 3`
   input=`echo $line | awk '{print $2}'`
   active_high=`echo $line | awk '{print $3}'`
   name=`echo $line | awk '{print $4}'`
-  echo "#define ${name}_PORT `echo $line | awk '{print $1}' | cut -c 2 | tr 'abcdef' 'ABCDEF'`" >> $file_user_config_h
+  echo "#define ${name}_PORT `echo $line | awk '{print $1}' | cut -c 2 | tr 'abcdefghjkl' 'ABCDEFGHJKL'`" >> $file_user_config_h
   echo "#define ${name}_PIN $pin" >> $file_user_config_h
 
   textid="$RANDOM"
