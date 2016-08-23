@@ -11,7 +11,7 @@ query_mcutype2flashsize()
 {
 	local mcu_type="$1"
 	local hello_world="#include <avr/io.h>\nFLASHEND"
-	local imagesize=$( echo -e "$hello_world" | avr-cpp -mmcu="$mcu_type" | tail -n1 )
+	local imagesize=$( echo -e "$hello_world" | avr-cpp -P -mmcu="$mcu_type" | tail -n1 )
 
 	# e.g. 0xFFFF + 1 = 65536
 	echo $(( $imagesize + 1 ))
