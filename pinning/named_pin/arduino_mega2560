@@ -1,0 +1,94 @@
+#
+# Named Pin Configuration File for Arduino Mega2560
+# based on https://www.arduino.cc/en/Hacking/PinMapping2560
+#
+# Copyright (c) 2016 by Erik Kunze <ethersex@erik-kunze.de>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#
+# PIN | IN/OUT | When active? | Name
+#-----+--------+--------------+----------------
+PF0  	INPUT    HIGH		A0
+PF1  	INPUT    HIGH		A1
+PF2  	INPUT    HIGH		A2
+PF3  	INPUT    HIGH		A3
+PF4  	INPUT    HIGH		A4
+PF5  	INPUT    HIGH		A5
+PF6  	INPUT    HIGH		A6
+PF7  	INPUT    HIGH		A7
+PK0  	INPUT    HIGH		A8
+PK1  	INPUT    HIGH		A9
+PK2  	INPUT    HIGH		A10
+PK3  	INPUT    HIGH		A11
+PK4  	INPUT    HIGH		A12
+PK5  	INPUT    HIGH		A13
+PK6  	INPUT    HIGH		A14
+PK7  	INPUT    HIGH		A15
+PE0	OUTPUT   HIGH		D0
+PE1	OUTPUT   HIGH		D1
+PE4	OUTPUT   HIGH		D2
+PE5	OUTPUT   HIGH		D3
+PG5	OUTPUT   HIGH		D4
+PE3	OUTPUT   HIGH		D5
+PH3	OUTPUT   HIGH		D6
+PH4	OUTPUT   HIGH		D7
+PH5	OUTPUT   HIGH		D8
+PH6	OUTPUT   HIGH		D9
+PB4	OUTPUT   HIGH		D10
+PB5	OUTPUT   HIGH		D11
+PB6	OUTPUT   HIGH		D12
+PB7	OUTPUT   HIGH		D13
+PJ1	OUTPUT   HIGH		D14
+PJ0	OUTPUT   HIGH		D15
+PH1	OUTPUT   HIGH		D16
+PH0	OUTPUT   HIGH		D17
+PD3	OUTPUT   HIGH		D18
+PD2	OUTPUT   HIGH		D19
+PD1	OUTPUT   HIGH		D20
+PD0	OUTPUT   HIGH		D21
+PA0	OUTPUT   HIGH		D22
+PA1	OUTPUT   HIGH		D23
+PA2	OUTPUT   HIGH		D24
+PA3	OUTPUT   HIGH		D25
+PA4	OUTPUT   HIGH		D26
+PA5	OUTPUT   HIGH		D27
+PA6	OUTPUT   HIGH		D28
+PA7	OUTPUT   HIGH		D29
+PC7	OUTPUT   HIGH		D30
+PC6	OUTPUT   HIGH		D31
+PC5	OUTPUT   HIGH		D32
+PC4	OUTPUT   HIGH		D33
+PC3	OUTPUT   HIGH		D34
+PC2	OUTPUT   HIGH		D35
+PC1	OUTPUT   HIGH		D36
+PC0	OUTPUT   HIGH		D37
+PD7	OUTPUT   HIGH		D38
+PG2	OUTPUT   HIGH		D39
+PG1	OUTPUT   HIGH		D40
+PG0	OUTPUT   HIGH		D41
+PL7	OUTPUT   HIGH		D42
+PL6	OUTPUT   HIGH		D43
+PL5	OUTPUT   HIGH		D44
+PL4	OUTPUT   HIGH		D45
+PL3	OUTPUT   HIGH		D46
+PL2	OUTPUT   HIGH		D47
+PL1	OUTPUT   HIGH		D48
+PL0	OUTPUT   HIGH		D49
+PB3	OUTPUT   HIGH		D50
+PB2	OUTPUT   HIGH		D51
+PB1	OUTPUT   HIGH		D52
+PB0	OUTPUT   HIGH		D53

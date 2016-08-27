@@ -28,6 +28,10 @@ divert(eof_divert)
 #define PORTIO_MASK_E eval(255 - port_mask_E)
 #define PORTIO_MASK_F eval(255 - port_mask_F)
 #define PORTIO_MASK_G eval(255 - port_mask_G)
+#define PORTIO_MASK_H eval(255 - port_mask_H)
+#define PORTIO_MASK_J eval(255 - port_mask_J)
+#define PORTIO_MASK_K eval(255 - port_mask_K)
+#define PORTIO_MASK_L eval(255 - port_mask_L)
 
 #define DDR_MASK_A ddr_mask_A
 #define DDR_MASK_B ddr_mask_B
@@ -36,5 +40,9 @@ divert(eof_divert)
 #define DDR_MASK_E ddr_mask_E
 #define DDR_MASK_F ddr_mask_F
 #define DDR_MASK_G ddr_mask_G
+#define DDR_MASK_H ddr_mask_H
+#define DDR_MASK_J ddr_mask_J
+#define DDR_MASK_K ddr_mask_K
+#define DDR_MASK_L ddr_mask_L
 
 #endif /* _PINNING_HEADER */

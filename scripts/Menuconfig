@@ -1125,13 +1125,14 @@ Select the default profile you wish to load. \
 			fimser		  "Fieldday Instant Messenger"			0 \
 			probot		  "Conrad Probot"				0 \
 			arduino_duemilanove "Arduino Duemilanove"			0 \
+			arduino_mega2560_r3 "Arduino Mega2560 R3"			0 \
 			rfm12-teensy	  "RFM12 Standalone"				0 \
 			zbus-teensy	  "ZBUS Standalone"				0 \
 			usb-teensy	  "USB (Network) Standalone"			0 \
 			usb-rfm12-dongle  "USB RFM12 Dongle"				0 \
-			USBrfm12stick  "USB RFM12 Stick"				0 \
+			USBrfm12stick     "USB RFM12 Stick"				0 \
 			ehaserl		  "EH2010 Ehaserl Badge"			0 \
-			fnordlicht_servo "Fnordlicht Servo"			0 \
+			fnordlicht_servo  "Fnordlicht Servo"				0 \
 			no-network	  "No Networking (USB only)"			0 \
 			JeeLinkv2	  "Jeelabs JeeLinkv2 (FTDI-ZBUS, RFM12)"	0 \
 			hr20		  "Rondostat HR20/Thermotronic Basic/Thermy"	0 \
