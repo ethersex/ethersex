@@ -84,7 +84,7 @@ bsbport_net_main(void)
     if (bsbport_conn == uip_conn)
       bsbport_conn = NULL;
   }
-  else if (uip_newdata())
+  if (uip_newdata() && bsbport_conn == uip_conn)
   {
     if (uip_len <= BSBPORT_BUFFER_LEN &&
         bsbport_txstart(uip_appdata, uip_len) != 0)
