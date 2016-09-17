@@ -227,15 +227,16 @@ static void fat_set_file_modification_time(struct fat_dir_entry_struct* dir_entr
  */
 struct fat_fs_struct* fat_open(struct partition_struct* partition)
 {
-    if(!partition ||
+    if(!partition
 #if FAT_WRITE_SUPPORT
-       !partition->device_write ||
-       !partition->device_write_interval
-#else
-       0
+       || !partition->device_write
+       || !partition->device_write_interval
 #endif
       )
+    {
+	SDDEBUG ("fat_open: partition not found or not writable.\n");
         return 0;
+    }
 
 #if USE_DYNAMIC_MEMORY
     struct fat_fs_struct* fs = malloc(sizeof(*fs));
@@ -252,7 +253,10 @@ struct fat_fs_struct* fat_open(struct partition_struct* partition)
         ++fs;
     }
     if(i >= FAT_FS_COUNT)
+    {
+	SDDEBUG ("fat_open: no slot in fat_fs_handles available.\n");
         return 0;
+    }
 #endif
 
     memset(fs, 0, sizeof(*fs));
@@ -265,6 +269,7 @@ struct fat_fs_struct* fat_open(struct partition_struct* partition)
 #else
         fs->partition = 0;
 #endif
+	SDDEBUG ("fat_open: partition header error.\n");
         return 0;
     }
     
@@ -317,7 +322,10 @@ uint8_t fat_read_header(struct fat_fs_struct* fs)
 #endif
     offset_t partition_offset = (offset_t) partition->offset * 512;
     if(!partition->device_read(partition_offset + 0x0b, buffer, sizeof(buffer)))
+    {
+	SDDEBUG ("fat_read_header: device read failed.\n");
         return 0;
+    }
 
     uint16_t bytes_per_sector = read16(&buffer[0x00]);
     uint16_t reserved_sectors = read16(&buffer[0x03]);
@@ -335,8 +343,11 @@ uint8_t fat_read_header(struct fat_fs_struct* fs)
     if(sector_count == 0)
     {
         if(sector_count_16 == 0)
+        {
             /* illegal volume size */
+	    SDDEBUG ("fat_read_header: illegal volume size.\n");
             return 0;
+        }
         else
             sector_count = sector_count_16;
     }
@@ -344,12 +355,18 @@ uint8_t fat_read_header(struct fat_fs_struct* fs)
     if(sectors_per_fat != 0)
         sectors_per_fat32 = sectors_per_fat;
     else if(sectors_per_fat32 == 0)
+    {
         /* this is neither FAT16 nor FAT32 */
+	SDDEBUG ("fat_read_header: neither FAT16 nor FAT32.\n");
         return 0;
+    }
 #else
     if(sectors_per_fat == 0)
+    {
         /* this is not a FAT16 */
+	SDDEBUG ("fat_read_header: not FAT16.\n");
         return 0;
+    }
 #endif
 
     /* determine the type of FAT we have here */
@@ -364,13 +381,22 @@ uint8_t fat_read_header(struct fat_fs_struct* fs)
     uint32_t data_cluster_count = data_sector_count / sectors_per_cluster;
     if(data_cluster_count < 4085)
         /* this is a FAT12, not supported */
+    {
+	SDDEBUG ("fat_read_header: found unsupported FAT12.\n");
         return 0;
+    }
     else if(data_cluster_count < 65525)
+    {
         /* this is a FAT16 */
+	SDDEBUG ("fat_read_header: FAT16.\n");
         partition->type = PARTITION_TYPE_FAT16;
+    }
     else
+    {
         /* this is a FAT32 */
+	SDDEBUG ("fat_read_header: FAT32.\n");
         partition->type = PARTITION_TYPE_FAT32;
+    }
 
     /* fill header information */
     struct fat_header_struct* header = &fs->header;
