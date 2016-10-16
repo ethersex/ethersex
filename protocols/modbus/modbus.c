@@ -43,9 +43,17 @@
 struct modbus_connection_state_t modbus_client_state;
 #endif
 
+#define MODBUS_USART_CONFIG_8N1	1
+#define MODBUS_USART_CONFIG_8E1	2
 
 /* We generate our own usart init module, for our usart port */
-generate_usart_init()
+#if MODBUS_USART_CONFIG == MODBUS_USART_CONFIG_8N1
+        generate_usart_init()
+#elif MODBUS_USART_CONFIG == MODBUS_USART_CONFIG_8E1
+        generate_usart_init_8E1()
+#else
+        #error "MODBUS_USART_CONFIG not correctly defined"
+#endif
 
 volatile struct modbus_buffer modbus_data;
 

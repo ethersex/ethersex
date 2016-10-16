@@ -4,6 +4,11 @@ if [ "$MODBUS_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
     if [ "$MODBUS_SUPPORT" = y ]; then
       choice '  Modbus usart select' "$(usart_choice MODBUS)"
       usart_process_choice MODBUS
+      int    "  Modbus usart baudrate" MODBUS_BAUDRATE 9600
+      choice '  Modbus usart config'   \
+            "8N1            MODBUS_USART_CONFIG_8N1          \
+             8E1            MODBUS_USART_CONFIG_8E1" \
+            '8E1' MODBUS_USART_CONFIG
     fi
     if [ "$MODBUS_SUPPORT" = y ]; then
       bool "  Modbus Client Stack" MODBUS_CLIENT_SUPPORT  n

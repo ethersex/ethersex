@@ -23,9 +23,6 @@
 #ifndef _MODBUS_H
 #define _MODBUS_H
 
-/* Default baudrate */
-#define MODBUS_BAUDRATE 9600
-
 struct modbus_buffer {
   uint8_t *data;
   uint8_t sent;
