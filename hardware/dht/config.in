@@ -5,7 +5,7 @@ dep_bool_menu "DHT 11/22" DHT_SUPPORT $ARCH_AVR
              DHT22/AM2302   DHT_TYPE_22"  \
             'DHT11'         DHT_TYPE
      int "Time between polling in 1s steps" DHT_POLLING_INTERVAL 30
-     editor "Edit pin configuration" $DHT_TYPE "hardware/dht/dht_pinning.conf"
+     editor "Edit pin configuration" DHT_PINNING_EDIT "hardware/dht/dht_pinning.conf"
      dep_bool "SNMP support" DHT_SNMP_SUPPORT $SNMP_SUPPORT
 
      comment "ECMD Support"
