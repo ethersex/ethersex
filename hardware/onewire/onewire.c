@@ -55,15 +55,11 @@
 /* global variables */
 ow_global_t ow_global;
 
-#ifdef ONEWIRE_POLLING_SUPPORT
 /* perform an initial bus discovery on startup */
 uint16_t ow_discover_interval = 1;    /* minimal initial delay */
 uint16_t ow_polling_interval;         /* time between polling the sensors */
-#endif
 
-#if defined(ONEWIRE_POLLING_SUPPORT) || defined(ONEWIRE_NAMING_SUPPORT)
 ow_sensor_t ow_sensors[OW_SENSORS_COUNT];
-#endif
 
 /* module local prototypes */
 void noinline ow_set_address_bit(ow_rom_code_t * rom, uint8_t idx,
@@ -79,10 +75,8 @@ onewire_init(void)
   /* release lock */
   ow_global.lock = 0;
 
-#if defined(ONEWIRE_POLLING_SUPPORT) || defined(ONEWIRE_NAMING_SUPPORT)
   /* initialize sensor data */
   memset(ow_sensors, 0, OW_SENSORS_COUNT * sizeof(ow_sensor_t));
-#endif
 
 #ifdef ONEWIRE_NAMING_SUPPORT
   /* restore sensor names */
@@ -286,7 +280,6 @@ ow_set_address_bit(ow_rom_code_t * rom, uint8_t idx, uint8_t val)
 }
 
 
-#ifdef ONEWIRE_DETECT_SUPPORT
 /* high-level functions */
 int8_t noinline
 ow_search_rom(uint8_t busmask, uint8_t first)
@@ -371,9 +364,9 @@ ow_search_rom(uint8_t busmask, uint8_t first)
   /* new device discovered */
   return 1;
 }
-#endif /* ONEWIRE_DETECT_SUPPORT */
 
 
+#ifdef ONEWIRE_DS18XX_SUPPORT
 /* temperature functions */
 
 int8_t
@@ -387,9 +380,8 @@ ow_temp_sensor(ow_rom_code_t * rom)
 
 
 int8_t
-ow_temp_start_convert(ow_rom_code_t * rom, uint8_t wait)
+ow_temp_start_convert(ow_rom_code_t * rom)
 {
-
   int8_t ret;
 
   if (rom == NULL) {
@@ -418,16 +410,7 @@ ow_temp_start_convert(ow_rom_code_t * rom, uint8_t wait)
   OW_CONFIG_OUTPUT(ONEWIRE_BUSMASK);
   OW_HIGH(ONEWIRE_BUSMASK);
 
-  if (!wait)
-    return 0;
-
-  /* the specification says, that we have to wait at least 500ms in parasite
-   * mode for the conversion to complete. 800ms works more reliably */
-  _delay_ms(800);
-
-  while (!ow_read(ONEWIRE_BUSMASK));
-
-  return 1;
+  return 0;
 }
 
 
@@ -534,9 +517,11 @@ ow_temp_normalize(ow_rom_code_t * rom, ow_temp_scratchpad_t * sp)
   }
   return ret;
 }
+#endif /* ONEWIRE_DS18XX_SUPPORT */
 
 /* DS2502 data functions */
 
+#ifdef ONEWIRE_DS2502_SUPPORT
 int8_t
 ow_eeprom(ow_rom_code_t * rom)
 {
@@ -548,7 +533,6 @@ ow_eeprom(ow_rom_code_t * rom)
 }
 
 
-#ifdef ONEWIRE_DS2502_SUPPORT
 int8_t
 ow_eeprom_read(ow_rom_code_t * rom, void *data)
 {
@@ -603,7 +587,6 @@ ow_eeprom_read(ow_rom_code_t * rom, void *data)
 }
 #endif /* ONEWIRE_DS2502_SUPPORT */
 
-#if defined(ONEWIRE_POLLING_SUPPORT) || defined(ONEWIRE_NAMING_SUPPORT)
 ow_sensor_t *
 ow_find_sensor(ow_rom_code_t * rom)
 {
@@ -623,9 +606,7 @@ ow_find_sensor_index(ow_rom_code_t * rom)
       return i; /* found it */
   return -1;
 }
-#endif
 
-#ifdef ONEWIRE_POLLING_SUPPORT
 static int8_t
 ow_discover_sensor(void)
 {
@@ -681,6 +662,7 @@ ow_discover_sensor(void)
            , ow_global.bus
 #endif /* ONEWIRE_BUSCOUNT > 1 */
           );
+#ifdef ONEWIRE_DS18XX_SUPPORT
         if (ow_temp_sensor(&ow_global.current_rom))
         {
           uint8_t i;
@@ -726,6 +708,7 @@ ow_discover_sensor(void)
           OW_DEBUG_POLL("not a temperature sensor\n");
 #endif /* DEBUG_OW_POLLING */
         }
+#endif /* ONEWIRE_DS18XX_SUPPORT */
       }
     }
     while (ret > 0);
@@ -744,14 +727,14 @@ ow_discover_sensor(void)
     {
 #ifdef ONEWIRE_NAMING_SUPPORT
       if (!ow_sensors[i].named)
+#endif
       {
-#endif
         ow_sensors[i].ow_rom_code.raw = 0;
-#ifdef ONEWIRE_NAMING_SUPPORT
       }
-#endif
+#ifdef ONEWIRE_DS18XX_SUPPORT
       ow_sensors[i].temp.val = 0;
       ow_sensors[i].temp.twodigits = 0;
+#endif
     }
   }
   return 0;
@@ -765,17 +748,22 @@ ow_periodic(void)
   /* start discovery of 1-wire devices every DISCOVER_INTERVAL */
   if (--ow_discover_interval == 0)
   {
+#ifdef ONEWIRE_DS18XX_SUPPORT
     /* only start a bus discovery if there is no conversion underway*/
     if (!ow_global.converting)
+#endif
     {
       ow_discover_interval = OW_DISCOVER_INTERVAL;
       ow_discover_sensor();
     }
+#ifdef ONEWIRE_DS18XX_SUPPORT
     else
       /* wait with discovery until conversion has ended */
       ow_discover_interval++;
+#endif
   }
 
+#ifdef ONEWIRE_DS18XX_SUPPORT
   if (ow_global.converting && --ow_global.convert_delay == 0)
   {
     ow_global.converting = 0;
@@ -843,7 +831,7 @@ ow_periodic(void)
     if (!ow_global.converting)
     {
       ow_polling_interval = OW_POLLING_INTERVAL;
-      ow_temp_start_convert_nowait(NULL);
+      ow_temp_start_convert(NULL);
       ow_global.convert_delay = 2;  // wait 2s for conversion
       ow_global.converting = 1;
   #ifdef ONEWIRE_HOOK_SUPPORT
@@ -854,8 +842,8 @@ ow_periodic(void)
       /* wait with new conversion until current conversion has ended */
       ow_polling_interval++;
   }
+#endif /* ONEWIRE_DS18XX_SUPPORT */
 }
-#endif /* ONEWIRE_POLLING_SUPPORT */
 
 /* naming support */
 #ifdef ONEWIRE_NAMING_SUPPORT
@@ -888,9 +876,7 @@ ow_names_restore(void)
       ow_sensors[i].named = 1;
       ow_sensors[i].ow_rom_code.raw = temp_name.ow_rom_code.raw;
       strncpy(ow_sensors[i].name, temp_name.name, OW_NAME_LENGTH);
-#ifdef ONEWIRE_POLLING_SUPPORT
       ow_polling_interval = 1;
-#endif
     }
   }
 }
@@ -918,5 +904,5 @@ ow_names_save(void)
   -- Ethersex META --
   header(hardware/onewire/onewire.h)
   init(onewire_init)
-  ifdef(`conf_ONEWIRE_POLLING',`timer(50, ow_periodic())')
+  timer(50, ow_periodic())
 */
