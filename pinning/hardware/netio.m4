@@ -1,5 +1,7 @@
-/* add support for RS485 */
-pin(RS485TE_USART0, PD2, OUTPUT)
+ifdef(`conf_MODBUS', `dnl
+  /* add support for RS485 */
+  pin(RS485TE_USART0, PC0, OUTPUT)
+')dnl
 
 /* port the enc28j60 is attached to */
 pin(SPI_CS_NET, SPI_CS_HARDWARE)

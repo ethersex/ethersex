@@ -146,7 +146,7 @@ usart_init(void) \
   { \
     usart(UBRR,H) = UBRRH_VALUE; \
     usart(UBRR,L) = UBRRL_VALUE; \
-    /* set mode 8N1: 8 bits, 1 stop, even parity, asynchronous usart \
+    /* set mode 8E1: 8 bits, 1 stop, even parity, asynchronous usart \
      * and set URSEL, if present, */ \
     usart(UCSR,C) =  _BV(usart(UPM,1)) | _BV(usart(UCSZ,0)) | _BV(usart(UCSZ,1)) | _BV_URSEL; \
     /*enable the RX interrupt and receiver and transmitter */\
