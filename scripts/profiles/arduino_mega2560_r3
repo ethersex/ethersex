@@ -67,7 +67,7 @@ BOOTLOADER_SIZE=0
 BOOTLOADER_START_ADDRESS=0x40000
 FLASH_SIZE=0x40000
 EEPROM_SIZE=0x1000
-RAM_SIZE=0x2000
+RAM_SIZE=0x2200
 FLASH_PAGESIZE=0x100
 EEPROM_PAGESIZE=0x8
 # CRC_PAD_SUPPORT is not set
@@ -76,7 +76,7 @@ EEPROM_PAGESIZE=0x8
 # SPI_TIMEOUT is not set
 # USART_SPI_SUPPORT is not set
 # SOFT_SPI_SUPPORT is not set
-GIT_VERSION="5e0df6b"
+GIT_VERSION="15356a6"
 # DEBUG_DISCARD_SOME is not set
 # DEBUG is not set
 # DEBUG_USE_SYSLOG is not set
@@ -1058,10 +1058,12 @@ TANKLEVEL_HOLD_TIME=20
 # AVRDUDE configuration
 #
 # _2232HIO is not set
+# _4232h is not set
 # _89isp is not set
 # abcmini is not set
 # alf is not set
 # arduino is not set
+# _arduino_ft232r is not set
 # atisp is not set
 # avr109 is not set
 # avr910 is not set
@@ -1075,12 +1077,15 @@ TANKLEVEL_HOLD_TIME=20
 # blaster is not set
 # bsd is not set
 # buspirate is not set
+# buspirate_bb is not set
 # butterfly is not set
 # butterfly_mk is not set
+# bwmega is not set
 # c2n232i is not set
 # dapa is not set
 # dasa is not set
 # dasa3 is not set
+# diecimila is not set
 # dragon_dw is not set
 # dragon_hvsp is not set
 # dragon_isp is not set
@@ -1090,6 +1095,8 @@ TANKLEVEL_HOLD_TIME=20
 # dt006 is not set
 # _ere_isp_avr is not set
 # _frank_stk200 is not set
+# ft232r is not set
+# ft245r is not set
 # futurlec is not set
 # jtag1 is not set
 # jtag1slow is not set
@@ -1100,13 +1107,22 @@ TANKLEVEL_HOLD_TIME=20
 # jtag2isp is not set
 # jtag2pdi is not set
 # jtag2slow is not set
+# jtag3 is not set
+# jtag3dw is not set
+# jtag3isp is not set
+# jtag3pdi is not set
 # jtagkey is not set
 # jtagmkI is not set
 # jtagmkII is not set
 # jtagmkII_avr32 is not set
+# lm3s811 is not set
 # mib510 is not set
 # mkbutterfly is not set
+# nibobee is not set
+# _o_link is not set
+# openmoko is not set
 # pavr is not set
+# pickit2 is not set
 # picoweb is not set
 # _pony_stk200 is not set
 # ponyser is not set
@@ -1123,6 +1139,7 @@ stk500=y
 # stk600hvsp is not set
 # stk600pp is not set
 # usbasp is not set
+# _usbasp_clone is not set
 # usbtiny is not set
 # wiring is not set
 # xil is not set

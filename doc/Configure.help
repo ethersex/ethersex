@@ -3444,3 +3444,16 @@ DEBUG_HD44780_I2C
 
   This logs the commands send to and read from to LCD via I2C
 
+MODBUS_BAUDRATE
+  Select the baudrate of the serial port for MODBUS RTU (RS485) application
+  
+  Typical values for Modbus applications are:
+  9600
+  19200
+  38400
+
+MODBUS_USART_CONFIG_8N1
+  Select the port mode you want to use with MODBUS:
+  8E1 stands for: 8 data bits, even parity, 1 stop bit (Modbus default)
+  8N1 stands for: 8 data bits, no parity, 1 stop bit
+

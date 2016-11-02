@@ -23,6 +23,7 @@ atmega328p=y
 # atmega644 is not set
 # atmega644p is not set
 # atmega1284p is not set
+# atmega2560 is not set
 # at90can32 is not set
 # at90can64 is not set
 # at90can128 is not set
@@ -32,6 +33,7 @@ FREQ=16000000
 # antares_IO is not set
 # antares_O is not set
 # Arduino_Duemilanove is not set
+# arduino_mega2560_r3 is not set
 # beteigeuze is not set
 # conrad_probot is not set
 # ehaserl is not set
@@ -74,7 +76,7 @@ EEPROM_PAGESIZE=0x4
 # SPI_TIMEOUT is not set
 # USART_SPI_SUPPORT is not set
 # SOFT_SPI_SUPPORT is not set
-GIT_VERSION="ac826dc"
+GIT_VERSION="15356a6"
 # DEBUG_DISCARD_SOME is not set
 # DEBUG is not set
 # DEBUG_USE_SYSLOG is not set
@@ -82,6 +84,23 @@ GIT_VERSION="ac826dc"
 # SOFT_UART_SUPPORT is not set
 # DEBUG_HOOK is not set
 # DEBUG_RESET_REASON is not set
+
+#
+# Periodic / Scheduler
+#
+CONF_MTICKS_PER_SEC=50
+# PERIODIC_TIMER3_SUPPORT is not set
+CONF_PERIODIC_USE_TIMER=1
+# PERIODIC_TIMER_API_SUPPORT is not set
+# PERIODIC_ADJUST_SUPPORT is not set
+# DEBUG_PERIODIC is not set
+# DEBUG_PERIODIC_ECMD_SUPPORT is not set
+# DEBUG_PERIODIC_WAVEFORMS_SUPPORT is not set
+# DEBUG_PERIODIC_OC1A_SUPPORT is not set
+# SCHEDULER_SUPPORT is not set
+# SCHEDULER_DYNAMIC_SUPPORT is not set
+CONF_SCHEDULER_NUM_DYNAMIC_TIMERS=8
+# DEBUG_SCHEDULER_SUPPORT is not set
 STATUSLEDS=y
 # STATUSLED_POWER_SUPPORT is not set
 # STATUSLED_BOOTED_SUPPORT is not set
@@ -266,7 +285,6 @@ CONF_OPENVPN_PORT=1194
 # DEBUG_OPENVPN is not set
 # DEBUG_ROUTER is not set
 # DEBUG_UIP is not set
-# DEBUG_NTP is not set
 # DEBUG_UNKNOWN_PACKETS is not set
 
 #
@@ -326,6 +344,8 @@ CONF_LTC1257_NUM_DEVICES=4
 # LCD Displays
 #
 # HD44780_SUPPORT is not set
+# HD44780_BACKLIGHT_SUPPORT is not set
+# HD44780_MULTIENSUPPORT is not set
 # HD44780_BACKLIGHT_INV is not set
 # HR20_LCD_SUPPORT_FULL is not set
 # S1D15G10_SUPPORT is not set
@@ -335,6 +355,7 @@ CONF_LTC1257_NUM_DEVICES=4
 # LCD_SUPPORT is not set
 # DEBUG_HD44780 is not set
 # DEBUG_LCD_MENU is not set
+# DEBUG_HD44780_I2C is not set
 
 #
 # Storage
@@ -362,6 +383,7 @@ CONF_LTC1257_NUM_DEVICES=4
 # I2C_PCF8574X_SUPPORT is not set
 # I2C_PCA9555_SUPPORT is not set
 # I2C_MAX7311_SUPPORT is not set
+# I2C_MCP23017_SUPPORT is not set
 # I2C_UDP_SUPPORT is not set
 # DEBUG_I2C is not set
 # I2C_SLAVE_SUPPORT is not set
@@ -450,26 +472,6 @@ REMOTE_IRMP_PORT=10001
 # DEBUG_IRMP is not set
 # DEBUG_REMOTE_IRMP is not set
 # PSB2186_SUPPORT is not set
-# PWM_SUPPORT is not set
-# PWM_GENERAL_SUPPORT is not set
-# PWM_GENERAL_INVERT_SUPPORT is not set
-# PWM_GENERAL_FADING_SUPPORT is not set
-# CH_A_PWM_GENERAL_SUPPORT is not set
-# CH_B_PWM_GENERAL_SUPPORT is not set
-# CH_C_PWM_GENERAL_SUPPORT is not set
-# PWM_WAV_SUPPORT is not set
-# VFS_PWM_WAV_SUPPORT is not set
-# PWM_MELODY_SUPPORT is not set
-# ENTCHEN_PWM_MELODY_SUPPORT is not set
-# TETRIS_PWM_MELODY_SUPPORT is not set
-# PWM_SERVO_SUPPORT is not set
-PWM_SERVOS=1
-# PWM_SERVO_INVERT is not set
-# PWM_SERVO_DEFAULT_ENABLED is not set
-# PWM_FREQ_SUPPORT is not set
-# PWM_DTMF_SUPPORT is not set
-# DEBUG_PWM is not set
-# DEBUG_PWM_SERVO is not set
 # ONEWIRE_SUPPORT is not set
 # ONEWIRE_DETECT_SUPPORT is not set
 # ONEWIRE_DS2502_SUPPORT is not set
@@ -501,6 +503,9 @@ PWM_SERVOS=1
 # ULTRASONIC_SUPPORT is not set
 # DEBUG_ULTRASONIC is not set
 # HBRIDGE_SUPPORT is not set
+# DUAL_HBRIDGE_SUPPORT is not set
+# SHARE_ENABLE_HBRIDGE_SUPPORT is not set
+# HBRIDGE_INVERTER_SUPPORT is not set
 # DEBUG_HBRIDGE is not set
 # MCUF_SUPPORT is not set
 # MCUF_SERIAL_SUPPORT is not set
@@ -545,6 +550,8 @@ MCUF_MODUL_DISPLAY_MODE_RANDOM=y
 CONF_ARTNET_PORT=6454
 CONF_ARTNET_INUNIVERSE=1
 CONF_ARTNET_OUTUNIVERSE=0
+CONF_ARTNET_OUTPUT_IP="192.168.0.255"
+# CONF_ARTNET_SEND_POLL_REPLY is not set
 # DEBUG_ARTNET is not set
 # DALI_SUPPORT is not set
 # DALI_RAW_SUPPORT is not set
@@ -585,12 +592,6 @@ FREE_SUPPORT=y
 # DEBUG_ECMD_SCRIPT is not set
 # ELTAKOMS_SUPPORT is not set
 # EMS_SUPPORT is not set
-EMS_BUFFER_LEN=64
-EMS_PORT=7950
-# EMS_DEBUG_STATS is not set
-# EMS_PROTO_DEBUG is not set
-# EMS_IO_DEBUG is not set
-# EMS_ERROR_DEBUG is not set
 # FNORDLICHT_SUPPORT is not set
 # HTTPLOG_SUPPORT is not set
 CONF_HTTPLOG_SERVICE="volkszaehler.org"
@@ -611,6 +612,11 @@ CONF_IRC_REALNAME="Ethersex Wollmilchsau"
 # DEBUG_IRC is not set
 # MDNS_SD_SUPPORT is not set
 # MODBUS_SUPPORT is not set
+# MQTT_SUPPORT is not set
+MQTT_CALLBACK_SLOTS=1
+# MQTT_STATIC_CONF is not set
+# MQTT_DEBUG is not set
+# MQTT_PARSE_DEBUG is not set
 # MYSQL_SUPPORT is not set
 CONF_MYSQL_IP="192.168.23.254"
 CONF_MYSQL_USERNAME="root"
@@ -644,6 +650,8 @@ CONF_NETSTAT_API="/~habo/stat/"
 # PROTO_INTERTECHNO_SUPPORT is not set
 # PROTO_INTERTECHNO_SL_SUPPORT is not set
 # PROTO_OASEFMMASTER_SUPPORT is not set
+# PROTO_FA20RF_SUPPORT is not set
+# PROTO_SMOKEDETECTOR_SUPPORT is not set
 # SIP_SUPPORT is not set
 CONF_SIP_PROXY_IP="192.168.178.1"
 CONF_SIP_FROM="621"
@@ -734,15 +742,17 @@ DST_END_WEEK=5
 DST_END_DOW=0
 DST_END_HOUR=3
 # CLOCK_CRYSTAL_SUPPORT is not set
-# CLOCK_CPU_SUPPORT is not set
-# CLOCK_NTP_ADJUST_SUPPORT is not set
+# CLOCK_PERIODIC_SUPPORT is not set
 # DCF77_SUPPORT is not set
 # DEBUG_DCF77 is not set
 # NTP_SUPPORT is not set
+NTP_SERVER_IP="192.53.103.108"
+NTP_PORT=123
+NTP_QUERY_INTERVAL=1800
+# DEBUG_NTP is not set
 # NTPD_SUPPORT is not set
 WHM_SUPPORT=y
 # UPTIME_SUPPORT is not set
-# DEBUG_NTP_ADJUST is not set
 # CRON_SUPPORT is not set
 # CRON_DEFAULT_UTC is not set
 # CRON_SUPPORT_TEST is not set
@@ -766,6 +776,7 @@ DMX_FXSLOT_AMOUNT=4
 # DMX_FX_RANDOM is not set
 # DMX_FX_FIRE is not set
 # DMX_FX_WATER is not set
+# DMX_FX_RGB is not set
 # UDP_ECHO_NET_SUPPORT is not set
 # WOL_SUPPORT is not set
 # MOTD_SUPPORT is not set
@@ -809,6 +820,7 @@ STELLA_FADE_STEP_INIT=10
 STELLA_FADE_FUNCTION_INIT=stella_fade_func_0
 stella_fade_func_0=y
 # stella_fade_func_1 is not set
+# STELLA_USE_CIE1931 is not set
 # DEBUG_STELLA is not set
 # STARBURST_SUPPORT is not set
 # STARBURST_PCA9685 is not set
@@ -914,13 +926,6 @@ CONF_TIME2PRESS_POWER=40
 CONF_TIME2PRESS_POWERL=3
 # PROJECTOR_SANYO_Z700_SUPPORT is not set
 # FREQCOUNT_SUPPORT is not set
-FREQCOUNT_CHANNELS=1
-# FREQCOUNT_BOOT_ON is not set
-FREQCOUNT_AVERAGE=8
-# FREQCOUNT_NOSLOW_SUPPORT is not set
-# FREQCOUNT_DUTY_SUPPORT is not set
-# FREQCOUNT_MOVING_AVERAGE_SUPPORT is not set
-# FREQCOUNT_DEBUGGING is not set
 # TANKLEVEL_SUPPORT is not set
 TANKLEVEL_ADC_CHANNEL=0
 # TANKLEVEL_STARTUP is not set
@@ -942,10 +947,12 @@ IPV4_SUPPORT=y
 # AVRDUDE configuration
 #
 # _2232HIO is not set
+# _4232h is not set
 # _89isp is not set
 # abcmini is not set
 # alf is not set
 # arduino is not set
+# _arduino_ft232r is not set
 # atisp is not set
 # avr109 is not set
 # avr910 is not set
@@ -960,12 +967,15 @@ avrispmkII=y
 # blaster is not set
 # bsd is not set
 # buspirate is not set
+# buspirate_bb is not set
 # butterfly is not set
 # butterfly_mk is not set
+# bwmega is not set
 # c2n232i is not set
 # dapa is not set
 # dasa is not set
 # dasa3 is not set
+# diecimila is not set
 # dragon_dw is not set
 # dragon_hvsp is not set
 # dragon_isp is not set
@@ -975,6 +985,8 @@ avrispmkII=y
 # dt006 is not set
 # _ere_isp_avr is not set
 # _frank_stk200 is not set
+# ft232r is not set
+# ft245r is not set
 # futurlec is not set
 # jtag1 is not set
 # jtag1slow is not set
@@ -985,13 +997,22 @@ avrispmkII=y
 # jtag2isp is not set
 # jtag2pdi is not set
 # jtag2slow is not set
+# jtag3 is not set
+# jtag3dw is not set
+# jtag3isp is not set
+# jtag3pdi is not set
 # jtagkey is not set
 # jtagmkI is not set
 # jtagmkII is not set
 # jtagmkII_avr32 is not set
+# lm3s811 is not set
 # mib510 is not set
 # mkbutterfly is not set
+# nibobee is not set
+# _o_link is not set
+# openmoko is not set
 # pavr is not set
+# pickit2 is not set
 # picoweb is not set
 # _pony_stk200 is not set
 # ponyser is not set
@@ -1007,6 +1028,7 @@ avrispmkII=y
 # stk600hvsp is not set
 # stk600pp is not set
 # usbasp is not set
+# _usbasp_clone is not set
 # usbtiny is not set
 # wiring is not set
 # xil is not set
