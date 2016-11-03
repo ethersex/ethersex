@@ -135,6 +135,26 @@ usart_init(void) \
   } \
 }
 
+  /* init the usart module (8E1) */
+#define generate_usart_init_8E1() \
+static void \
+usart_init(void) \
+{\
+  /* The ATmega644 datasheet suggests to clear the global\
+   * interrupt flags on initialization ... */\
+  ATOMIC_BLOCK(ATOMIC_RESTORESTATE) \
+  { \
+    usart(UBRR,H) = UBRRH_VALUE; \
+    usart(UBRR,L) = UBRRL_VALUE; \
+    /* set mode 8E1: 8 bits, 1 stop, even parity, asynchronous usart \
+     * and set URSEL, if present, */ \
+    usart(UCSR,C) =  _BV(usart(UPM,1)) | _BV(usart(UCSZ,0)) | _BV(usart(UCSZ,1)) | _BV_URSEL; \
+    /*enable the RX interrupt and receiver and transmitter */\
+     usart(UCSR,B) |= _BV(usart(TXEN)) | _BV(usart(RXEN)) | _BV(usart(RXCIE)); \
+    /* Set or not set the 2x mode */ \
+    USART_2X(); \
+  } \
+}
   /* init the usart module (8E2) */
 #define generate_usart_init_8E2() \
 static void \

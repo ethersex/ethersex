@@ -1,9 +1,14 @@
 usart_count_used
 if [ "$MODBUS_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
-  dep_bool "Modbus Support" MODBUS_SUPPORT 
+  dep_bool_menu "Modbus Support" MODBUS_SUPPORT 
     if [ "$MODBUS_SUPPORT" = y ]; then
       choice '  Modbus usart select' "$(usart_choice MODBUS)"
       usart_process_choice MODBUS
+      int    "  Modbus usart baudrate" MODBUS_BAUDRATE 9600
+      choice '  Modbus usart config'   \
+            "8N1            MODBUS_USART_CONFIG_8N1          \
+             8E1            MODBUS_USART_CONFIG_8E1" \
+            '8E1' MODBUS_USART_CONFIG
     fi
     if [ "$MODBUS_SUPPORT" = y ]; then
       bool "  Modbus Client Stack" MODBUS_CLIENT_SUPPORT  n
@@ -14,6 +19,8 @@ if [ "$MODBUS_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
     if [ "$MODBUS_CLIENT_SUPPORT" = y ]; then
       int "  Modbus Client Broadcast" MODBUS_BROADCAST 255
     fi
+  comment "  Remember to customize RS485 direction pin in pinning/hardware"
+  endmenu
 else
   define_bool MODBUS_SUPPORT n
 	comment "MODBUS not available. No free usart. ($USARTS_USED/$USARTS)"

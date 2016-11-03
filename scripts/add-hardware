@@ -476,6 +476,12 @@ FNORD
     pin(PSB2186_ALE, PD4, OUTPUT)
 FNORD
 
+  template $MODBUS_SUPPORT << FNORD
+    /* port config for RS485 */
+    /* used by MODBUS and bidirectional DMX */
+    pin(pin(RS485TE_USART0, PD3, OUTPUT)
+FNORD
+
 fi
 
 ) > "pinning/hardware/$hw.m4"
