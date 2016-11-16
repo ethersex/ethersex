@@ -108,7 +108,7 @@ int16_t parse_cmd_io(char *cmd, char *output, uint16_t len)
     return ECMD_ERR_PARSE_ERROR;
   /* translate it to the portaddress */
   
-#ifndef PINA
+#ifdef PINA
   switch (value)
 #else
   switch (value + 1)
