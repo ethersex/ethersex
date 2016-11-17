@@ -38,17 +38,17 @@ Make targets
 ====================
 
 Configuration targets:
-  menuconfig   - Update current config utilising a menu based program (default when .config does not exist)
+  - menuconfig    - Update current config utilising a menu based program (default when .config does not exist)
 
 Cleaning targets:
-  clean        - Remove bin and dep files
-  fullclean    - Same as clean, but also remove object files
-  mrproper     - Same as fullclean, but also remove all config files
+  - clean         - Remove bin and dep files
+  - fullclean     - Same as clean, but also remove object files
+  - mrproper      - Same as fullclean, but also remove all config files
 
 Information targets:
-  show-config  - show enabled modules
-  size-info    - show size information of compiled binary
+  - show-config   - show enabled modules
+  - size-info     - show size information of compiled binary
 
 Other generic targets:
-  all          - Build everything as specified in .config (default if .config exists)
-  v            - Same as all but with logging to make.log enabled
+  - all           - Build everything as specified in .config (default if .config exists)
+  - v             - Same as all but with logging to make.log enabled
