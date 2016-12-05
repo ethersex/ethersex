@@ -49,11 +49,9 @@ static void rfm12_txstart_hard(void);
 
 #ifdef RFM12_INT_VECTOR
 ISR(RFM12_INT_VECTOR)
-#elif defined(RFM12_USE_POLL)
+#else
 void
 rfm12_int_process(void)
-#else
-ISR(RFM12_VECTOR)               /* PCINT */
 #endif
 {
 #ifdef HAVE_RFM12_PCINT
@@ -62,7 +60,7 @@ ISR(RFM12_VECTOR)               /* PCINT */
 #endif
 
   rfm12_modul_set_active(RFM12_MODULE_IP);
-  uint16_t status = rfm12_trans(RFM12_CMD_STATUS);
+  uint16_t status = rfm12_get_status();
 
   if (status & RFM12_STATUS_POR)
   {
@@ -209,11 +207,18 @@ ISR(RFM12_VECTOR)               /* PCINT */
 
     case RFM12_OFF:
     case RFM12_NEW:
-      rfm12_trans(RFM12_CMD_STATUS);    /* clear interrupt flags in RFM12 */
+      rfm12_get_status();    /* clear interrupt flags in RFM12 */
   }
   if (rfm12_status >= RFM12_TX)
     _uip_buf_lock = 8;
 }
+
+#ifdef HAVE_RFM12_PCINT
+ISR(RFM12_VECTOR)               /* PCINT */
+{
+  rfm12_int_process();
+}
+#endif /* HAVE_RFM12_PCINT */
 
 void
 rfm12_net_init(void)
@@ -238,7 +243,7 @@ rfm12_net_init(void)
 #endif
 
 #ifdef DEBUG
-  uint16_t result = rfm12_trans(RFM12_CMD_STATUS);
+  uint16_t result = rfm12_get_status();
   RFM12_DEBUG("rfm12_net/init: %x", result);
 #endif
 
@@ -269,7 +274,7 @@ rfm12_net_init(void)
   rfm12_rxstart();
 
 #ifdef DEBUG
-  result = rfm12_trans(RFM12_CMD_STATUS);
+  result = rfm12_get_status();
   RFM12_DEBUG("rfm12_net/init'd: %x", result);
 #endif
 #endif /* !RFM12_DISABLE */
@@ -479,6 +484,6 @@ rfm12_process(void)
   -- Ethersex META --
   header(hardware/radio/rfm12/rfm12_net.h)
   mainloop(rfm12_process)
-  ifdef(`conf_RFM12_USE_POLL',`mainloop(rfm12_int_process)')
+  mainloop(rfm12_int_process)
   init(rfm12_net_init)
 */

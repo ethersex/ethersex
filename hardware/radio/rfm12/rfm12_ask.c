@@ -100,7 +100,7 @@ rfm12_ask_init(void)
 #endif
 
 #ifdef DEBUG
-  uint16_t result = rfm12_trans(RFM12_CMD_STATUS);
+  uint16_t result = rfm12_get_status();
   RFM12_DEBUG("rfm12_ask/init: %x", result);
 #endif
 

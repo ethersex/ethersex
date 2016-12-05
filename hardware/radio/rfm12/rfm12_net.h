@@ -102,7 +102,7 @@ void rfm12_process(void);
 #define rfm12_int_disable() do { } while(0)
 #endif
 
-#if !defined(RFM12_USE_POLL) || !defined(RFM12_IP_SUPPORT)
+#if !(defined(RFM12_USE_POLL) || defined(HAVE_RFM12_PCINT)) || !defined(RFM12_IP_SUPPORT)
 #define rfm12_int_process()  do { } while(0)
 #endif
 
