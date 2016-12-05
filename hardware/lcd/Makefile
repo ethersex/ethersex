@@ -7,13 +7,13 @@ $(HD44780_I2CSUPPORT)_SRC   += hardware/lcd/hd44780_i2c.c
 $(HD44780_SERLCD)_SRC       += hardware/lcd/hd44780_serlcd.c
 $(HD44780_2WIRE)_SRC        += hardware/lcd/hd44780_2wire.c
 $(HD44780_SUPPORT)_ECMD_SRC += hardware/lcd/ecmd.c
+$(HD44780_CHARCONV_SUPPORT)_SRC   += hardware/lcd/hd44780_charconv.c
 
 $(HR20_LCD_SUPPORT_FULL)_SRC += hardware/lcd/hr20.c
 $(HR20_LCD_SUPPORT_FULL)_ECMD_SRC += hardware/lcd/hr20-ecmd.c
 
 $(HR20_LCD_SUPPORT)_SRC += hardware/lcd/hr20.c
 $(HR20_LCD_ECMD_SUPPORT)_ECMD_SRC += hardware/lcd/hr20-ecmd.c
-
 
 ##############################################################################
 # generic fluff

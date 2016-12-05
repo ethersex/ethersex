@@ -24,21 +24,21 @@ Debug output channel
 usart
 
   Debug output channel choices
-  
+
   Route debug messages to either USART, Soft-UART or a remote
   syslog host. The options shown depend on other settings.
-  
+
   USART
   The MCU must provide at least one unused USART. The USART used
   for debugging output may be shared with the ECMD-Protocol, sharing
   with other modules is not supported.
-  
+
   Software-UART
   Debug messages may be routed to a software-based UART. The soft-UART
   only needs one pin for TxD and no interrupts. Baudrates up to 38400
   may be achieved. The pin to use for TxD has to be defined in the
   hardware-description like this pin(SOFT_UART_TX, PD7, OUTPUT).
-  
+
   SYSLOG
   Debug messages may be send to a remote syslog host.
   This option is only available if SYSLOG support in the protocols
@@ -49,15 +49,15 @@ DEBUG_USART_0
   Select USART unit for debug messages. Smaller AVR MCUs like the
   ATmega328 have only a single USART unit, more complex MCUs like
   the ATmega1284p provide two or more.
-  
+
   The USART unit used for debugging output may be shared with the
-  ECMD-Protocol, sharing with other modules is not supported.  
-  
+  ECMD-Protocol, sharing with other modules is not supported.
+
 DEBUG_BAUDRATE
   Define baudrate for serial-line debugging.
   Transmission parameters are fixed to 8,n,1.
 
-  Typical baudrate values are: 
+  Typical baudrate values are:
   1200
   2400
   4800
@@ -66,11 +66,11 @@ DEBUG_BAUDRATE
   38400
   57600
   115200
-  
+
   Baudrates of 115200 may be only achieved using a USART. Software-UART
   is limited to the range of 19200 or 38400 baud (depends on clock
   frequency).
-  
+
 ENC28J60 CLKOUT Prescaler (ECOCON)
 ECOCON_UNSET
   Depends on:
@@ -234,10 +234,10 @@ YPORT_SUPPORT
 
   socat PTY,link=/dev/YPort TCP:192.168.1.5:7970
 
-YPort Baudrate  
+YPort Baudrate
 YPORT_BAUDRATE
   Select the Baudrate of the YPort Serial Line
-  typical values are: 
+  typical values are:
   1200
   2400
   4800
@@ -246,7 +246,7 @@ YPORT_BAUDRATE
   38400
   57600
   115200
-  
+
 YPort usart config
 YPORT_USART_CONFIG_8N1
   Select the Line Configuration for the YPort Serial Line
@@ -319,9 +319,9 @@ PROTO_INTERTECHNO_SL_SUPPORT
     - Klik aan Klik uit
     - ...
 
-Flamingo FA20RF/ELRO KD101 
+Flamingo FA20RF/ELRO KD101
 PROTO_FA20RF_SUPPORT
-  Depends on: 
+  Depends on:
    * Radio outlets (433MHz) (PROTO_ASK_SUPPORT)
 
   Enable support for the wireless interconnectable smoke detectors
@@ -329,7 +329,7 @@ PROTO_FA20RF_SUPPORT
 
   Each detector or a group of interconnected detectors has a uniq
   24bit id. By sending this id the smoke detector switches to alarm
-  mode for five seconds. 
+  mode for five seconds.
 
 RFM12 ASK external filter enables external filter Support
 RFM12_ASK_EXTERNAL_FILTER_SUPPORT
@@ -505,7 +505,7 @@ DCF77_SUPPORT
 
 Synchronize using NTP protocol
 NTP_SUPPORT
-  Depends on: 
+  Depends on:
    * System clock support (CLOCK_SUPPORT)
    * UDP support (UDP_SUPPORT)
 
@@ -542,7 +542,7 @@ NTP_QUERY_INTERVAL
 
 NTP daemon
 NTPD_SUPPORT
-  Depends on: 
+  Depends on:
    * System clock support (CLOCK_SUPPORT)
    * Use 32 kHz crystal to tick the clock (CLOCK_CRYSTAL_SUPPORT)
    * UDP support (UDP_SUPPORT)
@@ -2237,7 +2237,7 @@ ONEWIRE_SUPPORT
 
 Onewire DS18XX (temperature) support
 ONEWIRE_DS18XX_SUPPORT
-  Depends on: 
+  Depends on:
    * Onewire support (ONEWIRE_SUPPORT)
 
   Support DS1820, DS18B20 and DS1822 1-wire temperature sensors.
@@ -2249,7 +2249,7 @@ ONEWIRE_DS2502_SUPPORT
 
 Onewire DS2450 (4 channel ADC) support
 ONEWIRE_DS2450_SUPPORT
-  Depends on: 
+  Depends on:
    * Onewire support (ONEWIRE_SUPPORT)
 
   Support DS2450 1-wire 4 channel ADC.
@@ -2335,7 +2335,7 @@ OW_SENSORS_COUNT
 
 1w list
 ONEWIRE_ECMD_LIST_SUPPORT
-  Depends on: 
+  Depends on:
    * Onewire support (ONEWIRE_SUPPORT)
 
   List detected 1-wire sensors.
@@ -2626,11 +2626,6 @@ HTTPLOG_BUFFER_LEN
 
   The len for the internal buffer used for HTTPLOG strings. This
   buffer is dynamicallay allocated for each request.
-
-Backlight support
-HD44780_BACKLIGHT_SUPPORT
-
-  Backlight support for LCDs based on the HD44780 controller.
 
 Tank level meter
 TANKLEVEL_SUPPORT
@@ -3212,7 +3207,7 @@ DHT_SNMP_SUPPORT
 
 BSBPort Support
 BSBPORT_SUPPORT
-  Depends on: 
+  Depends on:
    * TCP support (TCP_SUPPORT)
 
   Connect to BSB (BoilerSystemBus) a protocol used by many Siemens and Brötje heatingcontrollers (ex. Brötje ISR,RVS,AVS,RGT).
@@ -3221,7 +3216,7 @@ BSBPORT_SUPPORT
 
 IO: UDP Protocol
 IOUDP_PROTOCOL_SUPPORT
-  Depends on: 
+  Depends on:
    * I/O abstraction model (Port I/O) (PORTIO_FULL_FEATURED)
    * UDP support (UDP_SUPPORT)
 
@@ -3233,7 +3228,7 @@ IOUDP_PROTOCOL_SUPPORT
 
 Remote IRMP
 REMOTE_IRMP_SUPPORT
-  Depends on: 
+  Depends on:
    * IRMP IR (IRMP_SUPPORT)
    * UDP support (UDP_SUPPORT)
 
@@ -3268,7 +3263,7 @@ BSBPORT_OWNADDRESS
 
 BSBPORT Polling Support
 BSBPORT_POLLING_SUPPORT
-  Depends on: 
+  Depends on:
    * BSBPort Support (BSBPORT_SUPPORT)
 
   If activated one query defined in bsbport_polling.c get executed every 3sec.
@@ -3291,7 +3286,7 @@ BSBPORT_MQTT_TOPIC
 
 FAT date/time support
 SD_DATETIME_SUPPORT
-  Depends on: 
+  Depends on:
    * SD/MMC-Card Filesystem (VFS_SD_SUPPORT)
    * System clock support (CLOCK_SUPPORT)
    * Date and Time support (CLOCK_DATETIME_SUPPORT)
@@ -3305,22 +3300,22 @@ CONF_MTICKS_PER_SEC
   Specify the periodic tick rate. The periodic framework generates
   ticks in intervals from 20ms (i.e. 50 Hz) down to 1ms or less,
   depending on the hardware and modules in use.
-  
+
   Periodic ticks are generated by means of interrupts. Do not set
   higher tick frequencies than required.
-  
+
   Periodic ticks have to be multiples of 50. Usable range is
   50..2000. Default is 50.
 
 Periodic use Timer/Counter 3
 PERIODIC_TIMER3_SUPPORT
-  Depends on: 
+  Depends on:
    * y (MCU_HAS_TIMER_3_SUPPORT)
 
   Several Atmel AVR MCUs (ATmega64, ATmega128, ATmega1284p and some
   others) have a second 16 Bit Timer/Counter-Unit referred to as
   Timer/Counter3.
-  
+
   The periodic ticks framework can use this timer instead of
   Timer/Counter1.
 
@@ -3328,16 +3323,16 @@ Periodic adjust support
 PERIODIC_ADJUST_SUPPORT
 
   Enable support for periodic tick frequency adjustability.
-  
+
   Periodic tick frequency may be tuned +/-25% (or less, depending
   on the base frequency) to compensate for crystal frequency offset
   or to adjust the realtime clock.
-  
+
   Adds support for the 'periodic adjust' command, if ECMD is enabled.
 
 Periodic general debugging
 DEBUG_PERIODIC
-  Depends on: 
+  Depends on:
    * Enable Debugging (DEBUG)
 
   Enable general debug messages and functions of the
@@ -3345,7 +3340,7 @@ DEBUG_PERIODIC
 
 Read periodic debug stats via ECMD
 DEBUG_PERIODIC_ECMD_SUPPORT
-  Depends on: 
+  Depends on:
    * Periodic general debugging (DEBUG_PERIODIC)
    * ECMD (Ethersex Command) support (ECMD_PARSER_SUPPORT)
 
@@ -3354,15 +3349,15 @@ DEBUG_PERIODIC_ECMD_SUPPORT
 
 Toggle pins in periodic tick
 DEBUG_PERIODIC_WAVEFORMS_SUPPORT
-  Depends on: 
+  Depends on:
    * Periodic general debugging (DEBUG_PERIODIC)
 
   To aid hardware debugging and testing pins may be toggled at *half*
   the periodic tick and HZ frequencies. This might be useful to verify
   and adjust the frequencies or to investigate some missing milliticks.
-  
+
   Output pins have to be defined in your hardware m4 profile:
-  
+
   dnl Example Net-IO use ADC1 / ADC2 screw terminal
   ifdef(`conf_DEBUG_PERIODIC_WAVEFORMS', `dnl
     pin(PERIODIC_WAVE25HZ_OUT, PA4, OUTPUT)
@@ -3371,18 +3366,18 @@ DEBUG_PERIODIC_WAVEFORMS_SUPPORT
 
 Enable toggling of Timer/Counter OC1A-Pin
 DEBUG_PERIODIC_OC1A_SUPPORT
-  Depends on: 
+  Depends on:
    * Toggle pins in periodic tick (DEBUG_PERIODIC_WAVEFORMS_SUPPORT)
    * Periodic general debugging (DEBUG_PERIODIC)
 
   Toggle OC1A at *half* the periodic tick frequency using the MCUs
   hardware compare as a reference signal.
-  
+
   dnl OC1A aka PD5 can be found on the Net-IO Ext connector pin 4
   ifdef(`conf_DEBUG_PERIODIC_OC1A', `dnl
     pin(PERIODIC_OC1A_OUT, PD5, OUTPUT)dnl
   ')dnl
-  
+
   NOTE: Only available if Timer/Counter3 is *not* enabled.
 
 Periodic timer API support
@@ -3398,16 +3393,16 @@ PERIODIC_TIMER_API_SUPPORT
 
 Enable timer/task scheduler
 SCHEDULER_SUPPORT
-  Depends on: 
+  Depends on:
 
   Enable the new scheduler framework.
- 
+
   Doing this is generally a good thing, unless you are using
   a *very* low end MCU.
 
 Enable dynamic timers/tasks
 SCHEDULER_DYNAMIC_SUPPORT
-  Depends on: 
+  Depends on:
    * Enable timer/task scheduler (SCHEDULER_SUPPORT)
 
   Enable support for dynamic timers.
@@ -3423,7 +3418,7 @@ CONF_SCHEDULER_NUM_DYNAMIC_TIMERS
 
 I2C MCP23017 16-bit port extension
 I2C_MCP23017_SUPPORT
-  Depends on: 
+  Depends on:
    * I2C master (I2C_MASTER_SUPPORT)
 
   Microchip MCP23017 16-bit I/O Expander support.
@@ -3431,37 +3426,9 @@ I2C_MCP23017_SUPPORT
   The MCP23017 is a very common and cheap I2C 16-bit I/O expander
   available in various packages including PDIP.
 
-Invert Backlight switch
-HD44780_BACKLIGHT_INV
-  Depends on: 
-   * HD44780 module driver (Character-LCD) (HD44780_SUPPORT)
-   * Backlight support (HD44780_BACKLIGHT_SUPPORT)
-
-  Backlight is low active. Currently this is implemented for I2C connected HD44780 LCDs only.
-
-Multiple ENABLE support
-HD44780_MULTIENSUPPORT
-  Depends on: 
-   * HD44780 module driver (Character-LCD) (HD44780_SUPPORT)
-
-  Some displays with multiple lines are based on more than one HD44780 controller. 
-  One example is the WDC2704M module with four lines a 27 characters.
-  To display text  on the display's e.G. third line the command needs to be sent to the second controller.
-  Not to double the data lines the different controller can be selected by EN lines.
-  This option takes care of selecting the controller according to the line number.
-
-
-HD44780_I2C
-DEBUG_HD44780_I2C
-  Depends on: 
-   * Enable Debugging (DEBUG)
-   *  (HD44780_I2CSUPPORT)
-
-  This logs the commands send to and read from to LCD via I2C
-
 MODBUS_BAUDRATE
   Select the baudrate of the serial port for MODBUS RTU (RS485) application
-  
+
   Typical values for Modbus applications are:
   9600
   19200
@@ -3472,3 +3439,153 @@ MODBUS_USART_CONFIG_8N1
   8E1 stands for: 8 data bits, even parity, 1 stop bit (Modbus default)
   8N1 stands for: 8 data bits, no parity, 1 stop bit
 
+HD44780 module driver (Character-LCD)
+HD44780_SUPPORT
+  Depends on:
+   * y (ARCH_AVR)
+
+  Add support for alphanumeric character LCDs based on HD44780 and
+  compatible controllers.
+
+HD44780_TYPE_8C_1L
+  Select one of the defined display sizes and address configurations:
+
+  8_Characters_1_Line - 1 line, 8 Chars starting at addr 0x00
+  16_Characters_1_Line - 1 line, 16 Chars starting at addr 0x00
+  16_Characters_1_Line_Mux16 - 1 line, 16 Chars, org as 2x8 at 0x00 and 0x40
+  20_Characters_1_Line - 1 line, 20 Chars starting at 0x00
+  40_Characters_1_Line - 1 line, 40 Chars starting at 0x00
+  8_Characters_2_Lines - 2 lines, 8 Chars starting at 0x00 and 0x40
+  12_Characters_2_Lines - 2 lines, 12 Chars starting at 0x00 and 0x40
+  16_Characters_2_Lines - 2 lines, 16 Chars starting at 0x00 and 0x40
+  20_Characters_2_Lines - 2 lines, 20 Chars starting at 0x00 and 0x40
+  24_Characters_2_Lines - 2 lines, 24 Chars starting at 0x00 and 0x40
+  40_Characters_2_Lines - 2 lines, 40 Chars starting at 0x00 and 0x40
+  16_Characters_4_Lines - 4 lines, 16 Chars at 0x00, 0x40, 0x10 and 0x50
+  20_Characters_4_Lines - 4 lines, 20 Chars at 0x00, 0x40, 0x14 and 0x54
+  20_Characters_4_Lines_KS0073 -
+      4 lines, 20 Chars at 0x00, 0x20, 0x40 and 0x60
+  27_Characters_4_Lines_2_EN -
+      4 lines, 27 Chars starting at 0x00, 0x40 with two controllers
+  40_Characters_4_Lines_2_EN -
+      4 lines, 40 Chars starting at 0x00, 0x40 with two controllers
+
+  You might have a look at the defines in hardware/lcd/hd44780.h.
+
+HD44780_CONTR_COMPAT
+  Select LCD controller circuit:
+
+  HD44780_Compat - most controllers are compatible to Hitachis HD44780
+  KS0066U - Samsungs KS0066U requires a different init routine
+
+  Almost all controllers for alphanumeric character LCDs are more
+  or less HD44780-compatible at least at the feature- and function-
+  level required by e6.
+
+  If in doubt, choose HD44780_Compat.
+
+HD44780_CHARSET_NONE
+  Select charset conversion used while writing to the lcd:
+
+  None -
+      use no charset conversion at all (safes program mem)
+  HD44780_Compat -
+      map characters from ISO8859-1 to the original HD44780 charset
+
+  Allmost all controllers use their own non-ISO-compatible charset,
+  varying between manufacturers, rom versions, etc. that provides
+  characters from western languages as well as japanese, chinese
+  and graphical glyphs.
+
+  Charset conversion might become useful if you have to display
+  messages and texts from external resources that uses standard
+  encodings for their charset like ISO8859-1.
+
+  Note: Charset conversion uses a lookup table and requires about
+  272 byte program memory (flash rom).
+
+HD44780_DIREKT
+  Select the connection type for the LCD:
+
+  Direct - direct connection using avr io-pins
+  I2C - uses sub-selection of I2C port expander
+  SER_LCD(74hct164) - serial connection using HCT164 shift register
+  2WIRE(74hct4094) - serial connection using HCT4094 shift register
+
+  You might have a look at scripts/add-hardware for the necessary
+  macros for hardware and pinning description.
+
+HD44780_I2C_PCF8574
+  Select I2C Port Expander to use:
+
+  PCF8574 - use PCF8574x as I2C port expander
+  MCP23017 -  use MCP23017 as I2C port expander
+
+  Note: automatically enables I2C_MASTER_SUPPORT and
+  I2C_PCF8574X_SUPPORT resp. I2C_MCP23017_SUPPORT
+  when selected.
+
+  You might have a look at scripts/add-hardware for the necessary
+  macros for hardware and pinning description.
+
+Readback support
+HD44780_READBACK_SUPPORT
+  Depends on:
+   * HD44780 module driver (Character-LCD) (HD44780_SUPPORT)
+
+  Enable support for bi-directional lcd bus to read LCDs busy flag.
+  Supported by direct and I2C connection only.
+
+  You definitly should use a readback capable hardware and enable
+  this feature, saves lots of delays.
+
+Backlight support
+HD44780_BACKLIGHT_SUPPORT
+  Depends on:
+   * HD44780 module driver (Character-LCD) (HD44780_SUPPORT)
+
+  Backlight support for LCDs based on the HD44780 controller.
+
+  Enable backlight on/off control via API and ECMD.
+
+Backlight on at power-on
+HD44780_BACKLIGHT_POWERON
+  Depends on:
+   * HD44780 module driver (Character-LCD) (HD44780_SUPPORT)
+   * Backlight support (HD44780_BACKLIGHT_SUPPORT)
+
+  Switch on backlight at power-on/reset.
+
+Invert Backlight switch
+HD44780_BACKLIGHT_INV
+  Depends on:
+   * HD44780 module driver (Character-LCD) (HD44780_SUPPORT)
+   * Backlight support (HD44780_BACKLIGHT_SUPPORT)
+
+  Invert backlight logic for low active backlight circuits e.g. found
+  on AVR NET-IO Add-on.
+
+HD44780
+DEBUG_HD44780
+  Depends on:
+   * Enable Debugging (DEBUG)
+   * HD44780 module driver (Character-LCD) (HD44780_SUPPORT)
+
+  Enable HD44780 general debugging.
+
+HD44780_I2C
+DEBUG_HD44780_I2C
+  Depends on:
+   * Enable Debugging (DEBUG)
+   *  (HD44780_I2CSUPPORT)
+
+  This logs the commands send to and read from to LCD via I2C.
+
+HD44780 Charconv
+DEBUG_HD44780_CHARCONV
+  Depends on:
+   * Enable Debugging (DEBUG)
+   * y (HD44780_CHARCONV_SUPPORT)
+
+  Add ECMD command (lcd print charset) to aid compilation of charset
+  tables and debugging of charset conversion.

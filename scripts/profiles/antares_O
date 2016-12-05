@@ -67,7 +67,7 @@ BOOTLOADER_SIZE=8192
 BOOTLOADER_START_ADDRESS=0x1E000
 FLASH_SIZE=0x20000
 EEPROM_SIZE=0x1000
-RAM_SIZE=0x1100
+RAM_SIZE=0x1000
 FLASH_PAGESIZE=0x100
 EEPROM_PAGESIZE=0x8
 # CRC_PAD_SUPPORT is not set
@@ -76,7 +76,7 @@ EEPROM_PAGESIZE=0x8
 SPI_TIMEOUT=y
 # USART_SPI_SUPPORT is not set
 # SOFT_SPI_SUPPORT is not set
-GIT_VERSION="15356a6"
+GIT_VERSION="4149e721"
 # DEBUG_DISCARD_SOME is not set
 DEBUG=y
 # usart is not set
@@ -337,9 +337,6 @@ CONF_LTC1257_NUM_DEVICES=4
 # LCD Displays
 #
 # HD44780_SUPPORT is not set
-# HD44780_BACKLIGHT_SUPPORT is not set
-# HD44780_MULTIENSUPPORT is not set
-# HD44780_BACKLIGHT_INV is not set
 # HR20_LCD_SUPPORT_FULL is not set
 # S1D15G10_SUPPORT is not set
 # ST7626_SUPPORT is not set
@@ -347,7 +344,7 @@ CONF_LTC1257_NUM_DEVICES=4
 # DEBUG_S1D13305 is not set
 # LCD_SUPPORT is not set
 # DEBUG_HD44780 is not set
-# DEBUG_LCD_MENU is not set
+# DEBUG_HD44780_CHARCONV is not set
 # DEBUG_HD44780_I2C is not set
 
 #
@@ -479,20 +476,21 @@ ONEWIRE_SUPPORT=y
 ONEWIRE_DS18XX_SUPPORT=y
 # ONEWIRE_DS2502_SUPPORT is not set
 # ONEWIRE_DS2450_SUPPORT is not set
-ONEWIRE_ECMD_LIST_SUPPORT=y
+ONEWIRE_DEVICES=y
 OW_DISCOVER_INTERVAL=1500
 OW_POLLING_INTERVAL=3000
-# ONEWIRE_HOOK_SUPPORT is not set
-ONEWIRE_ECMD_LIST_VALUES_SUPPORT=y
-# ONEWIRE_ECMD_LIST_POWER_SUPPORT is not set
 # ONEWIRE_NAMING_SUPPORT is not set
+# ONEWIRE_HOOK_SUPPORT is not set
 OW_SENSORS_COUNT=10
 # ONEWIRE_SNMP_SUPPORT is not set
+ONEWIRE_ECMD_LIST_SUPPORT=y
+ONEWIRE_ECMD_LIST_VALUES_SUPPORT=y
+# ONEWIRE_ECMD_LIST_POWER_SUPPORT is not set
+# DEBUG_OW_POLLING is not set
 # DEBUG_ECMD_OW_ROM is not set
 # DEBUG_ECMD_OW_LIST is not set
 # DEBUG_OW_DS2450_CORE is not set
 # DEBUG_OW_DS2450_ECMD is not set
-# DEBUG_OW_POLLING is not set
 # HR20_INPUT_SUPPORT is not set
 # PS2_SUPPORT is not set
 # PS2_GERMAN_LAYOUT is not set
@@ -1038,11 +1036,17 @@ IPV4_SUPPORT=y
 # _2232HIO is not set
 # _4232h is not set
 # _89isp is not set
+# C232HM is not set
+# UM232H is not set
 # abcmini is not set
 # alf is not set
 # arduino is not set
 # _arduino_ft232r is not set
 # atisp is not set
+# atmelice is not set
+# atmelice_dw is not set
+# atmelice_isp is not set
+# atmelice_pdi is not set
 # avr109 is not set
 # avr910 is not set
 # avr911 is not set
@@ -1073,6 +1077,8 @@ avrispmkII=y
 # dragon_pp is not set
 # dt006 is not set
 # _ere_isp_avr is not set
+# flip1 is not set
+# flip2 is not set
 # _frank_stk200 is not set
 # ft232r is not set
 # ft245r is not set
@@ -1116,11 +1122,17 @@ avrispmkII=y
 # stk600 is not set
 # stk600hvsp is not set
 # stk600pp is not set
+# ttl232r is not set
+# tumpa is not set
+# uncompatino is not set
 # usbasp is not set
 # _usbasp_clone is not set
 # usbtiny is not set
 # wiring is not set
 # xil is not set
+# xplainedmini is not set
+# xplainedmini_dw is not set
+# xplainedpro is not set
 AVRDUDE_PROGRAMMER=avrispmkII
 CONFIG_AVRDUDE_PORT="usb"
 AVRDUDE_PORT=usb

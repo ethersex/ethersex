@@ -54,12 +54,15 @@ ifdef(`conf_DCF77', `dnl
 ')dnl
 
 ifelse(value_HD44780_CONNECTION,`HD44780_I2CSUPPORT',`dnl
-  ifelse(value_HD44780_TYPE,`HD44780_WDC2704',
-    `dnl
-       dnl HD44780_PCF8574x_MULTI_MAPPING(ADR,RS,RW,EN1,EN2,DB4,DB5,DB6,DB7)
-       HD44780_PCF8574x_MULTI_MAPPING(0x20, 4, 5, 6, 7, 0, 1, 2, 3)',
-    `dnl
-       dnl HD44780_PCF8574x_MAPPING(ADR,RS,RW,EN,DB4,DB5,DB6,DB7,BL)
-       HD44780_PCF8574x_MAPPING(0x20, 4, 5, 6, 0, 1, 2, 3, 7)
-  ')
+  ifelse(value_HD44780_I2C_PORTEXP,`HD44780_I2C_PCF8574',`dnl
+    ifdef(`conf_HD44780_MULTIEN',
+      `dnl
+         dnl HD44780_PCF8574x_MULTI_MAPPING(ADR, RS, RW, EN1, EN2, DB4, DB5, DB6, DB7)
+         HD44780_PCF8574x_MULTI_MAPPING(0x20, 4, 5, 6, 7, 0, 1, 2, 3)',
+      `dnl
+         dnl HD44780_PCF8574x_MAPPING(ADR, RS, RW, EN, DB4, DB5, DB6, DB7, BL)
+         HD44780_PCF8574x_MAPPING(0x20, 4, 5, 6, 0, 1, 2, 3, 7)'
+    )dnl
+  ')dnl
 ')dnl
+
