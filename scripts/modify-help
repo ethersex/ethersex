@@ -27,7 +27,7 @@ ITEM=$1; shift
 response=`grep -n -e "^$ITEM" $HELPFILE`
 
 if [ $? = 0 ]; then
-  l_editor $HELPFILE `echo $response | line | sed -e 's/:.*//'`
+  l_editor $HELPFILE `echo $response | sed -e '1!d;s/:.*//'`
   exit 0
 fi
 
