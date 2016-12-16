@@ -197,11 +197,15 @@ parse_cmd_lcd_shift(char *cmd, char *output, uint16_t len)
   if (strlen(cmd) < 1)
     return ECMD_ERR_PARSE_ERROR;
 
-  if (!strncmp_P(cmd + 1, PSTR("right"), 5))
+  /* Skip leading spaces. */
+  while (*cmd == ' ')
+    cmd++;
+
+  if (!strncmp_P(cmd, PSTR("right"), 5))
   {
     hd44780_shift(1);
   }
-  else if (!strncmp_P(cmd + 1, PSTR("left"), 4))
+  else if (!strncmp_P(cmd, PSTR("left"), 4))
   {
     hd44780_shift(0);
   }
@@ -221,9 +225,13 @@ parse_cmd_lcd_backlight(char *cmd, char *output, uint16_t len)
                  (output, len,
                   hd44780_backlight_state ? PSTR("on") : PSTR("off")));
 
-  if (strncmp_P(cmd + 1, PSTR("on"), 2) == 0)
+  /* Skip leading spaces. */
+  while (*cmd == ' ')
+    cmd++;
+
+  if (strncmp_P(cmd, PSTR("on"), 2) == 0)
     hd44780_backlight(1);
-  else if (strncmp_P(cmd + 1, PSTR("off"), 3) == 0)
+  else if (strncmp_P(cmd, PSTR("off"), 3) == 0)
     hd44780_backlight(0);
   else
     return ECMD_ERR_PARSE_ERROR;
