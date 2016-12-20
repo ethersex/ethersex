@@ -330,8 +330,14 @@ extern void noinline hd44780_goto(uint8_t line, uint8_t pos);
 /* Shift display one pos to the left or to the right */
 extern void noinline hd44780_shift(uint8_t right);
 
-/* Put a single character at the current cursor position */
-extern int noinline hd44780_put(char d, FILE * stream);
+/* Put a single character d at the current cursor position */
+extern int noinline hd44780_putc(char c, FILE * stream);
+
+/* Write the string pointed to by str at the current cursor position */
+extern int noinline hd44780_puts(const char *str, FILE * stream);
+
+/* Variant of hd44780_puts() where str resides in program memory */
+extern int noinline hd44780_puts_P(const char *str, FILE * stream);
 
 #ifdef HD44780_CHARCONV_SUPPORT
 extern char hd44780_charconv(char from);

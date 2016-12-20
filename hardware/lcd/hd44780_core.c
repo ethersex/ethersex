@@ -21,6 +21,8 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <stdbool.h>
+
 #include <avr/io.h>
 #include <util/delay.h>
 
@@ -93,8 +95,8 @@
   ((uint8_t)(_BV(LCD_SET_DDRAM) | (addr)))
 
 
-/* lcd output stream, used e.g. by the tty module */
-FILE lcd = FDEV_SETUP_STREAM(hd44780_put, NULL, _FDEV_SETUP_WRITE);
+/* prepare lcd output stream, used e.g. by the tty module */
+FILE lcd = FDEV_SETUP_STREAM(hd44780_putc, NULL, _FDEV_SETUP_WRITE);
 
 /* Current backlight state */
 #ifdef HD44780_BACKLIGHT_SUPPORT
@@ -110,11 +112,13 @@ static uint8_t current_pos;
 
 /* own prototypes */
 static void hd44780_waitbusy(uint8_t en);
-static void output_byte(uint8_t rs, uint8_t data, uint8_t en);
+static void hd44780_output_byte(uint8_t rs, uint8_t data, uint8_t en);
 #ifdef HD44780_READBACK_SUPPORT
-static uint8_t input_byte(uint8_t rs, uint8_t en);
+static uint8_t hd44780_input_byte(uint8_t rs, uint8_t en);
 #endif
+static void hd44780_putchar(char c, uint8_t * enable, bool init);
 
+/* Wait until busy flag is cleared or timeout occured */
 static void
 hd44780_waitbusy(uint8_t en)
 {
@@ -122,11 +126,11 @@ hd44780_waitbusy(uint8_t en)
   /* check busy flag, with timeout */
   uint8_t busy, timeout = 200;
 
-  busy = input_byte(0, en) & _BV(LCD_BUSY);
+  busy = hd44780_input_byte(0, en) & _BV(LCD_BUSY);
   while (busy && timeout > 0)
   {
     _delay_us(LCD_DELAY_BUSY_FLAG);
-    busy = input_byte(0, en) & _BV(LCD_BUSY);
+    busy = hd44780_input_byte(0, en) & _BV(LCD_BUSY);
     timeout--;
   }
 
@@ -141,8 +145,9 @@ hd44780_waitbusy(uint8_t en)
 #endif
 }
 
+/* Write a byte as two nibbles to the LCD */
 static void
-output_byte(uint8_t rs, uint8_t data, uint8_t en)
+hd44780_output_byte(uint8_t rs, uint8_t data, uint8_t en)
 {
   /* check busy flag and wait for previous op to complete */
   hd44780_waitbusy(en);
@@ -152,9 +157,10 @@ output_byte(uint8_t rs, uint8_t data, uint8_t en)
   hd44780_output_4bit(rs, LO4(data), en);
 }
 
+/* Read two nibbles from the LCD */
 #ifdef HD44780_READBACK_SUPPORT
 static uint8_t
-input_byte(uint8_t rs, uint8_t en)
+hd44780_input_byte(uint8_t rs, uint8_t en)
 {
   return hd44780_input_4bit(rs, en) << 4 | hd44780_input_4bit(rs, en);
 }
@@ -200,19 +206,19 @@ hd44780_init(void)
 #endif /*CONF_HD44780_TYPE */
 
     /* configure for 4 bit, 2 lines, 5x8 font (datasheet, page 24) */
-    output_byte(0, CMD_FUNCTIONSET(0, 1, 0), en);
+    hd44780_output_byte(0, CMD_FUNCTIONSET(0, 1, 0), en);
 
     /* turn on display, cursor and blinking off */
-    output_byte(0, CMD_DISPLAY(1, 0, 0), en);
+    hd44780_output_byte(0, CMD_DISPLAY(1, 0, 0), en);
 
     /* clear display */
-    output_byte(0, CMD_CLEAR_DISPLAY(), en);
+    hd44780_output_byte(0, CMD_CLEAR_DISPLAY(), en);
 
     /* set shift and increment */
-    output_byte(0, CMD_ENTRY_MODE(1, 0), en);
+    hd44780_output_byte(0, CMD_ENTRY_MODE(1, 0), en);
 
     /* set ddram address */
-    output_byte(0, CMD_SETDDRAMADR(0), en);
+    hd44780_output_byte(0, CMD_SETDDRAMADR(0), en);
 
     DEBUG_LCD(hd44780_init, "init of %S controller done\n",
               (en == 1) ? PSTR("1st") : PSTR("2nd"));
@@ -230,13 +236,13 @@ hd44780_init(void)
 void
 hd44780_config(uint8_t cursor, uint8_t blink)
 {
-  output_byte(0, CMD_DISPLAY(1, cursor, blink), LCD_CONTR_EN1);
+  hd44780_output_byte(0, CMD_DISPLAY(1, cursor, blink), LCD_CONTR_EN1);
 
 #ifdef HD44780_MULTIEN_SUPPORT
   /* on one display with two independent controllers two visible cursors
    * are pretty useless, but anyway... :-o
    */
-  output_byte(0, CMD_DISPLAY(1, cursor, blink), LCD_CONTR_EN2);
+  hd44780_output_byte(0, CMD_DISPLAY(1, cursor, blink), LCD_CONTR_EN2);
 #endif
 }
 
@@ -256,12 +262,12 @@ hd44780_define_char(uint8_t n_char, uint8_t * data)
 #endif
 
     /* set cgram pointer to char number n */
-    output_byte(0, CMD_SETCGRAMADR(n_char * 8), en);
+    hd44780_output_byte(0, CMD_SETCGRAMADR(n_char * 8), en);
     n_char = 0;
     while (n_char < 8)
     {
       /* send the data to lcd into cgram */
-      output_byte(1, *(data + n_char), en);
+      hd44780_output_byte(1, *(data + n_char), en);
       n_char++;
     }
 
@@ -277,11 +283,11 @@ hd44780_clear(void)
 {
   DEBUG_LCD(hd44780_clear, "\n");
 
-  output_byte(0, CMD_CLEAR_DISPLAY(), LCD_CONTR_EN1);
+  hd44780_output_byte(0, CMD_CLEAR_DISPLAY(), LCD_CONTR_EN1);
 
 #ifdef HD44780_MULTIEN_SUPPORT
   _delay_us(LCD_DELAY_BUSY_FLAG);
-  output_byte(0, CMD_CLEAR_DISPLAY(), LCD_CONTR_EN2);
+  hd44780_output_byte(0, CMD_CLEAR_DISPLAY(), LCD_CONTR_EN2);
 #endif
 
   /* set current virtual postion */
@@ -294,10 +300,10 @@ hd44780_home(void)
 {
   DEBUG_LCD(hd44780_home, "\n");
 
-  output_byte(0, CMD_HOME(), LCD_CONTR_EN1);
+  hd44780_output_byte(0, CMD_HOME(), LCD_CONTR_EN1);
 
 #ifdef HD44780_MULTIEN_SUPPORT
-  output_byte(0, CMD_HOME(), LCD_CONTR_EN2);
+  hd44780_output_byte(0, CMD_HOME(), LCD_CONTR_EN2);
 #endif
 
   /* set current virtual postion */
@@ -313,9 +319,9 @@ hd44780_goto(uint8_t line, uint8_t pos)
   DEBUG_LCD(hd44780_home, "current_pos: %d\n", current_pos);
 
   /* No need to update DDRAM address.
-   * This change has no noticable side effects unless hd44780_put
-   * is called and that function will use current_pos is used to
-   * calculate the new DDRAM address.
+   * This change has no noticable side effects unless one of the
+   * hd44780_put* functions is called and current_pos will be used
+   * to calculate the new DDRAM address for the current char.
    */
 }
 
@@ -323,76 +329,139 @@ hd44780_goto(uint8_t line, uint8_t pos)
 void
 hd44780_shift(uint8_t right)
 {
-  output_byte(0, CMD_SHIFT(1, right ? 1 : 0), LCD_CONTR_EN1);
+  hd44780_output_byte(0, CMD_SHIFT(1, right ? 1 : 0), LCD_CONTR_EN1);
 
 #ifdef HD44780_MULTIEN_SUPPORT
-  output_byte(0, CMD_SHIFT(1, right ? 1 : 0), LCD_CONTR_EN2);
+  hd44780_output_byte(0, CMD_SHIFT(1, right ? 1 : 0), LCD_CONTR_EN2);
 #endif
+}
+
+/* Put a single character at the current cursor position.
+ * Internal, used by hd44780_putc(), hd44780_puts() and hd44780_puts_P()
+ */
+static void
+hd44780_putchar(char c, uint8_t * enable, bool init)
+{
+  uint8_t start = 0;
+  uint8_t en = *enable;
+
+  /* determine DDRAM start address and en from current position
+   * on init and for every first char of a new line
+   */
+  if ((init == true) || (current_pos % LCD_CHAR_PER_LINE == 0))
+  {
+    if (current_pos <= LCD_CHAR_PER_LINE - 1)
+    {
+      start = LCD_LINE_1_ADR - 0 + current_pos;
+      en = LCD_LINE_1_EN;
+    }
+    else if (current_pos <= (LCD_CHAR_PER_LINE * 2) - 1)
+    {
+      start = LCD_LINE_2_ADR - LCD_CHAR_PER_LINE + current_pos;
+      en = LCD_LINE_2_EN;
+    }
+    else if (current_pos <= (LCD_CHAR_PER_LINE * 3) - 1)
+    {
+      start = LCD_LINE_3_ADR - (LCD_CHAR_PER_LINE * 2) + current_pos;
+      en = LCD_LINE_3_EN;
+    }
+    else if (current_pos <= (LCD_CHAR_PER_LINE * 4) - 1)
+    {
+      start = LCD_LINE_4_ADR - (LCD_CHAR_PER_LINE * 3) + current_pos;
+      en = LCD_LINE_4_EN;
+    }
+
+    /* set DDRAM start address */
+    hd44780_output_byte(0, CMD_SETDDRAMADR(start), en);
+  }
+
+  if (c == '\n')
+  {
+    /* move cursor to start of next line overwriting previous contents */
+    while (current_pos % LCD_CHAR_PER_LINE > 0)
+    {
+      hd44780_output_byte(1, ' ', en);
+      current_pos++;
+    }
+  }
+  else if (c == '\r')
+  {
+    /* carriage return */
+    current_pos -= current_pos % LCD_CHAR_PER_LINE;
+  }
+  else
+  {
+    /* put character */
+#ifdef HD44780_CHARCONV_SUPPORT
+    c = hd44780_charconv(c);
+#endif
+    hd44780_output_byte(1, c, en);
+    current_pos++;
+  }
+
+  if (current_pos >= LCD_MAX_CHAR)
+    current_pos -= LCD_MAX_CHAR;
+
+  *enable = en;
+
+  return;
 }
 
 /* Put a single character at the current cursor position */
 int
-hd44780_put(char d, FILE * stream)
+hd44780_putc(char c, FILE * stream)
 {
-  uint8_t start = 0;
   uint8_t en = 1;
 
-  if (d == '\n')
+  hd44780_putchar(c, &en, true);
+
+  return 0;
+}
+
+/* Write the string pointed to by str at the current cursor position.
+ *
+ * Optimized version of
+ *   while ((c = *str++) != '\0')
+ *     hd44780_putc(c);
+ * using roughly half the number of LCD bus-cycles.
+ */
+int
+hd44780_puts(const char *str, FILE * stream)
+{
+  char c;
+  uint8_t en = 1;
+
+  if ((c = *str++) != '\0')
   {
-    /* move cursor to the next line overwriting previous contents */
-    while (current_pos % LCD_CHAR_PER_LINE > 0)
-      hd44780_put(' ', stream);
+    hd44780_putchar(c, &en, true);
 
-    if (current_pos >= LCD_MAX_CHAR)
-      current_pos -= LCD_MAX_CHAR;
-    DEBUG_LCD(hd44780_put, "current_pos: %d\n", current_pos);
-
-    return 0;
+    /* loop and put char by char */
+    while ((c = *str++) != '\0')
+      hd44780_putchar(c, &en, false);
   }
 
-  if (d == '\r')
+  return 0;
+}
+
+/* Variant of hd44780_puts() where str resides in program memory */
+int
+hd44780_puts_P(const char *str, FILE * stream)
+{
+  char c;
+  uint8_t en = 1;
+
+  if ((c = pgm_read_byte(str)) != '\0')
   {
-    /* carriage return */
-    current_pos -= current_pos % LCD_CHAR_PER_LINE;
-    DEBUG_LCD(hd44780_put, "current_pos: %d\n", current_pos);
+    hd44780_putchar(c, &en, true);
+    str++;
 
-    return 0;
+    /* loop and put char by char */
+    while ((c = pgm_read_byte(str)) != '\0')
+    {
+      hd44780_putchar(c, &en, false);
+      str++;
+    }
   }
-
-  /* put char at current position */
-  if (current_pos <= LCD_CHAR_PER_LINE - 1)
-  {
-    start = LCD_LINE_1_ADR - 0 + current_pos;
-    en = LCD_LINE_1_EN;
-  }
-  else if (current_pos <= (LCD_CHAR_PER_LINE * 2) - 1)
-  {
-    start = LCD_LINE_2_ADR - LCD_CHAR_PER_LINE + current_pos;
-    en = LCD_LINE_2_EN;
-  }
-  else if (current_pos <= (LCD_CHAR_PER_LINE * 3) - 1)
-  {
-    start = LCD_LINE_3_ADR - (LCD_CHAR_PER_LINE * 2) + current_pos;
-    en = LCD_LINE_3_EN;
-  }
-  else if (current_pos <= (LCD_CHAR_PER_LINE * 4) - 1)
-  {
-    start = LCD_LINE_4_ADR - (LCD_CHAR_PER_LINE * 3) + current_pos;
-    en = LCD_LINE_4_EN;
-  }
-
-#ifdef HD44780_CHARCONV_SUPPORT
-  d = hd44780_charconv(d);
-#endif
-
-  output_byte(0, CMD_SETDDRAMADR(start), en);
-  output_byte(1, d, en);
-
-  current_pos++;
-
-  if (current_pos == LCD_MAX_CHAR)
-    current_pos = 0;
-  DEBUG_LCD(hd44780_put, "current_pos: %d\n", current_pos);
 
   return 0;
 }

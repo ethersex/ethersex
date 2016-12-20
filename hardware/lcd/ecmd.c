@@ -67,7 +67,7 @@ parse_cmd_lcd_clear(char *cmd, char *output, uint16_t len)
 
     hd44780_goto(line, 0);
     for (uint8_t i = 0; i < LCD_CHAR_PER_LINE; i++)
-      fputc(' ', &lcd);
+      hd44780_putc(' ', &lcd);
     hd44780_goto(line, 0);
 
     return ECMD_FINAL_OK;
@@ -91,7 +91,7 @@ parse_cmd_lcd_write(char *cmd, char *output, uint16_t len)
 {
   if (strlen(cmd) > 1)
   {
-    fputs(cmd + 1, &lcd);
+    hd44780_puts(cmd + 1, &lcd);
     return ECMD_FINAL_OK;
   }
   else
@@ -257,24 +257,24 @@ parse_cmd_lcd_print_charset(char *cmd, char *output, uint16_t len)
 
   for (c = (from & 0xFF); c < to; c++)
   {
-    /* \n and \r will be interpreted by hd44780_put() and may not be
+    /* \n and \r will be interpreted by hd44780_putc() and may not be
      * used as characters, even if there are LCDs that support these
      * codepoints with printable characters.
      */
     if ((c != '\n') && (c != '\r'))
-      hd44780_put(c, &lcd);
+      hd44780_putc(c, &lcd);
     else
-      hd44780_put(' ', &lcd);
+      hd44780_putc(' ', &lcd);
 
 #if LCD_CHAR_PER_LINE >= 32
     if ((c + 1) % 32 == 0)
-      hd44780_put('\n', &lcd);
+      hd44780_putc('\n', &lcd);
 #elif LCD_CHAR_PER_LINE >= 16
     if ((c + 1) % 16 == 0)
-      hd44780_put('\n', &lcd);
+      hd44780_putc('\n', &lcd);
 #else /* LCD_CHAR_PER_LINE >= 8 */
     if ((c + 1) % 8 == 0)
-      hd44780_put('\n', &lcd);
+      hd44780_putc('\n', &lcd);
 #endif
   }
 
