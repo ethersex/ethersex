@@ -223,12 +223,33 @@ template $HD44780_DIREKT << FNORD
     pin(HD44780_D7, PA6)
 FNORD
 
+template $HD44780_MULTIEN_SUPPORT << FNORD
+    pin(HD44780_EN2, PA7)
+FNORD
+
 template $HD44780_I2CSUPPORT << FNORD
-dnl HD44780_PCF8574x_MAPPING(ADR,RS,RW,EN,DB4,DB5,DB6,DB7,BL)
+dnl LCD connected via PCF8574x I2C Port Expander
+dnl HD44780_PCF8574x_MAPPING(ADR, RS, RW, EN, DB4, DB5, DB6, DB7, BL)
 dnl Uncomment next line for pollin compatible pinout
 dnl HD44780_PCF8574x_MAPPING(0x20, 4, 5, 6, 0, 1, 2, 3, 7)
 dnl Uncomment next line for arduino compatible pinout
 dnl HD44780_PCF8574x_MAPPING(0x27, 0, 1, 2, 4, 5, 6, 7, 3)
+dnl Use next macro for larger displays with two controllers / enable pins
+dnl HD44780_PCF8574x_MULTI_MAPPING(ADR, RS, RW, EN1, EN2, DB4, DB5, DB6, DB7)
+dnl HD44780_PCF8574x_MULTI_MAPPING(0x20, 4, 5, 6, 7, 0, 1, 2, 3)
+dnl
+dnl LCD connected via MCP23017 I2C Port Expander
+dnl Note: The code assumes that the display is connected to one port
+dnl       of the MCP23017
+dnl HD44780_MCP23017_MAPPING(ADR, RS, RW, EN, DB4, DB5, DB6, DB7, BL)
+dnl HD44780_MCP23017_MAPPING(0x20, B, 4, 5, 6, 0, 1, 2, 3, 7)
+dnl Use next macro for larger displays with two controllers / enable pins
+dnl HD44780_MCP23017_MULTI_MAPPING(ADR, PORT, RS, RW, EN1, EN2, DB4, DB5, DB6, DB7)
+dnl HD44780_MCP23017_MULTI_MAPPING(0x20, B, 4, 5, 6, 7, 0, 1, 2, 3)
+dnl LCD Backlight, might be connected to one pin of another port
+dnl of (probably another) MCP23017 for MULTI-EN LCDs
+dnl HD44780_MCP23017_MULTI_MAPPING_BL(ADR, PORT, BL)
+dnl HD44780_MCP23017_MULTI_MAPPING_BL(0x20, A, 7)
 FNORD
 
 template $HD44780_2WIRE << FNORD
@@ -240,10 +261,6 @@ template $HD44780_SERLCD << FNORD
     pin(HD44780_SER_D, PD4)
     pin(HD44780_SER_CLK, PD3)
     pin(HD44780_SER_EN1, PD2)
-FNORD
-
-template $HD44780_MULTIENSUPPORT << FNORD
-    pin(HD44780_EN2, PA7)
 FNORD
 
 template $HD44780_BACKLIGHT_SUPPORT << FNORD
