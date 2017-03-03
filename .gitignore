@@ -53,6 +53,7 @@ core/periodic_milliticks.c
 core/vfs/vfs-concat
 core/portio/np_simple.c
 core/crc/crc16-concat
+hardware/dht/dht_config.h
 services/httpd/magic.c
 services/watchcat/user_config.h
 protocols/ecmd/ecmd_defs.c
