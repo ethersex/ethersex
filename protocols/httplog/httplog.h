@@ -27,4 +27,6 @@
 uint8_t httplog(const char*, ...);
 uint8_t httplog_P(const char*, ...);
 
+uint8_t httplog_buffer_empty(void);
+
 #endif  /* HAVE_HTTPLOG_H */
