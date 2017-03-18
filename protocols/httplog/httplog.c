@@ -49,7 +49,9 @@
 #define HTTPLOG_DEBUG(a...)
 #endif
 
-static char *httplog_tmp_buf;
+static char *httplog_tmp_buf=NULL;
+// httplog_tmp_buf is being cleared after ACK, connection close, connection abort. However if a new connection is created between ACK and abort it is cleared again and nothing is sent.
+static uip_conn_t *httpConn=NULL;
 
 // first string is the GET part including the path
 static const char PROGMEM get_string_head[] = "GET " CONF_HTTPLOG_PATH "?";
@@ -69,22 +71,31 @@ static const char PROGMEM get_string_foot[] =
 static void
 httplog_net_main(void)
 {
+  HTTPLOG_DEBUG("httplog_net_main[%u]\n",uip_conn->lport);
   if (uip_aborted() || uip_timedout())
   {
-    HTTPLOG_DEBUG("connection aborted\n");
+    HTTPLOG_DEBUG("httplog_net_main[%u] connection aborted / timeout closed=%d\n",uip_conn->lport, uip_closed());
+	// according to uip doc cleanup should be called in close(), however this is not called in case of timeout.
+    if (httplog_tmp_buf)
+    {
+      free(httplog_tmp_buf);
+      httplog_tmp_buf = NULL;
+      HTTPLOG_DEBUG("httplog_net_main[%u] free httplog_tmp_buf\n",uip_conn->lport);
+    }
     goto end;
   }
 
   if (uip_closed())
   {
-    HTTPLOG_DEBUG("connection closed\n");
+    HTTPLOG_DEBUG("httplog_net_main[%u] connection closed\n",uip_conn->lport);
+	// uip docu: cleanup should be here
     goto end;
   }
 
 
   if (uip_connected() || uip_rexmit())
   {
-    HTTPLOG_DEBUG("new connection or rexmit, sending message\n");
+    HTTPLOG_DEBUG("httplog_net_main[%u] new connection or rexmit, sending message %p=[%s]\n",uip_conn->lport,httplog_tmp_buf,httplog_tmp_buf);
     char *p = uip_appdata;
     p += sprintf_P(p, get_string_head);
 #ifdef CONF_HTTPLOG_INCLUDE_UUID
@@ -97,18 +108,23 @@ httplog_net_main(void)
     p += sprintf(p, httplog_tmp_buf);
     p += sprintf_P(p, get_string_foot);
     uip_udp_send(p - (char *) uip_appdata);
-    HTTPLOG_DEBUG("send %d bytes\n", p - (char *) uip_appdata);
+    HTTPLOG_DEBUG("httplog_net_main[%u] send %d bytes\n",uip_conn->lport, p - (char *) uip_appdata);
   }
 
   if (uip_acked())
   {
+    HTTPLOG_DEBUG("httplog_net_main[%u] acked\n",uip_conn->lport);
     uip_close();
   end:
+    /*
     if (httplog_tmp_buf)
     {
       free(httplog_tmp_buf);
       httplog_tmp_buf = NULL;
+      HTTPLOG_DEBUG("httplog_net_main[%d] free httplog_tmp_buf\n",uip_conn->lport);
     }
+	*/
+    HTTPLOG_DEBUG("httplog_net_main[%u] end\n",uip_conn->lport);
   }
 }
 
@@ -116,18 +132,26 @@ static void
 httplog_dns_query_cb(char *name, uip_ipaddr_t * ipaddr)
 {
   HTTPLOG_DEBUG("got dns response, connecting\n");
-  if (!uip_connect(ipaddr, HTONS(80), httplog_net_main))
+  httpConn = uip_connect(ipaddr, HTONS(80), httplog_net_main);
+  if (!httpConn)
+  // if (!uip_connect(ipaddr, HTONS(80), httplog_net_main))
   {
+    HTTPLOG_DEBUG("error\n");
     if (httplog_tmp_buf)
     {
       free(httplog_tmp_buf);
       httplog_tmp_buf = NULL;
     }
   }
+  HTTPLOG_DEBUG("httplog_dns_query_cb done\n");
 
 }
 
-static uint8_t
+/**
+ *
+ * @return true if new buffer could be created
+ */
+uint8_t
 httplog_buffer_empty(void)
 {
   if (httplog_tmp_buf == 0)
@@ -135,6 +159,7 @@ httplog_buffer_empty(void)
     httplog_tmp_buf = malloc(HTTPLOG_BUFFER_LEN);
     if (httplog_tmp_buf != 0)
       return 1;
+    HTTPLOG_DEBUG("httplog_buffer_empty malloc failed!\n");
   }
 
   return 0;
@@ -143,15 +168,19 @@ httplog_buffer_empty(void)
 static void
 httplog_resolve_address(void)
 {
+  HTTPLOG_DEBUG("httplog_resolve_address\n");
   uip_ipaddr_t *ipaddr;
   if (!(ipaddr = resolv_lookup(CONF_HTTPLOG_SERVICE)))
   {
+    HTTPLOG_DEBUG("httplog_resolve_address resolv_query\n");
     resolv_query(CONF_HTTPLOG_SERVICE, httplog_dns_query_cb);
+    HTTPLOG_DEBUG("httplog_resolve_address resolv_query done\n");
   }
   else
   {
     httplog_dns_query_cb(NULL, ipaddr);
   }
+  HTTPLOG_DEBUG("httplog_resolve_address done\n");
 }
 
 uint8_t
@@ -166,7 +195,13 @@ httplog(const char *message, ...)
     va_end(va);
     httplog_tmp_buf[HTTPLOG_BUFFER_LEN - 1] = 0;
 
+    HTTPLOG_DEBUG("httplog send message [%s]\n", httplog_tmp_buf);
     httplog_resolve_address();
+  } else {
+    HTTPLOG_DEBUG("buffer full, skipping message\n");
+	if(httpConn) {
+      HTTPLOG_DEBUG("buffer full, httpConn->tcp state flags:%d timer:%d\n",httpConn->tcpstateflags, httpConn->timer);
+	}
   }
   return result;
 }
@@ -184,6 +219,8 @@ httplog_P(const char *message, ...)
     httplog_tmp_buf[HTTPLOG_BUFFER_LEN - 1] = 0;
 
     httplog_resolve_address();
+  } else {
+    HTTPLOG_DEBUG("buffer full, skipping message\n");
   }
   return result;
 }
