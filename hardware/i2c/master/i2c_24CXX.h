@@ -23,7 +23,7 @@
 #ifndef _I2C_EEPROM_I2C_24CXX_H
 #define _I2C_EEPROM_I2C_24CXX_H
 
-#define I2C_SLA_24CXX 80
+#define I2C_SLA_24CXX 0x50
 
 void i2c_24CXX_init(void);
 uint8_t i2c_24CXX_set_addr(uint16_t addr);
