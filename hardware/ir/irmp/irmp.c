@@ -253,7 +253,7 @@ irmp_read(void)
   printf_P(PSTR("IRMP RX: proto %02" PRId8 " %S, address %04" PRIX16
                 ", command %04" PRIX16 ", flags %02" PRIX8 "\n"),
            irmp_data_p->protocol,
-           pgm_read_word(&irmp_proto_names[irmp_data_p->protocol]),
+           pgm_read_word(&irmp_protocol_names[irmp_data_p->protocol]),
            irmp_data_p->address, irmp_data_p->command, irmp_data_p->flags);
 #endif
   return irmp_data_p;
