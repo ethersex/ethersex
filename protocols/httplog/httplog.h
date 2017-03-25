@@ -24,9 +24,11 @@
 #ifndef HAVE_HTTPLOG_H
 #define HAVE_HTTPLOG_H
 
+#include "protocols/uip/uip.h"
+
 uint8_t httplog(const char*, ...);
 uint8_t httplog_P(const char*, ...);
 
-uint8_t httplog_buffer_empty(void);
+extern uip_conn_t *httpConn;
 
 #endif  /* HAVE_HTTPLOG_H */
