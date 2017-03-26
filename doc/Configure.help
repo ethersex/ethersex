@@ -3589,3 +3589,13 @@ DEBUG_HD44780_CHARCONV
 
   Add ECMD command (lcd print charset) to aid compilation of charset
   tables and debugging of charset conversion.
+
+DEBUG_MAPFILE
+  Use this option to find strings which can be converted to PSTR() const variables.
+  Have a look at .rodata in the generated ethersex.map file.
+
+DEBUG_LISTFILE
+  Use this option to find the function where the const data can be converted to PSTR()
+
+GCC_VERBOSE
+  Enable many gcc warnings

@@ -13,6 +13,8 @@
 *.cbp
 *.layout
 *.dSYM
+*.lst
+*.map
 
 # make generated files
 .config*

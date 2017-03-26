@@ -43,6 +43,10 @@ if [ "$ARCH_AVR" = "y" ]; then
 	choice 'Hardware/Periphery Class'	\
 			"$(scripts/pinning_hardware_list.sh)" \
 		'Etherrape' HARDWARE
+		
+	bool 'create map file' DEBUG_MAPFILE
+	bool 'create list file' DEBUG_LISTFILE
+	bool 'GCC warnings' GCC_VERBOSE
 
 	dep_bool "Use CPU sleep" CPU_SLEEP $ARCH_AVR
 	source hardware/sram/config.in
