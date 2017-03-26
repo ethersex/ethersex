@@ -1449,7 +1449,8 @@ void uip_process(u8_t flag);
 #define UIP_UDP_TIMER     5
 #endif /* UIP_UDP */
 
-/* The TCP states used in the uip_conn->tcpstateflags. */
+/* The TCP states used in the uip_conn->tcpstateflags.
+ * TCP-State-Machine: http://doc-tcpip.org/Tcp/tcp.states.html */
 #define UIP_CLOSED      0
 #define UIP_SYN_RCVD    1
 #define UIP_SYN_SENT    2

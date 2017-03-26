@@ -252,11 +252,21 @@
 
 /**
  * How long a connection should stay in the TIME_WAIT state.
+ * In this state both sides have closed the connection. We are only waiting
+ * for late framented packets to drop them.
  *
  * This configiration option has no real implication, and it should be
  * left untouched.
  */
-#define UIP_TIME_WAIT_TIMEOUT 120
+#define UIP_TIME_WAIT_TIMEOUT 10
+
+/**
+ * How long a connection should stay in the FIN_WAIT_2 state.
+ * In this state we have closed the connection but the other side is
+ * still active and sending data
+ * BUG: we are discarding them...
+ */
+#define UIP_FIN_WAIT_2_TIMEOUT 120
 
 
 /** @} */
