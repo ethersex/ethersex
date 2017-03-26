@@ -155,10 +155,10 @@ add_req_options(uint8_t *optptr)
 static uint8_t *
 add_hostname(uint8_t *optptr)
 {
-  int len = strlen(CONF_HOSTNAME);
+  int len = sizeof(CONF_HOSTNAME);
   *optptr++ = DHCP_OPTION_HOSTNAME;
   *optptr++ = len;
-  memcpy(optptr, CONF_HOSTNAME, len);
+  memcpy_P(optptr, PSTR(CONF_HOSTNAME), len);
   return optptr + len;
 }
 /*---------------------------------------------------------------------------*/

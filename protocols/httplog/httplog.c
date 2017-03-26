@@ -180,7 +180,8 @@ httplog_resolve_address(void)
   HTTPLOG_DEBUG("httplog_resolve_address\n");
   uip_ipaddr_t *ipaddr;
 
-  char conf_httplog_service[sizeof(CONF_HTTPLOG_SERVICE)] = CONF_HTTPLOG_SERVICE;
+  char conf_httplog_service[sizeof(CONF_HTTPLOG_SERVICE)];
+  memcpy_P(conf_httplog_service, PSTR(CONF_HTTPLOG_SERVICE), sizeof(CONF_HTTPLOG_SERVICE));
   if (!(ipaddr = resolv_lookup(conf_httplog_service)))
   {
     HTTPLOG_DEBUG("httplog_resolve_address resolv_query\n");
