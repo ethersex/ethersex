@@ -232,6 +232,7 @@ mqtt_reset_state(void)
   mqtt_next_msg_id = 0;
   mqtt_ping_outstanding = false;
   mqtt_last_in_activity = mqtt_last_out_activity = mqtt_timer_counter;
+  STATE->stage = MQTT_STATE_DISCONNECTED;
 }
 
 // the message id must not be 0
@@ -1274,7 +1275,7 @@ mqtt_unregister_callback(uint8_t slot_id)
 bool
 mqtt_is_connected(void)
 {
-  return (bool) mqtt_uip_conn;
+  return mqtt_uip_conn != NULL && STATE->stage == MQTT_STATE_CONNECTED;
 }
 
 /*
