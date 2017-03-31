@@ -122,8 +122,12 @@ bool mqtt_is_connected(void);
 // return false if there is not enough buffer space
 bool mqtt_construct_publish_packet(char const *topic, const void *payload,
                                    uint16_t payload_length, bool retain);
+bool mqtt_construct_publish_packet_P(PGM_P topic, const void *payload,
+                                     uint16_t payload_length, bool retain);
 bool mqtt_construct_subscribe_packet(char const *topic);
+bool mqtt_construct_subscribe_packet_P(PGM_P topic);
 bool mqtt_construct_unsubscribe_packet(char const *topic);
+bool mqtt_construct_unsubscribe_packet_P(PGM_P topic);
 bool mqtt_construct_zerolength_packet(uint8_t msg_type);
 bool mqtt_construct_ack_packet(uint8_t msg_type, uint16_t msgid);
 
