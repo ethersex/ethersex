@@ -287,7 +287,7 @@ mqtt_buffer_write_string(char const *data)
 }
 
 static void
-mqtt_buffer_write_string_P(char const *data)
+mqtt_buffer_write_string_P(PGM_P data)
 {
   PGM_P idp = data;
   mqtt_send_buffer_current_head += 2;
