@@ -122,12 +122,12 @@
 // BUFFER VARIABLES
 
 static uint8_t mqtt_send_buffer[MQTT_SENDBUFFER_LENGTH];
-static uint8_t mqtt_send_buffer_last_length;    // length of last packet
-                                              //   (for uip-retransmit)
-static uint8_t mqtt_send_buffer_current_head;   // current buffer head
-static uint8_t mqtt_receive_buffer_length;      // length of data for received buffer
-static uint16_t mqtt_receive_packet_length;     // length of next expected
-                                              //   (not fully received) packet
+static uint8_t mqtt_send_buffer_last_length;  // length of last packet
+                                              // (for uip-retransmit)
+static uint8_t mqtt_send_buffer_current_head; // current buffer head
+static uint8_t mqtt_receive_buffer_length;    // length of data for received buffer
+static uint16_t mqtt_receive_packet_length;   // length of next expected
+                                              // (not fully received) packet
 
 // MQTT PROTOCOL STATE
 
@@ -164,7 +164,7 @@ static inline bool mqtt_buffer_free(uint16_t length);
 static void mqtt_flush_buffer(void);
 static inline void mqtt_retransmit(void);
 static inline void mqtt_received_ack(void);
-static uint8_t mqtt_buffer_write_length_field(uint8_t * buffer,
+static uint8_t mqtt_buffer_write_length_field(uint8_t *buffer,
                                               uint16_t length);
 static bool mqtt_write_to_receive_buffer(const void *data, uint16_t length);
 
@@ -178,7 +178,7 @@ bool mqtt_construct_ack_packet(uint8_t msg_type, uint16_t msgid);
 
 static void mqtt_handle_packet(const void *data, uint8_t llen,
                                uint16_t packet_length);
-static uint8_t mqtt_parse_length_field(uint16_t * length, const void *buffer,
+static uint8_t mqtt_parse_length_field(uint16_t *length, const void *buffer,
                                        uint16_t max_read);
 static void mqtt_parse(void);
 
@@ -329,7 +329,7 @@ mqtt_received_ack(void)
 // write mqtt length field to buffer
 // return number of bytes written
 static uint8_t
-mqtt_buffer_write_length_field(uint8_t * buffer, uint16_t length)
+mqtt_buffer_write_length_field(uint8_t *buffer, uint16_t length)
 {
   uint8_t llen = 0;
   uint8_t digit;
@@ -384,9 +384,10 @@ mqtt_construct_connect_packet(void)
     { 0x00, 0x06, 'M', 'Q', 'I', 's', 'd', 'p', MQTTPROTOCOLVERSION };
 
   // calculate length
-  uint16_t length = sizeof(protocol_string) + 1 // connect flags
-    + strlen(mqtt_con_config->client_id) + 2    // client id
-    + 2;                        // keep alive
+  uint16_t length = sizeof(protocol_string)
+    + 1                                      // connect flags
+    + strlen(mqtt_con_config->client_id) + 2 // client id
+    + 2;                                     // keep alive
   if (mqtt_con_config->will_topic)
     length += strlen(mqtt_con_config->will_topic)
       + strlen(mqtt_con_config->will_message) + 4;
@@ -822,7 +823,7 @@ mqtt_handle_packet(const void *data, uint8_t llen, uint16_t packet_length)
 // parse the variable length field
 // return number of bytes read
 static uint8_t
-mqtt_parse_length_field(uint16_t * length, const void *buffer,
+mqtt_parse_length_field(uint16_t *length, const void *buffer,
                         uint16_t max_read)
 {
   uint16_t l = 0;
