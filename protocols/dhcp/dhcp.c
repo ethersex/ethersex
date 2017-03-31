@@ -37,10 +37,22 @@
 #include "protocols/uip/uip.h"
 #include "core/eeprom.h"
 
+#include "core/debug.h"
+
 #include "dhcp_state.h"
 #include "dhcp.h"
 
 #include "services/ntp/ntp.h"
+
+#ifdef DNS_SUPPORT
+#  include "protocols/dns/resolv.h"
+#endif
+
+#ifdef DEBUG_DHCP
+#  define DHCP_DEBUG(a...)  debug_printf("dhcp: " a)
+#else
+#  define DHCP_DEBUG(a...)
+#endif
 
 #define STATE_INITIAL         0
 #define STATE_DISCOVERING     1
@@ -143,10 +155,10 @@ add_req_options(uint8_t *optptr)
 static uint8_t *
 add_hostname(uint8_t *optptr)
 {
-  int len = strlen(CONF_HOSTNAME);
+  int len = sizeof(CONF_HOSTNAME);
   *optptr++ = DHCP_OPTION_HOSTNAME;
   *optptr++ = len;
-  memcpy(optptr, CONF_HOSTNAME, len);
+  memcpy_P(optptr, PSTR(CONF_HOSTNAME), len);
   return optptr + len;
 }
 /*---------------------------------------------------------------------------*/
@@ -368,6 +380,23 @@ void dhcp_net_main(void) {
 
       if (parse_msg() == DHCPACK) {
 	uip_udp_conn->appstate.dhcp.state = STATE_CONFIGURED;
+
+	DHCP_DEBUG("dhcp: DHCPACK ip:%d.%d.%d.%d netmask:%d.%d.%d.%d gateway:%d.%d.%d.%d\n",
+		uip_ipaddr1(uip_udp_conn->appstate.dhcp.ipaddr),
+		uip_ipaddr2(uip_udp_conn->appstate.dhcp.ipaddr),
+		uip_ipaddr3(uip_udp_conn->appstate.dhcp.ipaddr),
+		uip_ipaddr4(uip_udp_conn->appstate.dhcp.ipaddr),
+		
+		uip_ipaddr1(uip_udp_conn->appstate.dhcp.netmask),
+		uip_ipaddr2(uip_udp_conn->appstate.dhcp.netmask),
+		uip_ipaddr3(uip_udp_conn->appstate.dhcp.netmask),
+		uip_ipaddr4(uip_udp_conn->appstate.dhcp.netmask),
+
+		uip_ipaddr1(uip_udp_conn->appstate.dhcp.default_router),
+		uip_ipaddr2(uip_udp_conn->appstate.dhcp.default_router),
+		uip_ipaddr3(uip_udp_conn->appstate.dhcp.default_router),
+		uip_ipaddr4(uip_udp_conn->appstate.dhcp.default_router)
+		);
 
 	uip_sethostaddr(uip_udp_conn->appstate.dhcp.ipaddr);
 	uip_setdraddr(uip_udp_conn->appstate.dhcp.default_router);

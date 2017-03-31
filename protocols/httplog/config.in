@@ -3,6 +3,7 @@ dep_bool_menu "httplog client" HTTPLOG_SUPPORT $TCP_SUPPORT $DNS_SUPPORT
   string "Path" CONF_HTTPLOG_PATH "/httplog/httplog.php"
   dep_bool "Include unix timstamp" CONF_HTTPLOG_INCLUDE_TIMESTAMP $CLOCK_DATETIME_SUPPORT
   bool "Include uuid" CONF_HTTPLOG_INCLUDE_UUID
+  bool "store in eeprom" HTTPLOG_UUID_EEPROM $CONF_HTTPLOG_INCLUDE_UUID
   string "UUID" CONF_HTTPLOG_UUID "12345678-9ABC-DEF0-1234-56789ABCDEF0" $CONF_HTTPLOG_INCLUDE_UUID
   script_set "  Randomize UUID" RANDOM_UUIDC "scripts/random_uuid CONF_HTTPLOG_UUID"
   if [ "$HTTPLOG_BUFFER_LEN" -gt "$NET_MAX_FRAME_LENGTH" ] ; then

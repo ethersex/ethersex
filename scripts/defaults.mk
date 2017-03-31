@@ -44,10 +44,10 @@ endif # MAKECMDGOALS!=menuconfig
 endif # MAKECMDGOALS!=mrproper
 endif # MAKECMDGOALS!=clean
 
-ifneq ($(VERBOSE),y)
-CFLAGS ?= -Wall -W -Wno-unused-parameter -Wno-sign-compare -Wno-char-subscripts
+ifneq ($(GCC_VERBOSE),y)
+CFLAGS += -Werror=implicit-function-declaration -Wuninitialized -Wformat -Wall -W -Wno-unused-parameter -Wno-sign-compare -Wno-char-subscripts
 else
-CFLAGS ?= -Wall -W -Wno-unused-parameter -Wshadow -Wpointer-arith -Wno-cast-qual -Wcast-align -Wwrite-strings -Wconversion -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -Winline -Wbad-function-cast -Wsign-compare -Wnested-externs
+CFLAGS += -Werror=implicit-function-declaration -Wuninitialized -Wformat -Wall -W -Wno-unused-parameter -Wshadow -Wpointer-arith -Wno-cast-qual -Wcast-align -Wwrite-strings -Wconversion -Waggregate-return -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -Wredundant-decls -Winline -Wbad-function-cast -Wsign-compare -Wnested-externs
 M4FLAGS ?= --debug=V
 endif
 

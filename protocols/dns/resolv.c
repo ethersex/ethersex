@@ -192,6 +192,7 @@ parse_name(unsigned char *query)
 void
 resolv_periodic(void)
 {
+  DNS_DEBUG("resolv_periodic entries:%d\n", RESOLV_ENTRIES);
   register struct dns_hdr *hdr;
   char *query, *nptr, *nameptr;
   static u8_t i;
@@ -200,6 +201,7 @@ resolv_periodic(void)
 
   for(i = 0; i < RESOLV_ENTRIES; ++i) {
     namemapptr = &names[i];
+    DNS_DEBUG("resolv_periodic %d check [%s] state:%d timeout:%d\n", i, namemapptr->name, namemapptr->state, namemapptr->tmr);
     if(namemapptr->state == STATE_NEW ||
        namemapptr->state == STATE_ASKING) {
       if(namemapptr->state == STATE_ASKING) {
@@ -208,11 +210,12 @@ resolv_periodic(void)
 	    namemapptr->state = STATE_ERROR;
             if (namemapptr->callback)
               namemapptr->callback(namemapptr->name, NULL);
+            DNS_DEBUG("callback called for %s\n", namemapptr->name);
 	    continue;
 	  }
 	  namemapptr->tmr = namemapptr->retries;
 	} else {
-	  /*	  printf("Timer %d\n", namemapptr->tmr);*/
+	  DNS_DEBUG("Timer %d\n", namemapptr->tmr);
 	  /* Its timer has not run out, so we move on to next
 	     entry. */
 	  continue;
@@ -261,6 +264,7 @@ resolv_periodic(void)
 void
 resolv_newdata(void)
 {
+  DNS_DEBUG("resolv_newdata\n");
   char *nameptr;
   struct dns_answer *ans;
   struct dns_hdr *hdr;
@@ -269,20 +273,20 @@ resolv_newdata(void)
   register struct namemap *namemapptr;
 
   hdr = (struct dns_hdr *)uip_appdata;
-  /*  printf("ID %d\n", htons(hdr->id));
-      printf("Query %d\n", hdr->flags1 & DNS_FLAG1_RESPONSE);
-      printf("Error %d\n", hdr->flags2 & DNS_FLAG2_ERR_MASK);
-      printf("Num questions %d, answers %d, authrr %d, extrarr %d\n",
+  DNS_DEBUG("ID %d\n", htons(hdr->id));
+  DNS_DEBUG("Query %d\n", hdr->flags1 & DNS_FLAG1_RESPONSE);
+  DNS_DEBUG("Error %d\n", hdr->flags2 & DNS_FLAG2_ERR_MASK);
+  DNS_DEBUG("Num questions %d, answers %d, authrr %d, extrarr %d\n",
       htons(hdr->numquestions),
       htons(hdr->numanswers),
       htons(hdr->numauthrr),
       htons(hdr->numextrarr));
-  */
 
   /* The ID in the DNS header should be our entry into the name
      table. */
   i = htons(hdr->id);
   namemapptr = &names[i];
+  DNS_DEBUG("name: %s\n", namemapptr->name);
   if(i < RESOLV_ENTRIES &&
      namemapptr->state == STATE_ASKING) {
 
@@ -295,6 +299,7 @@ resolv_newdata(void)
       namemapptr->state = STATE_ERROR;
       if (namemapptr->callback)
         namemapptr->callback(namemapptr->name, NULL);
+      DNS_DEBUG("resolv_newdata error\n");
       return;
     }
 
@@ -348,6 +353,7 @@ resolv_newdata(void)
 
         if (namemapptr->callback)
           namemapptr->callback(namemapptr->name, (uip_ipaddr_t *)namemapptr->ipaddr);
+        DNS_DEBUG("resolv_newdata found + callback called\n");
 	return;
       } else {
 	nameptr = nameptr + 10 + htons(ans->len);
@@ -355,6 +361,7 @@ resolv_newdata(void)
       --nanswers;
     }
   }
+  DNS_DEBUG("resolv_newdata done\n");
 
 }
 
@@ -368,6 +375,7 @@ resolv_newdata(void)
 void
 resolv_query(const char *name, resolv_found_callback_t callback)
 {
+  DNS_DEBUG("resolv_query %s\n", name);
   static u8_t i;
   static u8_t lseq, lseqi;
   register struct namemap *nameptr = NULL;

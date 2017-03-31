@@ -10,6 +10,9 @@ SUBDIRS += services
 
 rootbuild=t
 
+# many bug reports regarding -fmerge-all-constants
+#CFLAGS += -fmerge-all-constants
+
 export TOPDIR
 
 ifneq ($(no_deps),t)
@@ -20,6 +23,13 @@ ifneq ($(MAKECMDGOALS),menuconfig)
 ifneq ($(MAKECMDGOALS),indent)
 
 include $(TOPDIR)/.config
+
+ifdef DEBUG_MAPFILE
+  LDFLAGS += -Wl,-Map=$(TARGET).map,--cref
+endif
+ifdef DEBUG_LISTFILE
+  CFLAGS += -fverbose-asm  -Wa,-adhlns=$@.lst
+endif
 
 endif # MAKECMDGOALS!=indent
 endif # MAKECMDGOALS!=menuconfig
@@ -299,7 +309,8 @@ clean:
 	$(RM) $(OBJECTS) $(CLEAN_FILES) \
 		$(patsubst %.o,%.dep,${OBJECTS}) \
 		$(patsubst %.o,%.E,${OBJECTS}) \
-		$(patsubst %.o,%.s,${OBJECTS}) network.dep
+		$(patsubst %.o,%.s,${OBJECTS}) network.dep \
+		$(patsubst %.o,%.o.lst,${OBJECTS}) $(TARGET).map $(TARGET).lst
 	$(RM) meta.c meta.h meta.m4 meta.defines
 	$(RM) $(AUTOGEN_SRC) $(y_AUTOGEN_SRC)
 	echo "Cleaning completed"

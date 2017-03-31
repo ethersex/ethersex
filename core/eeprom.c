@@ -180,6 +180,10 @@ eeprom_init (void)
   };
   eeprom_save (tanklevel_params, &tanklevel_temp, sizeof(tanklevel_params_t));
 #endif
+#ifdef HTTPLOG_UUID_EEPROM
+  eeprom_save_P (httplog_uuid, PSTR (CONF_HTTPLOG_UUID), sizeof(CONF_HTTPLOG_UUID)+1);
+#endif
+
   eeprom_update_chksum ();
 }
 

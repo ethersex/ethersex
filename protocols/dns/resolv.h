@@ -69,6 +69,13 @@ void resolv_init(void);
 uip_ipaddr_t *resolv_lookup(const char *name);
 void resolv_query(const char *name, resolv_found_callback_t callback);
 
+#ifdef DEBUG_DNS
+#define DNS_DEBUG(a...)  debug_printf("dns: " a)
+#else
+#define DNS_DEBUG(a...)
+#endif
+
+
 #endif /* __RESOLV_H__ */
 
 /** @} */

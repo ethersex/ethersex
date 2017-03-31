@@ -43,6 +43,10 @@ if [ "$ARCH_AVR" = "y" ]; then
 	choice 'Hardware/Periphery Class'	\
 			"$(scripts/pinning_hardware_list.sh)" \
 		'Etherrape' HARDWARE
+		
+	bool 'create map file' DEBUG_MAPFILE
+	bool 'create list file' DEBUG_LISTFILE
+	bool 'GCC warnings' GCC_VERBOSE
 
 	dep_bool "Use CPU sleep" CPU_SLEEP $ARCH_AVR
 	source hardware/sram/config.in
@@ -286,6 +290,7 @@ mainmenu_option next_comment
 	dep_bool '  OpenVPN' DEBUG_OPENVPN $DEBUG
 	dep_bool '  Router' DEBUG_ROUTER $DEBUG
 	dep_bool '  uIP' DEBUG_UIP $DEBUG
+	dep_bool '  DHCP' DEBUG_DHCP $DEBUG
 	dep_bool '  Unknown packets' DEBUG_UNKNOWN_PACKETS $DEBUG_NET
 
 endmenu

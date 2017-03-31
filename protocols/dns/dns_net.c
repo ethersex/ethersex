@@ -35,6 +35,7 @@ void dns_net_init(void)
 
 void dns_net_main(void)
 {
+  DNS_DEBUG("dns_net_main\n");
   if(uip_poll()) {
     resolv_periodic();
   }
