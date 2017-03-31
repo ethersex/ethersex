@@ -30,6 +30,7 @@ SUBSUBDIRS += hardware/sht
 SUBSUBDIRS += hardware/sram
 SUBSUBDIRS += hardware/storage/dataflash
 SUBSUBDIRS += hardware/storage/sd_reader
+SUBSUBDIRS += hardware/ws2812b
 SUBSUBDIRS += hardware/zacwire
 SUBSUBDIRS += hardware/ultrasonic
 SUBSUBDIRS += hardware/serial_ram/23k256
