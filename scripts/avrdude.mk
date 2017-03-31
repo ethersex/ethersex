@@ -66,4 +66,8 @@ program: $(TARGET).hex #$(TARGET).eep
 fuses:
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_FUSE) $(AVRDUDE_WRITE_EFUSE) $(AVRDUDE_WRITE_HFUSE) $(AVRDUDE_WRITE_LFUSE)
 
-	
+# Read fuses (also resets MCU)
+read-fuses:
+	$(AVRDUDE) $(AVRDUDE_FLAGS) -n
+
+.PHONY: program fuses read-fuses
