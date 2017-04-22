@@ -194,11 +194,9 @@ resolv_periodic(void)
 {
   register struct dns_hdr *hdr;
   char *query, *nptr, *nameptr;
-  static u8_t i;
-  static u8_t n;
   register struct namemap *namemapptr;
 
-  for(i = 0; i < RESOLV_ENTRIES; ++i) {
+  for(u8_t i = 0; i < RESOLV_ENTRIES; ++i) {
     namemapptr = &names[i];
     if(namemapptr->state == STATE_NEW ||
        namemapptr->state == STATE_ASKING) {
@@ -236,6 +234,7 @@ resolv_periodic(void)
 	++nameptr;
 	nptr = query;
 	++query;
+	u8_t n;
 	for(n = 0; *nameptr != '.' && *nameptr != 0; ++nameptr) {
 	  *query = *nameptr;
 	  ++query;
@@ -264,8 +263,8 @@ resolv_newdata(void)
   char *nameptr;
   struct dns_answer *ans;
   struct dns_hdr *hdr;
-  static u8_t /*nquestions,*/ nanswers;
-  static u8_t i;
+  u8_t /*nquestions,*/ nanswers;
+  u8_t i;
   register struct namemap *namemapptr;
 
   hdr = (struct dns_hdr *)uip_appdata;
@@ -368,8 +367,8 @@ resolv_newdata(void)
 void
 resolv_query(const char *name, resolv_found_callback_t callback)
 {
-  static u8_t i;
-  static u8_t lseq, lseqi;
+  u8_t i;
+  u8_t lseq, lseqi;
   register struct namemap *nameptr = NULL;
 
   lseq = lseqi = 0;
@@ -415,12 +414,11 @@ resolv_query(const char *name, resolv_found_callback_t callback)
 uip_ipaddr_t *
 resolv_lookup(const char *name)
 {
-  static u8_t i;
   struct namemap *nameptr;
 
   /* Walk through the list to see if the name is in there. If it is
      not, we return NULL. */
-  for(i = 0; i < RESOLV_ENTRIES; ++i) {
+  for(u8_t i = 0; i < RESOLV_ENTRIES; ++i) {
     nameptr = &names[i];
     if(nameptr->state == STATE_DONE &&
        strcmp(name, nameptr->name) == 0) {
@@ -471,13 +469,12 @@ resolv_conf(uip_ipaddr_t *dnsserver)
 void
 resolv_init(void)
 {
-  static u8_t i;
 
   uip_ipaddr_t dnsserver;
   eeprom_restore(dns_server, &dnsserver, IPADDR_LEN);
   resolv_conf(&dnsserver);
 
-  for(i = 0; i < RESOLV_ENTRIES; ++i) {
+  for(u8_t i = 0; i < RESOLV_ENTRIES; ++i) {
     names[i].state = STATE_DONE;
   }
 
