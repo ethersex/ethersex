@@ -63,6 +63,7 @@ static mqtt_connection_config_t mqtt_static_conf =
   .will_qos = MQTT_STATIC_CONF_WILL_QOS,
   .will_retain = MQTT_STATIC_CONF_WILL_RETAIN_FLAG,
   .will_message = MQTT_STATIC_CONF_WILL_MESSAGE,
+  .will_message_length = sizeof(MQTT_STATIC_CONF_WILL_MESSAGE) - 1,
   .auto_subscribe_topics = mqtt_static_conf_autosubscribe,
   //target_ip not set, see mqtt_set_static_conf
 };

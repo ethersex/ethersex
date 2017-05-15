@@ -390,7 +390,7 @@ mqtt_construct_connect_packet(void)
     + 2;                        // keep alive
   if (mqtt_con_config->will_topic)
     length += strlen(mqtt_con_config->will_topic)
-      + strlen(mqtt_con_config->will_message) + 4;
+      + mqtt_con_config->will_message_length + 4;
   if (mqtt_con_config->user)
     length += strlen(mqtt_con_config->user) + 2;
   if (mqtt_con_config->pass)
@@ -449,7 +449,10 @@ mqtt_construct_connect_packet(void)
   if (mqtt_con_config->will_topic)
   {
     mqtt_buffer_write_string(mqtt_con_config->will_topic);
-    mqtt_buffer_write_string(mqtt_con_config->will_message);
+
+    mqtt_send_buffer[mqtt_send_buffer_current_head++] = HI8(mqtt_con_config->will_message_length);
+    mqtt_send_buffer[mqtt_send_buffer_current_head++] = LO8(mqtt_con_config->will_message_length);
+    mqtt_buffer_write_data(mqtt_con_config->will_message, mqtt_con_config->will_message_length);
   }
 
   // user / pass

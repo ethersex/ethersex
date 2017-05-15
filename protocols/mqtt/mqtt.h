@@ -101,7 +101,8 @@ typedef struct
   char const *will_topic;       // A value != NULL enables the will feature
   uint8_t will_qos;
   bool will_retain;
-  char const *will_message;
+  void const *will_message;
+  uint16_t will_message_length;
   uip_ipaddr_t target_ip;
 
   // Pointer to an array of (char const*) of topic strings to be automatically
