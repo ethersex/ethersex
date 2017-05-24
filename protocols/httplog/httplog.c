@@ -43,24 +43,22 @@
 #endif
 #include "httplog.h"
 
+#ifdef HTTPLOG_UUID_EEPROM
+#include "core/eeprom.h"
+#endif
+
 #ifdef DEBUG_HTTPLOG
 #define HTTPLOG_DEBUG(a...)  debug_printf("httplog: " a)
 #else
 #define HTTPLOG_DEBUG(a...)
 #endif
 
-static char *httplog_tmp_buf;
+static char *httplog_tmp_buf=NULL;
+// httplog_tmp_buf is being cleared after ACK, connection close, connection abort. However if a new connection is created between ACK and abort it is cleared again and nothing is sent.
+uip_conn_t *httpConn=NULL;
 
 // first string is the GET part including the path
 static const char PROGMEM get_string_head[] = "GET " CONF_HTTPLOG_PATH "?";
-// next is the - optional - inclusion of the machine identifier uuid
-#ifdef CONF_HTTPLOG_INCLUDE_UUID
-static const char PROGMEM uuid_string[] = "uuid=" CONF_HTTPLOG_UUID "&";
-#endif
-// the - optional - unix time stamp
-#ifdef CONF_HTTPLOG_INCLUDE_TIMESTAMP
-static const char PROGMEM time_string[] = "time=";
-#endif
 // and the http footer including the http protocol version and the server name
 static const char PROGMEM get_string_foot[] =
   " HTTP/1.1\n" "Host: " CONF_HTTPLOG_SERVICE "\r\n\r\n";
@@ -69,46 +67,73 @@ static const char PROGMEM get_string_foot[] =
 static void
 httplog_net_main(void)
 {
-  if (uip_aborted() || uip_timedout())
+  HTTPLOG_DEBUG("httplog_net_main[%u->%u] start\n",ntohs(uip_conn->lport), ntohs(uip_conn->rport));
+  // we expect that aborted | timeout | closed is only triggered ONCE (otherwise httplog_tmp_buf of another message might be freed)
+  if (uip_aborted() || uip_timedout() || uip_closed())
   {
-    HTTPLOG_DEBUG("connection aborted\n");
-    goto end;
-  }
-
-  if (uip_closed())
-  {
-    HTTPLOG_DEBUG("connection closed\n");
-    goto end;
-  }
-
-
-  if (uip_connected() || uip_rexmit())
-  {
-    HTTPLOG_DEBUG("new connection or rexmit, sending message\n");
-    char *p = uip_appdata;
-    p += sprintf_P(p, get_string_head);
-#ifdef CONF_HTTPLOG_INCLUDE_UUID
-    p += sprintf_P(p, uuid_string);
-#endif
-#ifdef CONF_HTTPLOG_INCLUDE_TIMESTAMP
-    p += sprintf_P(p, time_string);
-    p += sprintf(p, "%lu&", clock_get_time());
-#endif
-    p += sprintf(p, httplog_tmp_buf);
-    p += sprintf_P(p, get_string_foot);
-    uip_udp_send(p - (char *) uip_appdata);
-    HTTPLOG_DEBUG("send %d bytes\n", p - (char *) uip_appdata);
-  }
-
-  if (uip_acked())
-  {
-    uip_close();
-  end:
+    HTTPLOG_DEBUG("httplog_net_main[%u] connection aborted=%d, timedout=%d, closed=%d\n",ntohs(uip_conn->lport), uip_aborted(), uip_timedout(), uip_closed());
+	// according to uip doc cleanup should be called in close(), however this is not called in case of timeout.
     if (httplog_tmp_buf)
     {
       free(httplog_tmp_buf);
       httplog_tmp_buf = NULL;
+      HTTPLOG_DEBUG("httplog_net_main[%u] free httplog_tmp_buf\n",ntohs(uip_conn->lport));
     }
+    goto end;
+  }
+
+/*
+  if (uip_closed())
+  {
+    HTTPLOG_DEBUG("httplog_net_main[%u] connection closed\n",ntohs(uip_conn->lport));
+    // uip docu: cleanup should be here
+    goto end;
+  }
+  */
+
+
+  if (uip_connected() || uip_rexmit())
+  {
+#define BUFFER_AVAIL UIP_APPDATA_SIZE - (p-(char*)uip_appdata)
+    HTTPLOG_DEBUG("httplog_net_main[%u] new connection or rexmit, sending message %p=[%s], UIP_APPDATA_SIZE=%d\n",ntohs(uip_conn->lport),httplog_tmp_buf,httplog_tmp_buf,UIP_APPDATA_SIZE);
+    char *p = uip_appdata;
+    p += snprintf_P(p, BUFFER_AVAIL, get_string_head);
+    // next is the - optional - inclusion of the machine identifier uuid
+#ifdef CONF_HTTPLOG_INCLUDE_UUID
+  #ifdef HTTPLOG_UUID_EEPROM
+    char uuid_buffer[sizeof(CONF_HTTPLOG_UUID)+1];
+	eeprom_restore(httplog_uuid, uuid_buffer, sizeof(uuid_buffer));
+    p += snprintf_P(p, BUFFER_AVAIL, PSTR("uuid=%s&"), uuid_buffer);
+  #else
+    p += snprintf_P(p, BUFFER_AVAIL, PSTR("uuid=%S&"), PSTR(CONF_HTTPLOG_UUID));
+  #endif
+#endif
+    // the - optional - unix time stamp
+#ifdef CONF_HTTPLOG_INCLUDE_TIMESTAMP
+    p += snprintf_P(p, BUFFER_AVAIL, PSTR("time=%lu&"), clock_get_time());
+#endif
+    p += snprintf_P(p, BUFFER_AVAIL, PSTR("%s%S"), httplog_tmp_buf, get_string_foot);
+    if(BUFFER_AVAIL <= 0) {
+      HTTPLOG_DEBUG("httplog_net_main[%u] WARN: buffer too short (%d)\n", BUFFER_AVAIL);
+    }
+    uip_udp_send(p - (char *) uip_appdata);
+    HTTPLOG_DEBUG("httplog_net_main[%u] send %d bytes\n",ntohs(uip_conn->lport), p - (char *) uip_appdata);
+  }
+
+  if (uip_acked())
+  {
+    HTTPLOG_DEBUG("httplog_net_main[%u] acked\n",ntohs(uip_conn->lport));
+    uip_close();
+  end:
+    /*
+    if (httplog_tmp_buf)
+    {
+      free(httplog_tmp_buf);
+      httplog_tmp_buf = NULL;
+      HTTPLOG_DEBUG("httplog_net_main[%d] free httplog_tmp_buf\n",uip_conn->lport);
+    }
+	*/
+    HTTPLOG_DEBUG("httplog_net_main[%u] end\n",ntohs(uip_conn->lport));
   }
 }
 
@@ -116,25 +141,34 @@ static void
 httplog_dns_query_cb(char *name, uip_ipaddr_t * ipaddr)
 {
   HTTPLOG_DEBUG("got dns response, connecting\n");
-  if (!uip_connect(ipaddr, HTONS(80), httplog_net_main))
+  httpConn = uip_connect(ipaddr, HTONS(80), httplog_net_main);
+  if (!httpConn)
+  // if (!uip_connect(ipaddr, HTONS(80), httplog_net_main))
   {
+    HTTPLOG_DEBUG("error\n");
     if (httplog_tmp_buf)
     {
       free(httplog_tmp_buf);
       httplog_tmp_buf = NULL;
     }
   }
+  HTTPLOG_DEBUG("httplog_dns_query_cb done\n");
 
 }
 
-static uint8_t
-httplog_buffer_empty(void)
+/**
+ *
+ * @return true if new buffer could be created
+ */
+uint8_t
+httplog_buffer_empty(int len)
 {
   if (httplog_tmp_buf == 0)
   {
     httplog_tmp_buf = malloc(HTTPLOG_BUFFER_LEN);
     if (httplog_tmp_buf != 0)
       return 1;
+    HTTPLOG_DEBUG("httplog_buffer_empty malloc failed!\n");
   }
 
   return 0;
@@ -143,47 +177,89 @@ httplog_buffer_empty(void)
 static void
 httplog_resolve_address(void)
 {
+  HTTPLOG_DEBUG("httplog_resolve_address\n");
   uip_ipaddr_t *ipaddr;
-  if (!(ipaddr = resolv_lookup(CONF_HTTPLOG_SERVICE)))
+
+  char conf_httplog_service[sizeof(CONF_HTTPLOG_SERVICE)] = CONF_HTTPLOG_SERVICE;
+  if (!(ipaddr = resolv_lookup(conf_httplog_service)))
   {
-    resolv_query(CONF_HTTPLOG_SERVICE, httplog_dns_query_cb);
+    HTTPLOG_DEBUG("httplog_resolve_address resolv_query\n");
+    resolv_query(conf_httplog_service, httplog_dns_query_cb);
+    HTTPLOG_DEBUG("httplog_resolve_address resolv_query done\n");
   }
   else
   {
     httplog_dns_query_cb(NULL, ipaddr);
   }
+  HTTPLOG_DEBUG("httplog_resolve_address done\n");
 }
 
 uint8_t
 httplog(const char *message, ...)
 {
-  uint8_t result = httplog_buffer_empty();
-  if (result)
+  if (httplog_tmp_buf == 0)
   {
     va_list va;
     va_start(va, message);
-    vsnprintf(httplog_tmp_buf, HTTPLOG_BUFFER_LEN, message, va);
+    int len=vsnprintf(NULL, 0, message, va);
     va_end(va);
-    httplog_tmp_buf[HTTPLOG_BUFFER_LEN - 1] = 0;
+    if(len >= HTTPLOG_BUFFER_LEN) {
+      HTTPLOG_DEBUG("error: message too long %d\n", len);
+      return 0;
+    }
+    uint8_t rc=httplog_buffer_empty(len+1);
+    if(!rc) {
+      HTTPLOG_DEBUG("error: allocating buffer\n");
+    } else if(rc) {
+      va_start(va, message);
+      vsnprintf(httplog_tmp_buf, len+1, message, va);
+      va_end(va);
+      httplog_tmp_buf[len] = 0;
+      HTTPLOG_DEBUG("httplog send message [%s]\n", httplog_tmp_buf);
+      httplog_resolve_address();
+      return 1;
+    }
 
-    httplog_resolve_address();
+  } else {
+    HTTPLOG_DEBUG("buffer full, skipping message\n");
+    if(httpConn) {
+      HTTPLOG_DEBUG("buffer full, httpConn->tcp state flags:%d timer:%d\n",httpConn->tcpstateflags, httpConn->timer);
+    }
   }
-  return result;
+  return 0;
 }
 
 uint8_t
 httplog_P(const char *message, ...)
 {
-  uint8_t result = httplog_buffer_empty();
-  if (result)
+  if (httplog_tmp_buf == 0)
   {
     va_list va;
     va_start(va, message);
-    vsnprintf_P(httplog_tmp_buf, HTTPLOG_BUFFER_LEN, message, va);
+    int len=vsnprintf_P(NULL, 0, message, va);
     va_end(va);
-    httplog_tmp_buf[HTTPLOG_BUFFER_LEN - 1] = 0;
+    if(len >= HTTPLOG_BUFFER_LEN) {
+      HTTPLOG_DEBUG("error: message too long %d\n", len);
+      return 0;
+    }
+    uint8_t rc=httplog_buffer_empty(len+1);
+    if(!rc) {
+      HTTPLOG_DEBUG("error: allocating buffer\n");
+   } else if(rc) {
+      va_start(va, message);
+      vsnprintf_P(httplog_tmp_buf, len+1, message, va);
+      va_end(va);
+      httplog_tmp_buf[len] = 0;
+      HTTPLOG_DEBUG("httplog send message [%s] bufferlen=%d\n", httplog_tmp_buf, len);
+      httplog_resolve_address();
+      return 1;
+    }
 
-    httplog_resolve_address();
+  } else {
+    HTTPLOG_DEBUG("buffer full, skipping message\n");
+    if(httpConn) {
+      HTTPLOG_DEBUG("buffer full, httpConn->tcp state flags:%d timer:%d\n",httpConn->tcpstateflags, httpConn->timer);
+    }
   }
-  return result;
+  return 0;
 }

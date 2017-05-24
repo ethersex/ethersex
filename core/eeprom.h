@@ -143,6 +143,11 @@ struct eeprom_config_t
 #ifdef TANKLEVEL_SUPPORT
   tanklevel_params_t tanklevel_params;
 #endif
+
+#ifdef HTTPLOG_UUID_EEPROM
+  char httplog_uuid[sizeof(CONF_HTTPLOG_UUID)+1];
+#endif
+
   uint8_t crc;
 };
 

@@ -241,19 +241,25 @@ u16_t lastport;              /* Keeps track of the last port used for
 #if !UIP_MULTI_STACK
 struct uip_stats uip_stat;
 #endif
-#define UIP_STAT(s) s
+#  define UIP_STAT(s) s
 #else
-#define UIP_STAT(s)
+#  define UIP_STAT(s)
 #endif /* UIP_STATISTICS == 1 */
 
+#define LOG_PREFIX "uip: "
+
 #ifdef DEBUG_UIP
-# include "core/debug.h"
-# define DEBUG_PRINTF(a...) debug_printf(a)
+#  include "protocols/uip/parse.h"
+#  include "core/debug.h"
+#  define DEBUG_PRINTF(a...) debug_printf(LOG_PREFIX a)
 #else
-# define DEBUG_PRINTF(a...)
+#  define DEBUG_PRINTF(a...)
 #endif
 
-#define UIP_LOG(m) DEBUG_PRINTF("uip: " m "\n")
+void debug_print_buffer(const char *prefix);
+#define DEBUG_PRINT_BUFFER(text) debug_print_buffer(PSTR(text))
+
+#define UIP_LOG(m) DEBUG_PRINTF(m "\n")
 
 #if ! UIP_ARCH_ADD32 && UIP_TCP
 /* Temporary variable */
@@ -708,8 +714,12 @@ uip_process(u8_t flag)
     if(uip_connr->tcpstateflags == UIP_TIME_WAIT ||
        uip_connr->tcpstateflags == UIP_FIN_WAIT_2) {
       ++(uip_connr->timer);
-      if(uip_connr->timer == UIP_TIME_WAIT_TIMEOUT) {
-	uip_connr->tcpstateflags = UIP_CLOSED;
+      if(uip_connr->tcpstateflags == UIP_TIME_WAIT && uip_connr->timer == UIP_TIME_WAIT_TIMEOUT) {
+        UIP_LOG("ip: timeout connection (UIP_TIME_WAIT)");
+        uip_connr->tcpstateflags = UIP_CLOSED;
+      } else if(uip_connr->tcpstateflags == UIP_FIN_WAIT_2 && uip_connr->timer == UIP_FIN_WAIT_2_TIMEOUT) {
+        UIP_LOG("ip: timeout connection (UIP_FIN_WAIT_2)");
+        uip_connr->tcpstateflags = UIP_CLOSED;
       }
     } else if(uip_connr->tcpstateflags != UIP_CLOSED) {
       /* Decrease the connection inactive timer */
@@ -841,7 +851,11 @@ uip_process(u8_t flag)
   if(BUF->vhl != 0x45)  { /* IP version and header length. */
     UIP_STAT(++uip_stat.ip.drop);
     UIP_STAT(++uip_stat.ip.vhlerr);
-    UIP_LOG("ip: invalid version or header length.");
+    if((BUF->vhl & 0xf0) != 0x60) {
+      UIP_LOG("dropping IPV6 packet");
+    } else {
+      UIP_LOG("invalid version or header length.");
+    }
     goto drop;
   }
 #endif /* UIP_CONF_IPV6 */
@@ -892,7 +906,7 @@ uip_process(u8_t flag)
        UDP packet, which may be destined to us. */
 #if UIP_BROADCAST
 #if !UIP_CONF_IPV6
-    DEBUG_PRINTF("UDP IP checksum 0x%04x\n", uip_ipchksum());
+    DEBUG_PRINTF("UDP: IP checksum 0x%04x\n", uip_ipchksum());
 #endif
     if(BUF->proto == UIP_PROTO_UDP &&
        uip_ipaddr_cmp(BUF->destipaddr, all_ones_addr)
@@ -1084,10 +1098,10 @@ ip_check_end:
     UIP_STAT(++uip_stat.icmp.sent);
     goto send;
   } else {
-    DEBUG_PRINTF("Unknown icmp6 message type %d\n", ICMPBUF->type);
+    DEBUG_PRINTF("ICMP: Unknown icmp6 message type %d\n", ICMPBUF->type);
     UIP_STAT(++uip_stat.icmp.drop);
     UIP_STAT(++uip_stat.icmp.typeerr);
-    UIP_LOG("icmp: unknown ICMP message.");
+    // UIP_LOG("ICMP: unknown ICMP message.");
     goto drop;
   }
 
@@ -1109,7 +1123,7 @@ ip_check_end:
   if(UDPBUF->udpchksum != 0 && uip_udpchksum() != 0xffff) {
     UIP_STAT(++uip_stat.udp.drop);
     UIP_STAT(++uip_stat.udp.chkerr);
-    UIP_LOG("udp: bad checksum.");
+    UIP_LOG("UDP: bad checksum.");
     goto drop;
   }
 #else /* UIP_UDP_CHECKSUMS */
@@ -1137,8 +1151,7 @@ ip_check_end:
       goto udp_found;
     }
   }
-  DEBUG_PRINTF("udp: no matching connection found, sport %hu, dport %hu\n",
-               ntohs(UDPBUF->srcport), ntohs(UDPBUF->destport));
+  DEBUG_PRINT_BUFFER("UDP: no matching connection found");
   goto drop;
 
  udp_found:
@@ -1183,7 +1196,7 @@ ip_check_end:
   if(UDPBUF->udpchksum == 0) {
     UDPBUF->udpchksum = 0xffff;
   }
-  DEBUG_PRINTF("uIP: built UDP IP checksum 0x%04x\n", UDPBUF->udpchksum);
+  DEBUG_PRINTF("UDP outgoing checksum 0x%04x\n", UDPBUF->udpchksum);
 #endif /* UIP_UDP_CHECKSUMS */
 
   goto ip_send_nolen;
@@ -1192,6 +1205,9 @@ ip_check_end:
 #if UIP_TCP
   /* TCP input processing. */
  tcp_input:
+
+  DEBUG_PRINT_BUFFER("ip: incoming packet");
+
   UIP_STAT(++uip_stat.tcp.recv);
 
   /* Start of TCP input header processing code. */
@@ -1200,7 +1216,7 @@ ip_check_end:
 				       checksum. */
     UIP_STAT(++uip_stat.tcp.drop);
     UIP_STAT(++uip_stat.tcp.chkerr);
-    UIP_LOG("tcp: bad checksum.");
+    UIP_LOG("TCP: bad checksum.");
     goto drop;
   }
 
@@ -1499,6 +1515,8 @@ ip_check_end:
 
   }
 
+  DEBUG_PRINTF("big switch - tcpstateflags=%d\n", uip_connr->tcpstateflags);
+
   /* Do different things depending on in what state the connection is. */
   switch(uip_connr->tcpstateflags & UIP_TS_MASK) {
     /* CLOSED and LISTEN are not handled here. CLOSE_WAIT is not
@@ -1709,6 +1727,7 @@ ip_check_end:
       }
 
       if(uip_flags & UIP_CLOSE) {
+        UIP_LOG("ip: closing connection, setting FIN_WAIT_1");
 	uip_slen = 0;
 	uip_connr->len = 1;
 	uip_connr->tcpstateflags = UIP_FIN_WAIT_1;
@@ -1791,6 +1810,7 @@ ip_check_end:
     }
     if(BUF->flags & TCP_FIN) {
       if(uip_flags & UIP_ACKDATA) {
+        DEBUG_PRINTF("UIP_FIN_WAIT_1 + TCP_FIN\n");
 	uip_connr->tcpstateflags = UIP_TIME_WAIT;
 	uip_connr->timer = 0;
 	uip_connr->len = 0;
@@ -1809,6 +1829,7 @@ ip_check_end:
     if(uip_len > 0) {
       goto tcp_send_ack;
     }
+    /* FIXME: the remote side may still send data we could process */
     goto drop;
 
   case UIP_FIN_WAIT_2:
@@ -1826,10 +1847,13 @@ ip_check_end:
     if(uip_len > 0) {
       goto tcp_send_ack;
     }
+    /* FIXME: the remote side may still send data we could process */
     goto drop;
 
   case UIP_TIME_WAIT:
-    goto tcp_send_ack;
+    /* 20170317 according to TCP - state machine theres nothing to send in TIME_WAIT - connection is closed on both sides */
+    goto drop;
+    // goto tcp_send_ack;
 
   case UIP_CLOSING:
     if(uip_flags & UIP_ACKDATA) {
@@ -1924,13 +1948,15 @@ ip_check_end:
   /* Calculate IP checksum. */
   BUF->ipchksum = 0;
   BUF->ipchksum = ~(uip_ipchksum());
-  DEBUG_PRINTF("uip ip_send_nolen: ipchksum 0x%04x\n", BUF->ipchksum);
+  DEBUG_PRINTF("ip: ip_send_nolen: ipchksum 0x%04x\n", BUF->ipchksum);
 #endif /* UIP_CONF_IPV6 */
 
   UIP_STAT(++uip_stat.tcp.sent);
  send:
-  DEBUG_PRINTF("Sending packet with length %d (%d)\n", uip_len,
-	       (BUF->len[0] << 8) | BUF->len[1]);
+  DEBUG_PRINTF("ip: Sending packet with length %d (%d) flags:%x \n", uip_len,
+	       (BUF->len[0] << 8) | BUF->len[1], BUF->flags);
+  DEBUG_PRINT_BUFFER("ip: Sending packet");
+
 
   UIP_STAT(++uip_stat.ip.sent);
   /* Return and let the caller do the actual transmission. */
@@ -1941,6 +1967,7 @@ ip_check_end:
   uip_flags = 0;
   return;
 }
+
 /*---------------------------------------------------------------------------*/
 void
 uip_send(const void *data, int len)
@@ -1998,6 +2025,34 @@ uip_udp_timer(void)
 
   return;
 }
+#endif
+
+#ifdef DEBUG_UIP
+void debug_print_buffer(const char* prefix) {
+      char sip[16];
+      char dip[16];
+      uint32_t ackno=0;
+      uint8_t *acknop=(uint8_t*) &ackno;
+      acknop[0]=BUF->ackno[3]; acknop[1]=BUF->ackno[2]; acknop[2]=BUF->ackno[1]; acknop[3]=BUF->ackno[0];
+      uint32_t seqno=0;
+      uint8_t *seqnop=(uint8_t*) &seqno;
+      seqnop[0]=BUF->seqno[3]; seqnop[1]=BUF->seqno[2]; seqnop[2]=BUF->seqno[1]; seqnop[3]=BUF->seqno[0];
+      print_ipaddr(&BUF->srcipaddr, sip, sizeof(sip));
+      print_ipaddr(&BUF->destipaddr, dip, sizeof(dip));
+      DEBUG_PRINTF("%S %s:%hu -> %s:%hu length: %d, flags:%x (%S%S%S%S%S%S%S) seq:%lx, ack:%lx\n",
+        prefix,
+        sip, ntohs(UDPBUF->srcport), dip, ntohs(UDPBUF->destport), uip_len, BUF->flags,
+        BUF->flags & TCP_FIN ? PSTR("FIN ") : PSTR(""),
+        BUF->flags & TCP_SYN ? PSTR("SYN ") : PSTR(""),
+        BUF->flags & TCP_RST ? PSTR("RST ") : PSTR(""),
+        BUF->flags & TCP_PSH ? PSTR("PSH ") : PSTR(""),
+        BUF->flags & TCP_ACK ? PSTR("ACK ") : PSTR(""),
+        BUF->flags & TCP_URG ? PSTR("URG ") : PSTR(""),
+        BUF->flags & TCP_CTL ? PSTR("CTL ") : PSTR(""),
+	seqno,
+	ackno
+	);
+ }
 #endif
 
 /** @} */

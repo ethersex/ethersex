@@ -1878,6 +1878,11 @@ CONF_HTTPLOG_INCLUDE_UUID
 
   For more information about uuids See also http://en.wikipedia.org/wiki/Uuid
 
+HTTPLOG_UUID_EEPROM
+
+  Store UUID in eeprom
+  UUID can be set via ecmd ht-uuid command
+
 Twitter/identi.ca client
 TWITTER_SUPPORT
   Depends on:
