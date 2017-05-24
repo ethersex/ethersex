@@ -14,7 +14,9 @@ The final hex file is named `ethersex.hex`.
 
 How to add a new hardware pinning
 =================================
-Use the script at `scripts/add-hardware` to add a new pinning.
+* Make `make menuconfig` and configure hardware / select features
+* Save configuration as .config file
+* Use the script at `scripts/add-hardware` to add a new pinning.
 
 
 Used 3rd party software 
@@ -32,7 +34,21 @@ All ethersex related code is licensed under GPLv3, unless otherwise noted. See C
 directory, but in doubt check the file header. Usually every file contains a
 header, stating all contributing authors and the specific license used.
 
-Various make targets
+Make targets
 ====================
 
-* `make show-config` -- Shows the activated modules
+Configuration targets:
+  - menuconfig    - Update current config utilising a menu based program (default when .config does not exist)
+
+Cleaning targets:
+  - clean         - Remove bin and dep files
+  - fullclean     - Same as clean, but also remove object files
+  - mrproper      - Same as fullclean, but also remove all config files
+
+Information targets:
+  - show-config   - show enabled modules
+  - size-info     - show size information of compiled binary
+
+Other generic targets:
+  - all           - Build everything as specified in .config (default if .config exists)
+  - v             - Same as all but with logging to make.log enabled
