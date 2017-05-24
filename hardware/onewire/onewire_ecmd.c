@@ -122,7 +122,7 @@ parse_cmd_onewire_list(char *cmd, char *output, uint16_t len)
 #endif
 #ifdef ONEWIRE_ECMD_LIST_VALUES_SUPPORT
         char temperature[7];
-        itoa_fixedpoint(ow_sensors[i].temp.val,
+        itoa_fixedpoint( ow_sensors[i].temp.val&0x4000?(0x8000|ow_sensors[i].temp.val):ow_sensors[i].temp.val , 
                         ow_sensors[i].temp.twodigits + 1, temperature,
                         sizeof(temperature));
 #endif
@@ -204,7 +204,8 @@ parse_cmd_onewire_get(char *cmd, char *output, uint16_t len)
     ow_sensor_t *sensor = ow_find_sensor(&rom);
     if (sensor != NULL)
       ret =
-        itoa_fixedpoint(sensor->temp.val, sensor->temp.twodigits + 1,
+        itoa_fixedpoint( sensor->temp.val&0x4000?(0x8000|sensor->temp.val):sensor->temp.val,
+                        sensor->temp.twodigits + 1,
                         output, len);
     else
       ret = snprintf_P(output, len, PSTR("sensor not in list!"));
