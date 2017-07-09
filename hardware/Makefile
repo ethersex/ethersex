@@ -23,6 +23,7 @@ SUBSUBDIRS += hardware/lcd/s1d13305
 SUBSUBDIRS += hardware/onewire
 SUBSUBDIRS += hardware/pwm
 SUBSUBDIRS += hardware/sms
+SUBSUBDIRS += hardware/radio/bluetooth
 SUBSUBDIRS += hardware/radio/fs20
 SUBSUBDIRS += hardware/radio/rfm12
 SUBSUBDIRS += hardware/radio/generic

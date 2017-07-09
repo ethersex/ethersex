@@ -5,5 +5,6 @@ mainmenu_option next_comment
   source hardware/radio/fs20/config.in
   source hardware/radio/rfm12/rfm12_ask_config.in
   source hardware/radio/generic/config.in
+  source hardware/radio/bluetooth/config.in
 
 endmenu

@@ -1,0 +1,26 @@
+usart_count_used
+if [ "$BLUETOOTH_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
+
+  dep_bool_menu "Bluetooth" BLUETOOTH_SUPPORT $ARCH_AVR
+  if [ "$BLUETOOTH_SUPPORT" = y ]; then
+    choice '  Bluetooth usart select' "$(usart_choice BLUETOOTH)"
+    usart_process_choice BLUETOOTH
+    int "USART Baudrate" BLUETOOTH_BAUDRATE 115200
+    string "Device Name" BLUETOOTH_NAME "ethersex"
+    string "Device PIN" BLUETOOTH_PIN "1234"
+
+    comment  "ECMD"
+    if [ "$TEENSY_SUPPORT" = "y" ]; then
+      dep_bool 'AT Command Interface' BLUETOOTH_ECMD $BLUETOOTH_SUPPORT n
+    else
+      dep_bool 'AT Command Interface' BLUETOOTH_ECMD $BLUETOOTH_SUPPORT
+    fi
+
+    comment  "Debugging Flags"
+    dep_bool 'Bluetooth' DEBUG_BLUETOOTH $BLUETOOTH_SUPPORT $DEBUG
+  fi
+  endmenu
+else
+  define_bool BLUETOOTH_SUPPORT n
+  comment "BLUETOOTH not available. No free usart. ($USARTS_USED/$USARTS)"
+fi

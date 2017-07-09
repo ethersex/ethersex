@@ -1,0 +1,39 @@
+Scanning for bluetooth device
+$ hcitool scan
+
+Scanning ...
+20:13:05:02:01:89 HC-05
+
+HC-05 don't seems to have SDP (service discovery protocol), don't bother
+scanning for services with sdptool
+
+Just connect using rfcomm, this command will create /dev/rfcomm0 character
+device
+
+$ sudo rfcomm -r bind rfcomm0 20:13:05:02:01:89
+
+-r is for raw connection, if not rfcomm will send "AT+GCAP" once it is connect
+
+When the device is used, it will automatically connect when the device is
+opened
+
+$ cat /dev/rfcomm0
+
+Another way is to connect directly:
+
+$ sudo rfcomm -r connect rfcomm0 20:13:05:02:01:89
+Connected /dev/rfcomm0 to 20:13:05:02:01:89 on channel 1
+Press CTRL-C for hangup
+
+Then in another terminal, use screen to connect:
+
+$ screen /dev/rfcomm0
+
+This will release the device
+
+$ sudo rfcomm release rfcomm0
+
+
+Links:
+http://captainunlikely.blogspot.de/2012/01/bluetooth-teensyduino-and-linux.html
+

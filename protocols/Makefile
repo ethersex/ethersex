@@ -28,6 +28,7 @@ SUBSUBDIRS += protocols/ecmd/via_i2c
 SUBSUBDIRS += protocols/ecmd/via_tcp
 SUBSUBDIRS += protocols/ecmd/via_udp
 SUBSUBDIRS += protocols/ecmd/via_usart
+SUBSUBDIRS += protocols/ecmd/via_bluetooth
 SUBSUBDIRS += protocols/irc
 SUBSUBDIRS += protocols/soap
 SUBSUBDIRS += protocols/httplog
