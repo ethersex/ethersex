@@ -1,0 +1,46 @@
+#
+# Named Pin Configuration File for Arduino Pro Mini
+# based on https://www.arduino.cc/en/Hacking/Atmega168Hardware
+#
+# Copyright (c) 2017 by Erik Kunze <ethersex@erik-kunze.de>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#
+# PIN | IN/OUT | When active? | Name
+#-----+--------+--------------+----------------
+PC0  	INPUT    HIGH		A0
+PC1  	INPUT    HIGH		A1
+PC2  	INPUT    HIGH		A2
+PC3  	INPUT    HIGH		A3
+PC4  	INPUT    HIGH		A4
+PC5  	INPUT    HIGH		A5
+PC6  	INPUT    HIGH		A6
+PC7  	INPUT    HIGH		A7
+PD0	OUTPUT   HIGH		D0
+PD1	OUTPUT   HIGH		D1
+PD2	OUTPUT   HIGH		D2
+PD3	OUTPUT   HIGH		D3
+PD4	OUTPUT   HIGH		D4
+PD5	OUTPUT   HIGH		D5
+PD6	OUTPUT   HIGH		D6
+PD7	OUTPUT   HIGH		D7
+PB0	OUTPUT   HIGH		D8
+PB1	OUTPUT   HIGH		D9
+PB2	OUTPUT   HIGH		D10
+PB3	OUTPUT   HIGH		D11
+PB4	OUTPUT   HIGH		D12
+PB5	OUTPUT   HIGH		D13
