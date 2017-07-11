@@ -76,7 +76,7 @@ EEPROM_PAGESIZE=0x8
 # SPI_TIMEOUT is not set
 # USART_SPI_SUPPORT is not set
 # SOFT_SPI_SUPPORT is not set
-GIT_VERSION="4149e721"
+GIT_VERSION="4f7e9d6"
 # DEBUG_DISCARD_SOME is not set
 # DEBUG is not set
 # DEBUG_USE_SYSLOG is not set
@@ -412,6 +412,7 @@ CONF_FS20_PORT=2701
 # RFM12_ASK_868_SUPPORT is not set
 # DEBUG_ASK_SENSE is not set
 # GENERIC_ASK_SUPPORT is not set
+# BLUETOOTH_SUPPORT is not set
 
 #
 # IR Receivers
@@ -576,6 +577,7 @@ ECMD_TCP_PORT=2701
 # ECMD_UDP_SUPPORT is not set
 # ECMD_SERIAL_I2C_SUPPORT is not set
 # ECMD_USB_SUPPORT is not set
+# ECMD_BLUETOOTH_SUPPORT is not set
 # ECMD_JABBER_SUPPORT is not set
 # ECMD_IRC_SUPPORT is not set
 # ECMD_SMS_SUPPORT is not set
