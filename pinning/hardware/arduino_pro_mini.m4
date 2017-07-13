@@ -1,7 +1,7 @@
 dnl
-dnl arduino_mega2560_r3.m4
+dnl arduino_pro_mini.m4
 dnl
-dnl   Copyright (c) 2016 by Erik Kunze <ethersex@erik-kunze.de>
+dnl   Copyright (c) 2017 by Erik Kunze <ethersex@erik-kunze.de>
 dnl  
 dnl   This program is free software; you can redistribute it and/or modify
 dnl   it under the terms of the GNU General Public License as published by 
@@ -20,6 +20,6 @@ dnl   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 dnl 
 
 ifdef(`conf_STATUSLED_HB_ACT', `dnl
-  pin(STATUSLED_HB_ACT, PB7, OUTPUT)
+  pin(STATUSLED_HB_ACT, PB5, OUTPUT)
 ')dnl
 
