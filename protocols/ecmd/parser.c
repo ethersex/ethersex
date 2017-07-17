@@ -207,13 +207,21 @@ parse_cmd_free(char *cmd, char *output, uint16_t len)
       return ECMD_AGAIN(snprintf_P(output, len,
                                    PSTR("free: %u/%u"),
                                    SP - f, RAM_SIZE));
+#ifndef UIP_SUPPORT
+    default:
+      return ECMD_FINAL(snprintf_P(output, len,
+                                   PSTR("heap: %u"),
+                                   f - (size_t) & __heap_start));
+#else
     case 1:
       return ECMD_AGAIN(snprintf_P(output, len,
                                    PSTR("heap: %u"),
                                    f - (size_t) & __heap_start));
+    default:
+      return ECMD_FINAL(snprintf_P(output, len,
+                                   PSTR("net: " xstr(NET_MAX_FRAME_LENGTH))));
+#endif
   }
-  return ECMD_FINAL(snprintf_P(output, len,
-                               PSTR("net: " xstr(NET_MAX_FRAME_LENGTH))));
 }
 #endif /* FREE_SUPPORT */
 
