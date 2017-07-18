@@ -32,7 +32,7 @@
 #ifdef ECMD_BLUETOOTH_SUPPORT
 bool bt_init_finished;
 #endif
-#ifdef BLUETOOTH_ECMD
+#if defined(ECMD_PARSER_SUPPORT) && defined(DEBUG_BLUETOOTH)
 uint16_t bt_rx_frameerror;
 uint16_t bt_rx_overflow;
 uint16_t bt_rx_parityerror;
@@ -97,7 +97,7 @@ ISR(usart(USART, _UDRE_vect))
   }
   usart(UDR) = tx_buff[tx_out];
   ROLLOVER(tx_out, NELEMS(tx_buff));
-#ifdef BLUETOOTH_ECMD
+#if defined(ECMD_PARSER_SUPPORT) && defined(DEBUG_BLUETOOTH)
   bt_tx_count++;
 #endif
 }
@@ -109,7 +109,7 @@ ISR(usart(USART, _RX_vect))
   uint8_t flags = usart(UCSR, A);
   if (flags & (_BV(usart(FE)) | _BV(usart(DOR)) | _BV(usart(UPE))))
   {
-#ifdef BLUETOOTH_ECMD
+#if defined(ECMD_PARSER_SUPPORT) && defined(DEBUG_BLUETOOTH)
     if (flags & _BV(usart(FE)))
       bt_rx_frameerror++;
     if (flags & _BV(usart(DOR)))
@@ -131,7 +131,7 @@ ISR(usart(USART, _RX_vect))
 
   rx_buff[rx_in] = usart(UDR);
   rx_in = i;
-#ifdef BLUETOOTH_ECMD
+#if defined(ECMD_PARSER_SUPPORT) && defined(DEBUG_BLUETOOTH)
   bt_rx_count++;
 #endif
 #ifdef ECMD_BLUETOOTH_SUPPORT

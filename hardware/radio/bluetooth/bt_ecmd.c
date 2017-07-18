@@ -29,6 +29,7 @@
 #include "bt_usart.h"
 #include "bt_ecmd.h"
 
+#ifdef BLUETOOTH_ECMD_AT
 int16_t
 parse_cmd_bt_at(char *cmd, char *output, uint16_t len)
 {
@@ -41,7 +42,9 @@ parse_cmd_bt_at(char *cmd, char *output, uint16_t len)
 
   return ECMD_FINAL(bt_send_with_response(output, len, cmd));
 }
+#endif
 
+#if defined(DEBUG_BLUETOOTH)
 int16_t
 parse_cmd_bt_stats(char *cmd, char *output, uint16_t len)
 {
@@ -55,10 +58,15 @@ parse_cmd_bt_stats(char *cmd, char *output, uint16_t len)
                              bt_rx_count,
                              bt_tx_count));
 }
+#endif
 
 /*
   -- Ethersex META --
   block(Bluetooth SPP Module ([[Bluetooth]]))
-  ecmd_feature(bt_at, "bt cmd",,send an AT command)
-  ecmd_feature(bt_stats, "bt stats",,report statistics counter)
+  ecmd_ifdef(BLUETOOTH_ECMD_AT)
+    ecmd_feature(bt_at, "bt cmd",,send an AT command)
+  ecmd_endif()
+  ecmd_ifdef(DEBUG_BLUETOOTH)
+    ecmd_feature(bt_stats, "bt stats",,report statistics counter)
+  ecmd_endif()
 */

@@ -11,9 +11,9 @@ if [ "$BLUETOOTH_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
 
     comment  "ECMD"
     if [ "$TEENSY_SUPPORT" = "y" ]; then
-      dep_bool 'AT Command Interface' BLUETOOTH_ECMD $BLUETOOTH_SUPPORT n
+      dep_bool 'AT Command Interface' BLUETOOTH_ECMD_AT $BLUETOOTH_SUPPORT n
     else
-      dep_bool 'AT Command Interface' BLUETOOTH_ECMD $BLUETOOTH_SUPPORT
+      dep_bool 'AT Command Interface' BLUETOOTH_ECMD_AT $BLUETOOTH_SUPPORT
     fi
 
     comment  "Debugging Flags"
@@ -22,5 +22,5 @@ if [ "$BLUETOOTH_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
   endmenu
 else
   define_bool BLUETOOTH_SUPPORT n
-  comment "BLUETOOTH not available. No free usart. ($USARTS_USED/$USARTS)"
+  comment "Bluetooth not available. No free usart. ($USARTS_USED/$USARTS)"
 fi
