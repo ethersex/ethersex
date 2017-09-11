@@ -91,6 +91,22 @@
                         255 - PORTIO_MASK_L   /* port l from pinning.m4 */ \
                        }
 
+/* ATMega32u4 */
+#elif defined(_ATMEGA32U4)
+
+
+#define IO_HARD_PORTS 5
+#define IO_DDR_ARRAY {&DDRB, &DDRC, &DDRD, &DDRE, &DDRF}
+#define IO_PORT_ARRAY {&PORTB, &PORTC, &PORTD, &PORTE, &PORTF}
+#define IO_PIN_ARRAY {&PINB, &PINC, &PIND, &PINE, &PINF}
+#define IO_MASK_ARRAY {                                              \
+                        255 - PORTIO_MASK_B , /* port b from pinning.m4 */ \
+                        255 - PORTIO_MASK_C , /* port c from pinning.m4 */ \
+                        255 - PORTIO_MASK_D , /* port d from pinning.m4 */ \
+                        255 - PORTIO_MASK_E , /* port e from pinning.m4 */ \
+                        255 - PORTIO_MASK_F   /* port f from pinning.m4 */ \
+                       }
+
 /* ATMega169 | AT90CAN128 | AT90CAN64 | AT90CAN32 */
 #elif defined(_ATMEGA169) || defined(_AT90CAN128) || defined(_AT90CAN64) || defined(_AT90CAN32)
 

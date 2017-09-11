@@ -36,7 +36,7 @@
 #define _usart_cat_(a,b) a ## b
 #define _usart_cat(a,b) _usart_cat_(a,b)
 
-#if !defined(UDR0) || !defined(USE_USART)
+#if (!defined(UDR0) && !defined(UDR1))
 #undef USE_USART
 #define USE_USART
 #endif
@@ -51,8 +51,6 @@
 #  elif defined(USART_TXC_vect)
 #    define USART_TX_vect USART_TXC_vect
 #    define USART_RX_vect USART_RXC_vect
-#  else
-#    error "I hate avr-libc"
 #  endif
 #endif
 

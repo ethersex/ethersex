@@ -5,29 +5,24 @@
 get_usart_count() {
   USARTS=$(echo "#include <avr/io.h>" | avr-gcc -mmcu=$MCU -E -dD - |\
     ${AWK} "BEGIN {numusart=0};\
-     /.* UDR[0-9]* .*\$/ { num=substr(\$2, 4);\
-     num++;\
-     if ( num > numusart ) { numusart=num } };\
+     /.* UDR[0-9]* .*\$/ { numusart++ };\
      END { print numusart }")
 }
 
 usart_choice() {
-  i=0
-  while [ $i -lt $USARTS ]; do
-    echo "$i  $1_USART_$i"
-    i=$(( $i + 1))
-  done
+  echo "#include <avr/io.h>" | avr-gcc -mmcu=$MCU -E -dD - |\
+    ${AWK} -v prefix=$1 "/.* UDR[0-9]* .*\$/ { num=substr(\$2, 4); printf \"%s  %s_USART_%s\n\", num, prefix, num }"
 }
 
 usart_process_choice() {
-  i=0
-  while [ $i -lt $USARTS ]; do
+  echo "#include <avr/io.h>" | avr-gcc -mmcu=$MCU -E -dD - |\
+    ${AWK} "/.* UDR[0-9]* .*\$/ { print substr(\$2, 4); }" |\
+  while read i; do
   	this_usart=$(eval "echo \$${1}_USART_${i}")
     if [ "$this_usart" = y ]; then
       define_symbol "$1_USE_USART" $i
       break
     fi
-    i=$(( $i + 1))
   done
 }
 

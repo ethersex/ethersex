@@ -1,0 +1,48 @@
+#
+# Named Pin Configuration File for Arduino Pro Micro
+#
+# Copyright (c) 2017 by Erik Kunze <ethersex@erik-kunze.de>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+#
+# PIN | IN/OUT | When active? | Name
+#-----+--------+--------------+----------------
+PF7  	INPUT    HIGH		A0
+PF6  	INPUT    HIGH		A1
+PF5  	INPUT    HIGH		A2
+PF4  	INPUT    HIGH		A3
+#PD4  	INPUT    HIGH		A6
+#PD7  	INPUT    HIGH		A7
+#PB4  	INPUT    HIGH		A8
+#PB5  	INPUT    HIGH		A9
+#PB6  	INPUT    HIGH		A10
+#PD2	OUTPUT   HIGH		D0
+#PD3	OUTPUT   HIGH		D1
+PD1	OUTPUT   HIGH		D2
+PD0	OUTPUT   HIGH		D3
+PD4	OUTPUT   HIGH		D4
+PD6	OUTPUT   HIGH		D5
+PD7	OUTPUT   HIGH		D6
+PE6	OUTPUT   HIGH		D7
+PB4	OUTPUT   HIGH		D8
+PB5	OUTPUT   HIGH		D9
+PB6	OUTPUT   HIGH		D10
+PB3	OUTPUT   HIGH		D14
+PB1	OUTPUT   HIGH		D15
+PB2	OUTPUT   HIGH		D16
+PB0	OUTPUT   HIGH		D17
+PD5	OUTPUT   HIGH		D24

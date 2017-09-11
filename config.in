@@ -28,6 +28,7 @@ if [ "$ARCH_AVR" = "y" ]; then
 		 ATmega169    atmega169		\
 		 ATmega32     atmega32		\
 		 ATmega328p   atmega328p	\
+		 ATmega32u4   atmega32u4	\
 		 ATmega64     atmega64		\
 		 ATmega644    atmega644		\
 		 ATmega644p   atmega644p	\
