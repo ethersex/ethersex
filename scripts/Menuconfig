@@ -1127,6 +1127,7 @@ Select the default profile you wish to load. \
 			arduino_duemilanove "Arduino Duemilanove"			0 \
 			arduino_mega2560_r3 "Arduino Mega2560 R3"			0 \
 			arduino_pro_mini  "Arduino Pro Mini"				0 \
+			arduino_pro_micro "Arduino Pro Micro"				0 \
 			rfm12-teensy	  "RFM12 Standalone"				0 \
 			zbus-teensy	  "ZBUS Standalone"				0 \
 			usb-teensy	  "USB (Network) Standalone"			0 \
