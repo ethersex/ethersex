@@ -11,12 +11,12 @@ get_usart_count() {
 
 usart_choice() {
   echo "#include <avr/io.h>" | avr-gcc -mmcu=$MCU -E -dD - |\
-    ${AWK} -v prefix=$1 "/.* UDR[0-9]* .*\$/ { num=substr(\$2, 4); printf \"%s  %s_USART_%s\n\", num, prefix, num }"
+    ${AWK} -v prefix=$1 "/.* UDR[0-9]* .*\$/ { num=substr(\$2, 4); if (length(num)==0) num=\"0\"; printf \"%s  %s_USART_%s\n\", num, prefix, num }"
 }
 
 usart_process_choice() {
   echo "#include <avr/io.h>" | avr-gcc -mmcu=$MCU -E -dD - |\
-    ${AWK} "/.* UDR[0-9]* .*\$/ { print substr(\$2, 4); }" |\
+    ${AWK} "/.* UDR[0-9]* .*\$/ { num=substr(\$2, 4); if (length(num)==0) num=\"0\"; print num }" |\
   while read i; do
   	this_usart=$(eval "echo \$${1}_USART_${i}")
     if [ "$this_usart" = y ]; then
