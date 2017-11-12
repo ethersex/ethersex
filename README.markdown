@@ -21,10 +21,10 @@ Used 3rd party software
 =======================
 This program contains software by other authors:
 
-* [the uIP tcp/ip stack](http://www.sics.se/~adam/uip) in the directory `/protocols/uip/`, written by Adam Dunkels
-* [usb-software stack from obdev](http://www.obdev.at/products/vusb/index.html) in `/protocols/usb/usbdrv/`
-* [sd card reader](http://www.roland-riegel.de/sd-reader/index.html) in `/hardware/storage/sd_reader`
-* [IRMP - Infrared Multi Protocol Decoder](https://www.mikrocontroller.net/articles/IRMP) in `/hardware/ir/irmp/lib` written by Frank Meyer
+* [the uIP tcp/ip stack](https://github.com/adamdunkels/uip) in the directory `/protocols/uip/`, written by Adam Dunkels
+* [usb-software stack from obdev](https://www.obdev.at/products/vusb/index.html) in `/protocols/usb/usbdrv/`, written by Objective Development
+* [sd card reader](http://www.roland-riegel.de/sd-reader/) in `/hardware/storage/sd_reader`, written by Roland Riegel
+* [IRMP - Infrared Multi Protocol Decoder](https://www.mikrocontroller.net/articles/IRMP) in `/hardware/ir/irmp/lib`, written by Frank Meyer
 
 License
 =======
