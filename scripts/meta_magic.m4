@@ -252,6 +252,9 @@ divert(eval(timer_divert_base`+'timer_divert_last` * 2 + 2'))
 #ifdef USE_WATCHDOG
       wdt_disable();
 #endif
+#ifdef _ATMEGA2560
+      EIND = 0x00;
+#endif
       void (*jump_to_application)(void) = NULL;
       jump_to_application();
     }
