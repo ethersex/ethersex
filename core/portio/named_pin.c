@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
- * Copyright (c) 2014 by Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) 2014-2017 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -33,16 +33,12 @@
 #include "portio.h"
 #include "user_config.c"
 
-#ifndef NELEMS
-#define NELEMS(x) (sizeof(x)/sizeof(x[0]))
-#endif
-
 
 void
 named_pin_init(void)
 {
   /* Parse pin table */
-  for (uint8_t i = 0; i < NELEMS(portio_pincfg); i++)
+  for (uint8_t i = 0; i < NAMEDPIN_COUNT; i++)
   {
     uint8_t port = pgm_read_byte(&portio_pincfg[i].port);
     uint8_t pin = pgm_read_byte(&portio_pincfg[i].pin);
@@ -69,7 +65,7 @@ named_pin_init(void)
 uint8_t
 named_pin_by_name(const char *name)
 {
-  for (uint8_t i = 0; i < NELEMS(portio_pincfg); i++)
+  for (uint8_t i = 0; i < NAMEDPIN_COUNT; i++)
   {
     const char *tmp = (const char *) pgm_read_word(&portio_pincfg[i].name);
     if (strcmp_P(name, tmp) == 0)
@@ -82,7 +78,7 @@ named_pin_by_name(const char *name)
 uint8_t
 named_pin_by_pin(uint8_t port, uint8_t pin)
 {
-  for (uint8_t i = 0; i < NELEMS(portio_pincfg); i++)
+  for (uint8_t i = 0; i < NAMEDPIN_COUNT; i++)
   {
     uint8_t t_port = pgm_read_byte(&portio_pincfg[i].port);
     uint8_t t_pin = pgm_read_byte(&portio_pincfg[i].pin);

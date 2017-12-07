@@ -27,6 +27,8 @@
 #include "config.h"
 
 #ifdef NAMED_PIN_SUPPORT
+#include "user_config.h"
+
 void named_pin_init(void);
 
 #ifdef PORTIO_SUPPORT
