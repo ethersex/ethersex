@@ -74,6 +74,8 @@ flash_page(uint32_t page, uint8_t * buf)
   for (i = 0; i < SPM_PAGESIZE; i++)
     if (buf[i] != __pgm_read_byte(page + i))
       goto commit_changes;
+
+  debug_putchar('-');
   return;                               /* no changes */
 
 commit_changes:
@@ -95,6 +97,8 @@ commit_changes:
 
     boot_rww_enable();                  /* reenable RWW-section again. */
   }
+
+  debug_putchar('+');
 }
 
 
@@ -246,8 +250,8 @@ tftp_handle_packet(void)
 #ifdef MBR_SUPPORT
             mbr_config.flashed = 1;
             write_mbr();
-            debug_putstr("\nApp flashed\n");
 #endif
+            debug_putstr("\nApp flashed\n");
           }
         }
         bootload_delay = 1;             /* give time to ack packet,

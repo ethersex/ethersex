@@ -240,6 +240,9 @@ main (void)
       ACSR &= ~_BV (ACIE);
 #endif
       cli();
+#ifdef _ATMEGA2560
+      EIND = 0x01;
+#endif
       jump_to_bootloader();
     }
 #endif
@@ -256,6 +259,9 @@ main (void)
     if (status.request_reset)
     {
       cli();
+#ifdef _ATMEGA2560
+      EIND = 0x00;
+#endif
       void (*reset) (void) = NULL;
       reset();
     }

@@ -465,6 +465,9 @@ void periodic_process(void)
 #ifdef USE_WATCHDOG
           wdt_disable();
 #endif
+#ifdef _ATMEGA2560
+          EIND = 0x00;
+#endif
           void (*jump_to_application)(void) = NULL;
           jump_to_application();
         }
