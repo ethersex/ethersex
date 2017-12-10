@@ -3,6 +3,7 @@ TOPDIR = .
 
 SUBDIRS += control6
 SUBDIRS += core
+SUBDIRS += libs
 SUBDIRS += mcuf
 SUBDIRS += hardware
 SUBDIRS += protocols

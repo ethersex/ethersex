@@ -356,6 +356,7 @@ ifdef(`conf_SOFT_SPI', `', `dnl
   ifdef(`conf_USTREAM', `define(need_spi, 1)')dnl
   ifdef(`conf_SER_RAM_23K256', `define(need_spi, 1)')dnl
   ifdef(`conf_S1D15G10', `define(need_spi, 1)')dnl
+  ifdef(`conf_GLCD_SPI', `define(need_spi, 1)')dnl
 ')
 
 define(`SHT_VOLTAGE_COMPENSATION', `dnl

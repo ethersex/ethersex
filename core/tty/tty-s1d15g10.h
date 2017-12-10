@@ -22,7 +22,7 @@
 #ifndef TTY_S1D15G10_H
 #define TTY_S1D15G10_H
 
-#include "hardware/lcd/s1d15g10/s1d15g10.h"
+#include "hardware/lcd/glcd/s1d15g10/s1d15g10.h"
 
 #define tty_s1d15g10_clear()	fillrect(0, 0, 130, 130, 0x00)
 #define tty_s1d15g10_goto(y,x)	{}

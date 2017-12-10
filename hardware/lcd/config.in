@@ -2,7 +2,9 @@ mainmenu_option next_comment
 
   comment "LCD Displays"
 
-  dep_bool_menu "HD44780 module driver (Character-LCD)" HD44780_SUPPORT $ARCH_AVR
+  comment "Character Displays"
+
+  dep_bool_menu "HD44780 module driver" HD44780_SUPPORT $ARCH_AVR
   if [ "$HD44780_SUPPORT" = "y" ]; then
 
     # If you add something here, you also have to add an entry in hd44780.h!
@@ -83,6 +85,11 @@ mainmenu_option next_comment
       define_bool HD44780_CHARCONV_SUPPORT y
     fi
 
+    comment  "Debugging Flags"
+    dep_bool 'HD44780' DEBUG_HD44780 $DEBUG $HD44780_SUPPORT
+    dep_bool 'HD44780 Charconv' DEBUG_HD44780_CHARCONV $DEBUG $HD44780_CHARCONV_SUPPORT
+    dep_bool 'HD44780 I2C' DEBUG_HD44780_I2C $DEBUG $HD44780_I2CSUPPORT
+
   fi
   endmenu
 
@@ -93,21 +100,12 @@ mainmenu_option next_comment
     dep_bool "HR20-style LCD Display" HR20_LCD_SUPPORT_FULL $atmega169
   fi
 
-  dep_bool "S1D15G10 module driver (130x130-R/G/B-LCD)" S1D15G10_SUPPORT $ARCH_AVR
+  source hardware/lcd/glcd/config.in
 
-  dep_bool "ST7626 module driver (98x67-R/G/B-LCD)" ST7626_SUPPORT $ARCH_AVR
-
-  source hardware/lcd/s1d13305/config.in
-
-  if [ "$S1D13305_SUPPORT" = "y" -o "$HD44780_SUPPORT" = "y" -o "$S1D15G10_SUPPORT" = "y" -o "$ST7626_SUPPORT" = "y" ]; then
+  if [ "$HD44780_SUPPORT" = "y" -o "$GLCD_SUPPORT" = "y" ]; then
     define_bool LCD_SUPPORT y
   else
     define_bool LCD_SUPPORT n
   fi
-
-  comment  "Debugging Flags"
-  dep_bool 'HD44780' DEBUG_HD44780 $DEBUG $HD44780_SUPPORT
-  dep_bool 'HD44780 Charconv' DEBUG_HD44780_CHARCONV $DEBUG $HD44780_CHARCONV_SUPPORT
-  dep_bool 'HD44780_I2C' DEBUG_HD44780_I2C $DEBUG $HD44780_I2CSUPPORT
 
 endmenu

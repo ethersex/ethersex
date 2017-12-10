@@ -29,7 +29,7 @@
 #include "protocols/ecmd/ecmd-base.h"
 
 #ifdef S1D15G10_SUPPORT
-#include "hardware/lcd/s1d15g10/s1d15g10.h"
+#include "hardware/lcd/glcd/s1d15g10/s1d15g10.h"
 #endif
 
 #define noinline __attribute__((noinline))

@@ -1,0 +1,627 @@
+define_bool GLCD_SUPPORT n
+define_bool GLCD_SPI_SUPPORT n
+define_bool GLCD_I2C_SUPPORT n
+define_bool GLCD_MONO_SUPPORT n
+define_bool U8G2LIB_SUPPORT n
+define_bool GLCD_COLOR_SUPPORT n
+define_bool UCGLIB_SUPPORT n
+
+comment "Monochrome Graphic Displays"
+
+if [ "$CONF_GLCD_COLOR_TYPE" = "GLCD_COLOR_NONE" ]; then
+choice 'GLCD size/type'                                             \
+  "none                        GLCD_MONO_NONE                       \
+  IL3820-296x128-SPI           GLCD_MONO_IL3820_296x128_SPI         \
+  IST3020-ERC19264-SPI         GLCD_MONO_IST3020_ERC19264_SPI       \
+  LD7032-60x32-I2C             GLCD_MONO_LD7032_60x32_I2C           \
+  LD7032-60x32-SPI             GLCD_MONO_LD7032_60x32_SPI           \
+  LS013B7DH03-128x128-SPI      GLCD_MONO_LS013B7DH03_128x128_SPI    \
+  MAX7219-32x8-SPI             GLCD_MONO_MAX7219_32x8_SPI           \
+  NT7534-TG12864R-SPI          GLCD_MONO_NT7534_TG12864R_SPI        \
+  PCD8544-84x48-SPI            GLCD_MONO_PCD8544_84x48_SPI          \
+  PCF8812-96x65-SPI            GLCD_MONO_PCF8812_96x65_SPI          \
+  S1D1305                      GLCD_MONO_S1D1305                    \
+  SH1106-128x64-I2C            GLCD_MONO_SH1106_128x64_I2C          \
+  SH1106-128x64-SPI            GLCD_MONO_SH1106_128x64_SPI          \
+  SSD1305-128x32-I2C           GLCD_MONO_SSD1305_128x32_I2C         \
+  SSD1305-128x32-SPI           GLCD_MONO_SSD1305_128x32_SPI         \
+  SSD1306-64x32-SPI            GLCD_MONO_SSD1306_64x32_SPI          \
+  SSD1306-64x32-I2C            GLCD_MONO_SSD1306_64x32_I2C          \
+  SSD1306-64x48-SPI            GLCD_MONO_SSD1306_64x48_SPI          \
+  SSD1306-64x48-I2C            GLCD_MONO_SSD1306_64x48_I2C          \
+  SSD1306-96x16-SPI            GLCD_MONO_SSD1306_96x16_SPI          \
+  SSD1306-96x16-I2C            GLCD_MONO_SSD1306_96x16_I2C          \
+  SSD1306-128x64-I2C           GLCD_MONO_SSD1306_128x64_I2C         \
+  SSD1306-128x64-SPI           GLCD_MONO_SSD1306_128x64_SPI         \
+  SSD1309-128x64-I2C           GLCD_MONO_SSD1309_128x64_I2C         \
+  SSD1309-128x64-SPI           GLCD_MONO_SSD1309_128x64_SPI         \
+  SSD1322-256x64-NHD-SPI       GLCD_MONO_SSD1322_256x64_NHD_SPI     \
+  SSD1325-128x64-I2C           GLCD_MONO_SSD1325_128x64_I2C         \
+  SSD1325-128x64-SPI           GLCD_MONO_SSD1325_128x64_SPI         \
+  SSD1326-256x32-ER-I2C        GLCD_MONO_SSD1326_256x32_ER_I2C      \
+  SSD1326-256x32-ER-SPI        GLCD_MONO_SSD1326_256x32_ER_SPI      \
+  SSD1327-96x96-I2C            GLCD_MONO_SSD1327_96x96_I2C          \
+  SSD1327-96x96-SPI            GLCD_MONO_SSD1327_96x96_SPI          \
+  SSD1327-128x128-SPI          GLCD_MONO_SSD1327_128x128_SPI        \
+  SSD1329-128x96-SPI           GLCD_MONO_SSD1329_128x96_SPI         \
+  SSD1606-182x72-SPI           GLCD_MONO_SSD1606_172x72_SPI         \
+  SSD1607-200x200-SPI          GLCD_MONO_SSD1607_200x200_SPI        \
+  ST75256-JLX172104-I2C        GLCD_MONO_ST75256_JLX172104_I2C      \
+  ST75256-JLX172104-SPI        GLCD_MONO_ST75256_JLX172104_SPI      \
+  ST75256-JLX256128-I2C        GLCD_MONO_ST75256_JLX256128_I2C      \
+  ST75256-JLX256128-SPI        GLCD_MONO_ST75256_JLX256128_SPI      \
+  ST75256-JLX25664-I2C         GLCD_MONO_ST75256_JLX25664_I2C       \
+  ST75256-JLX25664-SPI         GLCD_MONO_ST75256_JLX25664_SPI       \
+  ST7565-128x64-ZOLEN-SPI      GLCD_MONO_ST7565_128x64_ZOLEN_SPI    \
+  ST7565-64128N-SPI            GLCD_MONO_ST7565_64128N_SPI          \
+  ST7565-EA-DOGM128-SPI        GLCD_MONO_ST7565_EA_DOGM128_SPI      \
+  ST7565-EA-DOGM132-SPI        GLCD_MONO_ST7565_EA_DOGM132_SPI      \
+  ST7565-ERC12864-SPI          GLCD_MONO_ST7565_ERC12864_SPI        \
+  ST7565-LM6059-SPI            GLCD_MONO_ST7565_LM6059_SPI          \
+  ST7565-NHD-C12832-SPI        GLCD_MONO_ST7565_NHD_C12832_SPI      \
+  ST7565-NHD-C12864-SPI        GLCD_MONO_ST7565_NHD_C12864_SPI      \
+  ST7567-132x64-SPI            GLCD_MONO_ST7567_132x64_SPI          \
+  ST7567-JLX12864-SPI          GLCD_MONO_ST7567_JLX12864_SPI        \
+  ST7588-JLX12864-I2C          GLCD_MONO_ST7588_JLX12864_I2C        \
+  ST7588-JLX12864-SPI          GLCD_MONO_ST7588_JLX12864_SPI        \
+  UC1601-128x32-I2C            GLCD_MONO_UC1601_128x32_I2C          \
+  UC1601-128x32-SPI            GLCD_MONO_UC1601_128x32_SPI          \
+  UC1604-JLX19264-I2C          GLCD_MONO_UC1604_JLX19264_I2C        \
+  UC1604-JLX19264-SPI          GLCD_MONO_UC1604_JLX19264_SPI        \
+  UC1608-240x128-I2C           GLCD_MONO_UC1608_240x128_I2C         \
+  UC1608-240x128-SPI           GLCD_MONO_UC1608_240x128_SPI         \
+  UC1608-ERC240120-I2C         GLCD_MONO_UC1608_ERC240120_I2C       \
+  UC1608-ERC240120-SPI         GLCD_MONO_UC1608_ERC240120_SPI       \
+  UC1608-ERC24064-I2C          GLCD_MONO_UC1608_ERC24064_I2C        \
+  UC1608-ERC24064-SPI          GLCD_MONO_UC1608_ERC24064_SPI        \
+  UC1610-EA-DOGXL160-I2C       GLCD_MONO_UC1610_EA_DOGXL160_I2C     \
+  UC1610-EA-DOGXL160-SPI       GLCD_MONO_UC1610_EA_DOGXL160_SPI     \
+  UC1611-EA-DOGM240-I2C        GLCD_MONO_UC1611_EA_DOGM240_I2C      \
+  UC1611-EA-DOGM240-SPI        GLCD_MONO_UC1611_EA_DOGM240_SPI      \
+  UC1611-EA-DOGXL240-I2C       GLCD_MONO_UC1611_EA_DOGXL240_I2C     \
+  UC1611-EA-DOGXL240-SPI       GLCD_MONO_UC1611_EA_DOGXL240_SPI     \
+  UC1611-EW50850-I2C           GLCD_MONO_UC1611_EW50850_I2C         \
+  UC1611-EW50850-SPI           GLCD_MONO_UC1611_EW50850_SPI         \
+  UC1638-160x128-SPI           GLCD_MONO_UC1638_160x128_SPI         \
+  UC1701-EA-DOGS102-SPI        GLCD_MONO_UC1701_EA_DOGS102_SPI      \
+  UC1701-MINI12864-SPI         GLCD_MONO_UC1701_MINI12864_SPI"      \
+  'none'                       CONF_GLCD_MONO_TYPE
+else
+choice 'GLCD size/type'                                             \
+  "none                        GLCD_MONO_NONE"                      \
+  'none'                       CONF_GLCD_MONO_TYPE
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" != "GLCD_MONO_NONE" -a "$CONF_GLCD_MONO_TYPE" != "GLCD_MONO_S1D1305" ]; then
+choice 'Rotation'                         \
+  "none       GLCD_MONO_ROTATION_NONE     \
+    90_degree GLCD_MONO_ROTATION_90       \
+   180_degree GLCD_MONO_ROTATION_180      \
+   270_degree GLCD_MONO_ROTATION_270      \
+   mirror     GLCD_MONO_ROTATION_MIRROR"  \
+  'none' CONF_GLCD_MONO_ROTATION
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_IL3820_296x128_SPI" ]; then
+  define_bool GLCD_IL3820_296x128_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_IL3820_296x128_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_IST3020_ERC19264_SPI" ]; then
+  define_bool GLCD_IST3020_ERC19264_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_IST3020_ERC19264_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_LD7032_60x32_I2C" ]; then
+  define_bool GLCD_LD7032_60x32_SUPPORT y
+  define_bool GLCD_I2C_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_LD7032_60x32_SPI" ]; then
+  define_bool GLCD_LD7032_60x32_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_LD7032_60x32_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_LS013B7DH03_128x128_SPI" ]; then
+  define_bool GLCD_LS013B7DH03_128x128_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_LS013B7DH03_128x128_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_MAX7219_32x8_SPI" ]; then
+  define_bool GLCD_MAX7219_32x8_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_MAX7219_32x8_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_NT7534_TG12864R_SPI" ]; then
+  define_bool GLCD_NT7534_TG12864R_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_NT7534_TG12864R_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_PCD8544_84x48_SPI" ]; then
+  define_bool GLCD_PCD8544_84x48_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_PCD8544_84x48_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_PCF8812_96x65_SPI" ]; then
+  define_bool GLCD_PCF8812_96x65_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_PCF8812_96x65_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_S1D1305" ]; then
+  define_bool S1D13305_SUPPORT y
+  source hardware/lcd/glcd/s1d13305/config.in
+else
+  define_bool S1D13305_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SH1106_128x64_I2C" ]; then
+  define_bool GLCD_SH1106_128x64_SUPPORT y
+  define_bool GLCD_I2C_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SH1106_128x64_SPI" ]; then
+  define_bool GLCD_SH1106_128x64_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_SH1106_128x64_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1305_128x32_I2C" ]; then
+  define_bool GLCD_SSD1305_128x32_SUPPORT y
+  define_bool GLCD_I2C_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1305_128x32_SPI" ]; then
+  define_bool GLCD_SSD1305_128x32_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_SSD1305_128x32_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1306_64x32_I2C" ]; then
+  define_bool GLCD_SSD1306_64x32_SUPPORT y
+  define_bool GLCD_I2C_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1306_64x32_SPI" ]; then
+  define_bool GLCD_SSD1306_64x32_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_SSD1306_64x32_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1306_64x48_I2C" ]; then
+  define_bool GLCD_SSD1306_64x48_SUPPORT y
+  define_bool GLCD_I2C_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1306_64x48_SPI" ]; then
+  define_bool GLCD_SSD1306_64x48_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_SSD1306_64x48_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1306_96x16_I2C" ]; then
+  define_bool GLCD_SSD1306_96x16_SUPPORT y
+  define_bool GLCD_I2C_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1306_96x16_SPI" ]; then
+  define_bool GLCD_SSD1306_96x16_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_SSD1306_96x16_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1306_128x64_I2C" ]; then
+  define_bool GLCD_SSD1306_128x64_SUPPORT y
+  define_bool GLCD_I2C_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1306_128x64_SPI" ]; then
+  define_bool GLCD_SSD1306_128x64_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_SSD1306_128x64_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1309_128x64_I2C" ]; then
+  define_bool GLCD_SSD1309_128x64_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1309_128x64_SPI" ]; then
+  define_bool GLCD_SSD1309_128x64_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_SSD1309_128x64_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1322_256x64_NHD_SPI" ]; then
+  define_bool GLCD_SSD1322_256x64_NHD_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_SSD1322_256x64_NHD_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1325_128x64_I2C" ]; then
+  define_bool GLCD_SSD1325_128x64_SUPPORT y
+  define_bool GLCD_I2C_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1325_128x64_SPI" ]; then
+  define_bool GLCD_SSD1325_128x64_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_SSD1325_128x64_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1326_256x32_ER_I2C" ]; then
+  define_bool GLCD_SSD1326_256x32_ER_SUPPORT y
+  define_bool GLCD_I2C y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1326_256x32_ER_SPI" ]; then
+  define_bool GLCD_SSD1326_256x32_ER_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_SSD1326_256x32_ER_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1327_96x96_I2C" ]; then
+  define_bool GLCD_SSD1327_96x96_SUPPORT y
+  define_bool GLCD_I2C_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1327_96x96_SPI" ]; then
+  define_bool GLCD_SSD1327_96x96_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_SSD1327_96x96_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1327_128x128_SPI" ]; then
+  define_bool GLCD_SSD1327_128x128_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_SSD1327_128x128_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1329_128x96_SPI" ]; then
+  define_bool GLCD_SSD1329_128x96_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_SSD1329_128x96_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1606_172x72_SPI" ]; then
+  define_bool GLCD_SSD1606_172x72_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_SSD1606_172x72_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1607_200x200_SPI" ]; then
+  define_bool GLCD_SSD1607_200x200_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_SSD1607_200x200_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_ST75256_JLX172104_I2C" ]; then
+  define_bool GLCD_ST75256_JLX172104_SUPPORT y
+  define_bool GLCD_I2C_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_ST75256_JLX172104_SPI" ]; then
+  define_bool GLCD_ST75256_JLX172104_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_ST75256_JLX172104_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_ST75256_JLX256128_I2C" ]; then
+  define_bool GLCD_ST75256_JLX256128_SUPPORT y
+  define_bool GLCD_I2C_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_ST75256_JLX256128_SPI" ]; then
+  define_bool GLCD_ST75256_JLX256128_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_ST75256_JLX256128_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_ST75256_JLX25664_I2C" ]; then
+  define_bool GLCD_ST75256_JLX25664_SUPPORT y
+  define_bool GLCD_I2C_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_ST75256_JLX25664_SPI" ]; then
+  define_bool GLCD_ST75256_JLX25664_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_ST75256_JLX25664_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_ST7565_128x64_ZOLEN_SPI" ]; then
+  define_bool GLCD_ST7565_128x64_ZOLEN_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_ST7565_128x64_ZOLEN_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_ST7565_64128N_SPI" ]; then
+  define_bool GLCD_ST7565_64128N_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_ST7565_64128N_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_ST7565_EA_DOGM128_SPI" ]; then
+  define_bool GLCD_ST7565_EA_DOGM128_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_ST7565_EA_DOGM128_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_ST7565_EA_DOGM132_SPI" ]; then
+  define_bool GLCD_ST7565_EA_DOGM132_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_ST7565_EA_DOGM132_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_ST7565_ERC12864_SPI" ]; then
+  define_bool GLCD_ST7565_ERC12864_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_ST7565_ERC12864_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_ST7565_LM6059_SPI" ]; then
+  define_bool GLCD_ST7565_LM6059_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_ST7565_LM6059_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_ST7565_NHD_C12832_SPI" ]; then
+  define_bool GLCD_ST7565_NHD_C12832_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_ST7565_NHD_C12832_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_ST7565_NHD_C12864_SPI" ]; then
+  define_bool GLCD_ST7565_NHD_C12864_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_ST7565_NHD_C12864_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_ST7567_132x64_SPI" ]; then
+  define_bool GLCD_ST7567_132x64_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_ST7567_132x64_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_ST7567_JLX12864_SPI" ]; then
+  define_bool GLCD_ST7567_JLX12864_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_ST7567_JLX12864_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_ST7588_JLX12864_I2C" ]; then
+  define_bool GLCD_ST7588_JLX12864_SUPPORT y
+  define_bool GLCD_I2C_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_ST7588_JLX12864_SPI" ]; then
+  define_bool GLCD_ST7588_JLX12864_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_ST7567_JLX12864_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_UC1601_128x32_I2C" ]; then
+  define_bool GLCD_UC1601_128x32_SUPPORT y
+  define_bool GLCD_I2C_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_UC1601_128x32_SPI" ]; then
+  define_bool GLCD_UC1601_128x32_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_UC1601_128x32_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_UC1604_JLX19264_I2C" ]; then
+  define_bool GLCD_UC1604_JLX19264_SUPPORT y
+  define_bool GLCD_I2C_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_UC1604_JLX19264_SPI" ]; then
+  define_bool GLCD_UC1604_JLX19264_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_ST7567_JLX12864_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_UC1608_240x128_I2C" ]; then
+  define_bool GLCD_UC1608_240x128_SUPPORT y
+  define_bool GLCD_I2C_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_UC1608_240x128_SPI" ]; then
+  define_bool GLCD_UC1608_240x128_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_UC1608_240x128_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_UC1608_ERC240120_I2C" ]; then
+  define_bool GLCD_UC1608_ERC240120_SUPPORT y
+  define_bool GLCD_I2C_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_UC1608_ERC240120_SPI" ]; then
+  define_bool GLCD_UC1608_ERC240120_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_UC1608_ERC240120_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_UC1608_ERC24064_I2C" ]; then
+  define_bool GLCD_UC1608_ERC24064_SUPPORT y
+  define_bool GLCD_I2C_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_UC1608_ERC24064_SPI" ]; then
+  define_bool GLCD_UC1608_ERC24064_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_UC1608_ERC24064_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_UC1610_EA_DOGXL160_I2C" ]; then
+  define_bool GLCD_UC1610_EA_DOGXL160_SUPPORT y
+  define_bool GLCD_I2C_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_UC1610_EA_DOGXL160_SPI" ]; then
+  define_bool GLCD_UC1610_EA_DOGXL160_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_UC1610_EA_DOGXL160_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_UC1611_EA_DOGM240_I2C" ]; then
+  define_bool GLCD_UC1611_EA_DOGM240_SUPPORT y
+  define_bool GLCD_I2C_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_UC1611_EA_DOGM240_SPI" ]; then
+  define_bool GLCD_UC1611_EA_DOGM240_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_UC1611_EA_DOGM240_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_UC1611_EA_DOGXL240_I2C" ]; then
+  define_bool GLCD_UC1611_EA_DOGXL240_SUPPORT y
+  define_bool GLCD_I2C_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_UC1611_EA_DOGXL240_SPI" ]; then
+  define_bool GLCD_UC1611_EA_DOGXL240_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_UC1611_EA_DOGXL240_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_UC1611_EW50850_I2C" ]; then
+  define_bool GLCD_UC1611_EW50850_SUPPORT y
+  define_bool GLCD_I2C_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_UC1611_EW50850_SPI" ]; then
+  define_bool GLCD_UC1611_EW50850_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_ST7567_JLX12864_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_UC1638_160x128_SPI" ]; then
+  define_bool GLCD_UC1638_160x128_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_UC1638_160x128_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_UC1701_EA_DOGS102_SPI" ]; then
+  define_bool GLCD_UC1701_EA_DOGS102_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_UC1701_EA_DOGS102_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_UC1701_MINI12864_SPI" ]; then
+  define_bool GLCD_UC1701_MINI12864_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_UC1701_MINI12864_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" != "GLCD_MONO_NONE" -a "$CONF_GLCD_MONO_TYPE" != "GLCD_MONO_S1D1305" ]; then
+ define_bool GLCD_SUPPORT y
+ define_bool GLCD_MONO_SUPPORT y
+ define_bool U8G2LIB_SUPPORT y
+fi
+
+if [ "$GLCD_I2C_SUPPORT" = "y" ]; then
+ define_bool I2C_MASTER_SUPPORT y
+fi
+
+comment "Color Graphic Displays"
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_NONE" ]; then
+choice 'GLCD size/type'                                              \
+  "none                        GLCD_COLOR_NONE                       \
+  ILI9163-128x128              GLCD_COLOR_ILI9163_128x128            \
+  ILI9341-240x320              GLCD_COLOR_ILI9341_240x320            \
+  S1D15G10-130x130             GLCD_COLOR_S1D15G10_130x130           \
+  SEPS225-128x128-Univision    GLCD_COLOR_SEPS225_128x128_UNIVISION  \
+  SSD1331-96x64-Univision      GLCD_COLOR_SSD1331_96x64_UNIVISION    \
+  SSD1351-128x128              GLCD_COLOR_SSD1351_128x128            \
+  SSD1351-128x128-Freetronics  GLCD_COLOR_SSD1351_128x128_FT         \
+  ST7626-98x67                 GLCD_COLOR_ST7626_98x67               \
+  ST7735-128x160               GLCD_COLOR_ST7735_128x160"            \
+  'none'                       CONF_GLCD_COLOR_TYPE
+else
+choice 'GLCD size/type'                                              \
+  "none                        GLCD_COLOR_NONE"                      \
+  'none'                       CONF_GLCD_COLOR_TYPE
+fi
+
+if [ "$CONF_GLCD_COLOR_TYPE" = "GLCD_COLOR_ILI9163_128x128" ]; then
+  define_bool GLCD_ILI9163_128x128_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_ILI9163_128x128_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_COLOR_TYPE" = "GLCD_COLOR_ILI9341_240x320" ]; then
+  define_bool GLCD_ILI9341_240x320_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_ILI9341_240x320_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_COLOR_TYPE" = "GLCD_COLOR_S1D15G10_130x130" ]; then
+ define_bool S1D15G10_SUPPORT y
+else
+ define_bool S1D15G10_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_COLOR_TYPE" = "GLCD_COLOR_SEPS225_128x128_UNIVISION" ]; then
+  define_bool GLCD_SEPS225_128x128_UNIVISION_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_SEPS225_128x128_UNIVISION_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_COLOR_TYPE" = "GLCD_COLOR_SSD1331_96x64_UNIVISION" ]; then
+  define_bool GLCD_SSD1331_96x64_UNIVISION_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_SSD1331_96x64_UNIVISION_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_COLOR_TYPE" = "GLCD_COLOR_SSD1351_128x128" ]; then
+  define_bool GLCD_SSD1351_128x128_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_SSD1351_128x128_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_COLOR_TYPE" = "GLCD_COLOR_SSD1351_128x128_FT" ]; then
+  define_bool GLCD_SSD1351_128x128_FT_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_SSD1351_128x128_FT_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_COLOR_TYPE" = "GLCD_COLOR_ST7626_98x67" ]; then
+ define_bool ST7626_SUPPORT y
+else
+ define_bool ST7626_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_COLOR_TYPE" = "GLCD_COLOR_ST7735_128x160" ]; then
+  define_bool GLCD_ST7735_128x160_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_ST7735_128x160_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_COLOR_TYPE" != "GLCD_COLOR_NONE" -a "$CONF_GLCD_COLOR_TYPE" != "GLCD_COLOR_S1D15G10_130x130" -a "$CONF_GLCD_COLOR_TYPE" != "GLCD_COLOR_ST7626_98x67" ]; then
+ define_bool GLCD_SUPPORT y
+ define_bool GLCD_COLOR_SUPPORT y
+ define_bool UCGLIB_SUPPORT y
+fi
+
+comment  "Debugging Flags"
+dep_bool 'Communication' DEBUG_GLCD_HW_COM $GLCD_SPI_SUPPORT $DEBUG
+
