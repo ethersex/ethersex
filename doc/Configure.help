@@ -2259,6 +2259,7 @@ Onewire naming support
 ONEWIRE_NAMING_SUPPORT
   Depends on:
    * Onewire support (ONEWIRE_SUPPORT)
+   * !NOT! TEENSY_SUPPORT
 
   Enable mapping of onewire rom addresses to names. Mapping table is stored in
   EEPROM and could be edited by ECMD commands:
@@ -3610,3 +3611,4 @@ BLUETOOTH_PIN
 
   The pairing pin code. Alphanumeric password. 16 characters max.
   Default: 1234
+

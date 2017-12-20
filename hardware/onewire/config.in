@@ -9,7 +9,11 @@ dep_bool_menu "Onewire support" ONEWIRE_SUPPORT $ARCH_AVR
 	fi
 	int "Time between 1w-bus discoveries in 1s steps" OW_DISCOVER_INTERVAL 600
 	int "Time between polling in 1s steps" OW_POLLING_INTERVAL 30
-	dep_bool "Onewire naming support" ONEWIRE_NAMING_SUPPORT $ONEWIRE_DEVICES
+	if [ "$TEENSY_SUPPORT" = "n" ]; then
+		dep_bool "Onewire naming support" ONEWIRE_NAMING_SUPPORT $ONEWIRE_DEVICES
+	else
+		dep_bool "Onewire naming support" ONEWIRE_NAMING_SUPPORT $ONEWIRE_DEVICES n
+	fi
 	dep_bool "Hooks" ONEWIRE_HOOK_SUPPORT $ONEWIRE_DEVICES
 	int "Maximum sensor count" OW_SENSORS_COUNT 10
 	dep_bool "Onewire SNMP support" ONEWIRE_SNMP_SUPPORT $ONEWIRE_DS18XX_SUPPORT $SNMP_SUPPORT
