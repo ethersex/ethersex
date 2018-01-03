@@ -1,6 +1,7 @@
 /*
  * Copyright (c) by Alexander Neumann <alexander@bumpern.de>
  * Copyright (c) 2007 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2017 Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -180,8 +181,14 @@ main (void)
   wdt_disable();
 #endif //USE_WATCHDOG
 
-#if defined(RFM12_SUPPORT) || defined(ENC28J60_SUPPORT) \
-	|| defined(DATAFLASH_SUPPORT)
+#if defined(RFM12_SUPPORT)          || \
+    defined(ENC28J60_SUPPORT)       || \
+    defined(DATAFLASH_SUPPORT)      || \
+    defined(SD_READER_SUPPORT)      || \
+    defined(USTREAM_SUPPORT)        || \
+    defined(SER_RAM_23K256_SUPPORT) || \
+    defined(S1D15G10_SUPPORT)       || \
+    defined(GLCD_SPI_SUPPORT)
   spi_init();
 #endif
 

@@ -22,7 +22,7 @@
 #ifndef TTY_S1D13305_H
 #define TTY_S1D13305_H
 
-#include "hardware/lcd/s1d13305/s1d13305.h"
+#include "hardware/lcd/glcd/s1d13305/s1d13305.h"
 
 #define tty_s1d13305_clear()	 lcd_clear (LCD_LAYER1)
 #define tty_s1d13305_goto(y,x)	 {}

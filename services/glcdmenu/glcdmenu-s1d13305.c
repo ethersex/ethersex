@@ -25,7 +25,7 @@
 #include "config.h"
 #include "glcdmenu.h"
 #include "glcdmenu-s1d13305.h"
-#include "hardware/lcd/s1d13305/s1d13305.h"
+#include "hardware/lcd/glcd/s1d13305/s1d13305.h"
 
 #if S1D13305_MODE != S1D13305_GRAPHICS
 #error "We need 3 Layer Graphics mode here."

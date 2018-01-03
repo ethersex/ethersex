@@ -1,6 +1,6 @@
 /*
  * Copyright (c) Alexander Neumann <alexander@bumpern.de>
- * Copyright (c) 2012-2013 Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) 2012-2017 Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -26,13 +26,14 @@
 #include "config.h"
 #include "hardware/radio/rfm12/rfm12.h"
 
-#if defined(ENC28J60_SUPPORT)       || \
-    defined(SER_RAM_23K256_SUPPORT) || \
-    defined(RFM12_SUPPORT)          || \
+#if defined(RFM12_SUPPORT)          || \
+    defined(ENC28J60_SUPPORT)       || \
     defined(DATAFLASH_SUPPORT)      || \
+    defined(SD_READER_SUPPORT)      || \
     defined(USTREAM_SUPPORT)        || \
-    defined(SPI_CS_SD_READER_PIN)   || \
-    defined(S1D15G10_SUPPORT)
+    defined(SER_RAM_23K256_SUPPORT) || \
+    defined(S1D15G10_SUPPORT)       || \
+    defined(GLCD_SPI_SUPPORT)
 
 void
 spi_init(void)
@@ -74,6 +75,10 @@ spi_init(void)
   PIN_SET(S1D15G10_CS);
 #endif
 
+#ifdef GLCD_SPI_SUPPORT
+  PIN_SET(GLCD_CS);
+#endif
+
 #ifndef SOFT_SPI_SUPPORT
   /* enable spi, set master and clock modes (f/2) */
   _SPCR0 = _BV(_SPE0) | _BV(_MSTR0);
@@ -110,4 +115,4 @@ spi_send(uint8_t data)
 }
 #endif /* !SOFT_SPI_SUPPORT */
 
-#endif /* ENC28J60_SUPPORT || SER_RAM_23K256_SUPPORT || RFM12_SUPPORT || DATAFLASH_SUPPORT || USTREAM_SUPPORT || SPI_CS_SD_READER_PIN || S1D15G10_SUPPORT*/
+#endif

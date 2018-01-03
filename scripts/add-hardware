@@ -267,6 +267,15 @@ template $HD44780_BACKLIGHT_SUPPORT << FNORD
     pin(HD44780_BL, PB1, OUTPUT)
 FNORD
 
+template $GLCD_SPI_SUPPORT << FNORD
+    /* Chip select */
+    pin(GLCD_CS, PA0,  OUTPUT)
+    /* Comamnd/Data select */
+    pin(GLCD_CD, PD3, OUTPUT)
+    /* uncomment if you have connected LCDs reset pin */
+    //pin(GLCD_RESET, PD5, OUTPUT)
+FNORD
+
 template $S1D13305_SUPPORT << FNORD
     /* port config for s1d13305 lcd */
     S1D13305_DATA_PORT(A)

@@ -1,0 +1,75 @@
+/*
+ * Copyright (c) 2017 Erik Kunze <ethersex@erik-kunze.de>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * For more information on the GPL, please go to:
+ * http://www.gnu.org/copyleft/gpl.html
+ */
+
+/*
+  Color GLCD examples taken from UCGLIB and adjusted to Ethersex
+ */
+
+#include <stdint.h>
+#include <avr/pgmspace.h>
+#include "hardware/lcd/glcd/s1d15g10/bunnies.h"
+#include "hardware/lcd/glcd/glcd.h"
+
+
+static void
+setup(void)
+{
+  glcd_clear_screen();
+  glcd_set_font(ucg_font_ncenR10_tr);
+  glcd_set_color(0, 255, 255, 255);
+  glcd_draw_string_P(25, 25, GLCD_DIR_LTR, PSTR("Ethersex Bunnie"));
+}
+
+static void
+draw_logo(void)
+{
+  glcd_set_scale_2x2();
+  //glcd_set_clip_range(50, 50, 42, 42);
+
+  #define X_START 25
+  #define Y_START 25
+  int16_t x = X_START;
+  int16_t y = Y_START;
+
+  for (uint16_t i = 0; i < sizeof(bunnie) /* 42 x 42 */ ; i++)
+  {
+    uint8_t b = pgm_read_byte(bunnie + i);
+    // RRRGGGBB
+    glcd_set_color(0, b & 0xe0, (b & 0x1c) << 3, (b & 0x03) << 5);
+    glcd_draw_pixel(x, y);
+
+    if (++x == X_START+42)
+    {
+      x = X_START;
+      y++;
+    }
+  }
+}
+
+CONTROL_START
+
+  ON STARTUP DO
+    setup();
+    draw_logo();
+  END
+
+CONTROL_END
+
