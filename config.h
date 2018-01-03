@@ -1,5 +1,4 @@
 /*
- *
  * (c) by Alexander Neumann <alexander@bumpern.de>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -115,18 +114,20 @@
 /* ADC Reference Flags */
 #define ADC_AREF	0
 #define ADC_AVCC	0x40
-#define ADC_1_1	    0x80
-#define ADC_2_56    0xC0
+#define ADC_1_1		0x80
+#define ADC_2_56	0xC0
 
 /* Figure out whether we need access to EEPROM:
-
    - ECMD without TEENSY (IP address configuration etc.)
    - BOOTP with to-EEPROM-feature
-   - STELLA with eeprom load/write support */
+   - STELLA with eeprom load/write support
+   - JABBER with configuration in eeprom
+   - ONEWIRE temperature sensors with names in eeprom */
 #if (defined(ECMD_PARSER_SUPPORT) && !defined(TEENSY_SUPPORT))   || \
     (defined(BOOTP_SUPPORT) && defined(BOOTP_TO_EEPROM_SUPPORT)) || \
     (defined(STELLA_SUPPORT) && !defined(TEENSY_SUPPORT))        || \
-    defined(JABBER_EEPROM_SUPPORT)
+    defined(JABBER_EEPROM_SUPPORT)                               || \
+    (defined(ONEWIRE_NAMING_SUPPORT) && !defined(TEENSY_SUPPORT))
 #  define EEPROM_SUPPORT 1
 #endif
 
@@ -148,7 +149,6 @@
     !defined(VFS_DC3840_SUPPORT)
 #  define VFS_TEENSY 1
 #endif
-
 
 
 #endif /* _CONFIG_H */
