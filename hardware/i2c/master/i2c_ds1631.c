@@ -55,7 +55,7 @@ end:
 	return ret;
 }
 
-uint16_t i2c_ds1631_read_temperature(const uint8_t chipaddress, int16_t *temp, int16_t *stemp)
+uint16_t i2c_ds1631_read_temperature(const uint8_t chipaddress, int16_t *temp, uint16_t *stemp)
 {
 	int16_t data[2];
 	uint16_t ret = 0xffff;
@@ -124,7 +124,7 @@ uint16_t i2c_ds1631_read_temperature(const uint8_t chipaddress, int16_t *temp, i
 	*stemp = ((data[0] >> 4) * 625);
 
 #ifdef DEBUG_I2C
-	debug_printf("I2C: i2c_ds1631_read_temp: temp: %d.%d\n",*temp,*stemp);
+	debug_printf("I2C: i2c_ds1631_read_temp: temp: %d.%04u\n",*temp,*stemp);
 #endif
 
 	ret = 0x0;
