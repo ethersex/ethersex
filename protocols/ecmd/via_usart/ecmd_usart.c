@@ -121,9 +121,9 @@ ISR(usart(USART,_RX_vect))
     return ;
   }
 
-#ifndef ECMD_SERIAL_USART_NO_ECHO
+#ifndef ECMD_SERIAL_NO_ECHO
   usart(UDR) = data;
-#endif /* ECMD_SERIAL_USART_NO_ECHO */
+#endif /* ECMD_SERIAL_NO_ECHO */
 
   recv_buffer[recv_len++] = data;
 }
