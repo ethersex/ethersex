@@ -114,16 +114,18 @@ ISR(usart(USART,_RX_vect))
   if (data == '\n' || data == '\r' || recv_len == sizeof(recv_buffer)) {
     recv_buffer[recv_len] = 0;
     must_parse = 1;
+#ifndef ECMD_SERIAL_NO_ECHO
     usart(UDR) = '\r';
     while (!(usart(UCSR,A) & _BV(usart(UDRE))));
     usart(UDR) = '\n';
     while (!(usart(UCSR,A) & _BV(usart(UDRE))));
+#endif /* ECMD_SERIAL_NO_ECHO */
     return ;
   }
 
-#ifndef ECMD_SERIAL_USART_NO_ECHO
+#ifndef ECMD_SERIAL_NO_ECHO
   usart(UDR) = data;
-#endif /* ECMD_SERIAL_USART_NO_ECHO */
+#endif /* ECMD_SERIAL_NO_ECHO */
 
   recv_buffer[recv_len++] = data;
 }
