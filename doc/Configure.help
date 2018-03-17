@@ -3612,3 +3612,10 @@ BLUETOOTH_PIN
   The pairing pin code. Alphanumeric password. 16 characters max.
   Default: 1234
 
+Watchdog in debug mode
+DEBUG_USE_WATCHDOG
+  Depends on: 
+   * Enable Debugging (DEBUG)
+
+  Activate the watchdog also in debug mode. Default is deactivated.
+

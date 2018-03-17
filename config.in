@@ -169,6 +169,7 @@ fi
 		elif [ "$SOFT_UART_SUPPORT" = y ]; then
 			int "Software-UART Baudrate" DEBUG_BAUDRATE 19200
 		fi
+		dep_bool 'Watchdog in debug mode' DEBUG_USE_WATCHDOG $DEBUG
 		comment  'Debugging Flags'
 		dep_bool 'Hooks' DEBUG_HOOK $DEBUG
 		dep_bool 'Reset Reason' DEBUG_RESET_REASON $DEBUG

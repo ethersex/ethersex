@@ -70,7 +70,7 @@
 #include "pinning.c"
 
 /* use watchdog only when not debugging */
-#ifndef DEBUG
+#if !defined(DEBUG) || defined(DEBUG_USE_WATCHDOG)
 #   define USE_WATCHDOG
 #endif
 
