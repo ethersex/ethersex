@@ -18,9 +18,14 @@ if [ "$YPORT_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
 			YPORT_BUFFER_LEN=$NET_MAX_FRAME_LENGTH
 		fi
 		int    "YPort Buffer Length" YPORT_BUFFER_LEN 500
-        int    "YPort Max Buffer Flush Interval (N*20ms)" YPORT_FLUSH 25
-	comment  "Debugging Flags"
-	dep_bool 'YPORT Debug' DEBUG_YPORT $YPORT_SUPPORT
+		int    "YPort Max Buffer Flush Interval (N*20ms)" CONF_YPORT_FLUSH 25
+		if [ "$CONF_YPORT_FLUSH" -gt "0" ]; then
+			define_bool YPORT_FLUSH_SUPPORT y
+		else
+			define_bool YPORT_FLUSH_SUPPORT n
+		fi
+		comment  "Debugging Flags"
+		dep_bool 'YPORT Debug' DEBUG_YPORT $YPORT_SUPPORT
 	endmenu
 else
 	define_bool YPORT_SUPPORT n

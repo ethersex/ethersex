@@ -3184,7 +3184,7 @@ SIP_SUPPORT
   Client implementation of the Session Initiation Protocol (SIP).
 
 YPort Max Buffer Flush Interval (N*20ms)
-YPORT_FLUSH
+CONF_YPORT_FLUSH
 
   To reduce the number of ethernet packets, a flush interval can be set.
   The given value is a multiple of 20ms.
