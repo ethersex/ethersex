@@ -24,15 +24,15 @@
 #include <avr/interrupt.h>
 #include <util/atomic.h>
 #include <string.h>
+
+#include "config.h"
 #include "yport_net.h"
 #include "protocols/uip/uip.h"
 #include "core/debug.h"
 #include "yport.h"
 
-#include "config.h"
-
-uip_conn_t *yport_conn = NULL;
-#if YPORT_FLUSH > 0
+static uip_conn_t *yport_conn = NULL;
+#if CONF_YPORT_FLUSH > 0
 static uint8_t yport_lastservice;
 #endif
 
@@ -45,7 +45,7 @@ yport_net_init(void)
 void
 yport_net_main(void)
 {
-#if YPORT_FLUSH > 0
+#if CONF_YPORT_FLUSH > 0
   yport_lastservice++;
 #endif
 
@@ -57,12 +57,24 @@ yport_net_main(void)
       uip_conn->wnd = YPORT_BUFFER_LEN - 1;
       /* delete the receive buffer */
       yport_recv_buffer.len = 0;
+      return;
     }
     else
       /* if we already have a connection, send an error */
       uip_send("ERROR: connection blocked\n", 27);
   }
-  else if (uip_acked())
+
+  if (uip_closed() || uip_aborted() || uip_timedout())
+  {
+    /* if the closed connection was our connection, clean yport_conn */
+    if (yport_conn == uip_conn)
+    {
+      yport_conn = NULL;
+      return;
+    }
+  }
+
+  if (uip_acked())
   {
     /* if the peer is not our connection, close it */
     if (yport_conn != uip_conn)
@@ -79,14 +91,11 @@ yport_net_main(void)
       }
     }
   }
-  else if (uip_closed() || uip_aborted() || uip_timedout())
-  {
-    /* if the closed connection was our connection, clean yport_conn */
-    if (yport_conn == uip_conn)
-      yport_conn = NULL;
-  }
 
-  if (uip_newdata() && yport_conn == uip_conn)
+  if (yport_conn != uip_conn)
+    return;
+
+  if (uip_newdata())
   {
     if (uip_len <= YPORT_BUFFER_LEN &&
         yport_rxstart(uip_appdata, uip_len) != 0)
@@ -97,7 +106,7 @@ yport_net_main(void)
   }
 
   /* retransmit last packet */
-  if (uip_rexmit() && yport_conn == uip_conn)
+  if (uip_rexmit())
   {
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
@@ -107,43 +116,41 @@ yport_net_main(void)
     yport_eth_retransmit++;
 #endif
   }
-  else
+
+  /* restart connection */
+  if (uip_poll()
+      && uip_stopped(yport_conn)
+      && yport_send_buffer.sent == yport_send_buffer.len)
   {
+    uip_restart();
+  }
 
-    /* restart connection */
-    if (uip_poll()
-        && yport_conn == uip_conn
-        && uip_stopped(yport_conn)
-        && yport_send_buffer.sent == yport_send_buffer.len)
-      uip_restart();
-
-    /* send data */
-    if ((uip_poll() || uip_acked()) && yport_conn == uip_conn
-        /* receive buffer reached water mark */
-#if YPORT_FLUSH > 0
-        && (yport_recv_buffer.len > (YPORT_BUFFER_LEN / 4)
-            /* last transmission is at least one second ago */
-            || yport_lastservice >= YPORT_FLUSH
-            /* we received a linefeed character, send immediately */
-            || yport_lf)
+  /* send data */
+  if (uip_poll() || uip_acked()
+      /* receive buffer reached water mark */
+#if CONF_YPORT_FLUSH > 0
+      && (yport_recv_buffer.len > (YPORT_BUFFER_LEN / 4)
+          /* last transmission is at least one second ago */
+          || yport_lastservice >= CONF_YPORT_FLUSH
+          /* we received a linefeed character, send immediately */
+          || yport_lf)
 #endif
-      )
+    )
+  {
+    /* we have enough uart data, send it via tcp */
+    ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
-      /* we have enough uart data, send it via tcp */
-      ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-      {
-        uip_send(yport_recv_buffer.data, yport_recv_buffer.len);
-        yport_recv_buffer.sent = yport_recv_buffer.len;
-#if YPORT_FLUSH > 0
-        yport_lastservice = 0;
-        yport_lf = 0;
+      uip_send(yport_recv_buffer.data, yport_recv_buffer.len);
+      yport_recv_buffer.sent = yport_recv_buffer.len;
+#if CONF_YPORT_FLUSH > 0
+      yport_lastservice = 0;
+      yport_lf = 0;
 #endif
-      }
     }
   }
 }
 
-
+#if CONF_YPORT_FLUSH > 0
 void
 yport_net_periodic(void)
 {
@@ -156,10 +163,11 @@ yport_net_periodic(void)
       router_output();
   }
 }
+#endif
 
 /*
   -- Ethersex META --
   header(protocols/yport/yport_net.h)
   net_init(yport_net_init)
-  timer(1, yport_net_periodic())
+  ifdef(`conf_YPORT_FLUSH',`timer(value_YPORT_FLUSH, yport_net_periodic())')
 */
