@@ -1829,7 +1829,8 @@ ip_check_end:
     goto drop;
 
   case UIP_TIME_WAIT:
-    goto tcp_send_ack;
+    //goto tcp_send_ack;
+    goto drop;
 
   case UIP_CLOSING:
     if(uip_flags & UIP_ACKDATA) {
