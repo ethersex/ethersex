@@ -88,6 +88,8 @@ CFLAGS += -funsigned-char
 CFLAGS += -funsigned-bitfields
 CFLAGS += -fpack-struct
 CFLAGS += -fshort-enums
+CFLAGS += -flto
+LDFLAGS += -flto
 
 ifneq ($(ARCH_HOST),y)
   CFLAGS += -mcall-prologues
