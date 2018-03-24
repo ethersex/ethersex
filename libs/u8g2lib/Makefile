@@ -37,6 +37,9 @@ $(U8G2LIB_SUPPORT)_SRC += \
 	libs/u8g2lib/u8x8_u16toa.c \
 	libs/u8g2lib/u8x8_u8toa.c
 
+$(GLCD_HX1230_96x68_SPI_SUPPORT)_SRC += \
+	libs/u8g2lib/u8x8_d_pcf8814_hx1230.c
+
 $(GLCD_IL3820_296x128_SUPPORT)_SRC += \
 	libs/u8g2lib/u8x8_d_il3820_296x128.c
 
@@ -64,8 +67,14 @@ $(GLCD_PCF8812_96x65_SUPPORT)_SRC += \
 $(GLCD_SH1106_128x64_SUPPORT)_SRC += \
 	libs/u8g2lib/u8x8_d_ssd1306_128x64_noname.c
 
+$(GLCD_SH1107_128x128_SUPPORT)_SRC += \
+	libs/u8g2lib/u8x8_d_ssd1307.c
+
 $(GLCD_SSD1305_128x32_SUPPORT)_SRC += \
 	libs/u8g2lib/u8x8_d_ssd1305.c
+
+$(GLCD_SSD106_48x64_SUPPORT)_SRC += \
+	libs/u8g2lib/u8x8_d_ssd1306_48x64.c
 
 $(GLCD_SSD1306_64x32_SUPPORT)_SRC += \
 	libs/u8g2lib/u8x8_d_ssd1306_64x32.c
