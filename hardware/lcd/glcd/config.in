@@ -8,9 +8,10 @@ define_bool UCGLIB_SUPPORT n
 
 comment "Monochrome Graphic Displays"
 
-if [ "$CONF_GLCD_COLOR_TYPE" = "GLCD_COLOR_NONE" ]; then
+if [ -z "$CONF_GLCD_COLOR_TYPE" -o "$CONF_GLCD_COLOR_TYPE" = "GLCD_COLOR_NONE" ]; then
 choice 'GLCD size/type'                                             \
   "none                        GLCD_MONO_NONE                       \
+  HX1230-96x68-SPI             GLCD_MONO_HX1230_96x68_SPI           \
   IL3820-296x128-SPI           GLCD_MONO_IL3820_296x128_SPI         \
   IST3020-ERC19264-SPI         GLCD_MONO_IST3020_ERC19264_SPI       \
   LD7032-60x32-I2C             GLCD_MONO_LD7032_60x32_I2C           \
@@ -23,8 +24,11 @@ choice 'GLCD size/type'                                             \
   S1D1305                      GLCD_MONO_S1D1305                    \
   SH1106-128x64-I2C            GLCD_MONO_SH1106_128x64_I2C          \
   SH1106-128x64-SPI            GLCD_MONO_SH1106_128x64_SPI          \
+  SH1107-128x128-I2C           GLCD_MONO_SH1107_128x128_SPI         \
+  SH1107-128x128-SPI           GLCD_MONO_SH1107_128x128_SPI         \
   SSD1305-128x32-I2C           GLCD_MONO_SSD1305_128x32_I2C         \
   SSD1305-128x32-SPI           GLCD_MONO_SSD1305_128x32_SPI         \
+  SSD1106-48x64-SPI            GLCD_MONO_SSD1106_48x64_SPI          \
   SSD1306-64x32-SPI            GLCD_MONO_SSD1306_64x32_SPI          \
   SSD1306-64x32-I2C            GLCD_MONO_SSD1306_64x32_I2C          \
   SSD1306-64x48-SPI            GLCD_MONO_SSD1306_64x48_SPI          \
@@ -92,7 +96,8 @@ choice 'GLCD size/type'                                             \
   'none'                       CONF_GLCD_MONO_TYPE
 fi
 
-if [ "$CONF_GLCD_MONO_TYPE" != "GLCD_MONO_NONE" -a "$CONF_GLCD_MONO_TYPE" != "GLCD_MONO_S1D1305" ]; then
+if [ -n "$CONF_GLCD_MONO_TYPE" -a "$CONF_GLCD_MONO_TYPE" != "GLCD_MONO_NONE" ]; then
+if [ "$CONF_GLCD_MONO_TYPE" != "GLCD_MONO_S1D1305" ]; then
 choice 'Rotation'                         \
   "none       GLCD_MONO_ROTATION_NONE     \
     90_degree GLCD_MONO_ROTATION_90       \
@@ -100,6 +105,14 @@ choice 'Rotation'                         \
    270_degree GLCD_MONO_ROTATION_270      \
    mirror     GLCD_MONO_ROTATION_MIRROR"  \
   'none' CONF_GLCD_MONO_ROTATION
+fi
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_HX1230_96x68_SPI" ]; then
+  define_bool GLCD_HX1230_96x68_SPI_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_HX1230_96x68_SPI_SUPPORT n
 fi
 
 if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_IL3820_296x128_SPI" ]; then
@@ -178,6 +191,16 @@ else
   define_bool GLCD_SH1106_128x64_SUPPORT n
 fi
 
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SH1107_128x128_I2C" ]; then
+  define_bool GLCD_SH1107_128x128_SUPPORT y
+  define_bool GLCD_I2C_SUPPORT y
+elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SH1107_128x128_SPI" ]; then
+  define_bool GLCD_SH1107_128x128_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_SH1107_128x128_SUPPORT n
+fi
+
 if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1305_128x32_I2C" ]; then
   define_bool GLCD_SSD1305_128x32_SUPPORT y
   define_bool GLCD_I2C_SUPPORT y
@@ -186,6 +209,13 @@ elif [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1305_128x32_SPI" ]; then
   define_bool GLCD_SPI_SUPPORT y
 else
   define_bool GLCD_SSD1305_128x32_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1106_48x64_SPI" ]; then
+  define_bool GLCD_SSD1106_48x64_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_SSD1106_48x64_SUPPORT n
 fi
 
 if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_SSD1306_64x32_I2C" ]; then
@@ -536,11 +566,13 @@ fi
 
 comment "Color Graphic Displays"
 
-if [ "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_NONE" ]; then
+if [ -z "$CONF_GLCD_MONO_TYPE" -o "$CONF_GLCD_MONO_TYPE" = "GLCD_MONO_NONE" ]; then
 choice 'GLCD size/type'                                              \
   "none                        GLCD_COLOR_NONE                       \
+  HX8352C-240x400              GLCD_COLOR_HX8352C_240x400            \
   ILI9163-128x128              GLCD_COLOR_ILI9163_128x128            \
   ILI9341-240x320              GLCD_COLOR_ILI9341_240x320            \
+  ILI9486-320x480              GLCD_COLOR_ILI9486_320x480            \
   S1D15G10-130x130             GLCD_COLOR_S1D15G10_130x130           \
   SEPS225-128x128-Univision    GLCD_COLOR_SEPS225_128x128_UNIVISION  \
   SSD1331-96x64-Univision      GLCD_COLOR_SSD1331_96x64_UNIVISION    \
@@ -555,6 +587,13 @@ choice 'GLCD size/type'                                              \
   'none'                       CONF_GLCD_COLOR_TYPE
 fi
 
+if [ "$CONF_GLCD_COLOR_TYPE" = "GLCD_COLOR_HX8352C_240x400" ]; then
+  define_bool GLCD_HX8352C_240x400_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_HX8352C_240x400_SUPPORT n
+fi
+
 if [ "$CONF_GLCD_COLOR_TYPE" = "GLCD_COLOR_ILI9163_128x128" ]; then
   define_bool GLCD_ILI9163_128x128_SUPPORT y
   define_bool GLCD_SPI_SUPPORT y
@@ -567,6 +606,13 @@ if [ "$CONF_GLCD_COLOR_TYPE" = "GLCD_COLOR_ILI9341_240x320" ]; then
   define_bool GLCD_SPI_SUPPORT y
 else
   define_bool GLCD_ILI9341_240x320_SUPPORT n
+fi
+
+if [ "$CONF_GLCD_COLOR_TYPE" = "GLCD_COLOR_ILI9486_320x480" ]; then
+  define_bool GLCD_ILI9486_320x480_SUPPORT y
+  define_bool GLCD_SPI_SUPPORT y
+else
+  define_bool GLCD_ILI9486_320x480_SUPPORT n
 fi
 
 if [ "$CONF_GLCD_COLOR_TYPE" = "GLCD_COLOR_S1D15G10_130x130" ]; then

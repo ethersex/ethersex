@@ -54,6 +54,14 @@ $(GLCD_SSD1331_96x64_UNIVISION_SUPPORT)_SRC += \
 $(GLCD_SEPS225_128x128_UNIVISION_SUPPORT)_SRC += \
 	libs/ucglib/ucg_dev_oled_128x128_univision.c \
 	libs/ucglib/ucg_dev_ic_seps225.c
+
+$(GLCD_HX8352C_240x400_SUPPORT)_SRC += \
+	libs/ucglib/ucg_dev_tft_240x400_hx8352c.c \
+	libs/ucglib/ucg_dev_ic_hx8352c.c
+
+$(GLCD_ILI9486_320x480_SUPPORT)_SRC += \
+	libs/ucglib/ucg_dev_tft_320x480_ili9486.c \
+	libs/ucglib/ucg_dev_ic_ili9486.c
 endif
 
 ##############################################################################

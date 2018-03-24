@@ -210,12 +210,18 @@ glcd_ucg_com_debug(ucg_t * ucg, int16_t msg, uint32_t arg, uint8_t * data)
 
 #endif /* DEBUG_GLCD_HW_COM */
 
-#if CONF_GLCD_COLOR_TYPE == GLCD_COLOR_ILI9163_128x128
+#if CONF_GLCD_COLOR_TYPE == GLCD_COLOR_HX8352C_240x400
+#define UCG_DEV_CB ucg_dev_hx8352c_18x240x400
+#define UCG_EXT_CB ucg_ext_hx8352c_18
+#elif CONF_GLCD_COLOR_TYPE == GLCD_COLOR_ILI9163_128x128
 #define UCG_DEV_CB ucg_dev_ili9163_18x128x128
 #define UCG_EXT_CB ucg_ext_ili9163_18
 #elif CONF_GLCD_COLOR_TYPE ==  GLCD_COLOR_ILI9341_240x320
 #define UCG_DEV_CB ucg_dev_ili9341_18x240x320
 #define UCG_EXT_CB ucg_ext_ili9341_18
+#elif CONF_GLCD_COLOR_TYPE == GLCD_COLOR_ILI9486_320x480
+#define UCG_DEV_CB ucg_dev_ili9486_18x320x480
+#define UCG_EXT_CB ucg_ext_ili9486_18
 #elif CONF_GLCD_COLOR_TYPE == GLCD_COLOR_SEPS225_128x128_UNIVISION
 #define UCG_DEV_CB ucg_dev_seps225_16x128x128_univision
 #define UCG_EXT_CB ucg_ext_seps225_16
