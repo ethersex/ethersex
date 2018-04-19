@@ -55,6 +55,7 @@ typedef enum
   IRMP_PROTO_NOKIA,             /* Nokia */
   IRMP_PROTO_SIEMENS,           /* Siemens */
   IRMP_PROTO_FDC,               /* FDC Keyboard */
+  IRMP_PROTO_RCCAR,             /* RC Car */
   IRMP_PROTO_JVC,               /* JVC */
   IRMP_PROTO_RC6A,              /* RC6A, e.g. Kathrein, XBOX */
   IRMP_PROTO_NIKON,             /* Nikon */
@@ -77,6 +78,16 @@ typedef enum
   IRMP_PROTO_SPEAKER,           /* Another loudspeaker protocol, similar to Nubert */
   IRMP_PROTO_LGAIR,             /* LG air conditioner */
   IRMP_PROTO_SAMSUNG48,         /* air conditioner with SAMSUNG protocol (48 bits) */
+  IRMP_PROTO_MERLIN,            /* Merlin (Pollin 620 185) */
+  IRMP_PROTO_FAN,               /* FAN (ventilator), very similar to NUBERT, but last bit is data bit instead of stop bit */
+  IRMP_PROTO_S100,              /* very similar to RC5, but 14 instead of 13 data bits */
+  IRMP_PROTO_ACP24,             /* Stiebel Eltron ACP24 air conditioner */
+  IRMP_PROTO_TECHNICS,          /* Technics, similar to Matsushita, but 22 instead of 24 bits */
+  IRMP_PROTO_PANASONIC,         /* Panasonic (Beamer), start bits similar to KASEIKYO */
+  IRMP_PROTO_MITSU_HEAVY,       /* Mitsubishi-Heavy Aircondition, similar timing as Panasonic beamer */
+  IRMP_PROTO_VINCENT,           /* Vincent */
+  IRMP_PROTO_SAMSUNGAH,         /* SAMSUNG AH */
+  IRMP_PROTO_IRMP16,            /* IRMP specific protocol for data transfer, e.g. between two microcontrollers via IR */
   IRMP_PROTO_RADIO1             /* Radio protocol (experimental stat */
 } irmp_prot_e;
 

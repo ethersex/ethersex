@@ -3,9 +3,9 @@
  *
  * DO NOT INCLUDE THIS FILE, WILL BE INCLUDED BY IRSND.H!
  *
- * Copyright (c) 2010-2014 Frank Meyer - frank(at)fli4l.de
+ * Copyright (c) 2010-2016 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irsndconfig.h,v 1.63 2014/09/15 10:27:38 fm Exp $
+ * $Id: irsndconfig.h,v 1.91 2018/02/19 10:25:25 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,7 +21,7 @@
 #  error please include only irsnd.h, not irsndconfig.h
 #endif
 
-//~ #define IRSND_DEBUG 1                                   // activate debugging
+// #define IRSND_DEBUG 1                                // activate debugging
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * F_INTERRUPTS: number of interrupts per second, should be in the range from 10000 to 20000, typically 15000
@@ -60,8 +60,10 @@
 #define IRSND_SUPPORT_NOKIA_PROTOCOL            0       // Nokia                >= 10000                 ~400 bytes
 
 // exotic protocols, enable here!               Enable  Remarks                 F_INTERRUPTS            Program Space
+#define IRSND_SUPPORT_BOSE_PROTOCOL             0       // BOSE                 >= 10000                 ~100 bytes
 #define IRSND_SUPPORT_KATHREIN_PROTOCOL         0       // Kathrein             >= 10000                 DON'T CHANGE, NOT SUPPORTED YET!
 #define IRSND_SUPPORT_NUBERT_PROTOCOL           0       // NUBERT               >= 10000                 ~100 bytes
+#define IRSND_SUPPORT_FAN_PROTOCOL              0       // FAN (ventilator)     >= 10000                 ~100 bytes
 #define IRSND_SUPPORT_SPEAKER_PROTOCOL          0       // SPEAKER              >= 10000                 ~100 bytes
 #define IRSND_SUPPORT_BANG_OLUFSEN_PROTOCOL     0       // Bang&Olufsen         >= 10000                 ~250 bytes
 #define IRSND_SUPPORT_RECS80_PROTOCOL           0       // RECS80               >= 15000                 ~100 bytes
@@ -80,9 +82,33 @@
 #define IRSND_SUPPORT_RCMM_PROTOCOL             0       // RCMM 12,24, or 32    >= 20000                 DON'T CHANGE, NOT SUPPORTED YET!
 #define IRSND_SUPPORT_LGAIR_PROTOCOL            0       // LG Air Condition     >= 10000                 ~150 bytes.
 #define IRSND_SUPPORT_SAMSUNG48_PROTOCOL        0       // Samsung48            >= 10000                 ~100 bytes
+#define IRSND_SUPPORT_PENTAX_PROTOCOL           0       // Pentax               >= 10000                 ~150 bytes
+#define IRSND_SUPPORT_S100_PROTOCOL             0       // S100                 >= 10000                 ~150 bytes
+#define IRSND_SUPPORT_ACP24_PROTOCOL            0       // ACP24                >= 10000                 ~150 bytes
+#define IRSND_SUPPORT_TECHNICS_PROTOCOL         0       // TECHNICS             >= 10000                 DON'T CHANGE, NOT SUPPORTED YET!
+#define IRSND_SUPPORT_PANASONIC_PROTOCOL        0       // PANASONIC Beamer     >= 10000                 ~150 bytes
+#define IRSND_SUPPORT_MITSU_HEAVY_PROTOCOL      0       // Mitsubishi-Heavy Aircondition, similar Timing to Panasonic beamer
+#define IRSND_SUPPORT_IRMP16_PROTOCOL           0       // IRMP specific        >= 15000                 ~250 bytes
+
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
- * AVR section:
+ * AVR XMega section:
+ *
+ * Change hardware pin here:                    IRSND_XMEGA_OC0A = OC0A on ATxmegas  supporting OC0A, e.g. ATxmega128A1U
+ *                                              IRSND_XMEGA_OC0B = OC0B on ATxmegas  supporting OC0B, e.g. ATxmega128A1U
+ *                                              IRSND_XMEGA_OC0C = OC0C on ATxmegas  supporting OC0C, e.g. ATxmega128A1U
+ *                                              IRSND_XMEGA_OC0D = OC0D on ATxmegas  supporting OC0D, e.g. ATxmega128A1U
+ *                                              IRSND_XMEGA_OC1A = OC1A on ATxmegas  supporting OC1A, e.g. ATxmega128A1U
+ *                                              IRSND_XMEGA_OC1B = OC1B on ATxmegas  supporting OC1B, e.g. ATxmega128A1U
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#if defined(__AVR_XMEGA__)                                              // XMEGA
+#  define IRSND_PORT_PRE                        PORTD
+#  define XMEGA_Timer                           TCD0
+#  define IRSND_OCx                             IRSND_XMEGA_OC0B        // use OC0B
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * AVR ATMega/ATTiny section:
  *
  * Change hardware pin here:                    IRSND_OC2  = OC2  on ATmegas         supporting OC2,  e.g. ATmega8
  *                                              IRSND_OC2A = OC2A on ATmegas         supporting OC2A, e.g. ATmega88
@@ -92,7 +118,7 @@
  *                                              IRSND_OC0B = OC0B on ATmegas/ATtinys supporting OC0B, e.g. ATtiny84, ATtiny85
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
-#if defined(ATMEL_AVR)
+#elif defined(ATMEL_AVR)
 #  define IRSND_OCx                             IRSND_OC2B              // use OC2B
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -103,18 +129,18 @@
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 #elif defined(PIC_C18)                                                  // C18 or XC8 compiler
-# if defined(__12F1840)                                                 // XC8 compiler
-#  define Pre_Scaler                            1                       // define prescaler for timer2 e.g. 1,4,16
-#  define F_CPU                                 32000000UL              // PIC frequency: set your freq here
-#  define PIC_Scaler                            2                       // PIC needs /2 extra in IRSND_FREQ_32_KHZ calculation for right value
+#  if defined(__12F1840)                                                // XC8 compiler
+#    define Pre_Scaler                          1                       // define prescaler for timer2 e.g. 1,4,16
+#    define F_CPU                               32000000UL              // PIC frequency: set your freq here
+#    define PIC_Scaler                          2                       // PIC needs /2 extra in IRSND_FREQ_32_KHZ calculation for right value
 
-# else                                                                  // C18 compiler
-#  define IRSND_OCx                             IRSND_PIC_CCP2          // Use PWMx for PIC
+#  else                                                                 // C18 compiler
+#    define IRSND_OCx                           IRSND_PIC_CCP2          // Use PWMx for PIC
                                                                         // change other PIC C18 specific settings:
-#  define F_CPU                                 48000000UL              // PIC frequency: set your freq here
-#  define Pre_Scaler                            4                       // define prescaler for timer2 e.g. 1,4,16
-#  define PIC_Scaler                            2                       // PIC needs /2 extra in IRSND_FREQ_32_KHZ calculation for right value
-# endif
+#    define F_CPU                               48000000UL              // PIC frequency: set your freq here
+#    define Pre_Scaler                          4                       // define prescaler for timer2 e.g. 1,4,16
+#    define PIC_Scaler                          2                       // PIC needs /2 extra in IRSND_FREQ_32_KHZ calculation for right value
+#  endif
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * ARM STM32 section:
@@ -127,12 +153,26 @@
 #  define IRSND_TIMER_CHANNEL_NUMBER            1                       // only channel 1 can be used at the moment, others won't work
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
- * Other target system
+ * Teensy 3.x with teensyduino gcc compiler
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#elif defined (TEENSY_ARM_CORTEX_M4)
+#  define IRSND_PIN                             5                       // choose an arduino pin with PWM function!
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * Other target systems
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 #elif !defined (UNIX_OR_WINDOWS)
 #  error target system not defined.
 #endif
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * ESP8266 (Arduino, see IRSEND.ino)
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#elif defined (__xtensa__)
+#  define IRSND_PIN                             0                       // choose an arduino pin with PWM function!
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * Use Callbacks to indicate output signal or something else

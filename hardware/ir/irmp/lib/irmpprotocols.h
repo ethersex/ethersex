@@ -3,9 +3,9 @@
  *
  * DO NOT INCLUDE THIS FILE, WILL BE INCLUDED BY IRMP.H or IRSND.H!
  *
- * Copyright (c) 2013-2014 Frank Meyer - frank(at)fli4l.de
+ * Copyright (c) 2013-2016 Frank Meyer - frank(at)fli4l.de
  *
- * $Id: irmpprotocols.h,v 1.28 2014/09/15 12:36:28 fm Exp $
+ * $Id: irmpprotocols.h,v 1.50 2018/02/19 10:23:36 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
  * IR protocols:
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
+#define IRMP_UNKNOWN_PROTOCOL                    0              // uknown protocol
 #define IRMP_SIRCS_PROTOCOL                      1              // Sony
 #define IRMP_NEC_PROTOCOL                        2              // NEC, Pioneer, JVC, Toshiba, NoName etc.
 #define IRMP_SAMSUNG_PROTOCOL                    3              // Samsung
@@ -66,10 +67,21 @@
 #define IRMP_SPEAKER_PROTOCOL                   39              // Another loudspeaker protocol, similar to Nubert
 #define IRMP_LGAIR_PROTOCOL                     40              // LG air conditioner
 #define IRMP_SAMSUNG48_PROTOCOL                 41              // air conditioner with SAMSUNG protocol (48 bits)
+#define IRMP_MERLIN_PROTOCOL                    42              // Merlin (Pollin 620 185)
+#define IRMP_PENTAX_PROTOCOL                    43              // Pentax camera
+#define IRMP_FAN_PROTOCOL                       44              // FAN (ventilator), very similar to NUBERT, but last bit is data bit instead of stop bit
+#define IRMP_S100_PROTOCOL                      45              // very similar to RC5, but 14 instead of 13 data bits
+#define IRMP_ACP24_PROTOCOL                     46              // Stiebel Eltron ACP24 air conditioner
+#define IRMP_TECHNICS_PROTOCOL                  47              // Technics, similar to Matsushita, but 22 instead of 24 bits
+#define IRMP_PANASONIC_PROTOCOL                 48              // Panasonic (Beamer), start bits similar to KASEIKYO
+#define IRMP_MITSU_HEAVY_PROTOCOL               49              // Mitsubishi-Heavy Aircondition, similar timing as Panasonic beamer
+#define IRMP_VINCENT_PROTOCOL                   50              // Vincent
+#define IRMP_SAMSUNGAH_PROTOCOL                 51              // SAMSUNG AH
+#define IRMP_IRMP16_PROTOCOL                    52              // IRMP specific protocol for data transfer, e.g. between two microcontrollers via IR
 
-#define IRMP_RADIO1_PROTOCOL                    42              // Radio protocol (experimental status), do not use it yet!
+#define IRMP_RADIO1_PROTOCOL                    53              // Radio protocol (experimental status), do not use it yet!
 
-#define IRMP_N_PROTOCOLS                        42              // number of supported protocols
+#define IRMP_N_PROTOCOLS                        53              // number of supported protocols
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * timing constants:
@@ -187,7 +199,7 @@ typedef uint8_t     PAUSE_LEN;
 #define SAMSUNG32_COMMAND_OFFSET                16                              // skip 16 bits
 #define SAMSUNG32_COMMAND_LEN                   16                              // read 16 command bits
 #define SAMSUNG32_COMPLETE_DATA_LEN             32                              // complete length
-#define SAMSUNG32_FRAMES                        2                               // SAMSUNG32 sends each frame 2 times // fm: correct?
+#define SAMSUNG32_FRAMES                        1                               // SAMSUNG32 sends one frame
 #define SAMSUNG32_AUTO_REPETITION_PAUSE_TIME    47.0e-3                         // repetition after 47 ms
 #define SAMSUNG32_FRAME_REPEAT_PAUSE_TIME       47.0e-3                         // frame repeat after 47ms
 
@@ -197,6 +209,25 @@ typedef uint8_t     PAUSE_LEN;
 #define SAMSUNG48_FRAMES                        2                               // SAMSUNG48 sends each frame 2 times
 #define SAMSUNG48_AUTO_REPETITION_PAUSE_TIME    5.0e-3                          // repetition after 5 ms
 #define SAMSUNG48_FRAME_REPEAT_PAUSE_TIME       47.0e-3                         // frame repeat after 47ms
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * SAMSUNGAH:
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#define SAMSUNGAH_START_BIT_PULSE_TIME          2500.0e-6                       // 2500 usec pulse
+#define SAMSUNGAH_START_BIT_PAUSE_TIME          1900.0e-6                       // 1900 usec pause
+#define SAMSUNGAH_PULSE_TIME                     450.0e-6                       //  450 usec pulse
+#define SAMSUNGAH_1_PAUSE_TIME                  1100.0e-6                       // 1100 usec pause
+#define SAMSUNGAH_0_PAUSE_TIME                   450.0e-6                       //  450 usec pause
+#define SAMSUNGAH_FRAME_REPEAT_PAUSE_TIME         40.0e-3                       // frame repeat after 40ms
+#define SAMSUNGAH_ADDRESS_OFFSET                 0                              // skip 0 bits
+#define SAMSUNGAH_ADDRESS_LEN                   16                              // read 16 address bits, ignore 17..31
+#define SAMSUNGAH_COMMAND_OFFSET                32                              // skip 32 bits
+#define SAMSUNGAH_COMMAND_LEN                   16                              // read 32 bits
+#define SAMSUNGAH_COMPLETE_DATA_LEN             48                              // complete length
+#define SAMSUNGAH_STOP_BIT                      1                               // has stop bit
+#define SAMSUNGAH_LSB                           1                               // LSB...MSB?
+#define SAMSUNGAH_FLAGS                         0                               // flags
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * MATSUSHITA:
@@ -218,6 +249,14 @@ typedef uint8_t     PAUSE_LEN;
 #define MATSUSHITA_FLAGS                        0                               // flags
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * TECHNICS: same timings as MATSUSHITA
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#define TECHNICS_ADDRESS_LEN                    0                               // read 0 address bits
+#define TECHNICS_COMMAND_LEN                    11                              // read 11 bits
+#define TECHNICS_COMPLETE_DATA_LEN              22                              // complete length
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
  * KASEIKYO:
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
@@ -235,8 +274,69 @@ typedef uint8_t     PAUSE_LEN;
 #define KASEIKYO_COMPLETE_DATA_LEN              48                              // complete length
 #define KASEIKYO_STOP_BIT                       1                               // has stop bit
 #define KASEIKYO_LSB                            1                               // LSB...MSB?
-#define KASEIKYO_FRAMES                         2                               // KASEIKYO sends 1st frame 2 times
+#define KASEIKYO_FRAMES                         1                               // KASEIKYO sends 1 frame
 #define KASEIKYO_FLAGS                          0                               // flags
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * PANASONIC (Beamer), start bit timings similar to KASEIKYO
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#define PANASONIC_START_BIT_PULSE_TIME           3600.0e-6                      // 3600 usec pulse
+#define PANASONIC_START_BIT_PAUSE_TIME           1600.0e-6                      // 1690 usec pause
+#define PANASONIC_PULSE_TIME                      565.0e-6                      //  565 usec pulse
+#define PANASONIC_1_PAUSE_TIME                   1140.0e-6                      // 1140 usec pause
+#define PANASONIC_0_PAUSE_TIME                    316.0e-6                      //  316 usec pause
+#define PANASONIC_AUTO_REPETITION_PAUSE_TIME       40.0e-3                      // repetition after 40 ms?
+#define PANASONIC_FRAME_REPEAT_PAUSE_TIME          40.0e-3                      // frame repeat after 40 ms
+#define PANASONIC_ADDRESS_OFFSET                 24                             // skip 24 bits: 010000000000010000000001
+#define PANASONIC_ADDRESS_LEN                    16                             // read 16 address bits
+#define PANASONIC_COMMAND_OFFSET                 40                             // skip 40 bits
+#define PANASONIC_COMMAND_LEN                    16                             // read 16 command bits
+#define PANASONIC_COMPLETE_DATA_LEN              56                             // complete length
+#define PANASONIC_STOP_BIT                       1                              // has stop bit
+#define PANASONIC_LSB                            1                              // LSB...MSB?
+#define PANASONIC_FRAMES                         1                              // PANASONIC sends 1 frame
+#define PANASONIC_FLAGS                          0                              // flags
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * MITSUBISHI-Heavy Aircondition, timings similar to PANASONIC beamer
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#define MITSU_HEAVY_START_BIT_PULSE_TIME          3200.0e-6                     // 3600 usec pulse
+#define MITSU_HEAVY_START_BIT_PAUSE_TIME          1560.0e-6                     // 1690 usec pause
+#define MITSU_HEAVY_PULSE_TIME                     400.0e-6                     //  565 usec pulse
+#define MITSU_HEAVY_1_PAUSE_TIME                  1200.0e-6                     // 1140 usec pause
+#define MITSU_HEAVY_0_PAUSE_TIME                   430.0e-6                     //  316 usec pause
+#define MITSU_HEAVY_FRAME_REPEAT_PAUSE_TIME         40.0e-3                     // frame repeat after 40 ms
+#define MITSU_HEAVY_ADDRESS_OFFSET                 40                           // skip 24 bits: 010000000000010000000001
+#define MITSU_HEAVY_ADDRESS_LEN                    16                           // read 16 address bits
+#define MITSU_HEAVY_COMMAND_OFFSET                 56                           // skip 40 bits
+#define MITSU_HEAVY_COMMAND_LEN                    16                           // read 16 command bits
+#define MITSU_HEAVY_COMPLETE_DATA_LEN              88                           // complete length
+#define MITSU_HEAVY_STOP_BIT                       1                            // has stop bit
+#define MITSU_HEAVY_LSB                            0                            // LSB...MSB?
+#define MITSU_HEAVY_FRAMES                         1                            // PANASONIC sends 1 frame
+#define MITSU_HEAVY_FLAGS                          0                            // flags
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * VINCENT
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#define VINCENT_START_BIT_PULSE_TIME            2500.0e-6                       // 2500 usec pulse
+#define VINCENT_START_BIT_PAUSE_TIME            4600.0e-6                       // 4600 usec pause
+#define VINCENT_PULSE_TIME                       550.0e-6                       //  550 usec pulse
+#define VINCENT_1_PAUSE_TIME                    1540.0e-6                       // 1540 usec pause
+#define VINCENT_0_PAUSE_TIME                     550.0e-6                       //  550 usec pause
+#define VINCENT_FRAME_REPEAT_PAUSE_TIME           40.0e-3                       // frame repeat after 40 ms ?
+#define VINCENT_ADDRESS_OFFSET                     0                            // skip 0 bits
+#define VINCENT_ADDRESS_LEN                       16                            // read 16 address bits
+#define VINCENT_COMMAND_OFFSET                    16                            // skip 16 bits
+#define VINCENT_COMMAND_LEN                       16                            // read 16 command bits
+#define VINCENT_COMPLETE_DATA_LEN                 32                            // complete length
+#define VINCENT_STOP_BIT                           1                            // has stop bit
+#define VINCENT_LSB                                0                            // LSB...MSB?
+#define VINCENT_FRAMES                             1                            // VINCENT sends 1 frame
+#define VINCENT_FLAGS                              0                            // flags
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * RECS80:
@@ -262,7 +362,7 @@ typedef uint8_t     PAUSE_LEN;
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 #define RC5_BIT_TIME                             889.0e-6                       // 889 usec pulse/pause
-#define RC5_FRAME_REPEAT_PAUSE_TIME               45.0e-3                       // frame repeat after 45ms
+#define RC5_FRAME_REPEAT_PAUSE_TIME               88.9e-3                       // frame repeat after 88.9ms
 
 #define RC5_ADDRESS_OFFSET                      1                               // skip 1 bit (2nd start)
 #define RC5_ADDRESS_LEN                         6                               // read 1 toggle bit (for key repetition detection) + 5 address bits
@@ -274,6 +374,22 @@ typedef uint8_t     PAUSE_LEN;
 #define RC5_FLAGS                               IRMP_PARAM_FLAG_IS_MANCHESTER   // flags
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * S100: very similar to RC5, but 14 insted of 13 bits
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#define S100_BIT_TIME                             889.0e-6                       // 889 usec pulse/pause
+#define S100_FRAME_REPEAT_PAUSE_TIME               88.9e-3                       // frame repeat after 88.9ms
+
+#define S100_ADDRESS_OFFSET                      1                               // skip 1 bit (2nd start)
+#define S100_ADDRESS_LEN                         6                               // read 1 toggle bit (for key repetition detection) + 5 address bits
+#define S100_COMMAND_OFFSET                      7                               // skip 5 bits (2nd start + 1 toggle + 5 address)
+#define S100_COMMAND_LEN                         7                               // read 7 command bits
+#define S100_COMPLETE_DATA_LEN                   14                              // complete length
+#define S100_STOP_BIT                            0                               // has no stop bit
+#define S100_LSB                                 0                               // MSB...LSB
+#define S100_FLAGS                               IRMP_PARAM_FLAG_IS_MANCHESTER   // flags
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
  * DENON:
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
@@ -281,8 +397,8 @@ typedef uint8_t     PAUSE_LEN;
 #define DENON_1_PAUSE_TIME                      1780.0e-6                       // 1780 usec pause in practice, 1900 in theory
 #define DENON_0_PAUSE_TIME                       745.0e-6                       //  745 usec pause in practice,  775 in theory
 #define DENON_FRAMES                            2                               // DENON sends each frame 2 times
-#define DENON_AUTO_REPETITION_PAUSE_TIME          65.0e-3                       // inverted repetition after 65ms
-#define DENON_FRAME_REPEAT_PAUSE_TIME            130.0e-3                       // frame repeat after 2 * 65ms
+#define DENON_AUTO_REPETITION_PAUSE_TIME          45.0e-3                       // inverted repetition after 45ms
+#define DENON_FRAME_REPEAT_PAUSE_TIME             45.0e-3                       // frame repeat after 45ms
 #define DENON_ADDRESS_OFFSET                    0                               // skip 0 bits
 #define DENON_ADDRESS_LEN                       5                               // read 5 address bits
 #define DENON_COMMAND_OFFSET                    5                               // skip 5
@@ -299,7 +415,9 @@ typedef uint8_t     PAUSE_LEN;
 #define RC6_START_BIT_PULSE_TIME                2666.0e-6                       // 2.666 msec pulse
 #define RC6_START_BIT_PAUSE_TIME                 889.0e-6                       // 889 usec pause
 #define RC6_TOGGLE_BIT_TIME                      889.0e-6                       // 889 msec pulse/pause
-#define RC6_BIT_TIME                             444.0e-6                       // 889 usec pulse/pause
+#define RC6_BIT_TIME                             444.0e-6                       // 444 usec pulse/pause
+#define RC6_BIT_2_TIME                           889.0e-6                       // 889 usec pulse/pause
+#define RC6_BIT_3_TIME                          1333.0e-6                       // 1333 usec pulse/pause
 #define RC6_FRAME_REPEAT_PAUSE_TIME               45.0e-3                       // frame repeat after 45ms
 #define RC6_ADDRESS_OFFSET                      5                               // skip "1" + 3 mode bits + 1 toggle bit
 #define RC6_ADDRESS_LEN                         8                               // read 8 address bits
@@ -353,16 +471,42 @@ typedef uint8_t     PAUSE_LEN;
 #define NUBERT_FLAGS                            0                               // flags
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * FAN: (ventilator)
+ *
+ * Similar to NUBERT, but
+ *   - has data bit instead of stop bit
+ *   - has NO frame repetition
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#define FAN_START_BIT_PULSE_TIME                1280.0e-6                       // 1280 usec pulse
+#define FAN_START_BIT_PAUSE_TIME                 380.0e-6                       //  380 usec pause
+#define FAN_1_PULSE_TIME                        1280.0e-6                       // 1280 usec pulse
+#define FAN_1_PAUSE_TIME                         380.0e-6                       //  380 usec pause
+#define FAN_0_PULSE_TIME                         380.0e-6                       //  380 usec pulse
+#define FAN_0_PAUSE_TIME                        1280.0e-6                       // 1280 usec pause
+#define FAN_FRAMES                              1                               // FAN sends only 1 frame (NUBERT sends 2)
+#define FAN_AUTO_REPETITION_PAUSE_TIME            6.6e-3                        // auto repetition after 6.6ms
+#define FAN_FRAME_REPEAT_PAUSE_TIME               6.6e-3                        // frame repeat after 6.6ms
+#define FAN_ADDRESS_OFFSET                      0                               // skip 0 bits
+#define FAN_ADDRESS_LEN                         0                               // read 0 address bits
+#define FAN_COMMAND_OFFSET                      0                               // skip 0 bits
+#define FAN_COMMAND_LEN                         11                              // read 10 bits
+#define FAN_COMPLETE_DATA_LEN                   11                              // complete length
+#define FAN_STOP_BIT                            0                               // has NO stop bit (fm: this seems to be wrong)
+#define FAN_LSB                                 0                               // MSB
+#define FAN_FLAGS                               0                               // flags
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
  * SPEAKER:
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
-#define SPEAKER_START_BIT_PULSE_TIME             440.0e-6                       // 1340 usec pulse
-#define SPEAKER_START_BIT_PAUSE_TIME            1250.0e-6                       //  340 usec pause
-#define SPEAKER_1_PULSE_TIME                    1250.0e-6                       // 1340 usec pulse
-#define SPEAKER_1_PAUSE_TIME                     440.0e-6                       //  340 usec pause
-#define SPEAKER_0_PULSE_TIME                     440.0e-6                       //  500 usec pulse
-#define SPEAKER_0_PAUSE_TIME                    1250.0e-6                       // 1300 usec pause
-#define SPEAKER_FRAMES                          2                               // Nubert sends 2 frames
+#define SPEAKER_START_BIT_PULSE_TIME             440.0e-6                       //  440 usec pulse
+#define SPEAKER_START_BIT_PAUSE_TIME            1250.0e-6                       // 1250 usec pause
+#define SPEAKER_1_PULSE_TIME                    1250.0e-6                       // 1250 usec pulse
+#define SPEAKER_1_PAUSE_TIME                     440.0e-6                       //  440 usec pause
+#define SPEAKER_0_PULSE_TIME                     440.0e-6                       //  440 usec pulse
+#define SPEAKER_0_PAUSE_TIME                    1250.0e-6                       // 1250 usec pause
+#define SPEAKER_FRAMES                          2                               // SPEAKER sends 2 frames
 #define SPEAKER_AUTO_REPETITION_PAUSE_TIME        35.0e-3                       // auto repetition after 35ms
 #define SPEAKER_FRAME_REPEAT_PAUSE_TIME           35.0e-3                       // frame repeat after 45ms
 #define SPEAKER_ADDRESS_OFFSET                  0                               // skip 0 bits
@@ -645,7 +789,9 @@ typedef uint8_t     PAUSE_LEN;
 #define BOSE_PULSE_TIME                          550.0e-6                       //  550 usec pulse
 #define BOSE_1_PAUSE_TIME                       1425.0e-6                       // 1425 usec pause
 #define BOSE_0_PAUSE_TIME                        437.0e-6                       //  437 usec pause
-#define BOSE_FRAME_REPEAT_PAUSE_TIME              40.0e-3                       // frame repeat after 40ms???
+#define BOSE_FRAMES                             1
+#define BOSE_AUTO_REPETITION_PAUSE_TIME           40.0e-3                       // repetition after 40ms?
+#define BOSE_FRAME_REPEAT_PAUSE_TIME              40.0e-3                       // frame repeat after 40ms?
 #define BOSE_ADDRESS_OFFSET                      0                              // skip 0 bits
 #define BOSE_ADDRESS_LEN                         0                              // read 16 address bits
 #define BOSE_COMMAND_OFFSET                      0                              // skip 16 bits (8 address + 8 /address)
@@ -679,6 +825,26 @@ typedef uint8_t     PAUSE_LEN;
 #define A1TVBOX_COMMAND_LEN                     8                               // read 8 command bits
 #define A1TVBOX_COMPLETE_DATA_LEN               17                              // complete length incl. start bit
 #define A1TVBOX_FRAME_REPEAT_PAUSE_TIME         50.0e-3                         // 50 msec pause between frames, don't know if it is correct
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * MERLIN:
+ * See notes for A1TVBOX
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#define MERLIN_START_BIT_PULSE_TIME            210.0e-6                         // 210 usec pulse
+#define MERLIN_START_BIT_PAUSE_TIME            420.0e-6                         // 429 usec pause
+#define MERLIN_BIT_PULSE_TIME                  210.0e-6                         // 210 usec pulse
+#define MERLIN_BIT_PAUSE_TIME                  210.0e-6                         // 210 usec pulse
+#define MERLIN_STOP_BIT                        0                                // has no stop bit
+#define MERLIN_LSB                             0                                // MSB...LSB
+#define MERLIN_FLAGS                           (IRMP_PARAM_FLAG_IS_MANCHESTER | IRMP_PARAM_FLAG_1ST_PULSE_IS_1 )  // flags
+#define MERLIN_FRAMES                          1                                // MERLIN sends each frame 1 times
+#define MERLIN_ADDRESS_OFFSET                  1                                // skip 1 bits
+#define MERLIN_ADDRESS_LEN                     8                                // read 8 address bits
+#define MERLIN_COMMAND_OFFSET                  8                                // skip 9 bits (start bit + address)
+#define MERLIN_COMMAND_LEN                     10                               // read 8 command bits
+#define MERLIN_COMPLETE_DATA_LEN               19                               // complete length incl. start bit
+#define MERLIN_FRAME_REPEAT_PAUSE_TIME         50.0e-3                          // 50 msec pause between frames, don't know if it is correct
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * ORTEK (Hama): 6 address bits + 2 frame type bits + 6 command bits + 1 parity bit + 1 unknown bit + "1" + "0"
@@ -732,7 +898,7 @@ typedef uint8_t     PAUSE_LEN;
 #define ROOMBA_COMMAND_OFFSET                    0                              // skip 0 bits
 #define ROOMBA_COMMAND_LEN                       7                              // read 7 bits
 #define ROOMBA_COMPLETE_DATA_LEN                 7                              // complete length
-#define ROOMBA_STOP_BIT                         0                               // has stop bit
+#define ROOMBA_STOP_BIT                         0                               // has stop bit (fm: sure?)
 #define ROOMBA_LSB                              0                               // MSB...LSB
 #define ROOMBA_FLAGS                            0                               // flags
 #define ROOMBA_FRAMES                           8                               // ROOMBA sends 8 frames (this is a lie, but more comfortable)
@@ -751,7 +917,7 @@ typedef uint8_t     PAUSE_LEN;
 
 #define RCMM32_FRAME_REPEAT_PAUSE_TIME            80.0e-3                       // frame repeat after 80 ms
 #define RCMM32_ADDRESS_OFFSET                    0                              // skip 0 bits
-#define RCMM32_ADDRESS_LEN                      16                              // read 16 address bits
+#define RCMM32_ADDRESS_LEN                      16                              //  read 16 address bits
 #define RCMM32_COMMAND_OFFSET                   17                              // skip 17 bits
 #define RCMM32_COMMAND_LEN                      15                              // read 15 bits
 #define RCMM32_COMPLETE_DATA_LEN                32                              // complete length
@@ -760,25 +926,82 @@ typedef uint8_t     PAUSE_LEN;
 #define RCMM32_FLAGS                            0                               // flags
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * PENTAX:
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#define PENTAX_START_BIT_PULSE_TIME             13000.0e-6                      // 13 msec pulse
+#define PENTAX_START_BIT_PAUSE_TIME              3000.0e-6                      // 3 msec pause
+#define PENTAX_PULSE_TIME                        1000.0e-6                      // 1 msec pulse
+#define PENTAX_1_PAUSE_TIME                      3000.0e-6                      // 3 msec pause
+#define PENTAX_0_PAUSE_TIME                      1000.0e-6                      // 1 msec pause
+#define PENTAX_FRAME_REPEAT_PAUSE_TIME             60.0e-3                      // frame repeat after 60ms
+#define PENTAX_ADDRESS_OFFSET                  0                                // skip 0 bits
+#define PENTAX_ADDRESS_LEN                     0                                // read 0 address bits
+#define PENTAX_COMMAND_OFFSET                  0                                // skip 0 bits
+#define PENTAX_COMMAND_LEN                     6                                // read 6 bits
+#define PENTAX_COMPLETE_DATA_LEN               6                                // complete length
+#define PENTAX_STOP_BIT                        1                                // has stop bit
+#define PENTAX_LSB                             0                                // LSB...MSB
+#define PENTAX_FLAGS                           0                                // flags
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * ACP24: Stiebel Eltron ACP24 air conditioner
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#define ACP24_START_BIT_PULSE_TIME               390.0e-6                       //  390 usec pulse
+#define ACP24_START_BIT_PAUSE_TIME               950.0e-6                       //  950 usec pause
+#define ACP24_PULSE_TIME                         390.0e-6                       //  390 usec pulse
+#define ACP24_1_PAUSE_TIME                      1300.0e-6                       // 1300 usec pause
+#define ACP24_0_PAUSE_TIME                       950.0e-6                       //  950 usec pause
+#define ACP24_FRAME_REPEAT_PAUSE_TIME             22.0e-3                       // frame repeat after 22ms?
+#define ACP24_ADDRESS_OFFSET                     0                              // skip 0 bits
+#define ACP24_ADDRESS_LEN                        0                              // read 6 address bits
+#define ACP24_COMMAND_OFFSET                     0                              // skip 6 bits
+#define ACP24_COMMAND_LEN                        0                              // read 0 bits (70 bits will be read and compressed by special routine)
+#define ACP24_COMPLETE_DATA_LEN                 70                              // complete length
+#define ACP24_STOP_BIT                          1                               // has stop bit
+#define ACP24_LSB                               0                               // LSB...MSB
+#define ACP24_FLAGS                             0                               // flags
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * IRMP16:
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#define IRMP16_START_BIT_PULSE_TIME              842.0e-6                       //  842 usec pulse (32 x 1/38kHz)
+#define IRMP16_START_BIT_PAUSE_TIME             1052.0e-6                       // 1052 usec pause (40 x 1/38kHz)
+#define IRMP16_PULSE_TIME                        421.0e-6                       //  421 usec pulse (16 x 1/38kHz)
+#define IRMP16_1_PAUSE_TIME                      842.0e-6                       //  842 usec pause (32 x 1/38kHz)
+#define IRMP16_0_PAUSE_TIME                      421.0e-6                       //  421 usec pause (16 x 1/38kHz)
+#define IRMP16_FRAME_REPEAT_PAUSE_TIME            40.0e-3                       // frame repeat after 40ms
+#define IRMP16_ADDRESS_OFFSET                   0                               // skip 0 bits
+#define IRMP16_ADDRESS_LEN                      0                               // read 0 address bits
+#define IRMP16_COMMAND_OFFSET                   0                               // skip 0 bits
+#define IRMP16_COMMAND_LEN                      16                              // read 16 bits (12 command + 4 CRC)
+#define IRMP16_COMPLETE_DATA_LEN                16                              // complete length
+#define IRMP16_STOP_BIT                         1                               // has stop bit
+#define IRMP16_LSB                              1                               // LSB...MSB
+#define IRMP16_FLAGS                            0                               // flags
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
  * RADIO1 - e.g. Tevion
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
-#define RADIO1_START_BIT_PULSE_TIME            3000.0e-6                       // 3000 usec pulse
-#define RADIO1_START_BIT_PAUSE_TIME            7000.0e-6                       // 7000 usec pulse
-#define RADIO1_0_PULSE_TIME                     500.0e-6                       //  500 usec pulse
-#define RADIO1_0_PAUSE_TIME                    1000.0e-6                       // 1000 usec pause
-#define RADIO1_1_PULSE_TIME                    1000.0e-6                       // 1000 usec pulse
-#define RADIO1_1_PAUSE_TIME                     500.0e-6                       //  500 usec pause
+#define RADIO1_START_BIT_PULSE_TIME            3000.0e-6                        // 3000 usec pulse
+#define RADIO1_START_BIT_PAUSE_TIME            7000.0e-6                        // 7000 usec pulse
+#define RADIO1_0_PULSE_TIME                     500.0e-6                        //  500 usec pulse
+#define RADIO1_0_PAUSE_TIME                    1000.0e-6                        // 1000 usec pause
+#define RADIO1_1_PULSE_TIME                    1000.0e-6                        // 1000 usec pulse
+#define RADIO1_1_PAUSE_TIME                     500.0e-6                        //  500 usec pause
 
-#define RADIO1_FRAME_REPEAT_PAUSE_TIME           25.0e-3                       // frame repeat after 25ms
-#define RADIO1_ADDRESS_OFFSET                   4                              // skip 4 bits
-#define RADIO1_ADDRESS_LEN                     16                              // read 16 address bits
-#define RADIO1_COMMAND_OFFSET                  20                              // skip 4 + 16 bits
-#define RADIO1_COMMAND_LEN                      3                              // read 3 command bits
-#define RADIO1_COMPLETE_DATA_LEN               23                              // complete length
-#define RADIO1_STOP_BIT                        1                               // has stop bit
-#define RADIO1_LSB                             1                               // LSB...MSB?
-#define RADIO1_FLAGS                           0                               // flags
+#define RADIO1_FRAME_REPEAT_PAUSE_TIME           25.0e-3                        // frame repeat after 25ms
+#define RADIO1_ADDRESS_OFFSET                   4                               // skip 4 bits
+#define RADIO1_ADDRESS_LEN                     16                               // read 16 address bits
+#define RADIO1_COMMAND_OFFSET                  20                               // skip 4 + 16 bits
+#define RADIO1_COMMAND_LEN                      3                               // read 3 command bits
+#define RADIO1_COMPLETE_DATA_LEN               23                               // complete length
+#define RADIO1_STOP_BIT                        1                                // has stop bit
+#define RADIO1_LSB                             1                                // LSB...MSB?
+#define RADIO1_FLAGS                           0                                // flags
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * Frame Repetitions:
