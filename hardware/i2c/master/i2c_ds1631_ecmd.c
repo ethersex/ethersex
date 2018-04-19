@@ -57,7 +57,7 @@ parse_cmd_i2c_ds1631_read_temperature(char *cmd, char *output, uint16_t len)
 {
   uint8_t adr;
   int16_t temp;
-  int16_t stemp;
+  uint16_t stemp;
   sscanf_P(cmd, PSTR("%hhu"), &adr);
   if (adr > 7)
     return ECMD_ERR_PARSE_ERROR;
@@ -68,9 +68,9 @@ parse_cmd_i2c_ds1631_read_temperature(char *cmd, char *output, uint16_t len)
 #ifdef ECMD_MIRROR_REQUEST
   return
     ECMD_FINAL(snprintf_P
-               (output, len, PSTR("ds1631 temp %d %d.%d"), adr, temp, stemp));
+               (output, len, PSTR("ds1631 temp %d %d.04%u"), adr, temp, stemp));
 #else
-  return ECMD_FINAL(snprintf_P(output, len, PSTR("%d.%d"), temp, stemp));
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("%d.04%u"), temp, stemp));
 #endif
 }
 
