@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * irmpextlog.c - external logging
  *
- * $Id: irmpextlog.c,v 1.4 2014/02/19 12:57:36 fm Exp $
+ * $Id: irmpextlog.c,v 1.6 2017/02/17 09:13:06 fm Exp $
  *
  * If you cannot use the internal UART logging routine, adapt the
  * source below for your application. The following implementation
@@ -36,7 +36,7 @@ void
 initextlog (void)                                               // reset all data to default, only during init
 {
     unsigned char i;
- 
+
     for (i = 0; i < loglen; i++)
     {
         logdata[i] = 0;
@@ -68,7 +68,7 @@ sendextlog (unsigned char data)
             }
 
             mUSBUSARTTxRam((unsigned char *) &logdata, loglen); // send all Data to main Seoftware
-      
+
             logindex = 3;                                       // reset index
             bitindex = 7;                                       // reset bit position
             logdata[logindex] = 0;                              // reset value of new logindex to 0

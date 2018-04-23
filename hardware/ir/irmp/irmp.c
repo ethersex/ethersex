@@ -123,15 +123,10 @@
 
 
 ///////////////
-#ifdef F_INTERRUPTS
-#define __IRMP_F_INTERRUPTS F_INTERRUPTS
-#undef F_INTERRUPTS
-#endif
+#pragma push_macro("F_INTERRUPTS")
 #define F_INTERRUPTS IRMP_HZ
-#ifdef DEBUG
-#define __IRMP_DEBUG
+#pragma push_macro("DEBUG")
 #undef DEBUG
-#endif
 #define IRMP_DATA irmp_data_t
 #define IRMP_USE_AS_LIB
 #ifdef IRMP_RX_SUPPORT
@@ -158,12 +153,8 @@ static void irmp_tx_off(void);
 static void irmp_tx_set_freq(uint8_t);
 #include "lib/irsnd.c"
 #endif
-#ifdef __IRMP_DEBUG
-#define DEBUG
-#endif
-#ifdef __IRMP_F_INTERRUPTS
-#define F_INTERRUPTS __F_INTERRUPTS
-#endif
+#pragma pop_macro("DEBUG")
+#pragma pop_macro("F_INTERRUPTS")
 ///////////////
 
 typedef struct
@@ -186,8 +177,8 @@ irmp_init(void)
 {
 #ifdef IRMP_RX_SUPPORT
   /* configure TSOP input, disable pullup */
-  DDR_CONFIG_IN(IRMP_RX);
-  PIN_CLEAR(IRMP_RX);
+  PIN_CLEAR(IRMP_RX);           /* deactivate pullup */
+  DDR_CONFIG_IN(IRMP_RX);       /* set pin to input */
 #endif
 
 #ifdef STATUSLED_IRMP_RX_SUPPORT
@@ -296,8 +287,9 @@ irmp_tx_off(void)
 #else
     TC2_OUTPUT_COMPARE_NONE;
 #endif
-#endif /* IRMP_EXTERNAL_MODULATOR */
+#else
     PIN_CLEAR(IRMP_TX);
+#endif /* IRMP_EXTERNAL_MODULATOR */
     IRMP_TX_LED_OFF;
     irsnd_is_on = FALSE;
   }

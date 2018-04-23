@@ -1,19 +1,20 @@
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * @file irsnd.c
  *
- * Copyright (c) 2010-2014 Frank Meyer - frank(at)fli4l.de
+ * Copyright (c) 2010-2016 Frank Meyer - frank(at)fli4l.de
  *
  * Supported AVR mikrocontrollers:
  *
  * ATtiny87,  ATtiny167
  * ATtiny45,  ATtiny85
  * ATtiny44   ATtiny84
+ * ATtiny2313 ATtiny4313
  * ATmega8,   ATmega16,  ATmega32
  * ATmega162
  * ATmega164, ATmega324, ATmega644,  ATmega644P, ATmega1284, ATmega1284P
  * ATmega88,  ATmega88P, ATmega168,  ATmega168P, ATmega328P
  *
- * $Id: irsnd.c,v 1.82 2014/09/15 10:27:38 fm Exp $
+ * $Id: irsnd.c,v 1.104 2017/08/25 12:24:18 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +45,7 @@
 #  else
 #    error Wrong value for IRSND_OCx, choose IRSND_OC0A or IRSND_OC0B in irsndconfig.h
 #  endif // IRSND_OCx
+
 #elif defined (__AVR_ATtiny45__) || defined (__AVR_ATtiny85__)      // ATtiny45/85 uses OC0A = PB0 or OC0B = PB1
 #  if IRSND_OCx == IRSND_OC0A                                       // OC0A
 #    define IRSND_PORT_LETTER                       B
@@ -54,6 +56,18 @@
 #  else
 #    error Wrong value for IRSND_OCx, choose IRSND_OC0A or IRSND_OC0B in irsndconfig.h
 #  endif // IRSND_OCx
+
+#elif defined (__AVR_ATtiny2313__) || defined (__AVR_ATtiny4313__)  // ATtiny2313/4313 uses OC0A = PB2 or OC0B = PD5
+#  if IRSND_OCx == IRSND_OC0A                                       // OC0A
+#    define IRSND_PORT_LETTER                       B
+#    define IRSND_BIT_NUMBER                        2
+#  elif IRSND_OCx == IRSND_OC0B                                     // OC0B
+#    define IRSND_PORT_LETTER                       D
+#    define IRSND_BIT_NUMBER                        5
+#  else
+#    error Wrong value for IRSND_OCx, choose IRSND_OC0A or IRSND_OC0B in irsndconfig.h
+#  endif // IRSND_OCx
+
 #elif defined (__AVR_ATtiny87__) || defined (__AVR_ATtiny167__)     // ATtiny87/167 uses OC0A = PA2
 #  if IRSND_OCx == IRSND_OC0A                                       // OC0A
 #    define IRSND_PORT_LETTER                       A
@@ -61,20 +75,25 @@
 #  else
 #    error Wrong value for IRSND_OCx, choose IRSND_OC0A in irsndconfig.h
 #  endif // IRSND_OCx
+
 #elif defined (__AVR_ATmega8__)                                     // ATmega8 uses only OC2 = PB3
-#  if IRSND_OCx == IRSND_OC2                                        // OC0A
+#  if IRSND_OCx == IRSND_OC2                                        // OC2
 #    define IRSND_PORT_LETTER                       B
 #    define IRSND_BIT_NUMBER                        3
 #  else
 #    error Wrong value for IRSND_OCx, choose IRSND_OC2 in irsndconfig.h
 #  endif // IRSND_OCx
-#elif defined (__AVR_ATmega16__) || defined (__AVR_ATmega32__)      // ATmega16|32 uses OC2 = PD7
+#elif defined (__AVR_ATmega16__) || defined (__AVR_ATmega32__)      // ATmega16|32 uses OC0 = PB3 or OC2 = PD7
 #  if IRSND_OCx == IRSND_OC2                                        // OC2
 #    define IRSND_PORT_LETTER                       D
 #    define IRSND_BIT_NUMBER                        7
+#  elif IRSND_OCx == IRSND_OC0                                      // OC0
+#    define IRSND_PORT_LETTER                       B
+#    define IRSND_BIT_NUMBER                        3
 #  else
-#    error Wrong value for IRSND_OCx, choose IRSND_OC2 in irsndconfig.h
+#    error Wrong value for IRSND_OCx, choose IRSND_OC2 or IRSND_OC0 in irsndconfig.h
 #  endif // IRSND_OCx
+
 #elif defined (__AVR_ATmega162__)                                   // ATmega162 uses OC2 = PB1 or OC0 = PB0
 #  if IRSND_OCx == IRSND_OC2                                        // OC2
 #    define IRSND_PORT_LETTER                       B
@@ -85,6 +104,7 @@
 #  else
 #    error Wrong value for IRSND_OCx, choose IRSND_OC2 or IRSND_OC0 in irsndconfig.h
 #  endif // IRSND_OCx
+
 #elif defined (__AVR_ATmega164__)   \
    || defined (__AVR_ATmega324__)   \
    || defined (__AVR_ATmega644__)   \
@@ -106,6 +126,7 @@
 #  else
 #    error Wrong value for IRSND_OCx, choose IRSND_OC2A, IRSND_OC2B, IRSND_OC0A, or IRSND_OC0B in irsndconfig.h
 #  endif // IRSND_OCx
+
 #elif defined (__AVR_ATmega48__)    \
    || defined (__AVR_ATmega88__)    \
    || defined (__AVR_ATmega88P__)   \
@@ -127,30 +148,66 @@
 #  else
 #    error Wrong value for IRSND_OCx, choose IRSND_OC2A, IRSND_OC2B, IRSND_OC0A, or IRSND_OC0B in irsndconfig.h
 #  endif // IRSND_OCx
+
 #elif defined (__AVR_ATmega8515__)                                  // ATmega8515 uses OC0 = PB0 or OC1A = PD5 or OC1B = PE2
-#  if IRSND_OCx == IRSND_OC0   
+#  if IRSND_OCx == IRSND_OC0
 #    define IRSND_PORT_LETTER                       B
 #    define IRSND_BIT_NUMBER                        0
-#  elif IRSND_OCx == IRSND_OC1A 
+#  elif IRSND_OCx == IRSND_OC1A
 #    define IRSND_PORT_LETTER                       D
 #    define IRSND_BIT_NUMBER                        5
-#  elif IRSND_OCx == IRSND_OC1B 
+#  elif IRSND_OCx == IRSND_OC1B
 #    define IRSND_PORT_LETTER                       E
 #    define IRSND_BIT_NUMBER                        2
-#  else
-#    error Wrong value for IRSND_OCx, choose IRSND_OC0, IRSND_OC1A, or IRSND_OC1B in irsndconfig.h
 #  endif // IRSND_OCx
-#elif defined (PIC_C18)    //Microchip C18 compiler
+
+#elif defined (__AVR_XMEGA__)                                       // ATxmega
+#  if IRSND_OCx == IRSND_XMEGA_OC0A
+#    define IRSND_BIT_NUMBER                        0
+#  elif IRSND_OCx == IRSND_XMEGA_OC0B
+#    define IRSND_BIT_NUMBER                        1
+#  elif IRSND_OCx == IRSND_XMEGA_OC0C
+#    define IRSND_BIT_NUMBER                        2
+#  elif IRSND_OCx == IRSND_XMEGA_OC0D
+#    define IRSND_BIT_NUMBER                        3
+#  elif IRSND_OCx == IRSND_XMEGA_OC1A
+#    define IRSND_BIT_NUMBER                        4
+#  elif IRSND_OCx == IRSND_XMEGA_OC1B
+#    define IRSND_BIT_NUMBER                        5
+#  else
+#    error Wrong value for IRSND_OCx, choose IRSND_XMEGA_OC0A, IRSND_XMEGA_OC0B, IRSND_XMEGA_OC0C, IRSND_XMEGA_OC0D, IRSND_XMEGA_OC1A, or IRSND_XMEGA_OC1B in irsndconfig.h
+#  endif // IRSND_OCx
+
+#elif defined (PIC_C18)                                                 // Microchip C18 compiler
     //Nothing here to do here -> See irsndconfig.h
-#elif defined (ARM_STM32)  //STM32
+#elif defined (ARM_STM32)                                               // STM32
     //Nothing here to do here -> See irsndconfig.h
+#elif defined (__xtensa__)                                              // ESP8266
+    //Nothing here to do here -> See irsndconfig.h
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * Macro digitalPinHasPWM bothers PIC_C18 compiler, but why?
+ *
+ * #elif defined (TEENSY_ARM_CORTEX_M4)                                // Teensy3
+ * #  if !digitalPinHasPWM(IRSND_PIN)
+ * #    error need pin with PWM output.
+ * #  endif
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
 #else
 #  if !defined (unix) && !defined (WIN32)
 #    error mikrocontroller not defined, please fill in definitions here.
 #  endif // unix, WIN32
 #endif // __AVR...
 
-#if defined(ATMEL_AVR)
+#if defined(__AVR_XMEGA__)
+#  define _CONCAT(a,b)                              a##b
+#  define CONCAT(a,b)                               _CONCAT(a,b)
+#  define IRSND_PORT                                IRSND_PORT_PRE.OUT
+#  define IRSND_DDR                                 IRSND_PORT_PRE.DIR
+#  define IRSND_PIN                                 IRSND_PORT_PRE.IN
+#  define IRSND_BIT                                 IRSND_BIT_NUMBER
+#elif defined(ATMEL_AVR)
 #  define _CONCAT(a,b)                              a##b
 #  define CONCAT(a,b)                               _CONCAT(a,b)
 #  define IRSND_PORT                                CONCAT(PORT, IRSND_PORT_LETTER)
@@ -213,6 +270,21 @@
 #define KASEIKYO_AUTO_REPETITION_PAUSE_LEN      (uint16_t)(F_INTERRUPTS * KASEIKYO_AUTO_REPETITION_PAUSE_TIME + 0.5)            // use uint16_t!
 #define KASEIKYO_FRAME_REPEAT_PAUSE_LEN         (uint16_t)(F_INTERRUPTS * KASEIKYO_FRAME_REPEAT_PAUSE_TIME + 0.5)               // use uint16_t!
 
+#define PANASONIC_START_BIT_PULSE_LEN           (uint8_t)(F_INTERRUPTS * PANASONIC_START_BIT_PULSE_TIME + 0.5)
+#define PANASONIC_START_BIT_PAUSE_LEN           (uint8_t)(F_INTERRUPTS * PANASONIC_START_BIT_PAUSE_TIME + 0.5)
+#define PANASONIC_PULSE_LEN                     (uint8_t)(F_INTERRUPTS * PANASONIC_PULSE_TIME + 0.5)
+#define PANASONIC_1_PAUSE_LEN                   (uint8_t)(F_INTERRUPTS * PANASONIC_1_PAUSE_TIME + 0.5)
+#define PANASONIC_0_PAUSE_LEN                   (uint8_t)(F_INTERRUPTS * PANASONIC_0_PAUSE_TIME + 0.5)
+#define PANASONIC_AUTO_REPETITION_PAUSE_LEN     (uint16_t)(F_INTERRUPTS * PANASONIC_AUTO_REPETITION_PAUSE_TIME + 0.5)           // use uint16_t!
+#define PANASONIC_FRAME_REPEAT_PAUSE_LEN        (uint16_t)(F_INTERRUPTS * PANASONIC_FRAME_REPEAT_PAUSE_TIME + 0.5)              // use uint16_t!
+
+#define MITSU_HEAVY_START_BIT_PULSE_LEN         (uint8_t)(F_INTERRUPTS * MITSU_HEAVY_START_BIT_PULSE_TIME + 0.5)
+#define MITSU_HEAVY_START_BIT_PAUSE_LEN         (uint8_t)(F_INTERRUPTS * MITSU_HEAVY_START_BIT_PAUSE_TIME + 0.5)
+#define MITSU_HEAVY_PULSE_LEN                   (uint8_t)(F_INTERRUPTS * MITSU_HEAVY_PULSE_TIME + 0.5)
+#define MITSU_HEAVY_1_PAUSE_LEN                 (uint8_t)(F_INTERRUPTS * MITSU_HEAVY_1_PAUSE_TIME + 0.5)
+#define MITSU_HEAVY_0_PAUSE_LEN                 (uint8_t)(F_INTERRUPTS * MITSU_HEAVY_0_PAUSE_TIME + 0.5)
+#define MITSU_HEAVY_FRAME_REPEAT_PAUSE_LEN      (uint16_t)(F_INTERRUPTS * MITSU_HEAVY_FRAME_REPEAT_PAUSE_TIME + 0.5)             // use uint16_t!
+
 #define RECS80_START_BIT_PULSE_LEN              (uint8_t)(F_INTERRUPTS * RECS80_START_BIT_PULSE_TIME + 0.5)
 #define RECS80_START_BIT_PAUSE_LEN              (uint8_t)(F_INTERRUPTS * RECS80_START_BIT_PAUSE_TIME + 0.5)
 #define RECS80_PULSE_LEN                        (uint8_t)(F_INTERRUPTS * RECS80_PULSE_TIME + 0.5)
@@ -226,8 +298,9 @@
 
 #define RC6_START_BIT_PULSE_LEN                 (uint8_t)(F_INTERRUPTS * RC6_START_BIT_PULSE_TIME + 0.5)
 #define RC6_START_BIT_PAUSE_LEN                 (uint8_t)(F_INTERRUPTS * RC6_START_BIT_PAUSE_TIME + 0.5)
-#define RC6_TOGGLE_BIT_LEN                      (uint8_t)(F_INTERRUPTS * RC6_TOGGLE_BIT_TIME + 0.5)
 #define RC6_BIT_LEN                             (uint8_t)(F_INTERRUPTS * RC6_BIT_TIME + 0.5)
+#define RC6_BIT_2_LEN                           (uint8_t)(F_INTERRUPTS * RC6_BIT_2_TIME + 0.5)
+#define RC6_BIT_3_LEN                           (uint8_t)(F_INTERRUPTS * RC6_BIT_3_TIME + 0.5)
 #define RC6_FRAME_REPEAT_PAUSE_LEN              (uint16_t)(F_INTERRUPTS * RC6_FRAME_REPEAT_PAUSE_TIME + 0.5)                    // use uint16_t!
 
 #define DENON_PULSE_LEN                         (uint8_t)(F_INTERRUPTS * DENON_PULSE_TIME + 0.5)
@@ -257,6 +330,14 @@
 #define TELEFUNKEN_AUTO_REPETITION_PAUSE_LEN    (uint16_t)(F_INTERRUPTS * TELEFUNKEN_AUTO_REPETITION_PAUSE_TIME + 0.5)          // use uint16_t!
 #define TELEFUNKEN_FRAME_REPEAT_PAUSE_LEN       (uint16_t)(F_INTERRUPTS * TELEFUNKEN_FRAME_REPEAT_PAUSE_TIME + 0.5)             // use uint16_t!
 
+#define BOSE_START_BIT_PULSE_LEN                (uint8_t)(F_INTERRUPTS * BOSE_START_BIT_PULSE_TIME + 0.5)
+#define BOSE_START_BIT_PAUSE_LEN                (uint8_t)(F_INTERRUPTS * BOSE_START_BIT_PAUSE_TIME + 0.5)
+#define BOSE_PULSE_LEN                          (uint8_t)(F_INTERRUPTS * BOSE_PULSE_TIME + 0.5)
+#define BOSE_1_PAUSE_LEN                        (uint8_t)(F_INTERRUPTS * BOSE_1_PAUSE_TIME + 0.5)
+#define BOSE_0_PAUSE_LEN                        (uint8_t)(F_INTERRUPTS * BOSE_0_PAUSE_TIME + 0.5)
+#define BOSE_AUTO_REPETITION_PAUSE_LEN          (uint16_t)(F_INTERRUPTS * BOSE_AUTO_REPETITION_PAUSE_TIME + 0.5)              // use uint16_t!
+#define BOSE_FRAME_REPEAT_PAUSE_LEN             (uint16_t)(F_INTERRUPTS * BOSE_FRAME_REPEAT_PAUSE_TIME + 0.5)                 // use uint16_t!
+
 #define NUBERT_START_BIT_PULSE_LEN              (uint8_t)(F_INTERRUPTS * NUBERT_START_BIT_PULSE_TIME + 0.5)
 #define NUBERT_START_BIT_PAUSE_LEN              (uint8_t)(F_INTERRUPTS * NUBERT_START_BIT_PAUSE_TIME + 0.5)
 #define NUBERT_1_PULSE_LEN                      (uint8_t)(F_INTERRUPTS * NUBERT_1_PULSE_TIME + 0.5)
@@ -265,6 +346,15 @@
 #define NUBERT_0_PAUSE_LEN                      (uint8_t)(F_INTERRUPTS * NUBERT_0_PAUSE_TIME + 0.5)
 #define NUBERT_AUTO_REPETITION_PAUSE_LEN        (uint16_t)(F_INTERRUPTS * NUBERT_AUTO_REPETITION_PAUSE_TIME + 0.5)              // use uint16_t!
 #define NUBERT_FRAME_REPEAT_PAUSE_LEN           (uint16_t)(F_INTERRUPTS * NUBERT_FRAME_REPEAT_PAUSE_TIME + 0.5)                 // use uint16_t!
+
+#define FAN_START_BIT_PULSE_LEN                 (uint8_t)(F_INTERRUPTS * FAN_START_BIT_PULSE_TIME + 0.5)
+#define FAN_START_BIT_PAUSE_LEN                 (uint8_t)(F_INTERRUPTS * FAN_START_BIT_PAUSE_TIME + 0.5)
+#define FAN_1_PULSE_LEN                         (uint8_t)(F_INTERRUPTS * FAN_1_PULSE_TIME + 0.5)
+#define FAN_1_PAUSE_LEN                         (uint8_t)(F_INTERRUPTS * FAN_1_PAUSE_TIME + 0.5)
+#define FAN_0_PULSE_LEN                         (uint8_t)(F_INTERRUPTS * FAN_0_PULSE_TIME + 0.5)
+#define FAN_0_PAUSE_LEN                         (uint8_t)(F_INTERRUPTS * FAN_0_PAUSE_TIME + 0.5)
+#define FAN_AUTO_REPETITION_PAUSE_LEN           (uint16_t)(F_INTERRUPTS * FAN_AUTO_REPETITION_PAUSE_TIME + 0.5)              // use uint16_t!
+#define FAN_FRAME_REPEAT_PAUSE_LEN              (uint16_t)(F_INTERRUPTS * FAN_FRAME_REPEAT_PAUSE_TIME + 0.5)                 // use uint16_t!
 
 #define SPEAKER_START_BIT_PULSE_LEN             (uint8_t)(F_INTERRUPTS * SPEAKER_START_BIT_PULSE_TIME + 0.5)
 #define SPEAKER_START_BIT_PAUSE_LEN             (uint8_t)(F_INTERRUPTS * SPEAKER_START_BIT_PAUSE_TIME + 0.5)
@@ -317,6 +407,24 @@
 #  define IRSND_FREQ_455_KHZ                    (IRSND_FREQ_TYPE) ((F_CPU / 455000 / 2 / Pre_Scaler / PIC_Scaler) - 1)
 #elif defined (ARM_STM32)                       // STM32
 #  define IRSND_FREQ_TYPE                       uint32_t
+#  define IRSND_FREQ_30_KHZ                     (IRSND_FREQ_TYPE) (30000)
+#  define IRSND_FREQ_32_KHZ                     (IRSND_FREQ_TYPE) (32000)
+#  define IRSND_FREQ_36_KHZ                     (IRSND_FREQ_TYPE) (36000)
+#  define IRSND_FREQ_38_KHZ                     (IRSND_FREQ_TYPE) (38000)
+#  define IRSND_FREQ_40_KHZ                     (IRSND_FREQ_TYPE) (40000)
+#  define IRSND_FREQ_56_KHZ                     (IRSND_FREQ_TYPE) (56000)
+#  define IRSND_FREQ_455_KHZ                    (IRSND_FREQ_TYPE) (455000)
+#elif defined (TEENSY_ARM_CORTEX_M4)            // TEENSY
+#  define IRSND_FREQ_TYPE                       float
+#  define IRSND_FREQ_30_KHZ                     (IRSND_FREQ_TYPE) (30000)
+#  define IRSND_FREQ_32_KHZ                     (IRSND_FREQ_TYPE) (32000)
+#  define IRSND_FREQ_36_KHZ                     (IRSND_FREQ_TYPE) (36000)
+#  define IRSND_FREQ_38_KHZ                     (IRSND_FREQ_TYPE) (38000)
+#  define IRSND_FREQ_40_KHZ                     (IRSND_FREQ_TYPE) (40000)
+#  define IRSND_FREQ_56_KHZ                     (IRSND_FREQ_TYPE) (56000)
+#  define IRSND_FREQ_455_KHZ                    (IRSND_FREQ_TYPE) (455000)
+#elif defined (__xtensa__)                      // ESP8266
+#  define IRSND_FREQ_TYPE                       float
 #  define IRSND_FREQ_30_KHZ                     (IRSND_FREQ_TYPE) (30000)
 #  define IRSND_FREQ_32_KHZ                     (IRSND_FREQ_TYPE) (32000)
 #  define IRSND_FREQ_36_KHZ                     (IRSND_FREQ_TYPE) (36000)
@@ -378,6 +486,14 @@
 #define LEGO_0_PAUSE_LEN                        (uint8_t)(F_INTERRUPTS * LEGO_0_PAUSE_TIME + 0.5)
 #define LEGO_FRAME_REPEAT_PAUSE_LEN             (uint16_t)(F_INTERRUPTS * LEGO_FRAME_REPEAT_PAUSE_TIME + 0.5)               // use uint16_t!
 
+#define IRMP16_START_BIT_PULSE_LEN              (uint8_t)(F_INTERRUPTS * IRMP16_START_BIT_PULSE_TIME + 0.5)
+#define IRMP16_START_BIT_PAUSE_LEN              (uint8_t)(F_INTERRUPTS * IRMP16_START_BIT_PAUSE_TIME + 0.5)
+#define IRMP16_REPEAT_START_BIT_PAUSE_LEN       (uint8_t)(F_INTERRUPTS * IRMP16_REPEAT_START_BIT_PAUSE_TIME + 0.5)
+#define IRMP16_PULSE_LEN                        (uint8_t)(F_INTERRUPTS * IRMP16_PULSE_TIME + 0.5)
+#define IRMP16_1_PAUSE_LEN                      (uint8_t)(F_INTERRUPTS * IRMP16_1_PAUSE_TIME + 0.5)
+#define IRMP16_0_PAUSE_LEN                      (uint8_t)(F_INTERRUPTS * IRMP16_0_PAUSE_TIME + 0.5)
+#define IRMP16_FRAME_REPEAT_PAUSE_LEN           (uint16_t)(F_INTERRUPTS * IRMP16_FRAME_REPEAT_PAUSE_TIME + 0.5)               // use uint16_t!
+
 #define A1TVBOX_START_BIT_PULSE_LEN             (uint8_t)(F_INTERRUPTS * A1TVBOX_START_BIT_PULSE_TIME + 0.5)
 #define A1TVBOX_START_BIT_PAUSE_LEN             (uint8_t)(F_INTERRUPTS * A1TVBOX_START_BIT_PAUSE_TIME + 0.5)
 #define A1TVBOX_BIT_PULSE_LEN                   (uint8_t)(F_INTERRUPTS * A1TVBOX_BIT_PULSE_TIME + 0.5)
@@ -393,9 +509,25 @@
 #define ROOMBA_0_PAUSE_LEN                      (uint8_t)(F_INTERRUPTS * ROOMBA_0_PAUSE_TIME + 0.5)
 #define ROOMBA_FRAME_REPEAT_PAUSE_LEN           (uint16_t)(F_INTERRUPTS * ROOMBA_FRAME_REPEAT_PAUSE_TIME + 0.5)               // use uint16_t!
 
+#define PENTAX_START_BIT_PULSE_LEN              (uint8_t)(F_INTERRUPTS * PENTAX_START_BIT_PULSE_TIME + 0.5)
+#define PENTAX_START_BIT_PAUSE_LEN              (uint8_t)(F_INTERRUPTS * PENTAX_START_BIT_PAUSE_TIME + 0.5)
+#define PENTAX_REPEAT_START_BIT_PAUSE_LEN       (uint8_t)(F_INTERRUPTS * PENTAX_REPEAT_START_BIT_PAUSE_TIME + 0.5)
+#define PENTAX_PULSE_LEN                        (uint8_t)(F_INTERRUPTS * PENTAX_PULSE_TIME + 0.5)
+#define PENTAX_1_PAUSE_LEN                      (uint8_t)(F_INTERRUPTS * PENTAX_1_PAUSE_TIME + 0.5)
+#define PENTAX_0_PAUSE_LEN                      (uint8_t)(F_INTERRUPTS * PENTAX_0_PAUSE_TIME + 0.5)
+#define PENTAX_FRAME_REPEAT_PAUSE_LEN           (uint16_t)(F_INTERRUPTS * PENTAX_FRAME_REPEAT_PAUSE_TIME + 0.5)              // use uint16_t!
+
+#define ACP24_START_BIT_PULSE_LEN               (uint8_t)(F_INTERRUPTS * ACP24_START_BIT_PULSE_TIME + 0.5)
+#define ACP24_START_BIT_PAUSE_LEN               (uint8_t)(F_INTERRUPTS * ACP24_START_BIT_PAUSE_TIME + 0.5)
+#define ACP24_REPEAT_START_BIT_PAUSE_LEN        (uint8_t)(F_INTERRUPTS * ACP24_REPEAT_START_BIT_PAUSE_TIME + 0.5)
+#define ACP24_PULSE_LEN                         (uint8_t)(F_INTERRUPTS * ACP24_PULSE_TIME + 0.5)
+#define ACP24_1_PAUSE_LEN                       (uint8_t)(F_INTERRUPTS * ACP24_1_PAUSE_TIME + 0.5)
+#define ACP24_0_PAUSE_LEN                       (uint8_t)(F_INTERRUPTS * ACP24_0_PAUSE_TIME + 0.5)
+#define ACP24_FRAME_REPEAT_PAUSE_LEN            (uint16_t)(F_INTERRUPTS * ACP24_FRAME_REPEAT_PAUSE_TIME + 0.5)                // use uint16_t!
+
 static volatile uint8_t                         irsnd_busy = 0;
 static volatile uint8_t                         irsnd_protocol = 0;
-static volatile uint8_t                         irsnd_buffer[6] = {0};
+static volatile uint8_t                         irsnd_buffer[11] = {0};
 static volatile uint8_t                         irsnd_repeat = 0;
 static volatile uint8_t                         irsnd_is_on = FALSE;
 
@@ -417,10 +549,35 @@ irsnd_on (void)
 #  if defined(PIC_C18)                                  // PIC C18
         PWMon();
         // IRSND_PIN = 0; // output mode -> enable PWM outout pin (0=PWM on, 1=PWM off)
+
 #  elif defined (ARM_STM32)                             // STM32
         TIM_SelectOCxM(IRSND_TIMER, IRSND_TIMER_CHANNEL, TIM_OCMode_PWM1); // enable PWM as OC-mode
         TIM_CCxCmd(IRSND_TIMER, IRSND_TIMER_CHANNEL, TIM_CCx_Enable);      // enable OC-output (is being disabled in TIM_SelectOCxM())
         TIM_Cmd(IRSND_TIMER, ENABLE);                   // enable counter
+
+#  elif defined (TEENSY_ARM_CORTEX_M4)                  // TEENSY
+        analogWrite(IRSND_PIN, 33 * 255 / 100);         // pwm 33%
+
+#  elif defined (__xtensa__)                            // ESP8266 (Arduino)
+        analogWrite(IRSND_PIN, 33 * 1023 / 100);        // pwm 33%
+
+#  elif defined (__AVR_XMEGA__)
+#    if (IRSND_OCx == IRSND_XMEGA_OC0A)                                 // use OC0A
+                XMEGA_Timer.CTRLB |= (1<<TC0_CCAEN_bp);                 // Compare A
+#    elif (IRSND_OCx == IRSND_XMEGA_OC0B)                               // use OC0B
+                XMEGA_Timer.CTRLB |= (1<<TC0_CCBEN_bp);                 // Compare B
+#    elif IRSND_OCx == IRSND_XMEGA_OC0C                                 // use OC0C
+                XMEGA_Timer.CTRLB |= (1<<TC0_CCCEN_bp);                 // Compare C
+#    elif IRSND_OCx == IRSND_XMEGA_OC0D                                 // use OC0D
+                XMEGA_Timer.CTRLB |= (1<<TC0_CCDEN_bp);                 // Compare D
+#    elif IRSND_OCx == IRSND_XMEGA_OC1A                                 // use OC1A
+                XMEGA_Timer.CTRLB |= (1<<TC1_CCAEN_bp);                 // Compare A
+#    elif IRSND_OCx == IRSND_XMEGA_OC1B                                 // use OC1B
+                XMEGA_Timer.CTRLB |= (1<<TC1_CCBEN_bp);                 // Compare B
+#    else
+#       error wrong value of IRSND_OCx
+#    endif // IRSND_OCx
+
 #  else                                                 // AVR
 #    if   IRSND_OCx == IRSND_OC2                        // use OC2
         TCCR2 |= (1<<COM20)|(1<<WGM21);                 // toggle OC2 on compare match,  clear Timer 2 at compare match OCR2
@@ -464,15 +621,40 @@ irsnd_off (void)
     if (irsnd_is_on)
     {
 #ifndef ANALYZE
-    
-#  if defined(PIC_C18)                                  // PIC C18
+
+#  if defined(PIC_C18)                                                                  // PIC C18
         PWMoff();
         // IRSND_PIN = 1; //input mode -> disbale PWM output pin (0=PWM on, 1=PWM off)
-#  elif defined (ARM_STM32)                             // STM32
-        TIM_Cmd(IRSND_TIMER, DISABLE);                  // disable counter
-        TIM_SelectOCxM(IRSND_TIMER, IRSND_TIMER_CHANNEL, TIM_ForcedAction_InActive);   // force output inactive
-        TIM_CCxCmd(IRSND_TIMER, IRSND_TIMER_CHANNEL, TIM_CCx_Enable);      // enable OC-output (is being disabled in TIM_SelectOCxM())
-        TIM_SetCounter(IRSND_TIMER, 0);                 // reset counter value
+
+#  elif defined (ARM_STM32)                                                             // STM32
+        TIM_Cmd(IRSND_TIMER, DISABLE);                                                  // disable counter
+        TIM_SelectOCxM(IRSND_TIMER, IRSND_TIMER_CHANNEL, TIM_ForcedAction_InActive);    // force output inactive
+        TIM_CCxCmd(IRSND_TIMER, IRSND_TIMER_CHANNEL, TIM_CCx_Enable);                   // enable OC-output (is being disabled in TIM_SelectOCxM())
+        TIM_SetCounter(IRSND_TIMER, 0);                                                 // reset counter value
+
+#  elif defined (TEENSY_ARM_CORTEX_M4)                                                  // TEENSY
+        analogWrite(IRSND_PIN, 0);                                                      // pwm off, LOW level
+
+#  elif defined (__xtensa__)                                                            // ESP8266
+        analogWrite(IRSND_PIN, 0);                                                      // pwm off, LOW level
+
+#  elif defined (__AVR_XMEGA__)
+#    if (IRSND_OCx == IRSND_XMEGA_OC0A)                                                 // use OC0A
+        XMEGA_Timer.CTRLB &= ~(1<<TC0_CCAEN_bp);                                        // Compare A disconnected
+#    elif (IRSND_OCx == IRSND_XMEGA_OC0B)                                               // use OC0B
+        XMEGA_Timer.CTRLB &= ~(1<<TC0_CCBEN_bp);                                        // Compare B disconnected
+#    elif IRSND_OCx == IRSND_XMEGA_OC0C                                                 // use OC0C
+        XMEGA_Timer.CTRLB &= ~(1<<TC0_CCCEN_bp);                                        // Compare C disconnected
+#    elif IRSND_OCx == IRSND_XMEGA_OC0D                                                 // use OC0D
+        XMEGA_Timer.CTRLB &= ~(1<<TC0_CCDEN_bp);                                        // Compare D disconnected
+#    elif IRSND_OCx == IRSND_XMEGA_OC1A                                                 // use OC1A
+                XMEGA_Timer.CTRLB &= ~(1<<TC1_CCAEN_bp);                                // Compare A disconnected
+#    elif IRSND_OCx == IRSND_XMEGA_OC1B                                                 // use OC1B
+                XMEGA_Timer.CTRLB &= ~(1<<TC1_CCBEN_bp);                                // Compare B disconnected
+#    else
+#       error wrong value of IRSND_OCx
+#    endif // IRSND_OCx
+
 #  else //AVR
 
 #    if   IRSND_OCx == IRSND_OC2                        // use OC2
@@ -523,28 +705,28 @@ irsnd_set_freq (IRSND_FREQ_TYPE freq)
 #ifndef ANALYZE
 #  if defined(PIC_C18)                                                                      // PIC C18 or XC8
 #    if defined(__12F1840)                                                                  // XC8
-         TRISA2=0;
-         PR2=freq;
-         CCP1M0=1;
-         CCP1M1=1;
-         CCP1M2=1;
-         CCP1M3=1;
-         DC1B0=1;
-         DC1B1=0;
-         CCPR1L = 0b01101001;
-         TMR2IF = 0;
-         TMR2ON=1;
-         CCP1CON &=(~0b0011); // p 197 "active high"
+        TRISA2=0;
+        PR2=freq;
+        CCP1M0=1;
+        CCP1M1=1;
+        CCP1M2=1;
+        CCP1M3=1;
+        DC1B0=1;
+        DC1B1=0;
+        CCPR1L = 0b01101001;
+        TMR2IF = 0;
+        TMR2ON=1;
+        CCP1CON &=(~0b0011); // p 197 "active high"
 #    else                                                                                   // PIC C18
-         OpenPWM(freq);
-         SetDCPWM( (uint16_t) (freq * 2) + 1); // freq*2 = Duty cycles 50%
+        OpenPWM(freq);
+        SetDCPWM( (uint16_t) (freq * 2) + 1); // freq*2 = Duty cycles 50%
 #    endif
-         PWMoff();
+        PWMoff();
 #  elif defined (ARM_STM32)                                                                 // STM32
-         static uint32_t      TimeBaseFreq = 0;
+        static uint32_t      TimeBaseFreq = 0;
 
-         if (TimeBaseFreq == 0)
-         {
+        if (TimeBaseFreq == 0)
+        {
             RCC_ClocksTypeDef        RCC_ClocksStructure;
             /* Get system clocks and store timer clock in variable */
             RCC_GetClocksFreq(&RCC_ClocksStructure);
@@ -567,14 +749,28 @@ irsnd_set_freq (IRSND_FREQ_TYPE freq)
                TimeBaseFreq = RCC_ClocksStructure.PCLK2_Frequency * 2;
             }
 #    endif
-         }
+        }
 
-         freq = TimeBaseFreq/freq;
+        freq = TimeBaseFreq/freq;
 
-         /* Set frequency */
-         TIM_SetAutoreload(IRSND_TIMER, freq - 1);
-         /* Set duty cycle */
-         TIM_SetCompare1(IRSND_TIMER, (freq + 1) / 2);
+        /* Set frequency */
+        TIM_SetAutoreload(IRSND_TIMER, freq - 1);
+        /* Set duty cycle */
+        TIM_SetCompare1(IRSND_TIMER, (freq + 1) / 2);
+
+#  elif defined (TEENSY_ARM_CORTEX_M4)
+        analogWriteResolution(8);                                                           // 8 bit
+        analogWriteFrequency(IRSND_PIN, freq);
+        analogWrite(IRSND_PIN, 0);                                                          // pwm off, LOW level
+
+#elif defined (__xtensa__)
+        // analogWriteRange(255);
+        analogWriteFreq(freq);
+        analogWrite(IRSND_PIN, 0);                                                          // pwm off, LOW level
+
+#  elif defined (__AVR_XMEGA__)
+        XMEGA_Timer.CCA = freq;
+
 #  else                                                                                     // AVR
 
 #    if IRSND_OCx == IRSND_OC2
@@ -671,7 +867,31 @@ irsnd_init (void)
         TIM_OC1PreloadConfig(IRSND_TIMER, TIM_OCPreload_Enable);
 
         irsnd_set_freq (IRSND_FREQ_36_KHZ);                                         // set default frequency
-#  else                                                                             // AVR
+
+#  elif defined (TEENSY_ARM_CORTEX_M4)
+        if (!digitalPinHasPWM(IRSND_PIN))
+        {
+            return;
+        }
+
+#  elif defined (__xtensa__)
+        pinMode(IRSND_PIN, OUTPUT);
+        irsnd_set_freq (IRSND_FREQ_36_KHZ);
+
+#  elif defined (__AVR_XMEGA__)
+        IRSND_PORT &= ~(1<<IRSND_BIT);                                              // set IRSND_BIT to low
+        IRSND_DDR |= (1<<IRSND_BIT);                                                // set IRSND_BIT to output
+
+        XMEGA_Timer.PER = 0xFFFF; //Topwert
+        XMEGA_Timer.CTRLB |= TC_WGMODE_FRQ_gc; //Modus: Frequenz entspricht CTC
+
+#    if AVR_PRESCALER == 8
+        XMEGA_Timer.CTRLA |= TC_CLKSEL_DIV8_gc;                                     // start Timer  prescaler = 8
+#    else
+        XMEGA_Timer.CTRLA |= TC_CLKSEL_DIV1_gc;                                     // start Timer  prescaler = 1
+#    endif
+
+# else                                                                              // AVR
         IRSND_PORT &= ~(1<<IRSND_BIT);                                              // set IRSND_BIT to low
         IRSND_DDR |= (1<<IRSND_BIT);                                                // set IRSND_BIT to output
 
@@ -953,6 +1173,18 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
             break;
         }
 #endif
+#if IRSND_SUPPORT_TECHNICS_PROTOCOL == 1
+        case IRMP_TECHNICS_PROTOCOL:
+        {
+            command = bitsrevervse (irmp_data_p->command, TECHNICS_COMMAND_LEN);
+
+            irsnd_buffer[0] = (command & 0x07FC) >> 3;                                                          // CCCCCCCC
+            irsnd_buffer[1] = ((command & 0x0007) << 5) | ((~command & 0x07C0) >> 6);                           // CCCccccc
+            irsnd_buffer[2] = (~command & 0x003F) << 2;                                                         // cccccc
+            irsnd_busy      = TRUE;
+            break;
+        }
+#endif
 #if IRSND_SUPPORT_KASEIKYO_PROTOCOL == 1
         case IRMP_KASEIKYO_PROTOCOL:
         {
@@ -978,14 +1210,54 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
             break;
         }
 #endif
+#if IRSND_SUPPORT_PANASONIC_PROTOCOL == 1
+        case IRMP_PANASONIC_PROTOCOL:
+        {
+            address = bitsrevervse (irmp_data_p->address, PANASONIC_ADDRESS_LEN);
+            command = bitsrevervse (irmp_data_p->command, PANASONIC_COMMAND_LEN);
+
+            irsnd_buffer[0] = 0x40;                                                                             // 01000000
+            irsnd_buffer[1] = 0x04;                                                                             // 00000100
+            irsnd_buffer[2] = 0x01;                                                                             // 00000001
+            irsnd_buffer[3] = (address & 0xFF00) >> 8;                                                          // AAAAAAAA
+            irsnd_buffer[4] = (address & 0x00FF);                                                               // AAAAAAAA
+            irsnd_buffer[5] = (command & 0xFF00) >> 8;                                                          // CCCCCCCC
+            irsnd_buffer[6] = (command & 0x00FF);                                                               // CCCCCCCC
+
+            irsnd_busy      = TRUE;
+            break;
+        }
+#endif
+#if IRSND_SUPPORT_MITSU_HEAVY_PROTOCOL == 1
+        case IRMP_MITSU_HEAVY_PROTOCOL:
+        {
+            address = irmp_data_p->address;
+            command = irmp_data_p->command;
+
+            irsnd_buffer[0] = 0x4A;
+            irsnd_buffer[1] = 0x75;
+            irsnd_buffer[2] = 0xC3;
+            irsnd_buffer[3] = 0x64;
+            irsnd_buffer[4] = 0x9B;
+            irsnd_buffer[5] = ~(address & 0xFF00) >> 8;
+            irsnd_buffer[6] = (address & 0xFF00) >> 8;
+            irsnd_buffer[7] = ~(address & 0x00FF);
+            irsnd_buffer[8] = (address & 0x00FF);
+            irsnd_buffer[9] = ~(command & 0x00FF);
+            irsnd_buffer[10] = (command & 0x00FF);
+
+            irsnd_busy      = TRUE;
+            break;
+        }
+#endif
 #if IRSND_SUPPORT_RECS80_PROTOCOL == 1
         case IRMP_RECS80_PROTOCOL:
         {
-            toggle_bit_recs80 = toggle_bit_recs80 ? 0x00 : 0x40;
+            toggle_bit_recs80 = toggle_bit_recs80 ? 0x00 : 0x80;
 
-            irsnd_buffer[0] = 0x80 | toggle_bit_recs80 | ((irmp_data_p->address & 0x0007) << 3) |
-                              ((irmp_data_p->command & 0x0038) >> 3);                                           // STAAACCC
-            irsnd_buffer[1] = (irmp_data_p->command & 0x07) << 5;                                               // CCC00000
+            irsnd_buffer[0] = toggle_bit_recs80 | ((irmp_data_p->address & 0x000F) << 4) |
+                              ((irmp_data_p->command & 0x003C) >> 2);                                           // TAAACCCC
+            irsnd_buffer[1] = (irmp_data_p->command & 0x03) << 6;                                               // CC000000
             irsnd_busy      = TRUE;
             break;
         }
@@ -1062,11 +1334,31 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
             break;
         }
 #endif
+#if IRSND_SUPPORT_BOSE_PROTOCOL == 1
+        case IRMP_BOSE_PROTOCOL:
+        {
+            command = bitsrevervse (irmp_data_p->command, BOSE_COMMAND_LEN);
+
+            irsnd_buffer[0] = (command & 0xFF00) >> 8;                                                                      // CCCCCCCC
+            irsnd_buffer[1] = ~((command & 0xFF00) >> 8);                                                                   // cccccccc
+            irsnd_busy      = TRUE;
+            break;
+        }
+#endif
 #if IRSND_SUPPORT_NUBERT_PROTOCOL == 1
         case IRMP_NUBERT_PROTOCOL:
         {
             irsnd_buffer[0] = irmp_data_p->command >> 2;                                                        // CCCCCCCC
             irsnd_buffer[1] = (irmp_data_p->command & 0x0003) << 6;                                             // CC000000
+            irsnd_busy      = TRUE;
+            break;
+        }
+#endif
+#if IRSND_SUPPORT_FAN_PROTOCOL == 1
+        case IRMP_FAN_PROTOCOL:
+        {
+            irsnd_buffer[0] = irmp_data_p->command >> 3;                                                        // CCCCCCCC
+            irsnd_buffer[1] = (irmp_data_p->command & 0x0007) << 5;                                             // CCC00000
             irsnd_busy      = TRUE;
             break;
         }
@@ -1191,7 +1483,7 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
 
             irsnd_buffer[0] = ((command & 0x06) << 5) | ((address & 0x0003) << 4) | ((command & 0x0780) >> 7);  //          C0 C1 A0 A1 D0 D1 D2 D3
             irsnd_buffer[1] = ((command & 0x78) << 1) | ((command & 0x0001) << 3);                              //          D4 D5 D6 D7 V  0  0  0
-                                                                                                                
+
             irsnd_busy      = TRUE;
             break;
         }
@@ -1228,6 +1520,17 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
             break;
         }
 #endif
+#if IRSND_SUPPORT_IRMP16_PROTOCOL == 1
+        case IRMP_IRMP16_PROTOCOL:
+        {
+            command = bitsrevervse (irmp_data_p->command, IRMP16_COMMAND_LEN);
+
+            irsnd_buffer[0] = (command & 0xFF00) >> 8;                                                          // CCCCCCCC
+            irsnd_buffer[1] = (command & 0x00FF);                                                               // CCCCCCCC
+            irsnd_busy      = TRUE;
+            break;
+        }
+#endif
 #if IRSND_SUPPORT_A1TVBOX_PROTOCOL == 1
         case IRMP_A1TVBOX_PROTOCOL:
         {
@@ -1242,17 +1545,77 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
 #if IRSND_SUPPORT_ROOMBA_PROTOCOL == 1
         case IRMP_ROOMBA_PROTOCOL:
         {
-
             irsnd_buffer[0] = (irmp_data_p->command & 0x7F) << 1;                                               // CCCCCCC.
             irsnd_busy      = TRUE;
             break;
         }
 #endif
-	default:
-	{
-	    printf_P ("protocol %d not compiled in\n", irsnd_protocol);
-	    break;
-	}
+#if IRSND_SUPPORT_PENTAX_PROTOCOL == 1
+        case IRMP_PENTAX_PROTOCOL:
+        {
+            irsnd_buffer[0] = (irmp_data_p->command & 0x3F) << 2;                                               // CCCCCC..
+            irsnd_busy      = TRUE;
+            break;
+        }
+#endif
+#if IRSND_SUPPORT_ACP24_PROTOCOL == 1
+#       define ACP_SET_BIT(acp24_bitno, c, irmp_bitno)                                          \
+        do                                                                                      \
+        {                                                                                       \
+            if ((c) & (1<<(irmp_bitno)))                                                        \
+            {                                                                                   \
+                irsnd_buffer[((acp24_bitno)>>3)] |= 1 << (((7 - (acp24_bitno)) & 0x07));        \
+            }                                                                                   \
+        } while (0)
+
+        case IRMP_ACP24_PROTOCOL:
+        {
+            uint16_t    cmd = irmp_data_p->command;
+            uint8_t     i;
+
+            address = bitsrevervse (irmp_data_p->address, ACP24_ADDRESS_LEN);
+
+            for (i = 0; i < 8; i++)
+            {
+                irsnd_buffer[i] = 0x00;                                                                         // CCCCCCCC
+            }
+
+            // ACP24-Frame:
+            //           1         2         3         4         5         6
+            // 0123456789012345678901234567890123456789012345678901234567890123456789
+            // N VVMMM    ? ???    t vmA x                 y                     TTTT
+            //
+            // irmp_data_p->command:
+            //
+            //         5432109876543210
+            //         NAVVvMMMmtxyTTTT
+
+            ACP_SET_BIT( 0, cmd, 15);
+            ACP_SET_BIT(24, cmd, 14);
+            ACP_SET_BIT( 2, cmd, 13);
+            ACP_SET_BIT( 3, cmd, 12);
+            ACP_SET_BIT(22, cmd, 11);
+            ACP_SET_BIT( 4, cmd, 10);
+            ACP_SET_BIT( 5, cmd,  9);
+            ACP_SET_BIT( 6, cmd,  8);
+            ACP_SET_BIT(23, cmd,  7);
+            ACP_SET_BIT(20, cmd,  6);
+            ACP_SET_BIT(26, cmd,  5);
+            ACP_SET_BIT(44, cmd,  4);
+            ACP_SET_BIT(66, cmd,  3);
+            ACP_SET_BIT(67, cmd,  2);
+            ACP_SET_BIT(68, cmd,  1);
+            ACP_SET_BIT(69, cmd,  0);
+
+            irsnd_busy      = TRUE;
+            break;
+        }
+#endif
+
+        default:
+        {
+            break;
+        }
     }
 
     return irsnd_busy;
@@ -1306,13 +1669,6 @@ irsnd_ISR (void)
             if (auto_repetition_counter > 0)
             {
                 auto_repetition_pause_counter++;
-
-#if IRSND_SUPPORT_DENON_PROTOCOL == 1
-                if (repeat_frame_pause_len > 0)                                     // frame repeat distance counts from beginning of 1st frame!
-                {
-                    repeat_frame_pause_len--;
-                }
-#endif
 
                 if (auto_repetition_pause_counter >= auto_repetition_pause_len)
                 {
@@ -1400,7 +1756,7 @@ irsnd_ISR (void)
                     send_trailer = FALSE;
                     return irsnd_busy;
                 }
-                
+
                 n_repeat_frames             = irsnd_repeat;
 
                 if (n_repeat_frames == IRSND_ENDLESS_REPETITION)
@@ -1585,6 +1941,24 @@ irsnd_ISR (void)
                         break;
                     }
 #endif
+#if IRSND_SUPPORT_TECHNICS_PROTOCOL == 1
+                    case IRMP_TECHNICS_PROTOCOL:
+                    {
+                        startbit_pulse_len          = MATSUSHITA_START_BIT_PULSE_LEN;
+                        startbit_pause_len          = MATSUSHITA_START_BIT_PAUSE_LEN - 1;
+                        pulse_1_len                 = MATSUSHITA_PULSE_LEN;
+                        pause_1_len                 = MATSUSHITA_1_PAUSE_LEN - 1;
+                        pulse_0_len                 = MATSUSHITA_PULSE_LEN;
+                        pause_0_len                 = MATSUSHITA_0_PAUSE_LEN - 1;
+                        has_stop_bit                = MATSUSHITA_STOP_BIT;
+                        complete_data_len           = TECHNICS_COMPLETE_DATA_LEN;                   // here TECHNICS
+                        n_auto_repetitions          = 1;                                            // 1 frame
+                        auto_repetition_pause_len   = 0;
+                        repeat_frame_pause_len      = MATSUSHITA_FRAME_REPEAT_PAUSE_LEN;
+                        irsnd_set_freq (IRSND_FREQ_36_KHZ);
+                        break;
+                    }
+#endif
 #if IRSND_SUPPORT_KASEIKYO_PROTOCOL == 1
                     case IRMP_KASEIKYO_PROTOCOL:
                     {
@@ -1600,6 +1974,42 @@ irsnd_ISR (void)
                         auto_repetition_pause_len   = KASEIKYO_AUTO_REPETITION_PAUSE_LEN;           // 75 ms pause
                         repeat_frame_pause_len      = KASEIKYO_FRAME_REPEAT_PAUSE_LEN;
                         irsnd_set_freq (IRSND_FREQ_38_KHZ);
+                        break;
+                    }
+#endif
+#if IRSND_SUPPORT_PANASONIC_PROTOCOL == 1
+                    case IRMP_PANASONIC_PROTOCOL:
+                    {
+                        startbit_pulse_len          = PANASONIC_START_BIT_PULSE_LEN;
+                        startbit_pause_len          = PANASONIC_START_BIT_PAUSE_LEN - 1;
+                        pulse_1_len                 = PANASONIC_PULSE_LEN;
+                        pause_1_len                 = PANASONIC_1_PAUSE_LEN - 1;
+                        pulse_0_len                 = PANASONIC_PULSE_LEN;
+                        pause_0_len                 = PANASONIC_0_PAUSE_LEN - 1;
+                        has_stop_bit                = PANASONIC_STOP_BIT;
+                        complete_data_len           = PANASONIC_COMPLETE_DATA_LEN;
+                        n_auto_repetitions          = PANASONIC_FRAMES;                             // 1 frame
+                        auto_repetition_pause_len   = PANASONIC_AUTO_REPETITION_PAUSE_LEN;          // 40 ms pause
+                        repeat_frame_pause_len      = PANASONIC_FRAME_REPEAT_PAUSE_LEN;
+                        irsnd_set_freq (IRSND_FREQ_38_KHZ);
+                        break;
+                    }
+#endif
+#if IRSND_SUPPORT_MITSU_HEAVY_PROTOCOL == 1
+                    case IRMP_MITSU_HEAVY_PROTOCOL:
+                    {
+                        startbit_pulse_len          = MITSU_HEAVY_START_BIT_PULSE_LEN;
+                        startbit_pause_len          = MITSU_HEAVY_START_BIT_PAUSE_LEN - 1;
+                        pulse_1_len                 = MITSU_HEAVY_PULSE_LEN;
+                        pause_1_len                 = MITSU_HEAVY_1_PAUSE_LEN - 1;
+                        pulse_0_len                 = MITSU_HEAVY_PULSE_LEN;
+                        pause_0_len                 = MITSU_HEAVY_0_PAUSE_LEN - 1;
+                        has_stop_bit                = MITSU_HEAVY_STOP_BIT;
+                        complete_data_len           = MITSU_HEAVY_COMPLETE_DATA_LEN;
+                        n_auto_repetitions          = MITSU_HEAVY_FRAMES;                             // 1 frame
+                        auto_repetition_pause_len   = 0;;
+                        repeat_frame_pause_len      = MITSU_HEAVY_FRAME_REPEAT_PAUSE_LEN;
+                        irsnd_set_freq (IRSND_FREQ_40_KHZ);
                         break;
                     }
 #endif
@@ -1736,8 +2146,26 @@ irsnd_ISR (void)
                         complete_data_len           = THOMSON_COMPLETE_DATA_LEN;
                         n_auto_repetitions          = THOMSON_FRAMES;                               // only 1 frame
                         auto_repetition_pause_len   = THOMSON_AUTO_REPETITION_PAUSE_LEN;
-                        repeat_frame_pause_len      = DENON_FRAME_REPEAT_PAUSE_LEN;
+                        repeat_frame_pause_len      = THOMSON_FRAME_REPEAT_PAUSE_LEN;
                         irsnd_set_freq (IRSND_FREQ_38_KHZ);
+                        break;
+                    }
+#endif
+#if IRSND_SUPPORT_BOSE_PROTOCOL == 1
+                    case IRMP_BOSE_PROTOCOL:
+                    {
+                        startbit_pulse_len          = BOSE_START_BIT_PULSE_LEN;
+                        startbit_pause_len          = BOSE_START_BIT_PAUSE_LEN - 1;
+                        pulse_1_len                 = BOSE_PULSE_LEN;
+                        pause_1_len                 = BOSE_1_PAUSE_LEN - 1;
+                        pulse_0_len                 = BOSE_PULSE_LEN;
+                        pause_0_len                 = BOSE_0_PAUSE_LEN - 1;
+                        has_stop_bit                = BOSE_STOP_BIT;
+                        complete_data_len           = BOSE_COMPLETE_DATA_LEN;
+                        n_auto_repetitions          = BOSE_FRAMES;                                // 1 frame
+                        auto_repetition_pause_len   = BOSE_AUTO_REPETITION_PAUSE_LEN;             // 40 ms pause
+                        repeat_frame_pause_len      = BOSE_FRAME_REPEAT_PAUSE_LEN;
+                        irsnd_set_freq (IRSND_FREQ_36_KHZ);
                         break;
                     }
 #endif
@@ -1755,6 +2183,24 @@ irsnd_ISR (void)
                         n_auto_repetitions          = NUBERT_FRAMES;                                // 2 frames
                         auto_repetition_pause_len   = NUBERT_AUTO_REPETITION_PAUSE_LEN;             // 35 ms pause
                         repeat_frame_pause_len      = NUBERT_FRAME_REPEAT_PAUSE_LEN;
+                        irsnd_set_freq (IRSND_FREQ_36_KHZ);
+                        break;
+                    }
+#endif
+#if IRSND_SUPPORT_FAN_PROTOCOL == 1
+                    case IRMP_FAN_PROTOCOL:
+                    {
+                        startbit_pulse_len          = FAN_START_BIT_PULSE_LEN;
+                        startbit_pause_len          = FAN_START_BIT_PAUSE_LEN - 1;
+                        pulse_1_len                 = FAN_1_PULSE_LEN;
+                        pause_1_len                 = FAN_1_PAUSE_LEN - 1;
+                        pulse_0_len                 = FAN_0_PULSE_LEN;
+                        pause_0_len                 = FAN_0_PAUSE_LEN - 1;
+                        has_stop_bit                = FAN_STOP_BIT;
+                        complete_data_len           = FAN_COMPLETE_DATA_LEN;
+                        n_auto_repetitions          = FAN_FRAMES;                                   // only 1 frame
+                        auto_repetition_pause_len   = FAN_AUTO_REPETITION_PAUSE_LEN;                // 35 ms pause
+                        repeat_frame_pause_len      = FAN_FRAME_REPEAT_PAUSE_LEN;
                         irsnd_set_freq (IRSND_FREQ_36_KHZ);
                         break;
                     }
@@ -1971,6 +2417,24 @@ irsnd_ISR (void)
                         break;
                     }
 #endif
+#if IRSND_SUPPORT_IRMP16_PROTOCOL == 1
+                    case IRMP_IRMP16_PROTOCOL:
+                    {
+                        startbit_pulse_len          = IRMP16_START_BIT_PULSE_LEN;
+                        startbit_pause_len          = IRMP16_START_BIT_PAUSE_LEN - 1;
+                        complete_data_len           = IRMP16_COMPLETE_DATA_LEN;
+                        pulse_1_len                 = IRMP16_PULSE_LEN;
+                        pause_1_len                 = IRMP16_1_PAUSE_LEN - 1;
+                        pulse_0_len                 = IRMP16_PULSE_LEN;
+                        pause_0_len                 = IRMP16_0_PAUSE_LEN - 1;
+                        has_stop_bit                = IRMP16_STOP_BIT;
+                        n_auto_repetitions          = 1;                                            // 1 frame
+                        auto_repetition_pause_len   = 0;
+                        repeat_frame_pause_len      = IRMP16_FRAME_REPEAT_PAUSE_LEN;
+                        irsnd_set_freq (IRSND_FREQ_38_KHZ);
+                        break;
+                    }
+#endif
 #if IRSND_SUPPORT_A1TVBOX_PROTOCOL == 1
                     case IRMP_A1TVBOX_PROTOCOL:
                     {
@@ -2001,6 +2465,42 @@ irsnd_ISR (void)
                         n_auto_repetitions          = ROOMBA_FRAMES;                                // 8 frames
                         auto_repetition_pause_len   = ROOMBA_FRAME_REPEAT_PAUSE_LEN;
                         repeat_frame_pause_len      = ROOMBA_FRAME_REPEAT_PAUSE_LEN;
+                        irsnd_set_freq (IRSND_FREQ_38_KHZ);
+                        break;
+                    }
+#endif
+#if IRSND_SUPPORT_PENTAX_PROTOCOL == 1
+                    case IRMP_PENTAX_PROTOCOL:
+                    {
+                        startbit_pulse_len          = PENTAX_START_BIT_PULSE_LEN;
+                        startbit_pause_len          = PENTAX_START_BIT_PAUSE_LEN;
+                        complete_data_len           = PENTAX_COMPLETE_DATA_LEN;
+                        pulse_1_len                 = PENTAX_PULSE_LEN;
+                        pause_1_len                 = PENTAX_1_PAUSE_LEN - 1;
+                        pulse_0_len                 = PENTAX_PULSE_LEN;
+                        pause_0_len                 = PENTAX_0_PAUSE_LEN - 1;
+                        has_stop_bit                = PENTAX_STOP_BIT;
+                        n_auto_repetitions          = 1;                                            // 1 frame
+                        auto_repetition_pause_len   = 0;
+                        repeat_frame_pause_len      = PENTAX_FRAME_REPEAT_PAUSE_LEN;
+                        irsnd_set_freq (IRSND_FREQ_38_KHZ);
+                        break;
+                    }
+#endif
+#if IRSND_SUPPORT_ACP24_PROTOCOL == 1
+                    case IRMP_ACP24_PROTOCOL:
+                    {
+                        startbit_pulse_len          = ACP24_START_BIT_PULSE_LEN;
+                        startbit_pause_len          = ACP24_START_BIT_PAUSE_LEN - 1;
+                        complete_data_len           = ACP24_COMPLETE_DATA_LEN;
+                        pulse_1_len                 = ACP24_PULSE_LEN;
+                        pause_1_len                 = ACP24_1_PAUSE_LEN - 1;
+                        pulse_0_len                 = ACP24_PULSE_LEN;
+                        pause_0_len                 = ACP24_0_PAUSE_LEN - 1;
+                        has_stop_bit                = ACP24_STOP_BIT;
+                        n_auto_repetitions          = 1;                                            // 1 frame
+                        auto_repetition_pause_len   = 0;
+                        repeat_frame_pause_len      = ACP24_FRAME_REPEAT_PAUSE_LEN;
                         irsnd_set_freq (IRSND_FREQ_38_KHZ);
                         break;
                     }
@@ -2045,8 +2545,17 @@ irsnd_ISR (void)
 #if IRSND_SUPPORT_MATSUSHITA_PROTOCOL == 1
                 case IRMP_MATSUSHITA_PROTOCOL:
 #endif
+#if IRSND_SUPPORT_MATSUSHITA_PROTOCOL == 1
+                case IRMP_TECHNICS_PROTOCOL:
+#endif
 #if IRSND_SUPPORT_KASEIKYO_PROTOCOL == 1
                 case IRMP_KASEIKYO_PROTOCOL:
+#endif
+#if IRSND_SUPPORT_PANASONIC_PROTOCOL == 1
+                case IRMP_PANASONIC_PROTOCOL:
+#endif
+#if IRSND_SUPPORT_MITSU_HEAVY_PROTOCOL == 1
+                case IRMP_MITSU_HEAVY_PROTOCOL:
 #endif
 #if IRSND_SUPPORT_RECS80_PROTOCOL == 1
                 case IRMP_RECS80_PROTOCOL:
@@ -2060,8 +2569,14 @@ irsnd_ISR (void)
 #if IRSND_SUPPORT_DENON_PROTOCOL == 1
                 case IRMP_DENON_PROTOCOL:
 #endif
+#if IRSND_SUPPORT_BOSE_PROTOCOL == 1
+                case IRMP_BOSE_PROTOCOL:
+#endif
 #if IRSND_SUPPORT_NUBERT_PROTOCOL == 1
                 case IRMP_NUBERT_PROTOCOL:
+#endif
+#if IRSND_SUPPORT_FAN_PROTOCOL == 1
+                case IRMP_FAN_PROTOCOL:
 #endif
 #if IRSND_SUPPORT_SPEAKER_PROTOCOL == 1
                 case IRMP_SPEAKER_PROTOCOL:
@@ -2084,35 +2599,31 @@ irsnd_ISR (void)
 #if IRSND_SUPPORT_LEGO_PROTOCOL == 1
                 case IRMP_LEGO_PROTOCOL:
 #endif
+#if IRSND_SUPPORT_IRMP16_PROTOCOL == 1
+                case IRMP_IRMP16_PROTOCOL:
+#endif
 #if IRSND_SUPPORT_THOMSON_PROTOCOL == 1
                 case IRMP_THOMSON_PROTOCOL:
 #endif
 #if IRSND_SUPPORT_ROOMBA_PROTOCOL == 1
                 case IRMP_ROOMBA_PROTOCOL:
 #endif
-
-#if IRSND_SUPPORT_SIRCS_PROTOCOL == 1  || IRSND_SUPPORT_NEC_PROTOCOL == 1 || IRSND_SUPPORT_NEC16_PROTOCOL == 1 || IRSND_SUPPORT_NEC42_PROTOCOL == 1 || \
-    IRSND_SUPPORT_LGAIR_PROTOCOL == 1 || IRSND_SUPPORT_SAMSUNG_PROTOCOL == 1 || IRSND_SUPPORT_MATSUSHITA_PROTOCOL == 1 ||   \
-    IRSND_SUPPORT_KASEIKYO_PROTOCOL == 1 || IRSND_SUPPORT_RECS80_PROTOCOL == 1 || IRSND_SUPPORT_RECS80EXT_PROTOCOL == 1 || IRSND_SUPPORT_DENON_PROTOCOL == 1 || \
-    IRSND_SUPPORT_NUBERT_PROTOCOL == 1 || IRSND_SUPPORT_SPEAKER_PROTOCOL == 1 || IRSND_SUPPORT_BANG_OLUFSEN_PROTOCOL == 1 || IRSND_SUPPORT_FDC_PROTOCOL == 1 || IRSND_SUPPORT_RCCAR_PROTOCOL == 1 ||   \
-    IRSND_SUPPORT_JVC_PROTOCOL == 1 || IRSND_SUPPORT_NIKON_PROTOCOL == 1 || IRSND_SUPPORT_LEGO_PROTOCOL == 1 || IRSND_SUPPORT_THOMSON_PROTOCOL == 1 || \
-    IRSND_SUPPORT_ROOMBA_PROTOCOL == 1 || IRSND_SUPPORT_TELEFUNKEN_PROTOCOL == 1
-                {
-#if IRSND_SUPPORT_DENON_PROTOCOL == 1
-                    if (irsnd_protocol == IRMP_DENON_PROTOCOL)
-                    {
-                        if (auto_repetition_pause_len > 0)                                          // 2nd frame distance counts from beginning of 1st frame!
-                        {
-                            auto_repetition_pause_len--;
-                        }
-
-                        if (repeat_frame_pause_len > 0)                                             // frame repeat distance counts from beginning of 1st frame!
-                        {
-                            repeat_frame_pause_len--;
-                        }
-                    }
+#if IRSND_SUPPORT_PENTAX_PROTOCOL == 1
+                case IRMP_PENTAX_PROTOCOL:
+#endif
+#if IRSND_SUPPORT_ACP24_PROTOCOL == 1
+                case IRMP_ACP24_PROTOCOL:
 #endif
 
+#if IRSND_SUPPORT_SIRCS_PROTOCOL == 1  || IRSND_SUPPORT_NEC_PROTOCOL == 1 || IRSND_SUPPORT_NEC16_PROTOCOL == 1 || IRSND_SUPPORT_NEC42_PROTOCOL == 1 || \
+    IRSND_SUPPORT_LGAIR_PROTOCOL == 1 || IRSND_SUPPORT_SAMSUNG_PROTOCOL == 1 || IRSND_SUPPORT_MATSUSHITA_PROTOCOL == 1 || IRSND_SUPPORT_TECHNICS_PROTOCOL == 1 || \
+    IRSND_SUPPORT_KASEIKYO_PROTOCOL == 1 || IRSND_SUPPORT_RECS80_PROTOCOL == 1 || IRSND_SUPPORT_RECS80EXT_PROTOCOL == 1 || IRSND_SUPPORT_DENON_PROTOCOL == 1 || \
+    IRSND_SUPPORT_NUBERT_PROTOCOL == 1 || IRSND_SUPPORT_FAN_PROTOCOL == 1 || IRSND_SUPPORT_SPEAKER_PROTOCOL == 1 || IRSND_SUPPORT_BANG_OLUFSEN_PROTOCOL == 1 || \
+    IRSND_SUPPORT_FDC_PROTOCOL == 1 || IRSND_SUPPORT_RCCAR_PROTOCOL == 1 || IRSND_SUPPORT_JVC_PROTOCOL == 1 || IRSND_SUPPORT_NIKON_PROTOCOL == 1 || \
+    IRSND_SUPPORT_LEGO_PROTOCOL == 1 || IRSND_SUPPORT_THOMSON_PROTOCOL == 1 || IRSND_SUPPORT_ROOMBA_PROTOCOL == 1 || IRSND_SUPPORT_TELEFUNKEN_PROTOCOL == 1 || \
+    IRSND_SUPPORT_PENTAX_PROTOCOL == 1 || IRSND_SUPPORT_ACP24_PROTOCOL == 1 || IRSND_SUPPORT_PANASONIC_PROTOCOL == 1 || IRSND_SUPPORT_BOSE_PROTOCOL == 1 || \
+    IRSND_SUPPORT_MITSU_HEAVY_PROTOCOL == 1 || IRSND_SUPPORT_IRMP16_PROTOCOL == 1
+                {
                     if (pulse_counter == 0)
                     {
                         if (current_bit == 0xFF)                                                    // send start bit
@@ -2424,20 +2935,20 @@ irsnd_ISR (void)
                                     {
                                         if (current_bit == 4)                                           // toggle bit (double len)
                                         {
-                                            pulse_len = 2 * RC6_BIT_LEN;
-                                            pause_len = 2 * RC6_BIT_LEN;
+                                            pulse_len = RC6_BIT_2_LEN;                                  // = 2 * RC_BIT_LEN
+                                            pause_len = RC6_BIT_2_LEN;                                  // = 2 * RC_BIT_LEN
                                         }
                                     }
                                     else // if (irsnd_protocol == IRMP_RC6A_PROTOCOL)
                                     {
                                         if (current_bit == 4)                                           // toggle bit (double len)
                                         {
-                                            pulse_len = 2 * RC6_BIT_LEN + RC6_BIT_LEN;                  // hack!
-                                            pause_len = 2 * RC6_BIT_LEN;
+                                            pulse_len = RC6_BIT_3_LEN;                                  // = 3 * RC6_BIT_LEN
+                                            pause_len = RC6_BIT_2_LEN;                                  // = 2 * RC6_BIT_LEN
                                         }
                                         else if (current_bit == 5)                                      // toggle bit (double len)
                                         {
-                                            pause_len = 2 * RC6_BIT_LEN;
+                                            pause_len = RC6_BIT_2_LEN;                                  // = 2 * RC6_BIT_LEN
                                         }
                                     }
                                 }

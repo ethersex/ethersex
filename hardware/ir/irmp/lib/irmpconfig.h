@@ -3,10 +3,10 @@
  *
  * DO NOT INCLUDE THIS FILE, WILL BE INCLUDED BY IRMP.H!
  *
- * Copyright (c) 2009-2014 Frank Meyer - frank(at)fli4l.de
+ * Copyright (c) 2009-2016 Frank Meyer - frank(at)fli4l.de
  * Extensions for PIC 12F1820 W.Strobl 2014-07-20
  *
- * $Id: irmpconfig.h,v 1.121 2014/09/15 12:36:28 fm Exp $
+ * $Id: irmpconfig.h,v 1.155 2018/02/19 10:25:25 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,6 +72,7 @@
 #define IRMP_SUPPORT_BOSE_PROTOCOL              0       // BOSE                 >= 10000                 ~150 bytes
 #define IRMP_SUPPORT_KATHREIN_PROTOCOL          0       // Kathrein             >= 10000                 ~200 bytes
 #define IRMP_SUPPORT_NUBERT_PROTOCOL            0       // NUBERT               >= 10000                  ~50 bytes
+#define IRMP_SUPPORT_FAN_PROTOCOL               0       // FAN (ventilator)     >= 10000                  ~50 bytes
 #define IRMP_SUPPORT_SPEAKER_PROTOCOL           0       // SPEAKER (~NUBERT)    >= 10000                  ~50 bytes
 #define IRMP_SUPPORT_BANG_OLUFSEN_PROTOCOL      0       // Bang & Olufsen       >= 10000                 ~200 bytes
 #define IRMP_SUPPORT_RECS80_PROTOCOL            0       // RECS80 (SAA3004)     >= 15000                  ~50 bytes
@@ -90,13 +91,24 @@
 #define IRMP_SUPPORT_RCMM_PROTOCOL              0       // RCMM 12,24, or 32    >= 20000                 ~150 bytes
 #define IRMP_SUPPORT_LGAIR_PROTOCOL             0       // LG Air Condition     >= 10000                 ~300 bytes
 #define IRMP_SUPPORT_SAMSUNG48_PROTOCOL         0       // Samsung48            >= 10000                 ~100 bytes (SAMSUNG must be enabled!)
+#define IRMP_SUPPORT_MERLIN_PROTOCOL            0       // Merlin               >= 15000 (better 20000)  ~300 bytes
+#define IRMP_SUPPORT_PENTAX_PROTOCOL            0       // Pentax               >= 10000                 ~150 bytes
+#define IRMP_SUPPORT_S100_PROTOCOL              0       // S100                 >= 10000                 ~250 bytes
+#define IRMP_SUPPORT_ACP24_PROTOCOL             0       // ACP24                >= 10000                 ~250 bytes
+#define IRMP_SUPPORT_TECHNICS_PROTOCOL          0       // TECHNICS             >= 10000                 ~250 bytes
+#define IRMP_SUPPORT_PANASONIC_PROTOCOL         0       // PANASONIC Beamer     >= 10000                 ~250 bytes
+#define IRMP_SUPPORT_MITSU_HEAVY_PROTOCOL       0       // Mitsubishi Aircond   >= 10000                 ~250 bytes
+#define IRMP_SUPPORT_VINCENT_PROTOCOL           0       // VINCENT              >= 10000                 ~250 bytes
+#define IRMP_SUPPORT_SAMSUNGAH_PROTOCOL         0       // SAMSUNG AH           >= 10000                 ~250 bytes
+#define IRMP_SUPPORT_IRMP16_PROTOCOL            0       // IRMP specific        >= 15000                 ~250 bytes
+
 #define IRMP_SUPPORT_RADIO1_PROTOCOL            0       // RADIO, e.g. TEVION   >= 10000                 ~250 bytes (experimental)
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
- * Change hardware pin here for ATMEL AVR
+ * Change hardware pin here for ATMEL ATMega/ATTiny/XMega
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
-#if defined (ATMEL_AVR)                                                 // use PB6 as IR input on AVR
+#if defined (ATMEL_AVR) || defined (__AVR_XMEGA__)                      // use PB6 as IR input on AVR
 #  define IRMP_PORT_LETTER                      B
 #  define IRMP_BIT_NUMBER                       6
 
@@ -105,10 +117,11 @@
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 #elif defined (PIC_C18)                                                 // use RB4 as IR input on PIC (C18 or XC8 compiler)
-#if defined(__12F1840)
-#  define IRMP_PIN                              RA5                     // on 12F1840 with XC8 compiler
-#endif
-#  define IRMP_PIN                              PORTBbits.RB4           // PIC C18
+#  if defined(__12F1840)
+#    define IRMP_PIN                            RA5                     // on 12F1840 with XC8 compiler
+#  else
+#    define IRMP_PIN                            PORTBbits.RB4           // PIC C18
+#  endif
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * Change hardware pin here for PIC CCS compiler
@@ -132,6 +145,36 @@
 #elif defined (STELLARIS_ARM_CORTEX_M4)                                 // use B4 as IR input on Stellaris LM4F
 #  define IRMP_PORT_LETTER                      B
 #  define IRMP_BIT_NUMBER                       4
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * Change hardware pin here for STM8
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#elif defined (SDCC_STM8)                                               // use PA1 as IR input on STM8
+#  define IRMP_PORT_LETTER                      A
+#  define IRMP_BIT_NUMBER                       1
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * Change hardware pin here for ESP8266
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#elif defined (__xtensa__)
+#  define IRMP_BIT_NUMBER                       12                      // use GPIO12 (Pin 7 UEXT) on ESP8266-EVB evaluation board
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * Change hardware pin here for Teensy 3.x with teensyduino gcc compiler
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#elif defined (TEENSY_ARM_CORTEX_M4)
+#  define IRMP_PIN                              1                       // use Digital pin 1 as IR input on Teensy
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * Change hardware pin here for MBED
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#elif defined(__MBED__)
+#  define IRMP_PIN                              P0_22                   // use P1_27 on LPC1347
+#  define IRMP_PINMODE                          PullUp                  // hardware dependent
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * Handling of unknown target system: DON'T CHANGE
@@ -174,4 +217,4 @@
 #  define IRMP_USE_CALLBACK                     0       // 1: use callbacks. 0: do not. default is 0
 #endif
 
-#endif /* _WC_IRMPCONFIG_H_ */
+#endif // _IRMPCONFIG_H_

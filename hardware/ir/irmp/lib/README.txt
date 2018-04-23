@@ -1,9 +1,13 @@
 IRMP - Infrared Multi Protocol Decoder
 --------------------------------------
 
-Version IRMP:  2.6.7 19.09.2014
-Version IRSND: 2.6.4 15.09.2014
+Version IRMP:  3.0.9 2018-02-19
+Version IRSND: 3.0.9 2018-02-19
 
-Dokumentation:
+Documentation:
  
    http://www.mikrocontroller.net/articles/IRMP
+   http://www.mikrocontroller.net/articles/IRMP_-_english
+
+   http://www.mikrocontroller.net/articles/IRSND
+   http://www.mikrocontroller.net/articles/IRSND_-_english
