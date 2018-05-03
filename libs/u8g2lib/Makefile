@@ -3,6 +3,9 @@ include $(TOPDIR)/.config
 
 ifeq ($(U8G2LIB_SUPPORT),y)
 $(U8G2LIB_SUPPORT)_SRC += \
+	libs/u8g2lib/u8log.c \
+	libs/u8g2lib/u8log_u8g2.c \
+	libs/u8g2lib/u8log_u8x8.c \
 	libs/u8g2lib/u8g2_bitmap.c \
 	libs/u8g2lib/u8g2_box.c \
 	libs/u8g2lib/u8g2_buffer.c \
@@ -64,11 +67,20 @@ $(GLCD_PCD8544_84x48_SUPPORT)_SRC += \
 $(GLCD_PCF8812_96x65_SUPPORT)_SRC += \
 	libs/u8g2lib/u8x8_d_pcf8812.c
 
+$(GLCD_SH1106_64x32_SUPPORT)_SRC += \
+	libs/u8g2lib/u8x8_d_sh1106_64x32_noname.c
+
+$(GLCD_SH1106_72x40_SUPPORT)_SRC += \
+	libs/u8g2lib/u8x8_d_sh1106_72x40_noname.c
+
 $(GLCD_SH1106_128x64_SUPPORT)_SRC += \
 	libs/u8g2lib/u8x8_d_ssd1306_128x64_noname.c
 
 $(GLCD_SH1107_128x128_SUPPORT)_SRC += \
 	libs/u8g2lib/u8x8_d_ssd1307.c
+
+$(GLCD_SH1122_256x64_SUPPORT)_SRC += \
+	libs/u8g2lib/u8x8_d_sh1122.c
 
 $(GLCD_SSD1305_128x32_SUPPORT)_SRC += \
 	libs/u8g2lib/u8x8_d_ssd1305.c

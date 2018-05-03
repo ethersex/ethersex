@@ -39,6 +39,42 @@ uint8_t *u8g2_m_16_8_f(uint8_t *page_cnt)
   *page_cnt = 8;
   return buf;
 }
+uint8_t *u8g2_m_9_5_1(uint8_t *page_cnt)
+{
+  static uint8_t buf[72];
+  *page_cnt = 1;
+  return buf;
+}
+uint8_t *u8g2_m_9_5_2(uint8_t *page_cnt)
+{
+  static uint8_t buf[144];
+  *page_cnt = 2;
+  return buf;
+}
+uint8_t *u8g2_m_9_5_f(uint8_t *page_cnt)
+{
+  static uint8_t buf[360];
+  *page_cnt = 5;
+  return buf;
+}
+uint8_t *u8g2_m_8_4_1(uint8_t *page_cnt)
+{
+  static uint8_t buf[64];
+  *page_cnt = 1;
+  return buf;
+}
+uint8_t *u8g2_m_8_4_2(uint8_t *page_cnt)
+{
+  static uint8_t buf[128];
+  *page_cnt = 2;
+  return buf;
+}
+uint8_t *u8g2_m_8_4_f(uint8_t *page_cnt)
+{
+  static uint8_t buf[256];
+  *page_cnt = 4;
+  return buf;
+}
 uint8_t *u8g2_m_8_16_1(uint8_t *page_cnt)
 {
   static uint8_t buf[64];
@@ -93,6 +129,24 @@ uint8_t *u8g2_m_16_16_f(uint8_t *page_cnt)
   *page_cnt = 16;
   return buf;
 }
+uint8_t *u8g2_m_32_8_1(uint8_t *page_cnt)
+{
+  static uint8_t buf[256];
+  *page_cnt = 1;
+  return buf;
+}
+uint8_t *u8g2_m_32_8_2(uint8_t *page_cnt)
+{
+  static uint8_t buf[512];
+  *page_cnt = 2;
+  return buf;
+}
+uint8_t *u8g2_m_32_8_f(uint8_t *page_cnt)
+{
+  static uint8_t buf[2048];
+  *page_cnt = 8;
+  return buf;
+}
 uint8_t *u8g2_m_8_6_1(uint8_t *page_cnt)
 {
   static uint8_t buf[64];
@@ -127,24 +181,6 @@ uint8_t *u8g2_m_6_8_f(uint8_t *page_cnt)
 {
   static uint8_t buf[384];
   *page_cnt = 8;
-  return buf;
-}
-uint8_t *u8g2_m_8_4_1(uint8_t *page_cnt)
-{
-  static uint8_t buf[64];
-  *page_cnt = 1;
-  return buf;
-}
-uint8_t *u8g2_m_8_4_2(uint8_t *page_cnt)
-{
-  static uint8_t buf[128];
-  *page_cnt = 2;
-  return buf;
-}
-uint8_t *u8g2_m_8_4_f(uint8_t *page_cnt)
-{
-  static uint8_t buf[256];
-  *page_cnt = 4;
   return buf;
 }
 uint8_t *u8g2_m_12_2_1(uint8_t *page_cnt)
@@ -453,22 +489,22 @@ uint8_t *u8g2_m_32_16_f(uint8_t *page_cnt)
   *page_cnt = 16;
   return buf;
 }
-uint8_t *u8g2_m_32_8_1(uint8_t *page_cnt)
+uint8_t *u8g2_m_32_20_1(uint8_t *page_cnt)
 {
   static uint8_t buf[256];
   *page_cnt = 1;
   return buf;
 }
-uint8_t *u8g2_m_32_8_2(uint8_t *page_cnt)
+uint8_t *u8g2_m_32_20_2(uint8_t *page_cnt)
 {
   static uint8_t buf[512];
   *page_cnt = 2;
   return buf;
 }
-uint8_t *u8g2_m_32_8_f(uint8_t *page_cnt)
+uint8_t *u8g2_m_32_20_f(uint8_t *page_cnt)
 {
-  static uint8_t buf[2048];
-  *page_cnt = 8;
+  static uint8_t buf[5120];
+  *page_cnt = 20;
   return buf;
 }
 uint8_t *u8g2_m_22_13_1(uint8_t *page_cnt)
