@@ -213,6 +213,14 @@ glcd_u8x8_gpio_and_delay_hw_spi(u8x8_t * u8g2, uint8_t msg, uint8_t arg,
 #define U8G2_SETUP u8g2_Setup_pcd8544_84x48_1
 #elif CONF_GLCD_MONO_TYPE == GLCD_MONO_PCF8812_96x65_SPI
 #define U8G2_SETUP u8g2_Setup_pcf8812_96x65_1
+#elif CONF_GLCD_MONO_TYPE == GLCD_MONO_SH1106_64x32_I2C
+#define U8G2_SETUP u8g2_Setup_sh1106_i2c_64x32_noname_1
+#elif CONF_GLCD_MONO_TYPE == GLCD_MONO_SH1106_64x32_SPI
+#define U8G2_SETUP u8g2_Setup_sh1106_64x32_noname_1
+#elif CONF_GLCD_MONO_TYPE == GLCD_MONO_SH1106_72x40_I2C
+#define U8G2_SETUP u8g2_Setup_sh1106_i2c_72x40_noname_1
+#elif CONF_GLCD_MONO_TYPE == GLCD_MONO_SH1106_72x40_SPI
+#define U8G2_SETUP u8g2_Setup_sh1106_72x40_noname_1
 #elif CONF_GLCD_MONO_TYPE == GLCD_MONO_SH1106_128x64_I2C
 #define U8G2_SETUP u8g2_Setup_sh1106_i2c_128x64_noname_1
 #elif CONF_GLCD_MONO_TYPE == GLCD_MONO_SH1106_128x64_SPI
@@ -221,6 +229,10 @@ glcd_u8x8_gpio_and_delay_hw_spi(u8x8_t * u8g2, uint8_t msg, uint8_t arg,
 #define U8G2_SETUP u8g2_Setup_sh1107_i2c_128x128_1
 #elif CONF_GLCD_MONO_TYPE == GLCD_MONO_SH1107_128x128_SPI
 #define U8G2_SETUP u8g2_Setup_sh1107_128x128_1
+#elif CONF_GLCD_MONO_TYPE == GLCD_MONO_SH1122_256x64_I2C
+#define U8G2_SETUP u8g2_Setup_sh1122_i2c_256x64_1
+#elif CONF_GLCD_MONO_TYPE == GLCD_MONO_SH1122_256x64_SPI
+#define U8G2_SETUP u8g2_Setup_sh1122_256x64_1
 #elif CONF_GLCD_MONO_TYPE == GLCD_MONO_SSD1305_128x32_I2C
 #define U8G2_SETUP u8g2_Setup_ssd1305_i2c_128x32_noname_1
 #elif CONF_GLCD_MONO_TYPE == GLCD_MONO_SSD1305_128x32_SPI
