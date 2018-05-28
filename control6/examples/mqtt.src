@@ -1,0 +1,353 @@
+/*
+ * Copyright (c) 2018 by Erik Kunze <ethersex@erik-kunze.de>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+
+/*
+  MQTT Example
+
+  - sends values auf DHT and 1w sensors
+    /host/sensor/<sensors_name>/temp
+    /host/sensor/<sensors_name>/humid
+
+  - control named pins (in and out)
+    /host/pin/<named_pin>
+     out: payload "0" | "1"
+     in : no payload
+
+  Requires:
+   MQTT_SUPPORT
+
+  Optional:
+   DHT_SUPPORT
+   ONEWIRE_DS18XX_SUPPORT
+   NAMED_PIN_SUPPORT
+*/
+
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
+#include <inttypes.h>
+
+#include "config.h"
+#ifndef MQTT_SUPPORT
+#error Please define mqtt support
+#endif
+#include "core/util/fixedpoint.h"
+#ifdef DHT_SUPPORT
+#include "hardware/dht/dht.h"
+#endif
+#ifdef ONEWIRE_DS18XX_SUPPORT
+#include "hardware/onewire/onewire.h"
+#endif
+#ifdef NAMED_PIN_SUPPORT
+#include "core/bit-macros.h"
+#include "core/portio/portio.h"
+#include "core/portio/named_pin.h"
+#endif
+#include "protocols/mqtt/mqtt.h"
+#include "core/debug.h"
+
+//#ifdef MQTT_DEBUG
+#ifdef DEBUG
+#define C6DEBUG(s, ...) debug_printf("MQTT: " s "\n", ## __VA_ARGS__)
+#else
+#define C6DEBUG(...)    do { } while(0)
+#endif
+
+/* Prefix */
+#ifdef MQTT_STATIC_CONF
+#define C6_MQTT_TOPIC              MQTT_STATIC_CONF_CLIENTID
+#else
+#define C6_MQTT_TOPIC              CONF_HOSTNAME
+#endif
+
+/* Sensors */
+#define C6_SENSOR_PUBLISH_FORMAT   C6_MQTT_TOPIC "/%s/%S"
+#define DATA_LENGTH                8
+#ifdef ONEWIRE_NAMING_SUPPORT
+#define NAME_LENGTH                (17 > OW_NAME_LENGTH ? 17 : OW_NAME_LENGTH)
+#else
+#define NAME_LENGTH                17
+#endif
+#define TOPIC_LENGTH               (sizeof(C6_SENSOR_PUBLISH_FORMAT) + NAME_LENGTH +  5)
+
+/* Named pin */
+#define C6_NAMED_PIN_TOPIC         C6_MQTT_TOPIC "/pin/"
+#define C6_NAMED_PIN_SUBSCRIBE     C6_NAMED_PIN_TOPIC "#"
+
+
+#if defined(DHT_SUPPORT) || defined(ONEWIRE_DS18XX_SUPPORT)
+#ifdef DHT_SUPPORT
+typedef struct
+{
+  int16_t temp;
+  int16_t humid;
+} dht_values_t;
+static dht_values_t *dht_last_values;
+#endif
+#ifdef ONEWIRE_DS18XX_SUPPORT
+static ow_temp_t *ow_last_values;
+#endif
+
+static void
+c6_poll_cb(void)
+{
+  uint8_t len;
+  uint8_t topic_len;
+  char buf[DATA_LENGTH];
+  char topic[TOPIC_LENGTH];
+  char name[NAME_LENGTH];
+
+#ifdef DHT_SUPPORT
+  static uint8_t i = 0;
+#endif
+#ifdef ONEWIRE_DS18XX_SUPPORT
+  static uint8_t j = 0;
+#endif
+
+#ifdef DHT_SUPPORT
+  if (i < dht_sensors_count)
+  {
+    if (dht_sensors[i].temp != dht_last_values[i].temp)
+    {
+      snprintf_P(name, sizeof(name), dht_sensors[i].name);
+      name[NAME_LENGTH - 1] = '\0';
+      topic_len = snprintf_P(topic, TOPIC_LENGTH,
+                             PSTR(C6_SENSOR_PUBLISH_FORMAT),
+                             name, PSTR("temp"));
+      topic[TOPIC_LENGTH - 1] = '\0';
+      len = itoa_fixedpoint(dht_sensors[i].temp, 1, buf, sizeof(buf));
+
+      C6DEBUG("poll: %s=%s", topic, buf);
+      mqtt_construct_publish_packet(topic, buf, len, false);
+
+      dht_last_values[i].temp = dht_sensors[i].temp;
+    }
+    if (dht_sensors[i].humid != dht_last_values[i].humid)
+    {
+      snprintf_P(name, sizeof(name), dht_sensors[i].name);
+      name[NAME_LENGTH - 1] = '\0';
+      topic_len = snprintf_P(topic, TOPIC_LENGTH,
+                             PSTR(C6_SENSOR_PUBLISH_FORMAT),
+                             name, PSTR("humid"));
+      topic[TOPIC_LENGTH - 1] = '\0';
+      len = itoa_fixedpoint(dht_sensors[i].humid, 1, buf, sizeof(buf));
+
+      C6DEBUG("poll %s=%s", topic, buf);
+      mqtt_construct_publish_packet(topic, buf, len, false);
+
+      dht_last_values[i].humid = dht_sensors[i].humid;
+    }
+    i++;
+    return;
+  }
+#endif
+#ifdef ONEWIRE_DS18XX_SUPPORT
+  if (j < OW_SENSORS_COUNT)
+  {
+    if (ow_sensors[j].present == 1 &&
+        ow_sensors[j].conv_error == 0 &&
+        ow_sensors[j].temp.val != ow_last_values[j].val)
+    {
+#ifdef ONEWIRE_NAMING_SUPPORT
+      if (ow_sensors[j].named == 1)
+      {
+        snprintf(name, sizeof(name), ow_sensors[j].name);
+      }
+      else
+#else
+      {
+        snprintf(name, sizeof(name),
+                 PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
+                 ow_sensors[j].ow_rom_code.bytewise[0],
+                 ow_sensors[j].ow_rom_code.bytewise[1],
+                 ow_sensors[j].ow_rom_code.bytewise[2],
+                 ow_sensors[j].ow_rom_code.bytewise[3],
+                 ow_sensors[j].ow_rom_code.bytewise[4],
+                 ow_sensors[j].ow_rom_code.bytewise[5],
+                 ow_sensors[j].ow_rom_code.bytewise[6],
+                 ow_sensors[j].ow_rom_code.bytewise[7]);
+      }
+#endif
+      name[NAME_LENGTH - 1] = '\0';
+      topic_len = snprintf_P(topic, TOPIC_LENGTH,
+                             PSTR(C6_SENSOR_PUBLISH_FORMAT),
+                             name, PSTR("temp"));
+      topic[TOPIC_LENGTH - 1] = '\0';
+      len = itoa_fixedpoint(ow_sensors[j].temp.val,
+                            ow_sensors[j].temp.twodigits + 1,
+                            buf, sizeof(buf));
+
+      C6DEBUG("poll %s=%s", topic, buf);
+      mqtt_construct_publish_packet(topic, buf, len, false);
+
+      ow_last_values[j] = ow_sensors[j].temp;
+    }
+    j++;
+    return;
+  }
+#endif
+
+#ifdef DHT_SUPPORT
+  i = 0;
+#endif
+#ifdef ONEWIRE_DS18XX_SUPPORT
+  j = 0;
+#endif
+}
+#endif /* DHT_SUPPORT || ONEWIRE_DS18XX_SUPPORT */
+
+#ifdef NAMED_PIN_SUPPORT
+static void
+c6_publish_cb(const char *topic, uint16_t topic_length,
+              const void *payload, uint16_t payload_length)
+{
+  char *strvalue = malloc(topic_length + 1);
+  if (strvalue == NULL)
+    goto out;
+
+  memcpy(strvalue, topic, topic_length);
+  strvalue[topic_length] = '\0';
+  C6DEBUG("publish %s", strvalue);
+
+  if (strncmp_P(topic, PSTR(C6_NAMED_PIN_TOPIC), sizeof(C6_NAMED_PIN_TOPIC) - 1) == 0)
+  {
+    const char *name = strvalue + sizeof(C6_NAMED_PIN_TOPIC) - 1;
+    C6DEBUG("pin %s", name);
+
+    uint8_t pincfg = named_pin_by_name(name);
+    if (pincfg == 255)
+    {
+       C6DEBUG("...unknown");
+       goto out;
+    }
+
+    uint8_t port = pgm_read_byte(&portio_pincfg[pincfg].port);
+    uint8_t pin = pgm_read_byte(&portio_pincfg[pincfg].pin);
+    uint8_t active_high = pgm_read_byte(&portio_pincfg[pincfg].active_high);
+
+    if (payload_length > 0) /* Write */
+    {
+      /* Set only if it is output */
+      if (vport[port].read_ddr(port) & _BV(pin))
+      {
+        free(strvalue);
+        strvalue = malloc(payload_length + 1);
+        if (strvalue == NULL)
+          goto out;
+        memcpy(strvalue, payload, payload_length);
+        strvalue[payload_length] = 0;
+        C6DEBUG("out %s", strvalue);
+
+        uint8_t on;
+        if (sscanf_P(strvalue, PSTR("%hhd"), &on) != 1)
+          goto out;
+
+        uint8_t val = vport[port].read_port(port);
+        if (XOR_LOG(on, !active_high))
+          val |= _BV(pin);
+        else
+          val &= ~_BV(pin);
+        vport[port].write_port(port, val);
+      }
+    }
+    else /* Read */
+    {
+      uint8_t val = XOR_LOG(vport[port].read_pin(port) & _BV(pin), !(active_high));
+      uint8_t buf[2];
+      buf[0] = '0' + val;
+      buf[1] = '\0';
+      C6DEBUG("in %c", buf[0]);
+
+      mqtt_construct_publish_packet(topic, buf, 1, false);
+    }
+  }
+  else
+  {
+    C6DEBUG("parse error");
+  }
+
+out:
+  if (strvalue != NULL)
+    free(strvalue);
+}
+#endif /* NAMED_PIN_SUPPORT */
+
+static void
+c6_connack_cb(void)
+{
+#ifdef DHT_SUPPORT
+  dht_last_values = calloc(dht_sensors_count, sizeof(dht_values_t));
+#endif
+#ifdef ONEWIRE_DS18XX_SUPPORT
+  ow_last_values = calloc(OW_SENSORS_COUNT, sizeof(ow_temp_t));
+#endif
+
+#ifdef NAMED_PIN_SUPPORT
+  const char *topic = PSTR(C6_NAMED_PIN_SUBSCRIBE);
+  C6DEBUG("subscribe %S", topic);
+  if (mqtt_construct_subscribe_packet_P(topic) == false)
+  {
+    C6DEBUG("...failed");
+  }
+#endif
+}
+
+static void
+c6_close_cb(void)
+{
+#ifdef DHT_SUPPORT
+  free(dht_last_values);
+#endif
+#ifdef ONEWIRE_DS18XX_SUPPORT
+  free(ow_last_values);
+#endif
+}
+
+static const mqtt_callback_config_t c6_mqtt_callback_config PROGMEM = {
+  .connack_callback = c6_connack_cb,
+#if defined(DHT_SUPPORT) || defined(ONEWIRE_DS18XX_SUPPORT)
+  .poll_callback = c6_poll_cb,
+#else
+  .poll_callback = NULL,
+#endif
+  .close_callback = c6_close_cb,
+#ifdef NAMED_PIN_SUPPORT
+  .publish_callback = c6_publish_cb
+#else
+  .publish_callback = NULL
+#endif
+};
+
+static void
+c6_mqtt_init(void)
+{
+  mqtt_register_callback(&c6_mqtt_callback_config);
+}
+
+
+CONTROL_START
+
+  ON STARTUP DO
+    c6_mqtt_init();
+  END
+
+CONTROL_END
+
+dnl EOF
