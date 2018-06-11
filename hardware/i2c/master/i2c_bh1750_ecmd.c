@@ -51,7 +51,11 @@ parse_cmd_i2c_bh1750_setmode(char *cmd, char *output, uint16_t len)
   i2c_bh1750_resolution resolution, auto_power_down;
 
   if ((sscanf_P(cmd, PSTR("%hhu %hhu"), &resolution, &auto_power_down) != 2)
+#ifdef I2C_BH1750_AUTO_RESOLUTION
       || (resolution > RESOLUTION_HIGH && resolution != RESOLUTION_AUTO_HIGH)
+#else
+      || (resolution > RESOLUTION_HIGH)
+#endif
       || (auto_power_down > 1))
     return ECMD_ERR_PARSE_ERROR;
 
