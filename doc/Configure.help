@@ -3628,3 +3628,12 @@ I2C_BH1750_SUPPORT
   Includes conversion routines to get visible light in lux.
   Datasheet http://www.rohm.com/
 
+BH1750 automatic resolution adjustment
+I2C_BH1750_AUTO_RESOLUTION
+  Depends on:
+   * I2C BH1750 light sensor (I2C_BH1750_SUPPORT)
+   * (not TEENSY_SUPPORT)
+
+  Enable automatic resolution adjustment according to the brightness.
+  Increases measurement time and code size noticeably.
+

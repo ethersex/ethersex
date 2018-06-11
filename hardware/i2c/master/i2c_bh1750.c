@@ -47,19 +47,21 @@
 typedef enum
 {
   UNCONFIGURED = 0,
-  CONTINUOUS_HIGH_RES_MODE = 0x10,
+  CONTINUOUS_HIGH_RES_MODE  = 0x10,
   CONTINUOUS_HIGH_RES_MODE2 = 0x11,
-  CONTINUOUS_LOW_RES_MODE = 0x13,
-  ONE_TIME_HIGH_RES_MODE = 0x20,
-  ONE_TIME_HIGH_RES_MODE2 = 0x21,
-  ONE_TIME_LOW_RES_MODE = 0x23
+  CONTINUOUS_LOW_RES_MODE   = 0x13,
+  ONE_TIME_HIGH_RES_MODE    = 0x20,
+  ONE_TIME_HIGH_RES_MODE2   = 0x21,
+  ONE_TIME_LOW_RES_MODE     = 0x23
 } i2c_bh1750_mode;
 
+#ifdef I2C_BH1750_AUTO_RESOLUTION
 #define SENSITIVITY_DEFAULT  69U
 #define SENSITIVITY_MIN      31U
 #define SENSITIVITY_MAX     254U
 
 typedef uint8_t i2c_bh1750_sensitivity;
+#endif /* I2C_BH1750_AUTO_RESOLUTION */
 
 
 static struct
@@ -68,10 +70,14 @@ static struct
   uint8_t auto_power_down;
   i2c_bh1750_resolution resolution;
   i2c_bh1750_mode mode;
+#ifdef I2C_BH1750_AUTO_RESOLUTION
   uint8_t sensitivity;
+#endif
 } i2c_bh1750_data =
 {
+#ifdef I2C_BH1750_AUTO_RESOLUTION
   .sensitivity = SENSITIVITY_DEFAULT
+#endif
 };
 
 
@@ -161,9 +167,11 @@ i2c_bh1750_set_operating_mode(const i2c_bh1750_resolution resolution,
       mode = auto_power_down ? ONE_TIME_HIGH_RES_MODE2
                              : CONTINUOUS_HIGH_RES_MODE2;
       break;
+#ifdef I2C_BH1750_AUTO_RESOLUTION
     case RESOLUTION_AUTO_HIGH:
       mode = CONTINUOUS_LOW_RES_MODE;
       break;
+#endif
     default:
       return BH1750_RESULT_INVAL;
   }
@@ -181,6 +189,7 @@ i2c_bh1750_set_operating_mode(const i2c_bh1750_resolution resolution,
 }
 
 
+#ifdef I2C_BH1750_AUTO_RESOLUTION
 /*
  * Sensitivity of the sensor:
  *
@@ -231,6 +240,7 @@ end:
   i2c_master_stop();
   return result;
 }
+#endif /* I2C_BH1750_AUTO_RESOLUTION */
 
 
 static int32_t
@@ -281,7 +291,9 @@ i2c_bh1750_get_lux(void)
   }
 
   int8_t result;
+  i2c_bh1750_mode mode;
 
+#ifdef I2C_BH1750_AUTO_RESOLUTION
   /* The automatic mode requires special treatment.
    * First the brightness is read in LowRes mode,
    * depending on the area (dark, normal, very bright) the values of
@@ -303,7 +315,6 @@ i2c_bh1750_get_lux(void)
       return result;
 
     i2c_bh1750_sensitivity sensitivity;
-    i2c_bh1750_mode mode;
     uint8_t auto_power_down = i2c_bh1750_data.auto_power_down;
 
     int32_t level = i2c_bh1750_get_raw();
@@ -360,20 +371,30 @@ i2c_bh1750_get_lux(void)
     result = i2c_bh1750_set_mode(mode);
     if (result < BH1750_RESULT_OK)
       return result;
+  }
+#else
+  if (i2c_bh1750_data.auto_power_down)
+  {
+    /* power up sensor */
+    mode = i2c_bh1750_data.mode;
+    result = i2c_bh1750_set_mode(mode);
+    if (result < BH1750_RESULT_OK)
+      return result;
+  }
+#endif /* I2C_BH1750_AUTO_RESOLUTION */
 
-    /* Give the sensor some time to wake up from the power down. */
-    switch (mode)
-    {
-      case ONE_TIME_HIGH_RES_MODE:
-      case ONE_TIME_HIGH_RES_MODE2:
-        _delay_ms(120);
-        break;
-      case ONE_TIME_LOW_RES_MODE:
-        _delay_ms(16);
-        break;
-      default:
-        break;
-    }
+  /* Give the sensor some time to wake up from the power down. */
+  switch (mode)
+  {
+    case ONE_TIME_HIGH_RES_MODE:
+    case ONE_TIME_HIGH_RES_MODE2:
+      _delay_ms(120);
+      break;
+    case ONE_TIME_LOW_RES_MODE:
+      _delay_ms(16);
+      break;
+    default:
+      break;
   }
 
   int32_t raw = i2c_bh1750_get_raw();
@@ -384,9 +405,11 @@ i2c_bh1750_get_lux(void)
   int32_t lux = (raw * 5) / 6;
   I2CDEBUG("bh1750 lux(1)=%li\n", lux);
 
+#ifdef I2C_BH1750_AUTO_RESOLUTION
   /* Take sensitivity into account. */
   if (i2c_bh1750_data.sensitivity != SENSITIVITY_DEFAULT)
     lux = (lux * SENSITIVITY_DEFAULT) / i2c_bh1750_data.sensitivity;
+#endif
   I2CDEBUG("bh1750 lux(2)=%li\n", lux);
 
   /* Depending on the mode, a further conversion is necessary. */
