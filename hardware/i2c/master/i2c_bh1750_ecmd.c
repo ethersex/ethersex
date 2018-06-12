@@ -59,7 +59,7 @@ parse_cmd_i2c_bh1750_setmode(char *cmd, char *output, uint16_t len)
       || (auto_power_down > 1))
     return ECMD_ERR_PARSE_ERROR;
 
-  int16_t result = i2c_bh1750_set_operating_mode(resolution, auto_power_down);
+  int32_t result = i2c_bh1750_set_operating_mode(resolution, auto_power_down);
   return i2c_bh1750_map_result(result, output, len);
 }
 
@@ -67,11 +67,11 @@ parse_cmd_i2c_bh1750_setmode(char *cmd, char *output, uint16_t len)
 int16_t
 parse_cmd_i2c_bh1750_getlux(char *cmd, char *output, uint16_t len)
 {
-  int32_t lux = i2c_bh1750_get_lux();
+  int32_t result = i2c_bh1750_get_lux();
   if (lux < BH1750_RESULT_OK)
-    return i2c_bh1750_map_result(lux, output, len);
+    return i2c_bh1750_map_result(result, output, len);
 
-  return ECMD_FINAL(snprintf_P(output, len, PSTR("%li"), lux));
+  return ECMD_FINAL(snprintf_P(output, len, PSTR("%li"), result));
 }
 
 
