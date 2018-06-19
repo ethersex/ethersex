@@ -3619,3 +3619,21 @@ DEBUG_USE_WATCHDOG
 
   Activate the watchdog also in debug mode. Default is deactivated.
 
+I2C BH1750  light sensor
+I2C_BH1750_SUPPORT
+  Depends on:
+   * I2C master (I2C_MASTER_SUPPORT)
+
+  Support for the BH1750 digital light sensor via I2C.
+  Includes conversion routines to get visible light in lux.
+  Datasheet http://www.rohm.com/
+
+BH1750 automatic resolution adjustment
+I2C_BH1750_AUTO_RESOLUTION
+  Depends on:
+   * I2C BH1750 light sensor (I2C_BH1750_SUPPORT)
+   * (not TEENSY_SUPPORT)
+
+  Enable automatic resolution adjustment according to the brightness.
+  Increases measurement time and code size noticeably.
+
