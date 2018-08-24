@@ -268,7 +268,7 @@ i2c_bh1750_get_raw(void)
 
   val[0] = TWDR;
 
-  if (i2c_master_transmit_with_ack() != TW_MR_DATA_ACK)
+  if (i2c_master_transmit() != TW_MR_DATA_NACK)
     goto end;
 
   val[1] = TWDR;
