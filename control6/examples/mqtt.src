@@ -174,15 +174,15 @@ c6_poll_cb(void)
 #else
       {
         snprintf_P(name, sizeof(name),
-                 PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
-                 ow_sensors[j].ow_rom_code.bytewise[0],
-                 ow_sensors[j].ow_rom_code.bytewise[1],
-                 ow_sensors[j].ow_rom_code.bytewise[2],
-                 ow_sensors[j].ow_rom_code.bytewise[3],
-                 ow_sensors[j].ow_rom_code.bytewise[4],
-                 ow_sensors[j].ow_rom_code.bytewise[5],
-                 ow_sensors[j].ow_rom_code.bytewise[6],
-                 ow_sensors[j].ow_rom_code.bytewise[7]);
+                   PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
+                   ow_sensors[j].ow_rom_code.bytewise[0],
+                   ow_sensors[j].ow_rom_code.bytewise[1],
+                   ow_sensors[j].ow_rom_code.bytewise[2],
+                   ow_sensors[j].ow_rom_code.bytewise[3],
+                   ow_sensors[j].ow_rom_code.bytewise[4],
+                   ow_sensors[j].ow_rom_code.bytewise[5],
+                   ow_sensors[j].ow_rom_code.bytewise[6],
+                   ow_sensors[j].ow_rom_code.bytewise[7]);
       }
 #endif
       name[NAME_LENGTH - 1] = '\0';
