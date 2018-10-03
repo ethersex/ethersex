@@ -78,7 +78,7 @@
 #endif
 
 /* Sensors */
-#define C6_SENSOR_PUBLISH_FORMAT   C6_MQTT_TOPIC "/%s/%S"
+#define C6_SENSOR_PUBLISH_FORMAT   C6_MQTT_TOPIC "/sensor/%s/%S"
 #define DATA_LENGTH                8
 #ifdef ONEWIRE_NAMING_SUPPORT
 #define NAME_LENGTH                (17 > OW_NAME_LENGTH ? 17 : OW_NAME_LENGTH)
