@@ -78,7 +78,7 @@
 #endif
 
 /* Sensors */
-#define C6_SENSOR_PUBLISH_FORMAT   C6_MQTT_TOPIC "/%s/%S"
+#define C6_SENSOR_PUBLISH_FORMAT   C6_MQTT_TOPIC "/sensor/%s/%S"
 #define DATA_LENGTH                8
 #ifdef ONEWIRE_NAMING_SUPPORT
 #define NAME_LENGTH                (17 > OW_NAME_LENGTH ? 17 : OW_NAME_LENGTH)
@@ -173,16 +173,16 @@ c6_poll_cb(void)
       else
 #else
       {
-        snprintf(name, sizeof(name),
-                 PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
-                 ow_sensors[j].ow_rom_code.bytewise[0],
-                 ow_sensors[j].ow_rom_code.bytewise[1],
-                 ow_sensors[j].ow_rom_code.bytewise[2],
-                 ow_sensors[j].ow_rom_code.bytewise[3],
-                 ow_sensors[j].ow_rom_code.bytewise[4],
-                 ow_sensors[j].ow_rom_code.bytewise[5],
-                 ow_sensors[j].ow_rom_code.bytewise[6],
-                 ow_sensors[j].ow_rom_code.bytewise[7]);
+        snprintf_P(name, sizeof(name),
+                   PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
+                   ow_sensors[j].ow_rom_code.bytewise[0],
+                   ow_sensors[j].ow_rom_code.bytewise[1],
+                   ow_sensors[j].ow_rom_code.bytewise[2],
+                   ow_sensors[j].ow_rom_code.bytewise[3],
+                   ow_sensors[j].ow_rom_code.bytewise[4],
+                   ow_sensors[j].ow_rom_code.bytewise[5],
+                   ow_sensors[j].ow_rom_code.bytewise[6],
+                   ow_sensors[j].ow_rom_code.bytewise[7]);
       }
 #endif
       name[NAME_LENGTH - 1] = '\0';
