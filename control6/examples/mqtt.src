@@ -113,7 +113,6 @@ static void
 c6_poll_cb(void)
 {
   uint8_t len;
-  uint8_t topic_len;
   char buf[DATA_LENGTH];
   char topic[TOPIC_LENGTH];
   char name[NAME_LENGTH];
@@ -132,9 +131,7 @@ c6_poll_cb(void)
     {
       snprintf_P(name, sizeof(name), dht_sensors[i].name);
       name[NAME_LENGTH - 1] = '\0';
-      topic_len = snprintf_P(topic, TOPIC_LENGTH,
-                             PSTR(C6_SENSOR_PUBLISH_FORMAT),
-                             name, PSTR("temp"));
+      snprintf_P(topic, TOPIC_LENGTH, PSTR(C6_SENSOR_PUBLISH_FORMAT), name, PSTR("temp"));
       topic[TOPIC_LENGTH - 1] = '\0';
       len = itoa_fixedpoint(dht_sensors[i].temp, 1, buf, sizeof(buf));
 
@@ -147,9 +144,7 @@ c6_poll_cb(void)
     {
       snprintf_P(name, sizeof(name), dht_sensors[i].name);
       name[NAME_LENGTH - 1] = '\0';
-      topic_len = snprintf_P(topic, TOPIC_LENGTH,
-                             PSTR(C6_SENSOR_PUBLISH_FORMAT),
-                             name, PSTR("humid"));
+      snprintf_P(topic, TOPIC_LENGTH, PSTR(C6_SENSOR_PUBLISH_FORMAT), name, PSTR("humid"));
       topic[TOPIC_LENGTH - 1] = '\0';
       len = itoa_fixedpoint(dht_sensors[i].humid, 1, buf, sizeof(buf));
 
@@ -190,9 +185,7 @@ c6_poll_cb(void)
       }
 #endif
       name[NAME_LENGTH - 1] = '\0';
-      topic_len = snprintf_P(topic, TOPIC_LENGTH,
-                             PSTR(C6_SENSOR_PUBLISH_FORMAT),
-                             name, PSTR("temp"));
+      snprintf_P(topic, TOPIC_LENGTH, PSTR(C6_SENSOR_PUBLISH_FORMAT), name, PSTR("temp"));
       topic[TOPIC_LENGTH - 1] = '\0';
       len = itoa_fixedpoint(ow_sensors[j].temp.val,
                             ow_sensors[j].temp.twodigits + 1,
