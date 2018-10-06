@@ -35,7 +35,7 @@
   Optional:
    DHT_SUPPORT
    ONEWIRE_DS18XX_SUPPORT
-   NAMED_PIN_SUPPORT
+   NAMED_PIN_SUPPORT, PORTIO_SUPPORT
 */
 
 #include <stdint.h>
@@ -56,9 +56,13 @@
 #include "hardware/onewire/onewire.h"
 #endif
 #ifdef NAMED_PIN_SUPPORT
+#ifndef PORTIO_SUPPORT
+#error MQTT example needs PORTIO_SUPPORT (I/O abstraction model: full featured) when using NAMED_PIN_SUPPORT
+#else
 #include "core/bit-macros.h"
 #include "core/portio/portio.h"
 #include "core/portio/named_pin.h"
+#endif
 #endif
 #include "protocols/mqtt/mqtt.h"
 #include "core/debug.h"
@@ -213,7 +217,7 @@ c6_poll_cb(void)
 }
 #endif /* DHT_SUPPORT || ONEWIRE_DS18XX_SUPPORT */
 
-#ifdef NAMED_PIN_SUPPORT
+#if defined(NAMED_PIN_SUPPORT) && defined(PORTIO_SUPPORT)
 static void
 c6_publish_cb(const char *topic, uint16_t topic_length,
               const void *payload, uint16_t payload_length)
@@ -287,7 +291,7 @@ out:
   if (strvalue != NULL)
     free(strvalue);
 }
-#endif /* NAMED_PIN_SUPPORT */
+#endif /* NAMED_PIN_SUPPORT && PORTIO_SUPPORT */
 
 static void
 c6_connack_cb(void)
@@ -299,7 +303,7 @@ c6_connack_cb(void)
   ow_last_values = calloc(OW_SENSORS_COUNT, sizeof(ow_temp_t));
 #endif
 
-#ifdef NAMED_PIN_SUPPORT
+#if defined(NAMED_PIN_SUPPORT) && defined(PORTIO_SUPPORT)
   const char *topic = PSTR(C6_NAMED_PIN_SUBSCRIBE);
   C6DEBUG("subscribe %S", topic);
   if (mqtt_construct_subscribe_packet_P(topic) == false)
@@ -328,7 +332,7 @@ static const mqtt_callback_config_t c6_mqtt_callback_config PROGMEM = {
   .poll_callback = NULL,
 #endif
   .close_callback = c6_close_cb,
-#ifdef NAMED_PIN_SUPPORT
+#if defined(NAMED_PIN_SUPPORT) && defined(PORTIO_SUPPORT)
   .publish_callback = c6_publish_cb
 #else
   .publish_callback = NULL
