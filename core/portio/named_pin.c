@@ -47,17 +47,19 @@ named_pin_init(void)
 
     /* Set Input/Output */
     if (input)
+		{
       vport[port].write_ddr(port, vport[port].read_ddr(port) & ~_BV(pin));
+		}
     else
     {
-      if (active_high == 0)
-        vport[port].write_port(port, vport[port].read_port(port) | _BV(pin));
       vport[port].write_ddr(port, vport[port].read_ddr(port) | _BV(pin));
     }
 
-    /* If input and active low set pullup */
-    if (input && (active_high == 0))
-      vport[port].write_port(port, vport[port].read_port(port) | _BV(pin));
+    /* If active low set pullup or output to high */
+    if (active_high == 0)
+    {
+			vport[port].write_port(port, vport[port].read_port(port) | _BV(pin));
+		}
   }
 }
 
