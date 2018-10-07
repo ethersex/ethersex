@@ -38,10 +38,10 @@
 /* This driver uses the E6 hook mechanism to notify of events. (see hook.def
  * for details)
  * To get notified in your application of a button press:
- * 1) #include "buttons.h"
+ * 1) #include "hardware/input/buttons/buttons.h"
  *
  * 2) Define a handler function in your application:
- *    void hook_button_handler(buttons_ButtonsType button, uint8_t status) {
+ *    void hook_buttons_handler(buttons_ButtonsType button, uint8_t status) {
  *      debug_printf("Button %d Status: %d\n",button, status);
  *    }
  *
