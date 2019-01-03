@@ -216,7 +216,8 @@ c6_poll_cb(void)
 #ifdef NAMED_PIN_SUPPORT
 static void
 c6_publish_cb(const char *topic, uint16_t topic_length,
-              const void *payload, uint16_t payload_length)
+              const void *payload, uint16_t payload_length,
+              bool retained)
 {
   char *strvalue = malloc(topic_length + 1);
   if (strvalue == NULL)

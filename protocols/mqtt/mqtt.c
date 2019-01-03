@@ -193,7 +193,8 @@ static void mqtt_fire_close_callback(void);
 static void mqtt_fire_publish_callback(char const *topic,
                                        uint16_t topic_length,
                                        const void *payload,
-                                       uint16_t payload_length);
+                                       uint16_t payload_length,
+                                       bool retained);
 
 static void mqtt_poll(void);
 static void mqtt_main(void);
@@ -846,8 +847,11 @@ mqtt_handle_packet(const void *data, uint8_t llen, uint16_t packet_length)
           payload_length -= 2;
         }
 
+        uint8_t retained = header & 0x1;
+
         mqtt_fire_publish_callback((char *) packet + 2, topic_length,
-                                   payload, payload_length);
+                                   payload, payload_length,
+                                   retained);
 
         // check for qos level, send ack
         if (qos > 0)
@@ -1203,7 +1207,8 @@ mqtt_fire_close_callback(void)
 
 static void
 mqtt_fire_publish_callback(char const *topic, uint16_t topic_length,
-                           const void *payload, uint16_t payload_length)
+                           const void *payload, uint16_t payload_length,
+                           bool retained)
 {
   for (int i = 0; i < MQTT_CALLBACK_SLOTS; ++i)
   {
@@ -1213,7 +1218,7 @@ mqtt_fire_publish_callback(char const *topic, uint16_t topic_length,
         (publish_callback) pgm_read_word(&mqtt_callbacks[i]->
                                          publish_callback);
       if (cb != NULL)
-        cb(topic, topic_length, payload, payload_length);
+        cb(topic, topic_length, payload, payload_length, retained);
     }
   }
 }
