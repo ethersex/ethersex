@@ -83,7 +83,8 @@ typedef void (*poll_callback) (void);
 typedef void (*close_callback) (void);
 typedef void (*publish_callback) (char const *topic, uint16_t topic_length,
                                   void const *payload,
-                                  uint16_t payload_length);
+                                  uint16_t payload_length,
+                                  bool retained);
 typedef struct
 {
   // see mqtt.c for explanation

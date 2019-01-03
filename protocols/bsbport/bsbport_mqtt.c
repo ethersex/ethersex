@@ -120,7 +120,8 @@ bsbport_poll_cb(void)
 
 void
 bsbport_publish_cb(char const *topic, uint16_t topic_length,
-                   const void *payload, uint16_t payload_length)
+                   const void *payload, uint16_t payload_length,
+                   bool retained)
 {
   BSBDEBUG("MQTT Publish: %s", topic);
   if (topic_length < 20)
