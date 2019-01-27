@@ -45,22 +45,34 @@ hc595_init(void)
   /* FIXME: maybe must set the output enable pin */
 
   hc595_update();
-} 
+}
 
-uint8_t 
+uint8_t
 hc595_write_port(uint8_t port, uint8_t data) {
   hc595_cache[port - IO_HARD_PORTS] = data;
   hc595_update();
   return 0;
 }
-uint8_t 
-hc595_read_port(uint8_t port) 
+uint8_t
+hc595_read_port(uint8_t port)
 {
   return hc595_cache[port - IO_HARD_PORTS];
 }
 
+uint8_t
+hc595_read_ddr(uint8_t port)
+{
+  return 0xFF ;
+}
+
+uint8_t
+hc595_write_ddr(uint8_t port, uint8_t data)
+{
+  return 0;
+}
+
 void
-hc595_update(void) 
+hc595_update(void)
 {
   uint8_t i, x;
   PIN_CLEAR(HC595_CLOCK);
@@ -72,7 +84,7 @@ hc595_update(void)
       PIN_CLEAR(HC595_DATA);
       if (hc595_cache[i] & _BV(--x))
         PIN_SET(HC595_DATA);
-      
+
       /* Pulse the hc595 shift clock */
       PIN_SET(HC595_CLOCK);
       PIN_CLEAR(HC595_CLOCK);
@@ -88,4 +100,3 @@ hc595_update(void)
   header(hardware/io_expander/hc595.h)
   init(hc595_init)
 */
-

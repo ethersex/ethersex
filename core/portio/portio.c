@@ -60,6 +60,10 @@ void portio_init(void)
     memset(&vport[i], 0, sizeof(virtual_port_t));
     vport[i].write_port = hc595_write_port;
     vport[i].read_port = hc595_read_port;
+    vport[i].read_ddr = hc595_read_ddr;
+    vport[i].write_ddr = hc595_write_ddr;
+    vport[i].read_pin = hc595_read_port;
+    vport[i].mask = 0xFF ;
   }
 #endif
 
@@ -71,39 +75,39 @@ void portio_init(void)
 #   ifdef NAMED_PIN_SUPPORT
     named_pin_init();
 #   endif
-} 
+}
 
 
-static uint8_t 
-portio_read_port(uint8_t port) 
+static uint8_t
+portio_read_port(uint8_t port)
 {
   return ACCESS_IO(ports[port]);
 }
 
-static uint8_t 
-portio_write_port(uint8_t port, uint8_t data) 
+static uint8_t
+portio_write_port(uint8_t port, uint8_t data)
 {
   ACCESS_IO(ports[port]) = ((uint8_t)ACCESS_IO(ports[port]) & vport[port].mask) |
                         ((uint8_t)data & ~vport[port].mask);
   return 0;
 }
 
-static uint8_t 
-portio_read_ddr(uint8_t port) 
+static uint8_t
+portio_read_ddr(uint8_t port)
 {
   return ACCESS_IO(ddrs[port]);
 }
 
-static uint8_t 
-portio_write_ddr(uint8_t port, uint8_t data) 
+static uint8_t
+portio_write_ddr(uint8_t port, uint8_t data)
 {
   ACCESS_IO(ddrs[port]) = ((uint8_t)ACCESS_IO(ddrs[port]) & vport[port].mask) |
                        ((uint8_t)data & ~vport[port].mask);
   return 0;
 }
 
-static uint8_t 
-portio_read_pin(uint8_t port) 
+static uint8_t
+portio_read_pin(uint8_t port)
 {
   return ACCESS_IO(pins[port]);
 }
