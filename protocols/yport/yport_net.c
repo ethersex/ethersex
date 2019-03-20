@@ -57,14 +57,16 @@ yport_net_main(void)
       uip_conn->wnd = YPORT_BUFFER_LEN - 1;
       /* delete the receive buffer */
       yport_recv_buffer.len = 0;
-      return;
     }
     else
+    {
       /* if we already have a connection, send an error */
-      uip_send("ERROR: connection blocked\n", 27);
+      memcpy_P (uip_sappdata, PSTR("ERROR: connection blocked\n"), 27);
+      uip_send (uip_sappdata, 27);
+    }
   }
 
-  if (uip_closed() || uip_aborted() || uip_timedout())
+  else if (uip_closed() || uip_aborted() || uip_timedout())
   {
     /* if the closed connection was our connection, clean yport_conn */
     if (yport_conn == uip_conn)
@@ -74,7 +76,7 @@ yport_net_main(void)
     }
   }
 
-  if (uip_acked())
+  else if (uip_acked())
   {
     /* if the peer is not our connection, close it */
     if (yport_conn != uip_conn)
@@ -118,15 +120,15 @@ yport_net_main(void)
   }
 
   /* restart connection */
-  if (uip_poll()
-      && uip_stopped(yport_conn)
-      && yport_send_buffer.sent == yport_send_buffer.len)
+  if (uip_poll() &&
+      uip_stopped(yport_conn) &&
+      yport_send_buffer.sent == yport_send_buffer.len)
   {
     uip_restart();
   }
 
   /* send data */
-  if (uip_poll() || uip_acked()
+  if ((uip_poll() || uip_acked())
       /* receive buffer reached water mark */
 #if CONF_YPORT_FLUSH > 0
       && (yport_recv_buffer.len > (YPORT_BUFFER_LEN / 4)
