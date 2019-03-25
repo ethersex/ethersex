@@ -25,8 +25,8 @@ This program contains software by other authors:
 * [usb-software stack from obdev](https://www.obdev.at/products/vusb/index.html) in `/protocols/usb/usbdrv/`, written by Objective Development
 * [sd card reader](http://www.roland-riegel.de/sd-reader/) in `/hardware/storage/sd_reader`, written by Roland Riegel
 * [IRMP - Infrared Multi Protocol Decoder](https://www.mikrocontroller.net/articles/IRMP) in `/hardware/ir/irmp/lib`, written by Frank Meyer
-* [ucglib](https://github.com/olikraus/ucglib) in `/lib/ucglib`, written by Oliver Kraus
-* [u8g2](https://github.com/olikraus/u8g2) in `/lib/ucglib`, written by Oliver Kraus
+* [ucglib](https://github.com/olikraus/ucglib) in `/libs/ucglib`, written by Oliver Kraus
+* [u8g2](https://github.com/olikraus/u8g2) in `/libs/u8g2lib`, written by Oliver Kraus
 
 License
 =======
