@@ -447,7 +447,7 @@ uip_find_stack_by_ripaddr(uip_ipaddr_t *ripaddr)
 #endif  /* UIP_MULTI_STACK */
 
 uip_conn_t *
-uip_connect(uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
+uip_connect(const uip_ipaddr_t *ripaddr, u16_t rport, uip_conn_callback_t callback)
 {
   register uip_conn_t *conn, *cconn;
 

@@ -135,7 +135,7 @@ c6_poll_cb(void)
       topic[TOPIC_LENGTH - 1] = '\0';
       len = itoa_fixedpoint(dht_sensors[i].temp, 1, buf, sizeof(buf));
 
-      C6DEBUG("poll: %s=%s", topic, buf);
+      C6DEBUG("poll %s=%s", topic, buf);
       mqtt_construct_publish_packet(topic, buf, len, false);
 
       dht_last_values[i].temp = dht_sensors[i].temp;

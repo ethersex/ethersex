@@ -123,11 +123,11 @@
 
 static uint8_t mqtt_send_buffer[MQTT_SENDBUFFER_LENGTH];
 static uint8_t mqtt_send_buffer_last_length;    // length of last packet
-                                              //   (for uip-retransmit)
+                                                // (for uip-retransmit)
 static uint8_t mqtt_send_buffer_current_head;   // current buffer head
 static uint8_t mqtt_receive_buffer_length;      // length of data for received buffer
 static uint16_t mqtt_receive_packet_length;     // length of next expected
-                                              //   (not fully received) packet
+                                                // (not fully received) packet
 
 // MQTT PROTOCOL STATE
 
@@ -138,12 +138,12 @@ static bool mqtt_ping_outstanding;
 
 // GENERAL STATE STRUCTURES
 
-static mqtt_connection_config_t const *mqtt_con_config = NULL;
+static mqtt_connection_config_t const *mqtt_con_config;
 static mqtt_callback_config_t const *mqtt_callbacks[MQTT_CALLBACK_SLOTS];
 static mqtt_connection_state_t mqtt_con_state;
 static uip_conn_t *mqtt_uip_conn;
 
-static uint16_t mqtt_timer_counter = 0;
+static uint16_t mqtt_timer_counter;
 
 
 /********************
@@ -170,17 +170,6 @@ static uint8_t mqtt_buffer_write_length_field(uint8_t * buffer,
 static bool mqtt_write_to_receive_buffer(const void *data, uint16_t length);
 
 static bool mqtt_construct_connect_packet(void);
-bool mqtt_construct_publish_packet(char const *topic, const void *payload,
-                                   uint16_t payload_length, bool retain);
-bool mqtt_construct_publish_packet_P(PGM_P topic, const void *payload,
-                                     uint16_t payload_length, bool retain);
-bool mqtt_construct_subscribe_packet(char const *topic);
-bool mqtt_construct_subscribe_packet_P(PGM_P topic);
-bool mqtt_construct_unsubscribe_packet(char const *topic);
-bool mqtt_construct_unsubscribe_packet_P(PGM_P topic);
-bool mqtt_construct_zerolength_packet(uint8_t msg_type);
-bool mqtt_construct_ack_packet(uint8_t msg_type, uint16_t msgid);
-
 static void mqtt_handle_packet(const void *data, uint8_t llen,
                                uint16_t packet_length);
 static uint8_t mqtt_parse_length_field(uint16_t * length, const void *buffer,
@@ -199,9 +188,6 @@ static void mqtt_fire_publish_callback(char const *topic,
 static void mqtt_poll(void);
 static void mqtt_main(void);
 static void mqtt_init(void);
-void mqtt_periodic(void);
-
-bool mqtt_is_connected(void);
 
 
 /*********************
@@ -276,55 +262,51 @@ mqtt_buffer_write_data(const void *data, uint16_t length)
 static void
 mqtt_buffer_write_string(char const *data)
 {
-  char const *idp = data;
-  mqtt_send_buffer_current_head += 2;
+  char const *src = data;
+  char *dst = &mqtt_send_buffer[mqtt_send_buffer_current_head + 2];
 
-  while (*idp)
-    mqtt_send_buffer[mqtt_send_buffer_current_head++] = *idp++;
+  while (*src != 0)
+    *dst++ = *src++;
 
-  uint16_t len = idp - data;
-
-  mqtt_send_buffer[mqtt_send_buffer_current_head - len - 2] = HI8(len);
-  mqtt_send_buffer[mqtt_send_buffer_current_head - len - 1] = LO8(len);
+  uint16_t len = src - data;
+  mqtt_send_buffer[mqtt_send_buffer_current_head + 0] = HI8(len);
+  mqtt_send_buffer[mqtt_send_buffer_current_head + 1] = LO8(len);
+  mqtt_send_buffer_current_head += 2 + len;
 }
 
 static void
 mqtt_buffer_write_string_P(PGM_P data)
 {
-  PGM_P idp = data;
-  mqtt_send_buffer_current_head += 2;
+  PGM_P src = data;
+  char *dst = &mqtt_send_buffer[mqtt_send_buffer_current_head + 2];
 
-  while (true)
+  char c;
+  while ((c = pgm_read_byte_near(src)) != 0)
   {
-    uint8_t t = pgm_read_byte_near(idp);
-
-    if (t==0)
-      break;
-
-    mqtt_send_buffer[mqtt_send_buffer_current_head++] = t;
-    idp++;
+    src++;
+    *dst++ = c;
   }
 
-  uint16_t len = idp - data;
-
-  mqtt_send_buffer[mqtt_send_buffer_current_head - len - 2] = HI8(len);
-  mqtt_send_buffer[mqtt_send_buffer_current_head - len - 1] = LO8(len);
+  uint16_t len = src - data;
+  mqtt_send_buffer[mqtt_send_buffer_current_head + 0] = HI8(len);
+  mqtt_send_buffer[mqtt_send_buffer_current_head + 1] = LO8(len);
+  mqtt_send_buffer_current_head += 2 + len;
 }
 
 // return whether the buffer has enough storage room for `length` bytes
 static inline bool
 mqtt_buffer_free(uint16_t length)
 {
-  return mqtt_send_buffer_current_head + length + mqtt_receive_buffer_length
-    <= MQTT_SENDBUFFER_LENGTH;
+  return (mqtt_send_buffer_current_head + length +
+          mqtt_receive_buffer_length) <= MQTT_SENDBUFFER_LENGTH;
 }
 
 // flush the send buffer (uip_send) if there is data
 static void
 mqtt_flush_buffer(void)
 {
-  if (mqtt_send_buffer_last_length == 0 // no data waiting for a uip_ack
-      && mqtt_send_buffer_current_head > 0)
+  if (mqtt_send_buffer_last_length == 0 &&      // no data waiting for a uip_ack
+      mqtt_send_buffer_current_head > 0)
   {
     mqtt_send_buffer_last_length =
       minimum(mqtt_send_buffer_current_head, uip_mss());
@@ -362,11 +344,10 @@ static uint8_t
 mqtt_buffer_write_length_field(uint8_t * buffer, uint16_t length)
 {
   uint8_t llen = 0;
-  uint8_t digit;
   uint8_t pos = 0;
   do
   {
-    digit = length % 128;
+    uint8_t digit = length % 128;
     length = length / 128;
     if (length > 0)
     {
@@ -457,11 +438,11 @@ mqtt_construct_connect_packet(void)
 
   if (mqtt_con_config->user != NULL)
   {
-    connect_flags = connect_flags | 0x80;
+    connect_flags |= 0x80;
 
     if (mqtt_con_config->pass != NULL)
     {
-      connect_flags = connect_flags | (0x80 >> 1);
+      connect_flags |= 0x40;
     }
   }
 
@@ -479,9 +460,13 @@ mqtt_construct_connect_packet(void)
   {
     mqtt_buffer_write_string(mqtt_con_config->will_topic);
 
-    mqtt_send_buffer[mqtt_send_buffer_current_head++] = HI8(mqtt_con_config->will_message_length);
-    mqtt_send_buffer[mqtt_send_buffer_current_head++] = LO8(mqtt_con_config->will_message_length);
-    mqtt_buffer_write_data(mqtt_con_config->will_message, mqtt_con_config->will_message_length);
+    uint16_t will_message_length = mqtt_con_config->will_message_length;
+    mqtt_send_buffer[mqtt_send_buffer_current_head++] =
+      HI8(will_message_length);
+    mqtt_send_buffer[mqtt_send_buffer_current_head++] =
+      LO8(will_message_length);
+    mqtt_buffer_write_data(mqtt_con_config->will_message,
+                           will_message_length);
   }
 
   // user / pass
@@ -758,7 +743,7 @@ mqtt_handle_packet(const void *data, uint8_t llen, uint16_t packet_length)
 {
   mqtt_last_in_activity = mqtt_timer_counter;
 
-  const uint8_t *packet = data + llen + 1;
+  const uint8_t *packet = ((uint8_t *) data) + llen + 1;
   uint8_t header = *(uint8_t *) data;
 
 
@@ -850,8 +835,7 @@ mqtt_handle_packet(const void *data, uint8_t llen, uint16_t packet_length)
         uint8_t retained = header & 0x1;
 
         mqtt_fire_publish_callback((char *) packet + 2, topic_length,
-                                   payload, payload_length,
-                                   retained);
+                                   payload, payload_length, retained);
 
         // check for qos level, send ack
         if (qos > 0)
@@ -950,7 +934,7 @@ mqtt_handle_packet(const void *data, uint8_t llen, uint16_t packet_length)
 
   else
   {
-    MQTTDEBUG("unkown state\n");        // uhmm
+    MQTTDEBUG("unknown state %u\n", STATE->stage);
   }
 }
 
@@ -1167,8 +1151,8 @@ mqtt_fire_connack_callback(void)
     if (mqtt_callbacks[i] != NULL)
     {
       connack_callback cb =
-        (connack_callback) pgm_read_word(&mqtt_callbacks[i]->
-                                         connack_callback);
+        (connack_callback)
+        pgm_read_word(&mqtt_callbacks[i]->connack_callback);
       if (cb != NULL)
         cb();
     }
@@ -1264,14 +1248,11 @@ mqtt_poll(void)
 static void
 mqtt_main(void)
 {
-
   if (uip_aborted() || uip_timedout())
   {
     MQTTDEBUG("connection aborted\n");
     mqtt_uip_conn = NULL;
-
     mqtt_fire_close_callback();
-
     return;
   }
 
@@ -1285,7 +1266,6 @@ mqtt_main(void)
   if (uip_connected())
   {
     MQTTDEBUG("new connection\n");
-
     mqtt_construct_connect_packet();
 
     // init
@@ -1308,27 +1288,29 @@ mqtt_main(void)
     mqtt_retransmit();
   }
 
-  else if (uip_newdata() && uip_len)
+  if (uip_newdata() && uip_len)
   {
     MQTTDEBUG("received data: \n");
     mqtt_parse();
   }
 
-  else if (uip_poll() && STATE->stage == MQTT_STATE_CONNECTED)
+  if (uip_poll())
   {
-    MQTTDEBUG("mqtt main poll\n");
-    mqtt_poll();
-    mqtt_flush_buffer();
-  }
-
-  else if (uip_poll() && STATE->stage == MQTT_STATE_CONNECT)
-  {
-    if (mqtt_timer_counter - mqtt_last_in_activity
-        > MQTT_KEEPALIVE * TIMER_TICKS_PER_SECOND)
+    if (STATE->stage == MQTT_STATE_CONNECTED)
     {
-      MQTTDEBUG("connect request timed out\n");
-      mqtt_abort_connection();
-      return;
+      MQTTDEBUG("mqtt main poll\n");
+      mqtt_poll();
+      mqtt_flush_buffer();
+    }
+    else if (STATE->stage == MQTT_STATE_CONNECT)
+    {
+      if ((mqtt_timer_counter - mqtt_last_in_activity) >
+          (MQTT_KEEPALIVE * TIMER_TICKS_PER_SECOND))
+      {
+        MQTTDEBUG("connect request timed out\n");
+        mqtt_abort_connection();
+        return;
+      }
     }
   }
 }
@@ -1349,27 +1331,20 @@ mqtt_periodic(void)
 static void
 mqtt_init(void)
 {
+  if (!mqtt_con_config)
+  {
+    MQTTDEBUG("cannot initialize mqtt client, no config\n");
+    return;
+  }
+
+  MQTTDEBUG("initializing mqtt client\n");
+
+  mqtt_reset_state();           // reset state
+  mqtt_uip_conn = uip_connect(&mqtt_con_config->target_ip,
+                              HTONS(1883), mqtt_main);
   if (!mqtt_uip_conn)
   {
-    if (!mqtt_con_config)
-    {
-      MQTTDEBUG("cannot initialize mqtt client, no config\n");
-      return;
-    }
-
-    MQTTDEBUG("initializing mqtt client\n");
-
-    mqtt_reset_state();         // reset state
-    // uip_connect wants a non-constant pointer
-    mqtt_uip_conn =
-      uip_connect((uip_ipaddr_t *) & mqtt_con_config->target_ip, HTONS(1883),
-                  mqtt_main);
-
-    if (!mqtt_uip_conn)
-    {
-      MQTTDEBUG("no uip_conn available.\n");
-      return;
-    }
+    MQTTDEBUG("no uip_conn available.\n");
   }
 }
 
