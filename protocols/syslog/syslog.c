@@ -3,6 +3,7 @@
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
  * Copyright (c) 2015 by Daniel Lindner <daniel.lindner@gmx.de>
+ * Copyright (c) 2019 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -29,6 +30,7 @@
 #include "protocols/uip/uip.h"
 #include "config.h"
 #include "core/debug.h"
+#include "core/param.h"
 #include "core/queue/queue.h"
 #include "protocols/uip/uip_router.h"
 #include "protocols/uip/check_cache.h"
@@ -43,32 +45,41 @@ static Queue syslog_queue = { NULL, NULL };
 uint8_t
 syslog_send(const char *message)
 {
-  uint16_t len = strlen(message) + 1;
-  char *data = malloc(len);
+  int len = MIN(strlen(message), UIP_MAX_LENGTH);
 
+  char *data = malloc(len + 1);
   if (data == NULL)
     return 0;
-  strncpy(data, message, len);
 
-  return push(data, &syslog_queue);
+  strncpy(data, message, len);
+  data[len] = 0;
+
+  uint8_t result = push(data, &syslog_queue);
+  if (!result)
+    free(data);
+  return result;
 }
 
 uint8_t
 syslog_sendf_P(PGM_P message, ...)
 {
   va_list va;
-  char *data = malloc(MAX_DYNAMIC_SYSLOG_BUFFER + 1);
+  va_start(va, message);
+  int len = MIN(vsnprintf_P(NULL, 0, message, va), UIP_MAX_LENGTH) + 1;
+  va_end(va);
 
+  char *data = malloc(len);
   if (data == NULL)
     return 0;
 
   va_start(va, message);
-  vsnprintf_P(data, MAX_DYNAMIC_SYSLOG_BUFFER, message, va);
+  vsnprintf_P(data, len, message, va);
   va_end(va);
 
-  data[MAX_DYNAMIC_SYSLOG_BUFFER] = 0;
-
-  return push(data, &syslog_queue);
+  uint8_t result = push(data, &syslog_queue);
+  if (!result)
+    free(data);
+  return result;
 }
 
 void
@@ -80,20 +91,20 @@ syslog_flush(void)
                                  * here (would flood, wait for poll event). */
 #endif /* ETHERNET_SUPPORT */
 
-  if (!isEmpty(&syslog_queue))
+  if (isEmpty(&syslog_queue))
+    return;
+
+  uip_appdata = uip_sappdata = &uip_buf[UIP_LLH_LEN + UIP_IPUDPH_LEN];
+  uip_slen = 0;
+
+  char *data = pop(&syslog_queue);
+  size_t len = strlen(data);
+  if (len > 0)
   {
-    uip_slen = 0;
-    uip_appdata = uip_sappdata = uip_buf + UIP_IPUDPH_LEN + UIP_LLH_LEN;
-
-    char *data = pop(&syslog_queue);
-
-    strncpy(uip_appdata, data, UIP_MAX_LENGTH);
-    uip_udp_send(strlen(data));
-    free(data);
-
-
-    if (!uip_slen)
-      return;
+    /* The string truncation in syslog_send/syslog_send_P guarantees that
+       memcpy never writes over the end of the destination buffer. */
+    memcpy(uip_appdata, data, len);
+    uip_udp_send(len);
 
     uip_udp_conn = syslog_conn;
     uip_process(UIP_UDP_SEND_CONN);
@@ -101,6 +112,8 @@ syslog_flush(void)
 
     uip_slen = 0;
   }
+
+  free(data);
 }
 
 /*
