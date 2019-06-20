@@ -1,13 +1,9 @@
 /*
- *
- * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
- * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
- * Copyright (c) 2015 by Daniel Lindner <daniel.lindner@gmx.de>
  * Copyright (c) 2019 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
- * as published by the Free Software Foundation; either version 2
+ * as published by the Free Software Foundation; either version 3
  * of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
@@ -23,14 +19,10 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _SYSLOG_H
-#define _SYSLOG_H
+#ifndef __PARAM_H
+#define __PARAM_H
 
-#include <stdint.h>
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
 
-uint8_t syslog_send(const char *message);
-uint8_t syslog_sendf_P(const char *message, ...);
-
-void syslog_flush(void);
-
-#endif /* _SYSLOG_H */
+#endif /* __PARAM_H */
