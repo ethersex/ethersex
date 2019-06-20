@@ -26,6 +26,7 @@
 #include <avr/pgmspace.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "protocols/uip/uip.h"
 #include "config.h"
@@ -42,10 +43,24 @@
 extern uip_udp_conn_t *syslog_conn;
 static Queue syslog_queue = { NULL, NULL };
 
+
+static uint8_t
+syslog_enqueue(char *data)
+{
+  uint8_t result = push(data, &syslog_queue);
+  if (!result)
+    free(data);
+  return result;
+}
+
 uint8_t
 syslog_send(const char *message)
 {
-  int len = MIN(strlen(message), UIP_MAX_LENGTH);
+  size_t len = strlen(message);
+  if (len == 0)
+    return 1;                   // zero sized message -> pretend it was sent
+
+  len = MIN(len, UIP_MAX_LENGTH);
 
   char *data = malloc(len + 1);
   if (data == NULL)
@@ -54,20 +69,21 @@ syslog_send(const char *message)
   strncpy(data, message, len);
   data[len] = 0;
 
-  uint8_t result = push(data, &syslog_queue);
-  if (!result)
-    free(data);
-  return result;
+  return syslog_enqueue(data);
 }
 
 uint8_t
-syslog_sendf_P(PGM_P message, ...)
+syslog_sendf_P(const char *message, ...)
 {
   va_list va;
   va_start(va, message);
-  int len = MIN(vsnprintf_P(NULL, 0, message, va), UIP_MAX_LENGTH) + 1;
+  size_t len = (size_t)vsnprintf_P(NULL, 0, message, va);
   va_end(va);
 
+  if (len == 0)
+    return 1;                   // zero sized message -> pretend it was sent
+
+  len = MIN(len, UIP_MAX_LENGTH) + 1;
   char *data = malloc(len);
   if (data == NULL)
     return 0;
@@ -76,10 +92,7 @@ syslog_sendf_P(PGM_P message, ...)
   vsnprintf_P(data, len, message, va);
   va_end(va);
 
-  uint8_t result = push(data, &syslog_queue);
-  if (!result)
-    free(data);
-  return result;
+  return syslog_enqueue(data);
 }
 
 void
@@ -99,21 +112,18 @@ syslog_flush(void)
 
   char *data = pop(&syslog_queue);
   size_t len = strlen(data);
-  if (len > 0)
-  {
-    /* The string truncation in syslog_send/syslog_send_P guarantees that
-       memcpy never writes over the end of the destination buffer. */
-    memcpy(uip_appdata, data, len);
-    uip_udp_send(len);
 
-    uip_udp_conn = syslog_conn;
-    uip_process(UIP_UDP_SEND_CONN);
-    router_output();
-
-    uip_slen = 0;
-  }
-
+  /* The string truncation in syslog_send/syslog_send_P guarantees that
+   * memcpy never writes over the end of the destination buffer. */
+  memcpy(uip_appdata, data, len);
   free(data);
+  uip_udp_send((int)len);
+
+  uip_udp_conn = syslog_conn;
+  uip_process(UIP_UDP_SEND_CONN);
+  router_output();
+
+  uip_slen = 0;
 }
 
 /*
