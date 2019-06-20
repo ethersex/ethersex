@@ -23,6 +23,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 
 #include "protocols/syslog/syslog.h"
 #include "protocols/syslog/syslog_debug.h"
