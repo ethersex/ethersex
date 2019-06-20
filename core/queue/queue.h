@@ -1,6 +1,7 @@
 /*
  *
  * Copyright (c) 2015 by Daniel Lindner <daniel.lindner@gmx.de>
+ * Copyright (c) 2019 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,7 +28,6 @@
 typedef struct Node Node;
 struct Node
 {
-  Node *prev;
   Node *next;
   char *data;
 };
@@ -37,11 +37,13 @@ struct Queue
 {
   Node *start;
   Node *end;
+  uint16_t limit;
+  uint16_t count;
 };
 
 uint8_t push(char *data, Queue * queue);
 char *pop(Queue * queue);
+char *peek(Queue * queue);
 uint8_t isEmpty(const Queue * queue);
-
 
 #endif /* _QUEUE_H */
