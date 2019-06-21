@@ -38,6 +38,7 @@
 #endif
 #include "core/queue/queue.h"
 #include "protocols/uip/uip.h"
+#include "protocols/uip/parse.h"
 #include "protocols/dns/resolv.h"
 #ifdef CONF_HTTPLOG_INCLUDE_TIMESTAMP
 #include "services/clock/clock.h"
@@ -52,16 +53,15 @@
 
 
 static Queue httplog_queue = {.limit = HTTPLOG_QUEUE_LEN };
-
 static uint8_t request_pending;
 
-// first string is the GET part including the path
+/* first string is the GET part including the path */
 static const char PROGMEM get_string_head[] = "GET " CONF_HTTPLOG_PATH "?";
-// next is the - optional - inclusion of the machine identifier uuid
+/* next is the - optional - inclusion of the machine identifier uuid */
 #ifdef CONF_HTTPLOG_INCLUDE_UUID
 static const char PROGMEM uuid_string[] = "uuid=" CONF_HTTPLOG_UUID "&";
 #endif
-// and the http footer including the http protocol version and the server name
+/* and the http footer including the http protocol version and the server name */
 static const char PROGMEM get_string_foot[] =
   " HTTP/1.1\n" "Host: " CONF_HTTPLOG_SERVICE "\r\n\r\n";
 
@@ -71,24 +71,18 @@ httplog_net_main(void)
 {
   HTTPLOG_DEBUG("uip_flags=0x%02x\n", uip_flags);
 
-  if (uip_aborted() || uip_timedout())
+  if (uip_aborted() || uip_timedout() || uip_closed())
   {
-    HTTPLOG_DEBUG("Connection aborted.\n");
-    request_pending = 0;
-    return;
-  }
-
-  else if (uip_closed())
-  {
-    HTTPLOG_DEBUG("Connection closed.\n");
+    HTTPLOG_DEBUG("Connection %S.\n", uip_closed() ?
+                  PSTR("closed") : PSTR("aborted"));
     request_pending = 0;
     return;
   }
 
   else if (uip_connected() || uip_rexmit())
   {
-    HTTPLOG_DEBUG("%S\n", uip_connected()? PSTR("New connection.")
-                                         : PSTR("Rexmit."));
+    HTTPLOG_DEBUG("%S.\n", uip_connected()?
+                  PSTR("Connected") : PSTR("Rexmit"));
 
     char *data = peek(&httplog_queue);
     if (data == NULL)
@@ -119,7 +113,7 @@ httplog_net_main(void)
   {
     HTTPLOG_DEBUG("Acked.\n");
     uip_close();
-    free(pop(&httplog_queue));  // delete data only when acked
+    free(pop(&httplog_queue));  /* delete data only when acked */
   }
 }
 
@@ -128,12 +122,11 @@ httplog_connect(char *hostname, uip_ipaddr_t * ipaddr)
 {
   if (ipaddr != NULL)
   {
-    HTTPLOG_DEBUG("Connecting to %s (%d.%d.%d.%d).\n",
-                  hostname,
-                  ((unsigned char *) ipaddr)[0],
-                  ((unsigned char *) ipaddr)[1],
-                  ((unsigned char *) ipaddr)[2],
-                  ((unsigned char *) ipaddr)[3]);
+#ifdef DEBUG_HTTPLOG
+    char buf[46];  /* 0000:0000:0000:0000:0000:ffff:192.168.100.228 */
+    print_ipaddr(ipaddr, buf, sizeof(buf));
+    HTTPLOG_DEBUG("Connecting to %s (%s).\n", hostname, buf);
+#endif
     if (uip_connect(ipaddr, HTONS(80), httplog_net_main) != NULL)
       return;
     else
@@ -142,7 +135,7 @@ httplog_connect(char *hostname, uip_ipaddr_t * ipaddr)
   else
     HTTPLOG_DEBUG("Resolve failed!\n");
 
-  request_pending = 0;          // retried later via httplog_flush
+  request_pending = 0;          /* retried later via httplog_flush */
 }
 
 static void
@@ -212,12 +205,10 @@ httplog_P(const char *message, ...)
 void
 httplog_flush(void)
 {
-  //HTTPLOG_DEBUG("%u entries in queue.\n", httplog_queue.count);
-
   if (isEmpty(&httplog_queue))
-    return;                     // nothing to send
+    return;                     /* nothing to send */
   if (request_pending)
-    return;                     // previous request not finished
+    return;                     /* previous request not finished */
   httplog_transmit();
 }
 
