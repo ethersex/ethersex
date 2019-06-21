@@ -1889,6 +1889,15 @@ CONF_HTTPLOG_INCLUDE_UUID
 
   For more information about uuids See also http://en.wikipedia.org/wiki/Uuid
 
+Queue length
+HTTPLOG_QUEUE_LEN
+
+  This option determines how many requests are written to the send queue.
+  If the queue is full, further requests are discarded, which can occur,
+  for example, if there are network problems.
+
+  A value of zero means no limit. Default is 10.
+
 Twitter/identi.ca client
 TWITTER_SUPPORT
   Depends on:
@@ -2632,12 +2641,6 @@ ARTNET_SUPPORT
 
   Artnet needs at least a 572 byte network buffer to work. You can set the
   buffer size in "Network -> Network Buffer Size".
-
-Buffer Length
-HTTPLOG_BUFFER_LEN
-
-  The len for the internal buffer used for HTTPLOG strings. This
-  buffer is dynamicallay allocated for each request.
 
 Tank level meter
 TANKLEVEL_SUPPORT
