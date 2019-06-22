@@ -26,7 +26,7 @@
 #include "queue.h"
 
 uint8_t
-push(char *data, Queue * queue)
+queue_push(void *data, Queue * queue)
 {
   if (queue->limit != 0 && queue->limit <= queue->count)
     return 0;
@@ -40,7 +40,7 @@ push(char *data, Queue * queue)
   node->data = data;
   node->next = NULL;
 
-  if (isEmpty(queue))
+  if (queue_is_empty(queue))
     queue->start = queue->end = node;
   else
   {
@@ -52,30 +52,30 @@ push(char *data, Queue * queue)
   return 1;
 }
 
-char *
-pop(Queue * queue)
+void *
+queue_pop(Queue * queue)
 {
-  if (isEmpty(queue))
+  if (queue_is_empty(queue))
     return NULL;
 
   Node *node = queue->end;
   queue->end = node->next;
   queue->count--;
 
-  char *data = node->data;
+  void *data = node->data;
   free(node);
 
   return data;
 }
 
-char *
-peek(Queue * queue)
+void *
+queue_peek(Queue * queue)
 {
-  return isEmpty(queue) ? NULL : queue->end->data;
+  return queue_is_empty(queue) ? NULL : queue->end->data;
 }
 
 uint8_t
-isEmpty(const Queue * queue)
+queue_is_empty(const Queue * queue)
 {
   return (queue->end == NULL);
 }

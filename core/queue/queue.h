@@ -29,7 +29,7 @@ typedef struct Node Node;
 struct Node
 {
   Node *next;
-  char *data;
+  void *data;
 };
 
 typedef struct Queue Queue;
@@ -41,9 +41,9 @@ struct Queue
   uint16_t count;
 };
 
-uint8_t push(char *data, Queue * queue);
-char *pop(Queue * queue);
-char *peek(Queue * queue);
-uint8_t isEmpty(const Queue * queue);
+uint8_t queue_push(void *data, Queue * queue);
+void *queue_pop(Queue * queue);
+void *queue_peek(Queue * queue);
+uint8_t queue_is_empty(const Queue * queue);
 
 #endif /* _QUEUE_H */
