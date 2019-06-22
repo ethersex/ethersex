@@ -41,13 +41,13 @@
 #define UIP_MAX_LENGTH (UIP_BUFSIZE - UIP_IPUDPH_LEN - UIP_LLH_LEN)
 
 extern uip_udp_conn_t *syslog_conn;
-static Queue syslog_queue = { NULL, NULL };
+static Queue syslog_queue;
 
 
 static uint8_t
 syslog_enqueue(char *data)
 {
-  uint8_t result = push(data, &syslog_queue);
+  uint8_t result = queue_push(data, &syslog_queue);
   if (!result)
     free(data);
   return result;
@@ -104,13 +104,13 @@ syslog_flush(void)
                                  * here (would flood, wait for poll event). */
 #endif /* ETHERNET_SUPPORT */
 
-  if (isEmpty(&syslog_queue))
+  if (queue_is_empty(&syslog_queue))
     return;
 
   uip_appdata = uip_sappdata = &uip_buf[UIP_LLH_LEN + UIP_IPUDPH_LEN];
   uip_slen = 0;
 
-  char *data = pop(&syslog_queue);
+  char *data = queue_pop(&syslog_queue);
   size_t len = strlen(data);
 
   /* The string truncation in syslog_send/syslog_send_P guarantees that
