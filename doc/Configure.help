@@ -399,6 +399,17 @@ SYSLOG_SUPPORT
   syslog server.  These messages can be sent straight from the
   C source code using syslog_send... calls or from 6Control scripts.
 
+Queue length
+SYSLOG_QUEUE_LEN
+  Depends on:
+   * SYSLOG support (SYSLOG_SUPPORT)
+
+  This option determines how many requests are written to the send queue.
+  If the queue is full, further requests are discarded, which can occur,
+  for example, if there are network problems.
+
+  A value of zero means no limit. Default is 10.
+
 OpenVPN
 OPENVPN_SUPPORT
   Depends on:

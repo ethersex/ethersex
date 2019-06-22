@@ -23,33 +23,34 @@
  */
 
 #include <stdio.h>
-#include <string.h>
 
+#include "config.h"
 #include "protocols/syslog/syslog.h"
 #include "protocols/syslog/syslog_debug.h"
 
 #define MAX_SYSLOG_DEBUG_BUFFER 100
 
-static FILE syslog_stream =
-FDEV_SETUP_STREAM(syslog_debug_put, NULL, _FDEV_SETUP_WRITE);
+static FILE syslog_stream = FDEV_SETUP_STREAM(syslog_debug_put, NULL,
+                                             _FDEV_SETUP_WRITE);
 static char syslog_debug_buf[MAX_SYSLOG_DEBUG_BUFFER + 1];
+static uint8_t syslog_debug_buf_offset;
 
 int
 syslog_debug_put(char d, FILE * stream)
 {
-  uint8_t offset = strlen(syslog_debug_buf);
-
   if (d != '\n')
   {
-    syslog_debug_buf[offset++] = d;
-    syslog_debug_buf[offset] = 0;
+    syslog_debug_buf[syslog_debug_buf_offset++] = d;
+    syslog_debug_buf[syslog_debug_buf_offset] = 0;
   }
 
-  if (d == '\n' || offset >= MAX_SYSLOG_DEBUG_BUFFER)
+  if (d == '\n' || syslog_debug_buf_offset >= MAX_SYSLOG_DEBUG_BUFFER)
   {
     syslog_send(syslog_debug_buf);
-    syslog_debug_buf[0] = 0;
+    syslog_debug_buf_offset = 0;
+    syslog_debug_buf[syslog_debug_buf_offset] = 0;
   }
+
   return 0;
 }
 
