@@ -41,7 +41,7 @@
 #define UIP_MAX_LENGTH (UIP_BUFSIZE - UIP_IPUDPH_LEN - UIP_LLH_LEN)
 
 extern uip_udp_conn_t *syslog_conn;
-static Queue syslog_queue;
+static Queue syslog_queue = {.limit = SYSLOG_QUEUE_LEN };
 
 
 static uint8_t
@@ -58,7 +58,7 @@ syslog_send(const char *message)
 {
   size_t len = strlen(message);
   if (len == 0)
-    return 1;                   // zero sized message -> pretend it was sent
+    return 1;                   /* zero sized message -> pretend it was sent */
 
   len = MIN(len, UIP_MAX_LENGTH);
 
@@ -77,13 +77,13 @@ syslog_sendf_P(const char *message, ...)
 {
   va_list va;
   va_start(va, message);
-  size_t len = (size_t)vsnprintf_P(NULL, 0, message, va);
+  size_t len = (size_t) vsnprintf_P(NULL, 0, message, va);
   va_end(va);
 
   if (len == 0)
-    return 1;                   // zero sized message -> pretend it was sent
+    return 1;                   /* zero sized message -> pretend it was sent */
 
-  len = MIN(len, UIP_MAX_LENGTH) + 1;
+  len = MIN(len, UIP_MAX_LENGTH + 1);
   char *data = malloc(len);
   if (data == NULL)
     return 0;
@@ -117,7 +117,7 @@ syslog_flush(void)
    * memcpy never writes over the end of the destination buffer. */
   memcpy(uip_appdata, data, len);
   free(data);
-  uip_udp_send((int)len);
+  uip_udp_send((int) len);
 
   uip_udp_conn = syslog_conn;
   uip_process(UIP_UDP_SEND_CONN);
