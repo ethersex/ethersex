@@ -53,7 +53,7 @@
 
 
 static Queue httplog_queue = {.limit = HTTPLOG_QUEUE_LEN };
-static uint8_t request_pending;
+static uint8_t httplog_request_pending;
 
 /* first string is the GET part including the path */
 static const char PROGMEM get_string_head[] = "GET " CONF_HTTPLOG_PATH "?";
@@ -75,7 +75,7 @@ httplog_net_main(void)
   {
     HTTPLOG_DEBUG("Connection %S.\n", uip_closed() ?
                   PSTR("closed") : PSTR("aborted"));
-    request_pending = 0;
+    httplog_request_pending = 0;
     return;
   }
 
@@ -84,7 +84,7 @@ httplog_net_main(void)
     HTTPLOG_DEBUG("%S.\n", uip_connected()?
                   PSTR("Connected") : PSTR("Rexmit"));
 
-    char *data = peek(&httplog_queue);
+    char *data = queue_peek(&httplog_queue);
     if (data == NULL)
     {
       HTTPLOG_DEBUG("Queue is empty!\n");
@@ -113,7 +113,7 @@ httplog_net_main(void)
   {
     HTTPLOG_DEBUG("Acked.\n");
     uip_close();
-    free(pop(&httplog_queue));  /* delete data only when acked */
+    free(queue_pop(&httplog_queue));    /* delete data only when acked */
   }
 }
 
@@ -135,13 +135,13 @@ httplog_connect(char *hostname, uip_ipaddr_t * ipaddr)
   else
     HTTPLOG_DEBUG("Resolve failed!\n");
 
-  request_pending = 0;          /* retried later via httplog_flush */
+  httplog_request_pending = 0;  /* retried later via httplog_flush */
 }
 
 static void
 httplog_transmit(void)
 {
-  request_pending = 1;
+  httplog_request_pending = 1;
 
   uip_ipaddr_t *ipaddr;
   if ((ipaddr = resolv_lookup(CONF_HTTPLOG_SERVICE)) == NULL)
@@ -158,7 +158,7 @@ httplog_transmit(void)
 static uint8_t
 httplog_enqueue(char *data)
 {
-  uint8_t result = push(data, &httplog_queue);
+  uint8_t result = queue_push(data, &httplog_queue);
   if (!result)
     free(data);
   return result;
@@ -205,9 +205,9 @@ httplog_P(const char *message, ...)
 void
 httplog_flush(void)
 {
-  if (isEmpty(&httplog_queue))
+  if (queue_is_empty(&httplog_queue))
     return;                     /* nothing to send */
-  if (request_pending)
+  if (httplog_request_pending)
     return;                     /* previous request not finished */
   httplog_transmit();
 }
