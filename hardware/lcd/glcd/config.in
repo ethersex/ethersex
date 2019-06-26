@@ -5,6 +5,8 @@ define_bool GLCD_MONO_SUPPORT n
 define_bool U8G2LIB_SUPPORT n
 define_bool GLCD_COLOR_SUPPORT n
 define_bool UCGLIB_SUPPORT n
+define CONF_GLCD_MONO_TYPE GLCD_MONO_NONE
+define CONF_GLCD_COLOR_TYPE GLCD_COLOR_NONE
 
 comment "Monochrome Graphic Displays"
 
