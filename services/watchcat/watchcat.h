@@ -22,8 +22,6 @@
 #ifndef _WATCHCAT_H
 #define _WATCHCAT_H
 
-#include "protocols/ecmd/sender/ecmd_sender_net.h"
-
 struct VirtualPin {
   uint8_t old_state;
   uint8_t state;

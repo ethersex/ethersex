@@ -39,7 +39,7 @@ static const struct WatchcatReaction ecmd_react[];
 
 #if 0
 static uip_conn_t *
-watchcat_do_httplog (uip_ipaddr_t *ip, PGM_P msg, client_return_text_callback_t callback)
+watchcat_do_httplog (uip_ipaddr_t *ip, client_return_text_callback_t callback, PGM_P msg)
 {
   /* httplog cruft goes here ... */
   return NULL;
