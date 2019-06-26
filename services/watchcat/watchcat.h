@@ -22,6 +22,8 @@
 #ifndef _WATCHCAT_H
 #define _WATCHCAT_H
 
+#include "protocols/ecmd/sender/ecmd_sender_net.h"
+
 struct VirtualPin {
   uint8_t old_state;
   uint8_t state;
@@ -41,8 +43,8 @@ struct WatchcatReaction {
   uip_ipaddr_t address;
   /* What should we send him? */
   const char *message;
-  /* The associated notifying function, e.g. watchcat_do_ecmdtcp */
-  uip_conn_t * (* func) (uip_ipaddr_t *, PGM_P, client_return_text_callback_t);
+  /* The associated notifying function, e.g. ecmd_sender_send_command */
+  uip_conn_t *(*func)(uip_ipaddr_t *, client_return_text_callback_t, PGM_P, ...);
 };
 
 void watchcat_init();
