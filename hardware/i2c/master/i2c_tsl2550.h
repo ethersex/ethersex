@@ -1,7 +1,6 @@
 /*
  *
- * Copyright (c) 2010 by
- *
+ * Copyrigth (c) 2019 by Moritz Wenk <max-1973@gmx.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,9 +25,11 @@
 
 #define I2C_SLA_TSL2550 0x39 // there can only be one!
 
-uint16_t i2c_tsl2550_set_power_state(const uint8_t state); // 0: down, 1: up
-uint16_t i2c_tsl2550_set_operating_mode(const uint8_t mode); // 0: standard, 1: extended range
-uint16_t i2c_tsl2550_show_lux_level(void);
+// power down: 0, power up: 1
+uint16_t i2c_tsl2550_set_power_state(const uint8_t state);
+// standard range: 0, extended range: 1
+uint16_t i2c_tsl2550_set_operating_mode(const uint8_t mode);
+uint16_t i2c_tsl2550_get_lux_level(void);
 void i2c_tsl2550_init(void);
 
 #endif /* _I2C_TSL2550_H */
