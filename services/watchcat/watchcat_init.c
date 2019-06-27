@@ -1,7 +1,6 @@
 /*
  *
- * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
- * Copyrigth (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyrigth (c) 2019 by Moritz Wenk <max-1973@gmx.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -33,48 +32,46 @@
 extern struct VirtualPin vpin[IO_PORTS];
 extern const struct WatchcatReaction ecmd_react[] PROGMEM;
 
-// called in portio_init!
-void watchcat_portio_init(void)
-{
-    /*
-     * initialize used pins for input (active low)
-     *
-     */
+/*
+ * initialize used pins for input (active low)
+ * called in portio_init!
+ *
+ */
 
-    //debug_printf("wcat: pio\n");
+void watchcat_portio_init(void) {
 
-    uint8_t port = 0;
-    uint8_t pin = 0;
-    uint8_t i = 0;
+  // debug_printf("wcat: pio\n");
 
-    while (1)
-    {
-        port = (uint8_t)pgm_read_byte(&ecmd_react[i].port);
+  uint8_t port = 0;
+  uint8_t pin = 0;
+  uint8_t i = 0;
 
-        if (port == 255)
-        {
-            break;
-        }
+  while (1) {
+    port = (uint8_t)pgm_read_byte(&ecmd_react[i].port);
 
-        pin = (uint8_t)pgm_read_byte(&ecmd_react[i].pin);
-
-        //debug_printf("wcat: pio %d %d %d\n", i, port, pin);
-
-        // set pullup (pin is active low)
-        vport[port].write_port(port, vport[port].read_port(port) | _BV(pin));
-
-        // set pin for input
-        vport[port].write_ddr(port, vport[port].read_ddr(port) & ~_BV(pin));
-
-        // pin in die mask der internen Pins aufnehmen
-        // vport[port].mask |= _BV(pin);
-
-        vpin[port].old_state = vport[port].read_pin(port);
-        vpin[port].last_input = vpin[port].old_state;
-        vpin[port].state = vpin[port].old_state;
-
-        i++;
+    if (port == 255) {
+      break;
     }
 
-    //debug_printf("wcat: pio done\n");
+    pin = (uint8_t)pgm_read_byte(&ecmd_react[i].pin);
+
+    // debug_printf("wcat: pio %d %d %d\n", i, port, pin);
+
+    // set pullup (pin is active low)
+    vport[port].write_port(port, vport[port].read_port(port) | _BV(pin));
+
+    // set pin for input
+    vport[port].write_ddr(port, vport[port].read_ddr(port) & ~_BV(pin));
+
+    // pin in die mask der internen Pins aufnehmen
+    // vport[port].mask |= _BV(pin);
+
+    vpin[port].old_state = vport[port].read_pin(port);
+    vpin[port].last_input = vpin[port].old_state;
+    vpin[port].state = vpin[port].old_state;
+
+    i++;
+  }
+
+  // debug_printf("wcat: pio done\n");
 }

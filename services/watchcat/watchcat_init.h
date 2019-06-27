@@ -1,6 +1,6 @@
 /*
  *
- * 
+ * Copyrigth (c) 2019 by Moritz Wenk <max-1973@gmx.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
