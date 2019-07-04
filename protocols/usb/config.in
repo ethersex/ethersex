@@ -54,6 +54,7 @@ dep_bool_menu "USB (Softwarestack) Support" USB_SUPPORT $ARCH_AVR
 	source protocols/usb/usb-net-config.in
 
 	comment  "Debugging Flags"
+        dep_bool 'Low level protocol' DEBUG_USB_PROTOCOL $DEBUG $USB_SUPPORT
 	dep_bool 'Keyboard Debug' DEBUG_USB_HID_KEYBOARD $DEBUG $USB_KEYBOARD_SUPPORT
 	dep_bool 'Mouse Debug' DEBUG_USB_HID_MOUSE $DEBUG $USB_MOUSE_SUPPORT
 endmenu

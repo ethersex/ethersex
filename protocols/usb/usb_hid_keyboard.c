@@ -188,9 +188,8 @@ int16_t parse_cmd_keyboard_send (char *cmd, char *output, uint16_t len)
 #endif /* USB_HID_KEYBOARD_ECMD_SUPPORT */
 
 uint16_t
-hid_usbFunctionSetup(uchar data[8]) 
+hid_usbFunctionSetup(usbRequest_t * rq)
 {
-  usbRequest_t    *rq = (void *)data;
   USBKEYBOARDDEBUG("setup keyboard\n");
     usbMsgPtr = reportBuffer;
     if((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_CLASS){    /* class request type */

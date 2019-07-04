@@ -24,7 +24,8 @@
 #ifndef _USB_REQUESTS_H
 #define _USB_REQUESTS_H
 
-enum {
+enum
+{
   /* For USB Ecmd */
   USB_REQUEST_ECMD = 0,
 
@@ -32,10 +33,5 @@ enum {
   USB_REQUEST_NET_SEND = 10,
   USB_REQUEST_NET_RECV = 11,
 };
-
-
-uint8_t ecmd_usb_setup(uint8_t  data[8]);
-uint8_t ecmd_usb_write(uint8_t *data, uint8_t len);
-uint8_t ecmd_usb_read(uint8_t *data, uint8_t len);
 
 #endif /* _USB_REQUESTS_H */

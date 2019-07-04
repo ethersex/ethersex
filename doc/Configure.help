@@ -939,6 +939,19 @@ ECMD_SENDER_SUPPORT
 
   This is especially useful with the option 'Watch IO changes'.
 
+Low level protocol
+DEBUG_USB_PROTOCOL
+  Depends on: 
+   * Enable Debugging (DEBUG)
+   * USB (Softwarestack) Support (USB_SUPPORT)
+
+  Log the traffic of the serial line. A debug log consists of a label
+  ('prefix') to indicate which debug log created the output and a
+  memory block to dump in hex ('data' and 'len').
+
+  The information is written directly to USART0 bypassing possible
+  redirection to Syslog or Soft-UART.
+
 Named and logic state I/O
 NAMED_PIN_SUPPORT
   Enable Named-Pin support, i.e. hardware-pin abstraction.

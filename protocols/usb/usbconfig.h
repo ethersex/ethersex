@@ -16,6 +16,11 @@
 #include "autoconf.h"
 #endif
 
+#ifdef DEBUG_USB_PROTOCOL
+#define DEBUG_LEVEL 2
+#define DEBUG_DO_NOT_INIT_UART
+#endif
+
 /*
 General Description:
 This file is an example configuration (with inline documentation) for the USB
@@ -157,6 +162,13 @@ section at the end of this file).
 #ifndef USB_CFG_IMPLEMENT_FN_READ
 #define USB_CFG_IMPLEMENT_FN_READ       1
 #endif
+#ifdef USB_NET_SUPPORT
+#define USB_CFG_IMPLEMENT_FN_READ_FINISHED 1
+#endif
+#ifndef USB_CFG_IMPLEMENT_FN_READ_FINISHED
+#define USB_CFG_IMPLEMENT_FN_READ_FINISHED 0
+#endif
+
 /* Set this to 1 if you need to send control replies which are generated
  * "on the fly" when usbFunctionRead() is called. If you only want to send
  * data from a static buffer, set it to 0 and return the data from

@@ -12,7 +12,7 @@ HEADERS+=$(shell echo *.h)
 TARGET=ecmd_usb
 
 LDFLAGS+=`libusb-config --libs`
-CFLAGS+=-std=c99 -pedantic-errors -Wall -W `libusb-config --cflags`
+CFLAGS+=-std=c99 -pedantic-errors -Wall -W `libusb-config --cflags` -I ../..
 
 ifneq ($(DEBUG),) # {{{
 	CFLAGS+=-ggdb3

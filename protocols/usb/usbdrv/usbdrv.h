@@ -5,13 +5,10 @@
  * Tabsize: 4
  * Copyright: (c) 2005 by OBJECTIVE DEVELOPMENT Software GmbH
  * License: GNU GPL v2 (see License.txt), GNU GPL v3 or proprietary (CommercialLicense.txt)
- * This Revision: $Id$
  */
 
 #ifndef __usbdrv_h_included__
 #define __usbdrv_h_included__
-#include "protocols/usb/usbconfig.h"
-#include "usbportability.h"
 
 /*
 Hardware Prerequisites:
@@ -118,11 +115,28 @@ USB messages, even if they address another (low-speed) device on the same bus.
 
 */
 
+
+#ifdef __cplusplus
+// This header should be included as C-header from C++ code. However if usbdrv.c
+// is incorporated into a C++ module with an include, function names are mangled
+// and this header must be parsed as C++ header, too. External modules should be
+// treated as C, though, because they are compiled separately as C code.
+extern "C" {
+#endif
+
+#include "usbconfig.h"
+#include "usbportability.h"
+
+#ifdef __cplusplus
+}
+#endif
+
+
 /* ------------------------------------------------------------------------- */
 /* --------------------------- Module Interface ---------------------------- */
 /* ------------------------------------------------------------------------- */
 
-#define USBDRV_VERSION  20120109
+#define USBDRV_VERSION  20121206
 /* This define uniquely identifies a driver version. It is a decimal number
  * constructed from the driver's release date in the form YYYYMMDD. If the
  * driver's behavior or interface changes, you can use this constant to
@@ -151,9 +165,9 @@ USB messages, even if they address another (low-speed) device on the same bus.
 /* shortcuts for well defined 8 bit integer types */
 
 #if USB_CFG_LONG_TRANSFERS  /* if more than 254 bytes transfer size required */
-#   define usbMsgLen_t uint16_t
+#   define usbMsgLen_t unsigned
 #else
-#   define usbMsgLen_t uint8_t
+#   define usbMsgLen_t uchar
 #endif
 /* usbMsgLen_t is the data type used for transfer lengths. By default, it is
  * defined to uchar, allowing a maximum of 254 bytes (255 is reserved for
@@ -162,6 +176,17 @@ USB messages, even if they address another (low-speed) device on the same bus.
  * for flags in the descriptor configuration).
  */
 #define USB_NO_MSG  ((usbMsgLen_t)-1)   /* constant meaning "no message" */
+
+#ifndef usbMsgPtr_t
+#define usbMsgPtr_t uchar *
+#endif
+/* Making usbMsgPtr_t a define allows the user of this library to define it to
+ * an 8 bit type on tiny devices. This reduces code size, especially if the
+ * compiler supports a tiny memory model.
+ * The type can be a pointer or scalar type, casts are made where necessary.
+ * Although it's paradoxical, Gcc 4 generates slightly better code for scalar
+ * types than for pointers.
+ */
 
 struct usbRequest;  /* forward declaration */
 
@@ -178,11 +203,20 @@ USB_PUBLIC void usbPoll(void);
  * Please note that debug outputs through the UART take ~ 0.5ms per byte
  * at 19200 bps.
  */
-extern uchar *usbMsgPtr;
+extern usbMsgPtr_t usbMsgPtr;
 /* This variable may be used to pass transmit data to the driver from the
  * implementation of usbFunctionWrite(). It is also used internally by the
  * driver for standard control requests.
  */
+
+extern uchar usbMsgFlags;    /* flag values see USB_FLG_* */
+/* Can be set to `USB_FLG_MSGPTR_IS_ROM` in `usbFunctionSetup()` or
+ * `usbFunctionDescriptor()` if `usbMsgPtr` has been set to a flash memory
+ * address.
+ */
+
+#define USB_FLG_MSGPTR_IS_ROM   (1<<6)
+
 USB_PUBLIC usbMsgLen_t usbFunctionSetup(uchar data[8]);
 /* This function is called when the driver receives a SETUP transaction from
  * the host which is not answered by the driver itself (in practice: class and
@@ -275,6 +309,11 @@ USB_PUBLIC uchar usbFunctionRead(uchar *data, uchar len);
  * to 1 in usbconfig.h and return 0xff in usbFunctionSetup()..
  */
 #endif /* USB_CFG_IMPLEMENT_FN_READ */
+#if USB_CFG_IMPLEMENT_FN_READ_FINISHED
+/* Extension for Ethersex: This function is called by the driver to enable the
+ * application to release resources. */
+USB_PUBLIC void usbFunctionReadFinished(void);
+#endif 
 
 extern uchar usbRxToken;    /* may be used in usbFunctionWriteOut() below */
 #if USB_CFG_IMPLEMENT_FN_WRITEOUT
@@ -390,13 +429,13 @@ extern volatile schar   usbRxLen;
  * about the various methods to define USB descriptors. If you do nothing,
  * the default descriptors will be used.
  */
-#define USB_PROP_IS_DYNAMIC     (1 << 14)
+#define USB_PROP_IS_DYNAMIC     (1u << 14)
 /* If this property is set for a descriptor, usbFunctionDescriptor() will be
  * used to obtain the particular descriptor. Data directly returned via
  * usbMsgPtr are FLASH data by default, combine (OR) with USB_PROP_IS_RAM to
  * return RAM data.
  */
-#define USB_PROP_IS_RAM         (1 << 15)
+#define USB_PROP_IS_RAM         (1u << 15)
 /* If this property is set for a descriptor, the data is read from RAM
  * memory instead of Flash. The property is used for all methods to provide
  * external descriptors.

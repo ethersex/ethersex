@@ -44,10 +44,8 @@ static uint16_t usb_rq_len;
 uint8_t usb_packet_ready;
 
 usbMsgLen_t
-usb_net_setup(uint8_t  data[8])
+usb_net_setup(usbRequest_t *rq)
 {
-  usbRequest_t *rq = (void *)data;
-
   if (rq->bRequest == USB_REQUEST_NET_SEND) {
     if (uip_buf_lock())	  /* Unable to aquire lock, ignore packet. */
       return 0;

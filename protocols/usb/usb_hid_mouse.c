@@ -133,10 +133,8 @@ int16_t parse_cmd_mouse_send (char *cmd, char *output, uint16_t len)
 
 
 uint16_t
-hid_usbFunctionSetup(uchar data[8]) 
+hid_usbFunctionSetup(usbRequest_t * rq)
 {
-	usbRequest_t *rq = (void *)data;
-
     usbMsgPtr = reportBuffer;
     if((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_CLASS){    /* class request type */
         if(rq->bRequest == USBRQ_HID_GET_REPORT){  /* wValue: ReportType (highbyte), ReportID (lowbyte) */

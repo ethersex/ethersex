@@ -14,7 +14,7 @@ HEADERS+=$(shell echo *.h)
 TARGET=usb_net
 
 LDFLAGS+=`libusb-config --libs`
-CFLAGS+=-std=c99 -Wall -W `libusb-config --cflags`
+CFLAGS+=-std=c99 -Wall -W `libusb-config --cflags` -I ../..
 
 ifneq ($(DEBUG),) # {{{
 	CFLAGS+=-ggdb3
