@@ -27,13 +27,14 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <time.h>
+#include <getopt.h>
 #include <usb.h>
 
+#include "protocols/usb/requests.h"
 
-#define USB_REQUEST_ECMD 0
-
-  usb_dev_handle *
+static usb_dev_handle *
 usb_find(const char *device)
 {
   struct usb_bus *bus;
@@ -56,100 +57,127 @@ usb_find(const char *device)
           if (dev->descriptor.idVendor == idVendor &&
               dev->descriptor.idProduct == idProduct)
           {
-            printf ("gefunden! devnr: %i %04X - %04X\n",1,
-                    dev->descriptor.idVendor, dev->descriptor.idProduct);
+            printf("Found it! devnr: %i %04X - %04X\n", 1,
+                   dev->descriptor.idVendor, dev->descriptor.idProduct);
             return usb_bus_dev;
           }
-        }
-        if (usb_bus_dev)
           usb_close(usb_bus_dev);
+        }
       }
     }
   }
-  fprintf(stderr, "Kein passendes USB Device gefunden\n");
-  return 0;
+  fprintf(stderr, "No suitable USB device found!\n");
+  return NULL;
 }
 
-int
-usb_recv(usb_dev_handle *handle, char *buf, int len)
+static int
+usb_recv(usb_dev_handle * handle, char *buf, int len)
 {
-    int ret = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE |  USB_ENDPOINT_IN, 
-                            USB_REQUEST_ECMD, 0, 0, (char*)buf, len, 500);
-    if (ret != len) 
-      return 0;
-    return ret; /* > 0 = ok */
+  int ret = usb_control_msg(handle,
+                            USB_TYPE_VENDOR | USB_RECIP_DEVICE |
+                            USB_ENDPOINT_IN,
+                            USB_REQUEST_ECMD, 0, 0,
+                            buf, len, 500);
+  if (ret < 0)
+    fprintf(stderr, "usb_recv: ret=%i, %s\n", ret, usb_strerror());
+
+  return ret;                   /* > 0 = ok */
 }
 
 
 
-int
+static int
 usb_send(usb_dev_handle * handle, const char *data, int len)
 {
-  int ret = usb_control_msg(handle, USB_TYPE_VENDOR | USB_RECIP_DEVICE | 
-                            USB_ENDPOINT_OUT, USB_REQUEST_ECMD, 1, 0, (char*) data, len, 500);
-  if ( ret != len )
-    return 0;
-  return ret; /* > 0 = ok */
+  int ret = usb_control_msg(handle,
+                            USB_TYPE_VENDOR | USB_RECIP_DEVICE |
+                            USB_ENDPOINT_OUT,
+                            USB_REQUEST_ECMD, 1, 0,
+                            (char *) data, len, 500);
+  if (ret < 0)
+    fprintf(stderr, "usb_send: ret=%i, %s\n", ret, usb_strerror());
+
+  return ret;                   /* > 0 = ok */
 }
 
-int 
-main() {
-  usb_dev_handle *handle = usb_find("16c005dc");
-  if (handle == 0) return -1;
+static void
+print_usage(void)
+{
+  fprintf(stderr, "Usage: ecmd_usb [-d <device id>] [-v]\n");
+  exit(EXIT_FAILURE);
+}
+
+int
+main(int argc, char **argv)
+{
+  int index, option;
+  int verbose = 0;
+  char *device_id = "16c005dc";
+
+  while ((option = getopt(argc, argv, "d:v")) != -1)
+  {
+    switch (option)
+    {
+      case 'd':
+        device_id = optarg;
+        break;
+      case '?':
+        if (optopt == 'd')
+          fprintf(stderr, "Option -%c requires an argument.\n", optopt);
+        else if (isprint(optopt))
+          fprintf(stderr, "Unknown option `-%c'.\n", optopt);
+        else
+          fprintf(stderr, "Unknown option character `\\x%x'.\n", optopt);
+        print_usage();
+        break;
+      case 'v':
+        verbose = 1;
+        break;
+      default:
+        print_usage();
+        break;
+    }
+  }
+
+  for (index = optind; index < argc; index++)
+    printf("Non-option argument %s\n", argv[index]);
+
+  if (verbose)
+    usb_set_debug(3);
+  usb_init();
+
+  usb_dev_handle *handle = usb_find(device_id);
+  if (handle == 0)
+    exit(EXIT_FAILURE);
+
 
   /* Start the Shell */
   char *line = NULL;
   size_t len;
-  while (getline(&line, &len, stdin) != -1) {
+  while (getline(&line, &len, stdin) != -1)
+  {
     line[strlen(line) - 1] = 0;
-    if (usb_send(handle, line, strlen(line) + 1) == 0) {
+    if (usb_send(handle, line, strlen(line) + 1) == 0)
+    {
       fprintf(stderr, "Communication failed\n");
       usb_close(handle);
       exit(EXIT_FAILURE);
     }
     /* Now we must receive the answer */
-    char buf[100];
-    if (usb_recv(handle, buf, sizeof(buf)) == 0) {
+    char buf[1024];
+    int len = usb_recv(handle, buf, sizeof(buf) - 1);
+    if (len > 0)
+    {
+      buf[len] = '\0';
+      printf("%s\n", buf);
+
+    }
+    else if (len < 0)
+    {
       fprintf(stderr, "Communication failed\n");
       usb_close(handle);
       exit(EXIT_FAILURE);
     }
-    printf("%s\n", buf);
   }
   usb_close(handle);
 }
-
-
-
-#if 0
-/* read data from i2c device
- */
-int
-i2c_recv(struct i2cdev *handle, unsigned char *buf, int len)
-{
-    int ret = -1;
-    int aktlen = len;
-    int lckfd;
-    int maxtry = 0;
-    do
-    {
-        lckfd = open(LCKFILE, O_CREAT|O_EXCL, S_IRUSR|S_IWUSR);
-        usleep(10000);
-    }
-    while( lckfd < 0 && maxtry++ < 200);
-    if(handle != NULL && maxtry < 200)
-    {
-        ret = 0;
-        do
-        {
-            ret += usb_control_msg(handle->usbdev, USB_TYPE_VENDOR | USB_RECIP_DEVICE |  USB_ENDPOINT_IN, USBI2C_READ, 0, handle->addr, (char*)buf+len-aktlen, aktlen, 500);
-            aktlen -= 255;
-        }
-        while(aktlen > 0);
-        close(lckfd);
-        unlink(LCKFILE);
-    }
-    return ret; /* > 0 = ok */
-}
-
-#endif

@@ -5,11 +5,12 @@
  * Tabsize: 4
  * Copyright: (c) 2005 by OBJECTIVE DEVELOPMENT Software GmbH
  * License: GNU GPL v2 (see License.txt), GNU GPL v3 or proprietary (CommercialLicense.txt)
- * This Revision: $Id$
  */
 
 #ifndef __oddebug_h_included__
 #define __oddebug_h_included__
+
+#include "protocols/usb/usbconfig.h"
 
 /*
 General Description:
@@ -108,7 +109,9 @@ extern void odDebug(uchar prefix, uchar *data, uchar len);
 #elif defined UDR0
 #   define  ODDBG_UDR   UDR0
 #endif
+#endif
 
+#if DEBUG_LEVEL > 0 && !defined(DEBUG_DO_NOT_INIT_UART)
 static inline void  odDebugInit(void)
 {
     ODDBG_UCR |= (1<<ODDBG_TXEN);

@@ -22,18 +22,15 @@
 #ifndef _USB_HID_MOUSE_H
 #define _USB_HID_MOUSE_H
 
-#ifndef uchar
-#define uchar   unsigned char
-#endif
-#ifndef schar
-#define schar   signed char
-#endif
+#include <stdint.h>
+
+#include "usbdrv/usbdrv.h"
 
 void usb_mouse_periodic(void);
 /* Initialize USB mouse. */
 void usb_mouse_periodic_call(void);
 
-uint16_t hid_usbFunctionSetup(uchar data[8]);
+uint16_t hid_usbFunctionSetup(usbRequest_t * rq);
 
 
 struct hid_mouse_map_t {

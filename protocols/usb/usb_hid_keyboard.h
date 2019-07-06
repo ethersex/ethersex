@@ -22,6 +22,11 @@
 #ifndef _USB_HID_KEYBOARD_H
 #define _USB_HID_KEYBOARD_H
 
+
+#include <stdint.h>
+
+#include "usbdrv/usbdrv.h"
+
 /* Keyboard usage values, see usb.org's HID-usage-tables document, chapter
  * 10 Keyboard/Keypad Page for more codes.
  */
@@ -139,14 +144,6 @@
 #define KEY_EURO2  100
 
 
-
-#ifndef uchar
-#define uchar   unsigned char
-#endif
-#ifndef schar
-#define schar   signed char
-#endif
-
 void usb_keyboard_periodic(void);
 /* Initialize USB keyboard. */
 void usb_keyboard_periodic_call(void);
@@ -158,7 +155,7 @@ struct hid_keyboard_map_t {
   uchar reportBuffer[2];    /* buffer for HID reports */
 };
 
-uint16_t hid_usbFunctionSetup(uchar data[8]);
+uint16_t hid_usbFunctionSetup(usbRequest_t * rq);
 
 #include "config.h"
 #ifdef DEBUG_USB_HID_KEYBOARD

@@ -1,6 +1,7 @@
 /*
+ *
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
- * Copyright (c) 2008,2009 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,33 +21,15 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _USB_NET_H
-#define _USB_NET_H
+#ifndef _ECMD_USB_H
+#define _ECMD_USB_H
 
-#include "protocols/usb/usbdrv/usbdrv.h"
+#include <stdint.h>
 
-/* Whether there is a packet stored in uip_buf that has to be sent
-   to the host. */
-extern uint8_t usb_packet_ready;
+#include "usbdrv/usbdrv.h"
 
-#ifdef USB_NET_SUPPORT
-#  define usb_net_tx_active() (usb_packet_ready != 0)
-#else
-#  define usb_net_tx_active() (0)
-#endif
+usbMsgLen_t ecmd_usb_setup(usbRequest_t * rq);
+uchar ecmd_usb_write(uint8_t * data, uint8_t len);
+uchar ecmd_usb_read(uint8_t * data, uint8_t len);
 
-usbMsgLen_t usb_net_setup(usbRequest_t *rq);
-uint8_t usb_net_write(uint8_t *data, uint8_t len);
-uint8_t usb_net_read(uint8_t *data, uint8_t len);
-void usb_net_read_finished(void);
-
-/* Initialize USB network stack. */
-void usb_net_init (void);
-
-/* Request the packet, stored in uip_buf, to be sent to USB host.
-   uip_buf must be locked and will be unlocked automatically. */
-void usb_net_txstart(void);
-
-void usb_net_periodic(void);
-
-#endif /* _USB_NET_H */
+#endif /* _ECMD_USB_H */

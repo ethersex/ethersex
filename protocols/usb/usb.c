@@ -3,6 +3,7 @@
  * Copyright (c) 2009 by Stefan Riepenhausen <rhn@gmx.net>
  * Copyright (c) 2008 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2008 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2019 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,11 +28,21 @@
 #include <avr/pgmspace.h>
 
 #include "config.h"
+#ifdef ECMD_USB_SUPPORT
+#include "ecmd_usb.h"
+#endif
+#ifdef USB_KEYBOARD_SUPPORT
 #include "usb_hid_keyboard.h"
+#endif
+#ifdef USB_MOUSE_SUPPORT
 #include "usb_hid_mouse.h"
+#endif
+#ifdef USB_NET_SUPPORT
 #include "usb_net.h"
+#endif
 #include "usbdrv/usbdrv.h"
 #include "requests.h"
+#include "usb.h"
 
 #ifdef USB_CFG_PULLUP_IOPORTNAME
 #undef usbDeviceConnect
@@ -48,73 +59,84 @@
                                    } while(0);
 #endif
 
-uint8_t setup_packet;
-
+#if defined(ECMD_USB_SUPPORT) || defined(USB_NET_SUPPORT)
+static uint8_t setup_packet;
+#endif
 
 usbMsgLen_t
 usbFunctionSetup(uchar data[8])
 {
-  usbRequest_t    *rq = (void *)data;
-  setup_packet = rq->bRequest;
+  usbRequest_t *rq = (void *) data;
+
+  if ((rq->bmRequestType & USBRQ_TYPE_MASK) == USBRQ_TYPE_VENDOR)
+  {
+#if defined(ECMD_USB_SUPPORT) || defined(USB_NET_SUPPORT)
+    setup_packet = rq->bRequest;
+#endif
 
 #ifdef ECMD_USB_SUPPORT
-  if (rq->bRequest == USB_REQUEST_ECMD)
-    return (usbMsgLen_t) ecmd_usb_setup(data);
+    if (rq->bRequest == USB_REQUEST_ECMD)
+      return ecmd_usb_setup(rq);
 #endif
 #ifdef USB_NET_SUPPORT
-  if (rq->bRequest == USB_REQUEST_NET_SEND
-      || rq->bRequest == USB_REQUEST_NET_RECV)
-    return usb_net_setup(data);
+    if (rq->bRequest == USB_REQUEST_NET_SEND ||
+        rq->bRequest == USB_REQUEST_NET_RECV)
+      return usb_net_setup(rq);
 #endif
 #ifdef USB_KEYBOARD_SUPPORT
-  return hid_usbFunctionSetup(data);
+    return hid_usbFunctionSetup(rq);
 #endif
 #ifdef USB_MOUSE_SUPPORT
-  return hid_usbFunctionSetup(data);
+    return hid_usbFunctionSetup(rq);
 #endif
+  }
 
   return 0;   /* default for not implemented requests: return no data back to host */
 }
 
 /* The host sends data to the device */
+#if USB_CFG_IMPLEMENT_FN_WRITE
 uchar
-usbFunctionWrite(uchar *data, uchar len)
+usbFunctionWrite(uchar * data, uchar len)
 {
 #ifdef ECMD_USB_SUPPORT
   if (setup_packet == USB_REQUEST_ECMD)
-    return (uchar) ecmd_usb_write((uint8_t *)data, (uint8_t) len);
+    return ecmd_usb_write((uint8_t *) data, (uint8_t) len);
 #endif
 
 #ifdef USB_NET_SUPPORT
   if (setup_packet == USB_REQUEST_NET_SEND)
-    return (uchar) usb_net_write((uint8_t *)data, (uint8_t) len);
+    return usb_net_write((uint8_t *) data, (uint8_t) len);
 #endif
 
   return 1; /* This was the last chunk, also default fallback */
 }
+#endif
 
 /* The host receives data from the device */
+#if USB_CFG_IMPLEMENT_FN_READ
 uchar
-usbFunctionRead(uchar *data, uchar len)
+usbFunctionRead(uchar * data, uchar len)
 {
 #ifdef ECMD_USB_SUPPORT
   if (setup_packet == USB_REQUEST_ECMD)
-    return ecmd_usb_read (data, len);
+    return ecmd_usb_read(data, len);
 #endif
 
   return 0; /* 0 bytes are read, this is the default fallback */
 }
+#endif
 
-
+#if USB_CFG_IMPLEMENT_FN_READ_FINISHED
 void
 usbFunctionReadFinished(void)
 {
 #ifdef USB_NET_SUPPORT
   if (setup_packet == USB_REQUEST_NET_RECV)
-    usb_net_read_finished ();
+    usb_net_read_finished();
 #endif
 }
-
+#endif
 
 /* Wrapper functions to integrate the usb driver in ethersex */
 void
@@ -156,7 +178,8 @@ usb_init(void)
   uint8_t i;
   /* Reenummerate the device */
   usbDeviceDisconnect();
-  for(i = 0; i < 20; i++){  /* 300 ms disconnect */
+  for (i = 0; i < 20; i++)
+  {                             /* 300 ms disconnect */
     _delay_ms(15);
     wdt_kick();
   }
