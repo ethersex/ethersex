@@ -1,5 +1,5 @@
 #!/bin/sh
 
-if test -d .git ; then
+if test -d .git -o -s .git ; then
     git log --pretty=format:%h -n 1
 fi
