@@ -57,7 +57,7 @@ void network_process(void)
      * buffer, return */
     if ( !interrupt_occured()
 #   ifdef ENC28J60_REV4_WORKAROUND
-                || pktcnt == 0
+                && pktcnt == 0
 #   endif
            )
         return;
