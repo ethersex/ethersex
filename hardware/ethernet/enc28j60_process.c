@@ -48,24 +48,18 @@ void process_packet(void);
 
 void network_process(void)
 {
-    /* also check packet counter, see errata #6 */
-#   ifdef ENC28J60_REV4_WORKAROUND
-    uint8_t pktcnt = read_control_register(REG_EPKTCNT);
-#   endif
-
-    /* if no interrupt occured and no packets are in the receive
-     * buffer, return */
-    if ( !interrupt_occured()
-#   ifdef ENC28J60_REV4_WORKAROUND
-                && pktcnt == 0
-#   endif
-           )
+    /* if no interrupt occured return */
+    if ( !interrupt_occured() )
         return;
 
-#   if defined(ENC28J60_REV4_WORKAROUND) && defined(DEBUG_REV4_WORKAROUND)
+    /* also check packet counter, see errata #6 */
+#ifdef ENC28J60_REV4_WORKAROUND
+    uint8_t pktcnt = read_control_register(REG_EPKTCNT);
+#ifdef DEBUG_REV4_WORKAROUND
     if (pktcnt > 5)
         debug_printf("net: BUG: pktcnt > 5\n");
-#   endif
+#endif
+#endif
 
     /* read interrupt register */
     uint8_t EIR = read_control_register(REG_EIR);
@@ -131,9 +125,13 @@ void network_process(void)
     }
 
     /* packet receive flag */
-    if ( (EIR & _BV(PKTIF)) || pktcnt ) {
+    if ( (EIR & _BV(PKTIF)) 
+#ifdef ENC28J60_REV4_WORKAROUND
+           || pktcnt 
+#endif
+           ) {
       if (uip_buf_lock ())
-	return;			/* already locked */
+        return;			/* already locked */
 
       process_packet();
       uip_buf_unlock ();
@@ -144,12 +142,6 @@ void network_process(void)
         debug_printf("net: receive error!\n");
 
         bit_field_clear(REG_EIR, _BV(RXERIF));
-
-/* not needed anymore ??
-#ifdef ENC28J60_REV4_WORKAROUND
-        init_enc28j60();
-#endif
-*/
 
     }
 
