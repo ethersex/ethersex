@@ -83,7 +83,7 @@ syslog_sendf_P(const char *message, ...)
   if (len == 0)
     return 1;                   /* zero sized message -> pretend it was sent */
 
-  len = MIN(len, UIP_MAX_LENGTH + 1);
+  len = MIN(len, UIP_MAX_LENGTH) + 1;
   char *data = malloc(len);
   if (data == NULL)
     return 0;
