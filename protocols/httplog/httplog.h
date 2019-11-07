@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2009 by Christian Dietrich <stettberger@dokucode.de>
  * Copyright (c) 2010 by Justin Otherguy <justin@justinotherguy.org>
- * Copyright (c) 2012 by Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) 2012-2019 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,10 +21,13 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef HAVE_HTTPLOG_H
-#define HAVE_HTTPLOG_H
+#ifndef __HTTPLOG_H
+#define __HTTPLOG_H
+
+#include <stdint.h>
 
 uint8_t httplog(const char*, ...);
 uint8_t httplog_P(const char*, ...);
+void httplog_flush(void);
 
-#endif  /* HAVE_HTTPLOG_H */
+#endif  /* __HTTPLOG_H */

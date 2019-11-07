@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2010 by Justin Otherguy <justin@justinotherguy.org>
  * Copyright (c) 2009 by Christian Dietrich <stettberger@dokucode.de>
- * Copyright (c) 2012 by Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) 2012-2019 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,9 @@
 #ifdef DEBUG_HTTPLOG
 #include "core/debug.h"
 #endif
+#include "core/queue/queue.h"
 #include "protocols/uip/uip.h"
+#include "protocols/uip/parse.h"
 #include "protocols/dns/resolv.h"
 #ifdef CONF_HTTPLOG_INCLUDE_TIMESTAMP
 #include "services/clock/clock.h"
@@ -46,22 +48,20 @@
 #ifdef DEBUG_HTTPLOG
 #define HTTPLOG_DEBUG(a...)  debug_printf("httplog: " a)
 #else
-#define HTTPLOG_DEBUG(a...)
+#define HTTPLOG_DEBUG(a...)  do { } while(0)
 #endif
 
-static char *httplog_tmp_buf;
 
-// first string is the GET part including the path
+static Queue httplog_queue = {.limit = HTTPLOG_QUEUE_LEN };
+static uint8_t httplog_request_pending;
+
+/* first string is the GET part including the path */
 static const char PROGMEM get_string_head[] = "GET " CONF_HTTPLOG_PATH "?";
-// next is the - optional - inclusion of the machine identifier uuid
+/* next is the - optional - inclusion of the machine identifier uuid */
 #ifdef CONF_HTTPLOG_INCLUDE_UUID
 static const char PROGMEM uuid_string[] = "uuid=" CONF_HTTPLOG_UUID "&";
 #endif
-// the - optional - unix time stamp
-#ifdef CONF_HTTPLOG_INCLUDE_TIMESTAMP
-static const char PROGMEM time_string[] = "time=";
-#endif
-// and the http footer including the http protocol version and the server name
+/* and the http footer including the http protocol version and the server name */
 static const char PROGMEM get_string_foot[] =
   " HTTP/1.1\n" "Host: " CONF_HTTPLOG_SERVICE "\r\n\r\n";
 
@@ -69,121 +69,151 @@ static const char PROGMEM get_string_foot[] =
 static void
 httplog_net_main(void)
 {
-  if (uip_aborted() || uip_timedout())
+  HTTPLOG_DEBUG("uip_flags=0x%02x\n", uip_flags);
+
+  if (uip_aborted() || uip_timedout() || uip_closed())
   {
-    HTTPLOG_DEBUG("connection aborted\n");
-    goto end;
+    HTTPLOG_DEBUG("Connection %S.\n", uip_closed() ?
+                  PSTR("closed") : PSTR("aborted"));
+    httplog_request_pending = 0;
+    return;
   }
 
-  if (uip_closed())
+  else if (uip_connected() || uip_rexmit())
   {
-    HTTPLOG_DEBUG("connection closed\n");
-    goto end;
-  }
+    HTTPLOG_DEBUG("%S.\n", uip_connected()?
+                  PSTR("Connected") : PSTR("Rexmit"));
 
-
-  if (uip_connected() || uip_rexmit())
-  {
-    HTTPLOG_DEBUG("new connection or rexmit, sending message\n");
-    char *p = uip_appdata;
-    p += sprintf_P(p, get_string_head);
+    char *data = queue_peek(&httplog_queue);
+    if (data == NULL)
+    {
+      HTTPLOG_DEBUG("Queue is empty!\n");
+      uip_close();
+    }
+    else
+    {
+#define BUFFER_AVAIL (size_t)(UIP_APPDATA_SIZE-(p-(char*)uip_appdata))
+      char *p = uip_appdata;
+      p += snprintf_P(p, BUFFER_AVAIL, get_string_head);
 #ifdef CONF_HTTPLOG_INCLUDE_UUID
-    p += sprintf_P(p, uuid_string);
+      p += snprintf_P(p, BUFFER_AVAIL, uuid_string);
 #endif
 #ifdef CONF_HTTPLOG_INCLUDE_TIMESTAMP
-    p += sprintf_P(p, time_string);
-    p += sprintf(p, "%lu&", clock_get_time());
+      p += snprintf_P(p, BUFFER_AVAIL, PSTR("time=%lu&"), clock_get_time());
 #endif
-    p += sprintf(p, httplog_tmp_buf);
-    p += sprintf_P(p, get_string_foot);
-    uip_udp_send(p - (char *) uip_appdata);
-    HTTPLOG_DEBUG("send %d bytes\n", p - (char *) uip_appdata);
+      p += snprintf_P(p, BUFFER_AVAIL, PSTR("%s%S"), data, get_string_foot);
+      if (BUFFER_AVAIL <= 0)
+        HTTPLOG_DEBUG("Message truncated!\n");
+      uip_udp_send(p - (char *) uip_appdata);
+      HTTPLOG_DEBUG("Sending %d bytes.\n", p - (char *) uip_appdata);
+    }
   }
 
-  if (uip_acked())
+  else if (uip_acked())
   {
+    HTTPLOG_DEBUG("Acked.\n");
     uip_close();
-  end:
-    if (httplog_tmp_buf)
-    {
-      free(httplog_tmp_buf);
-      httplog_tmp_buf = NULL;
-    }
+    free(queue_pop(&httplog_queue));    /* delete data only when acked */
   }
 }
 
 static void
-httplog_dns_query_cb(char *name, uip_ipaddr_t * ipaddr)
+httplog_connect(char *hostname, uip_ipaddr_t * ipaddr)
 {
-  HTTPLOG_DEBUG("got dns response, connecting\n");
-  if (!uip_connect(ipaddr, HTONS(80), httplog_net_main))
+  if (ipaddr != NULL)
   {
-    if (httplog_tmp_buf)
-    {
-      free(httplog_tmp_buf);
-      httplog_tmp_buf = NULL;
-    }
+#ifdef DEBUG_HTTPLOG
+    char buf[46];  /* 0000:0000:0000:0000:0000:ffff:192.168.100.228 */
+    print_ipaddr(ipaddr, buf, sizeof(buf));
+    HTTPLOG_DEBUG("Connecting to %s (%s).\n", hostname, buf);
+#endif
+    if (uip_connect(ipaddr, HTONS(80), httplog_net_main) != NULL)
+      return;
+    else
+      HTTPLOG_DEBUG("Connect failed.\n");
   }
+  else
+    HTTPLOG_DEBUG("Resolve failed!\n");
 
-}
-
-static uint8_t
-httplog_buffer_empty(void)
-{
-  if (httplog_tmp_buf == 0)
-  {
-    httplog_tmp_buf = malloc(HTTPLOG_BUFFER_LEN);
-    if (httplog_tmp_buf != 0)
-      return 1;
-  }
-
-  return 0;
+  httplog_request_pending = 0;  /* retried later via httplog_flush */
 }
 
 static void
-httplog_resolve_address(void)
+httplog_transmit(void)
 {
+  httplog_request_pending = 1;
+
   uip_ipaddr_t *ipaddr;
-  if (!(ipaddr = resolv_lookup(CONF_HTTPLOG_SERVICE)))
+  if ((ipaddr = resolv_lookup(CONF_HTTPLOG_SERVICE)) == NULL)
   {
-    resolv_query(CONF_HTTPLOG_SERVICE, httplog_dns_query_cb);
+    HTTPLOG_DEBUG("Resolving address of %s.\n", CONF_HTTPLOG_SERVICE);
+    resolv_query(CONF_HTTPLOG_SERVICE, httplog_connect);
   }
   else
   {
-    httplog_dns_query_cb(NULL, ipaddr);
+    httplog_connect((char *) CONF_HTTPLOG_SERVICE, ipaddr);
   }
+}
+
+static uint8_t
+httplog_enqueue(char *data)
+{
+  uint8_t result = queue_push(data, &httplog_queue);
+  if (!result)
+    free(data);
+  return result;
 }
 
 uint8_t
 httplog(const char *message, ...)
 {
-  uint8_t result = httplog_buffer_empty();
-  if (result)
-  {
-    va_list va;
-    va_start(va, message);
-    vsnprintf(httplog_tmp_buf, HTTPLOG_BUFFER_LEN, message, va);
-    va_end(va);
-    httplog_tmp_buf[HTTPLOG_BUFFER_LEN - 1] = 0;
+  va_list va;
+  va_start(va, message);
+  size_t len = (size_t) vsnprintf(NULL, 0, message, va);
+  va_end(va);
 
-    httplog_resolve_address();
-  }
-  return result;
+  char *data = malloc(len);
+  if (data == NULL)
+    return 0;
+
+  va_start(va, message);
+  vsnprintf(data, len, message, va);
+  va_end(va);
+
+  return httplog_enqueue(data);
 }
 
 uint8_t
 httplog_P(const char *message, ...)
 {
-  uint8_t result = httplog_buffer_empty();
-  if (result)
-  {
-    va_list va;
-    va_start(va, message);
-    vsnprintf_P(httplog_tmp_buf, HTTPLOG_BUFFER_LEN, message, va);
-    va_end(va);
-    httplog_tmp_buf[HTTPLOG_BUFFER_LEN - 1] = 0;
+  va_list va;
+  va_start(va, message);
+  size_t len = (size_t) vsnprintf_P(NULL, 0, message, va);
+  va_end(va);
 
-    httplog_resolve_address();
-  }
-  return result;
+  char *data = malloc(len);
+  if (data == NULL)
+    return 0;
+
+  va_start(va, message);
+  vsnprintf_P(data, len, message, va);
+  va_end(va);
+
+  return httplog_enqueue(data);
 }
+
+void
+httplog_flush(void)
+{
+  if (queue_is_empty(&httplog_queue))
+    return;                     /* nothing to send */
+  if (httplog_request_pending)
+    return;                     /* previous request not finished */
+  httplog_transmit();
+}
+
+/*
+  -- Ethersex META --
+  header(protocols/httplog/httplog.h)
+  mainloop(httplog_flush)
+*/
