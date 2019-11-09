@@ -49,13 +49,7 @@ static const char publish_rom_topic_format[] PROGMEM =
 uint8_t ow_mqtt_new;
 uint8_t ow_act;
 
-#ifdef DEBUG_OW_MQTT
-#define OW_DEBUG_MQTT(s, ...) debug_printf("OW " s "\n", ## __VA_ARGS__)
-#else
-#define OW_DEBUG_MQTT(...) do { } while(0)
-#endif
-
-#ifdef ONEWIRE_POLLING_SUPPORT
+#ifdef ONEWIRE_DS18XX_SUPPORT
 
 void
 onewire_poll_cb(void)
@@ -105,7 +99,7 @@ onewire_poll_cb(void)
   }
 }
 
-static mqtt_callback_config_t mqtt_callback_config = {
+static const mqtt_callback_config_t mqtt_callback_config PROGMEM = {
   .connack_callback = NULL,
   .poll_callback = onewire_poll_cb,
   .close_callback = NULL,
@@ -115,7 +109,7 @@ static mqtt_callback_config_t mqtt_callback_config = {
 void
 onewire_mqtt_init()
 {
-  OW_DEBUG_MQTT("MQTT Init");
+  OW_DEBUG_MQTT("MQTT register callbacks");
   mqtt_register_callback(&mqtt_callback_config);
 }
 
@@ -124,10 +118,10 @@ onewire_mqtt_init()
 void
 onewire_mqtt_init()
 {
-  OW_DEBUG_MQTT("MQTT no init!");
+  OW_DEBUG_MQTT("MQTT No support for DS18XX!");
 }
 
-#endif /* ONEWIRE_POLLING_SUPPORT ONEWIRE_DETECT_SUPPORT */
+#endif /* ONEWIRE_DS18XX_SUPPORT */
 
 /*
   -- Ethersex META --
