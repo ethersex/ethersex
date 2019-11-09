@@ -69,6 +69,11 @@
 #define OW_DEBUG_POLL(...)    ((void) 0)
 #endif
 
+#ifdef DEBUG_OW_MQTT
+#define OW_DEBUG_MQTT(s, ...) debug_printf("OW-MQTT: " s "\n", ## __VA_ARGS__)
+#else
+#define OW_DEBUG_MQTT(...) do { } while(0)
+#endif
 
 /* rom commands */
 #define OW_ROM_SEARCH_ROM     0xF0
@@ -280,7 +285,6 @@ typedef struct
 extern ow_sensor_t ow_sensors[OW_SENSORS_COUNT];
 #ifdef ONEWIRE_MQTT_SUPPORT
 extern uint8_t ow_mqtt_new;
-#endif
 #endif
 
 /*
