@@ -4,7 +4,7 @@
  * for additional information please
  * see http://www.mikrocontroller.net/articles/IRMP
  *
- * Copyright (c) 2010-14 by Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) 2010-2019 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -129,7 +129,7 @@
 #undef DEBUG
 #define IRMP_DATA irmp_data_t
 #define IRMP_USE_AS_LIB
-#ifdef IRMP_RX_SUPPORT
+#if defined(IRMP_RX_SUPPORT) || defined(DEBUG_IRMP)
 #define irmp_ISR irmp_rx_process
 #define irmp_get_data irmp_rx_get
 #define irmp_protocol_names irmp_proto_names

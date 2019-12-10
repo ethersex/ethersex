@@ -4,7 +4,7 @@
  * for additional information please
  * see http://www.mikrocontroller.net/articles/IRMP
  *
- * Copyright (c) 2010-14 by Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) 2010-2019 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -88,6 +88,10 @@ typedef enum
   IRMP_PROTO_VINCENT,           /* Vincent */
   IRMP_PROTO_SAMSUNGAH,         /* SAMSUNG AH */
   IRMP_PROTO_IRMP16,            /* IRMP specific protocol for data transfer, e.g. between two microcontrollers via IR */
+  IRMP_PROTO_GREE,		/* Gree climate component */
+  IRMP_PROTO_RCII,		/* RC II Infra Red Remote Control Protocol for FM8 */
+  IRMP_PROTO_METZ,		/* METZ */
+  IRMP_PROTO_ONKYO,		/* ONKYO */
   IRMP_PROTO_RADIO1             /* Radio protocol (experimental stat */
 } irmp_prot_e;
 

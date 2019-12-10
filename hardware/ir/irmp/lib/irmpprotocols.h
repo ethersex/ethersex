@@ -3,9 +3,7 @@
  *
  * DO NOT INCLUDE THIS FILE, WILL BE INCLUDED BY IRMP.H or IRSND.H!
  *
- * Copyright (c) 2013-2016 Frank Meyer - frank(at)fli4l.de
- *
- * $Id: irmpprotocols.h,v 1.50 2018/02/19 10:23:36 fm Exp $
+ * Copyright (c) 2013-2019 Frank Meyer - frank(at)fli4l.de
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78,10 +76,14 @@
 #define IRMP_VINCENT_PROTOCOL                   50              // Vincent
 #define IRMP_SAMSUNGAH_PROTOCOL                 51              // SAMSUNG AH
 #define IRMP_IRMP16_PROTOCOL                    52              // IRMP specific protocol for data transfer, e.g. between two microcontrollers via IR
+#define IRMP_GREE_PROTOCOL                      53              // Gree climate
+#define IRMP_RCII_PROTOCOL                      54              // RC II Infra Red Remote Control Protocol for FM8
+#define IRMP_METZ_PROTOCOL                      55              // METZ
+#define IRMP_ONKYO_PROTOCOL                     56
 
-#define IRMP_RADIO1_PROTOCOL                    53              // Radio protocol (experimental status), do not use it yet!
+#define IRMP_RADIO1_PROTOCOL                    57              // Radio protocol (experimental status), do not use it yet!
 
-#define IRMP_N_PROTOCOLS                        53              // number of supported protocols
+#define IRMP_N_PROTOCOLS                        57              // number of supported protocols
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * timing constants:
@@ -372,6 +374,26 @@ typedef uint8_t     PAUSE_LEN;
 #define RC5_STOP_BIT                            0                               // has no stop bit
 #define RC5_LSB                                 0                               // MSB...LSB
 #define RC5_FLAGS                               IRMP_PARAM_FLAG_IS_MANCHESTER   // flags
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * RCII:
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#define RCII_START_BIT_PULSE_TIME                512.0e-6                       //  512 usec pulse
+#define RCII_START_BIT_PAUSE_TIME               2560.0e-6                       // 2560 usec pause
+#define RCII_START_BIT2_PULSE_TIME              1024.0e-6                       // 1024 usec pulse
+
+#define RCII_BIT_TIME                            512.0e-6                       // 512 usec pulse/pause
+#define RCII_FRAME_REPEAT_PAUSE_TIME             117.76e-3                      // frame repeat after 117.76ms
+
+#define RCII_ADDRESS_OFFSET                     0                               // skip 1 bit (2nd start)
+#define RCII_ADDRESS_LEN                        0                               // no address
+#define RCII_COMMAND_OFFSET                     0                               // command offset is 0
+#define RCII_COMMAND_LEN                        10                              // read 1 + 9 command bits
+#define RCII_COMPLETE_DATA_LEN                  10                              // complete length
+#define RCII_STOP_BIT                           0                               // has no stop bit
+#define RCII_LSB                                0                               // MSB...LSB
+#define RCII_FLAGS                              (IRMP_PARAM_FLAG_IS_MANCHESTER | IRMP_PARAM_FLAG_1ST_PULSE_IS_1)  // flags
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * S100: very similar to RC5, but 14 insted of 13 bits
@@ -839,11 +861,11 @@ typedef uint8_t     PAUSE_LEN;
 #define MERLIN_LSB                             0                                // MSB...LSB
 #define MERLIN_FLAGS                           (IRMP_PARAM_FLAG_IS_MANCHESTER | IRMP_PARAM_FLAG_1ST_PULSE_IS_1 )  // flags
 #define MERLIN_FRAMES                          1                                // MERLIN sends each frame 1 times
-#define MERLIN_ADDRESS_OFFSET                  1                                // skip 1 bits
-#define MERLIN_ADDRESS_LEN                     8                                // read 8 address bits
-#define MERLIN_COMMAND_OFFSET                  8                                // skip 9 bits (start bit + address)
-#define MERLIN_COMMAND_LEN                     10                               // read 8 command bits
-#define MERLIN_COMPLETE_DATA_LEN               19                               // complete length incl. start bit
+#define MERLIN_ADDRESS_OFFSET                  2                                // skip 1 bits
+#define MERLIN_ADDRESS_LEN                     9                                // read 9 address bits
+#define MERLIN_COMMAND_OFFSET                  11                               // skip 11 bits (start bit + address)
+#define MERLIN_COMMAND_LEN                     32                               // read up to 32 command bits
+#define MERLIN_COMPLETE_DATA_LEN               45                               // complete length incl. start bit
 #define MERLIN_FRAME_REPEAT_PAUSE_TIME         50.0e-3                          // 50 msec pause between frames, don't know if it is correct
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -981,6 +1003,44 @@ typedef uint8_t     PAUSE_LEN;
 #define IRMP16_STOP_BIT                         1                               // has stop bit
 #define IRMP16_LSB                              1                               // LSB...MSB
 #define IRMP16_FLAGS                            0                               // flags
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * GREE - climate:
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#define GREE_START_BIT_PULSE_TIME              12000.0e-6                       // 12000 usec pulse (32 x 1/38kHz)
+#define GREE_START_BIT_PAUSE_TIME               6000.0e-6                       //  6000 usec pause (40 x 1/38kHz)
+#define GREE_PULSE_TIME                          900.0e-6                       //   900 usec pulse (16 x 1/38kHz)
+#define GREE_1_PAUSE_TIME                        700.0e-6                       //   700 usec pause (32 x 1/38kHz)
+#define GREE_0_PAUSE_TIME                       2100.0e-6                       //  2100 usec pause (16 x 1/38kHz)
+#define GREE_FRAME_REPEAT_PAUSE_TIME              40.0e-3                       // frame repeat after 40ms
+#define GREE_ADDRESS_OFFSET                     0                               // skip 0 bits
+#define GREE_ADDRESS_LEN                        16                              // read 16 address bits
+#define GREE_COMMAND_OFFSET                     16                              // skip 16 bits
+#define GREE_COMMAND_LEN                        16                              // read 16 bits
+#define GREE_COMPLETE_DATA_LEN                  32                              // complete length
+#define GREE_STOP_BIT                           1                               // has stop bit
+#define GREE_LSB                                1                               // LSB...MSB
+#define GREE_FLAGS                              0                               // flags
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * METZ:
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#define METZ_START_BIT_PULSE_TIME                870.0e-6                       //  870 usec pulse
+#define METZ_START_BIT_PAUSE_TIME               2300.0e-6                       // 2300 usec pause
+#define METZ_PULSE_TIME                          435.0e-6                       //  435 usec pulse
+#define METZ_1_PAUSE_TIME                       1680.0e-6                       // 1680 usec pause
+#define METZ_0_PAUSE_TIME                        960.0e-6                       //  960 usec pause
+#define METZ_FRAME_REPEAT_PAUSE_TIME             122.0e-3                       // frame repeat after 122ms
+#define METZ_ADDRESS_OFFSET                      1                              // skip 1 bit (toggle bit)
+#define METZ_ADDRESS_LEN                         6                              // read 6 address bits
+#define METZ_COMMAND_OFFSET                      7                              // skip 7 bits
+#define METZ_COMMAND_LEN                        13                              // read 13 bits
+#define METZ_COMPLETE_DATA_LEN                  20                              // complete length
+#define METZ_STOP_BIT                            0                              // has no stop bit
+#define METZ_LSB                                 0                              // MSB...LSB
+#define METZ_FLAGS                               0                              // flags
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * RADIO1 - e.g. Tevion
