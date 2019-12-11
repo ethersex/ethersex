@@ -247,7 +247,7 @@ main(int argc, char *argv[])
     {0, 0, 0, 0}
   };
 
-  while ((c = getopt_long(argc, argv, "ha:d:u:v", longopts, 0)) != -1)
+  while ((c = getopt_long(argc, argv, "ha:d:u:m:v", longopts, 0)) != -1)
   {
     switch (c)
     {
@@ -262,6 +262,9 @@ main(int argc, char *argv[])
         break;
       case 'u':
         global.up = optarg;
+        break;
+      case 'm':
+        global.mtu = atoi(optarg);
         break;
       case '?':
         if (optopt == 'd')

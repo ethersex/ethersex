@@ -55,17 +55,14 @@ emcd_usb_parse(void)
   if ((parse_again = is_ECMD_AGAIN(len)) != 0)
   {
     len = ECMD_AGAIN(len);
-    if (len > 0)
-    {
-      if (send_buffer[len] != ECMD_NO_NEWLINE)
-        send_buffer[len++] = '\n';
-    }
   }
   else /* Clear receive buffer */
   {
     memset(recv_buffer, 0, ECMD_USB_BUFFER_LEN);
     recv_index = 0;
   }
+  if (len > 0 && send_buffer[len] != ECMD_NO_NEWLINE)
+    send_buffer[len++] = '\n';
   send_remain = len;
   send_index = 0;
 }
