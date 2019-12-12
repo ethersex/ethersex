@@ -9,6 +9,7 @@ $(U8G2LIB_SUPPORT)_SRC += \
 	libs/u8g2lib/u8g2_bitmap.c \
 	libs/u8g2lib/u8g2_box.c \
 	libs/u8g2lib/u8g2_buffer.c \
+	libs/u8g2lib/u8x8_capture.c \
 	libs/u8g2lib/u8g2_circle.c \
 	libs/u8g2lib/u8g2_cleardisplay.c \
 	libs/u8g2lib/u8g2_d_memory.c \
@@ -49,6 +50,9 @@ $(GLCD_IL3820_296x128_SUPPORT)_SRC += \
 $(GLCD_IST3020_ERC19264_SUPPORT)_SRC += \
 	libs/u8g2lib/u8x8_d_ist3020.c
 
+$(GLCD_IST7920_128X128)_SRC += \
+	libs/u8g2lib/u8x8_d_ist7920.c
+
 $(GLCD_LD7032_60x32_SUPPORT)_SRC += \
 	libs/u8g2lib/u8x8_d_ld7032_60x32.c
 
@@ -85,7 +89,7 @@ $(GLCD_SH1122_256x64_SUPPORT)_SRC += \
 $(GLCD_SSD1305_128x32_SUPPORT)_SRC += \
 	libs/u8g2lib/u8x8_d_ssd1305.c
 
-$(GLCD_SSD106_48x64_SUPPORT)_SRC += \
+$(GLCD_SSD1306_48x64_SUPPORT)_SRC += \
 	libs/u8g2lib/u8x8_d_ssd1306_48x64.c
 
 $(GLCD_SSD1306_64x32_SUPPORT)_SRC += \
@@ -93,6 +97,9 @@ $(GLCD_SSD1306_64x32_SUPPORT)_SRC += \
 
 $(GLCD_SSD1306_64x48_SUPPORT)_SRC += \
 	libs/u8g2lib/u8x8_d_ssd1306_64x48.c
+
+$(GLCD_SSD1306_72x40_SUPPORT)_SRC += \
+	libs/u8g2lib/u8x8_d_ssd1306_72x40.c
 
 $(GLCD_SSD1306_96x16_SUPPORT)_SRC += \
 	libs/u8g2lib/u8x8_d_ssd1306_96x16.c
@@ -135,6 +142,9 @@ $(GLCD_ST75256_JLX256128_SUPPORT)_SRC += \
 
 $(GLCD_ST75256_JLX25664_SUPPORT)_SRC += \
 	libs/u8g2lib/u8x8_d_st75256.c
+
+$(GLCD_ST7528_NHD_C160100)_SRC += \
+	libs/u8g2lib/u8x8_d_st7528.c
 
 $(GLCD_ST7565_128x64_ZOLEN_SUPPORT)_SRC += \
 	libs/u8g2lib/u8x8_d_st7567.c

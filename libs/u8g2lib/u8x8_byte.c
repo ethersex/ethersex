@@ -333,7 +333,7 @@ void u8x8_byte_set_ks0108_cs(u8x8_t *u8x8, uint8_t arg)
   u8x8_gpio_SetCS(u8x8, arg&1);
   arg = arg >> 1;
   u8x8_gpio_call(u8x8, U8X8_MSG_GPIO_CS1, arg&1);
-  arg = arg >> 2;
+  arg = arg >> 1;
   u8x8_gpio_call(u8x8, U8X8_MSG_GPIO_CS2, arg&1);
 }
 
@@ -577,12 +577,12 @@ static void i2c_write_byte(u8x8_t *u8x8, uint8_t b)
 uint8_t u8x8_byte_sw_i2c(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr)
 {
   uint8_t *data;
- 
+
   switch(msg)
   {
     case U8X8_MSG_BYTE_SEND:
       data = (uint8_t *)arg_ptr;
-      
+    
       while( arg_int > 0 )
       {
 	i2c_write_byte(u8x8, *data);
