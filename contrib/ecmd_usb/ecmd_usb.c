@@ -169,7 +169,7 @@ main(int argc, char **argv)
     if (len > 0)
     {
       buf[len] = '\0';
-      printf("%s\n", buf);
+      printf("%s", buf);
 
     }
     else if (len < 0)
