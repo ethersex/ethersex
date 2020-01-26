@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * @file irsnd.c
  *
- * Copyright (c) 2010-2016 Frank Meyer - frank(at)fli4l.de
+ * Copyright (c) 2010-2019 Frank Meyer - frank(at)fli4l.de
  *
  * Supported AVR mikrocontrollers:
  *
@@ -13,8 +13,6 @@
  * ATmega162
  * ATmega164, ATmega324, ATmega644,  ATmega644P, ATmega1284, ATmega1284P
  * ATmega88,  ATmega88P, ATmega168,  ATmega168P, ATmega328P
- *
- * $Id: irsnd.c,v 1.104 2017/08/25 12:24:18 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -181,6 +179,8 @@
 #elif defined (PIC_C18)                                                 // Microchip C18 compiler
     //Nothing here to do here -> See irsndconfig.h
 #elif defined (ARM_STM32)                                               // STM32
+    //Nothing here to do here -> See irsndconfig.h
+#elif defined (ARM_STM32_HAL)                                           // STM32 with Hal Library
     //Nothing here to do here -> See irsndconfig.h
 #elif defined (__xtensa__)                                              // ESP8266
     //Nothing here to do here -> See irsndconfig.h
@@ -414,6 +414,15 @@
 #  define IRSND_FREQ_40_KHZ                     (IRSND_FREQ_TYPE) (40000)
 #  define IRSND_FREQ_56_KHZ                     (IRSND_FREQ_TYPE) (56000)
 #  define IRSND_FREQ_455_KHZ                    (IRSND_FREQ_TYPE) (455000)
+#elif defined (ARM_STM32_HAL)                   // STM32 with Hal Library
+#  define IRSND_FREQ_TYPE                       uint32_t
+#  define IRSND_FREQ_30_KHZ                     (IRSND_FREQ_TYPE) (30000)
+#  define IRSND_FREQ_32_KHZ                     (IRSND_FREQ_TYPE) (32000)
+#  define IRSND_FREQ_36_KHZ                     (IRSND_FREQ_TYPE) (36000)
+#  define IRSND_FREQ_38_KHZ                     (IRSND_FREQ_TYPE) (38000)
+#  define IRSND_FREQ_40_KHZ                     (IRSND_FREQ_TYPE) (40000)
+#  define IRSND_FREQ_56_KHZ                     (IRSND_FREQ_TYPE) (56000)
+#  define IRSND_FREQ_455_KHZ                    (IRSND_FREQ_TYPE) (455000)
 #elif defined (TEENSY_ARM_CORTEX_M4)            // TEENSY
 #  define IRSND_FREQ_TYPE                       float
 #  define IRSND_FREQ_30_KHZ                     (IRSND_FREQ_TYPE) (30000)
@@ -555,6 +564,9 @@ irsnd_on (void)
         TIM_CCxCmd(IRSND_TIMER, IRSND_TIMER_CHANNEL, TIM_CCx_Enable);      // enable OC-output (is being disabled in TIM_SelectOCxM())
         TIM_Cmd(IRSND_TIMER, ENABLE);                   // enable counter
 
+#  elif defined (ARM_STM32_HAL)                         // STM32 with Hal Library
+        HAL_TIM_PWM_Start(&IRSND_TIMER_HANDLER, IRSND_TIMER_CHANNEL_NUMBER);
+
 #  elif defined (TEENSY_ARM_CORTEX_M4)                  // TEENSY
         analogWrite(IRSND_PIN, 33 * 255 / 100);         // pwm 33%
 
@@ -631,6 +643,9 @@ irsnd_off (void)
         TIM_SelectOCxM(IRSND_TIMER, IRSND_TIMER_CHANNEL, TIM_ForcedAction_InActive);    // force output inactive
         TIM_CCxCmd(IRSND_TIMER, IRSND_TIMER_CHANNEL, TIM_CCx_Enable);                   // enable OC-output (is being disabled in TIM_SelectOCxM())
         TIM_SetCounter(IRSND_TIMER, 0);                                                 // reset counter value
+
+#  elif defined (ARM_STM32_HAL)                                                         // STM32
+        HAL_TIM_PWM_Stop(&IRSND_TIMER_HANDLER, IRSND_TIMER_CHANNEL_NUMBER);
 
 #  elif defined (TEENSY_ARM_CORTEX_M4)                                                  // TEENSY
         analogWrite(IRSND_PIN, 0);                                                      // pwm off, LOW level
@@ -758,6 +773,43 @@ irsnd_set_freq (IRSND_FREQ_TYPE freq)
         /* Set duty cycle */
         TIM_SetCompare1(IRSND_TIMER, (freq + 1) / 2);
 
+#  elif defined (ARM_STM32_HAL)                                                            // STM32 with Hal Library
+
+        TIM_MasterConfigTypeDef sMasterConfig;
+        TIM_OC_InitTypeDef sConfigOC;
+
+        uint32_t uwPrescalerValue = (uint32_t) ((IRSND_TIMER_SPEED_APBX) / (freq*10)) - 1; //1kHz
+
+        //IRSND_TIMER_HANDLER.Instance = TIM2;
+        IRSND_TIMER_HANDLER.Init.Prescaler = uwPrescalerValue;
+        IRSND_TIMER_HANDLER.Init.CounterMode = TIM_COUNTERMODE_UP;
+        IRSND_TIMER_HANDLER.Init.Period = 10 -1;
+        IRSND_TIMER_HANDLER.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+        IRSND_TIMER_HANDLER.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+
+        if (HAL_TIM_PWM_Init(&IRSND_TIMER_HANDLER) != HAL_OK)
+        {
+            _Error_Handler(__FILE__, __LINE__);
+        }
+
+        sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+        sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+
+        if (HAL_TIMEx_MasterConfigSynchronization(&IRSND_TIMER_HANDLER, &sMasterConfig) != HAL_OK)
+        {
+            _Error_Handler(__FILE__, __LINE__);
+        }
+
+        sConfigOC.OCMode = TIM_OCMODE_PWM1;
+        sConfigOC.Pulse = IRSND_TIMER_HANDLER.Init.Period / 2;
+        sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+        sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+
+        if (HAL_TIM_PWM_ConfigChannel(&IRSND_TIMER_HANDLER, &sConfigOC, IRSND_TIMER_CHANNEL_NUMBER ) != HAL_OK)
+        {
+            _Error_Handler(__FILE__, __LINE__);
+        }
+
 #  elif defined (TEENSY_ARM_CORTEX_M4)
         analogWriteResolution(8);                                                           // 8 bit
         analogWriteFrequency(IRSND_PIN, freq);
@@ -867,6 +919,9 @@ irsnd_init (void)
         TIM_OC1PreloadConfig(IRSND_TIMER, TIM_OCPreload_Enable);
 
         irsnd_set_freq (IRSND_FREQ_36_KHZ);                                         // set default frequency
+
+#  elif defined (ARM_STM32_HAL)
+        irsnd_set_freq (IRSND_FREQ_36_KHZ);                                         // default frequency
 
 #  elif defined (TEENSY_ARM_CORTEX_M4)
         if (!digitalPinHasPWM(IRSND_PIN))
@@ -1068,6 +1123,18 @@ irsnd_send_data (IRMP_DATA * irmp_data_p, uint8_t do_wait)
             irsnd_buffer[1] = (address & 0x00FF);                                                               // AAAAAAAA
             irsnd_buffer[2] = (command & 0xFF00) >> 8;                                                          // CCCCCCCC
             irsnd_buffer[3] = ~((command & 0xFF00) >> 8);                                                       // cccccccc
+            irsnd_busy      = TRUE;
+            break;
+        }
+        case IRMP_ONKYO_PROTOCOL:
+        {
+            address = bitsrevervse (irmp_data_p->address, NEC_ADDRESS_LEN);
+            command = bitsrevervse (irmp_data_p->command, NEC_COMMAND_LEN);
+
+            irsnd_buffer[0] = (address & 0xFF00) >> 8;                                                          // AAAAAAAA
+            irsnd_buffer[1] = (address & 0x00FF);                                                               // AAAAAAAA
+            irsnd_buffer[2] = (command & 0xFF00) >> 8;                                                          // CCCCCCCC
+            irsnd_buffer[3] = (command & 0x00FF);                                                               // CCCCCCCC
             irsnd_busy      = TRUE;
             break;
         }
@@ -1790,6 +1857,7 @@ irsnd_ISR (void)
 #endif
 #if IRSND_SUPPORT_NEC_PROTOCOL == 1
                     case IRMP_NEC_PROTOCOL:
+                    case IRMP_ONKYO_PROTOCOL:
                     {
                         startbit_pulse_len          = NEC_START_BIT_PULSE_LEN;
 
@@ -2525,6 +2593,7 @@ irsnd_ISR (void)
 #endif
 #if IRSND_SUPPORT_NEC_PROTOCOL == 1
                 case IRMP_NEC_PROTOCOL:
+                case IRMP_ONKYO_PROTOCOL:
 #endif
 #if IRSND_SUPPORT_NEC16_PROTOCOL == 1
                 case IRMP_NEC16_PROTOCOL:
@@ -3106,7 +3175,7 @@ main (int argc, char ** argv)
 
         putchar ('\n');
 
-#if 1 // enable here to send twice
+#if 0 // enable here to send twice
         (void) irsnd_send_data (&irmp_data, TRUE);
 
         while (irsnd_busy)

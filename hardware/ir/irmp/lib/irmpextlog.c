@@ -1,8 +1,6 @@
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * irmpextlog.c - external logging
  *
- * $Id: irmpextlog.c,v 1.6 2017/02/17 09:13:06 fm Exp $
- *
  * If you cannot use the internal UART logging routine, adapt the
  * source below for your application. The following implementation
  * is an example for a PIC 18F2550 with USB interface.

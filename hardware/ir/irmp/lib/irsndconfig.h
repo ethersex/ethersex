@@ -3,9 +3,7 @@
  *
  * DO NOT INCLUDE THIS FILE, WILL BE INCLUDED BY IRSND.H!
  *
- * Copyright (c) 2010-2016 Frank Meyer - frank(at)fli4l.de
- *
- * $Id: irsndconfig.h,v 1.91 2018/02/19 10:25:25 fm Exp $
+ * Copyright (c) 2010-2019 Frank Meyer - frank(at)fli4l.de
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,7 +46,7 @@
 
 // more protocols, enable here!                 Enable  Remarks                 F_INTERRUPTS            Program Space
 #define IRSND_SUPPORT_DENON_PROTOCOL            0       // DENON, Sharp         >= 10000                 ~200 bytes
-#define IRSND_SUPPORT_RC5_PROTOCOL              0       // RC5                  >= 10000                 ~150 bytes
+#define IRSND_SUPPORT_RC5_PROTOCOL              1       // RC5                  >= 10000                 ~150 bytes
 #define IRSND_SUPPORT_RC6_PROTOCOL              0       // RC6                  >= 10000                 ~250 bytes
 #define IRSND_SUPPORT_RC6A_PROTOCOL             0       // RC6A                 >= 10000                 ~250 bytes
 #define IRSND_SUPPORT_JVC_PROTOCOL              0       // JVC                  >= 10000                 ~150 bytes
@@ -75,7 +73,7 @@
 #define IRSND_SUPPORT_TELEFUNKEN_PROTOCOL       0       // Telefunken 1560      >= 10000                 ~150 bytes
 #define IRSND_SUPPORT_FDC_PROTOCOL              0       // FDC IR keyboard      >= 10000 (better 15000)  ~150 bytes
 #define IRSND_SUPPORT_RCCAR_PROTOCOL            0       // RC CAR               >= 10000 (better 15000)  ~150 bytes
-#define IRSND_SUPPORT_ROOMBA_PROTOCOL           0       // iRobot Roomba        >= 10000                 ~150 bytes
+#define IRSND_SUPPORT_ROOMBA_PROTOCOL           1       // iRobot Roomba        >= 10000                 ~150 bytes
 #define IRSND_SUPPORT_RUWIDO_PROTOCOL           0       // RUWIDO, T-Home       >= 15000                 ~250 bytes
 #define IRSND_SUPPORT_A1TVBOX_PROTOCOL          0       // A1 TV BOX            >= 15000 (better 20000)  ~200 bytes
 #define IRSND_SUPPORT_LEGO_PROTOCOL             0       // LEGO Power RC        >= 20000                 ~150 bytes
@@ -153,11 +151,29 @@
 #  define IRSND_TIMER_CHANNEL_NUMBER            1                       // only channel 1 can be used at the moment, others won't work
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * ARM STM32 with HAL section - don't change here, define IRSND_Transmit_GPIO_Port & IRSND_Transmit_Pin in STM32Cube (Main.h)
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#elif defined (ARM_STM32_HAL)                                           // IRSND_Transmit_GPIO_Port & IRSND_Transmit_Pin must be defined in STM32Cube
+#  define IRSND_PORT_LETTER                     IRSND_Transmit_GPIO_Port//Port of Transmit PWM Pin e.g.
+#  define IRSND_BIT_NUMBER                      IRSND_Transmit_Pin      //Pim of Transmit PWM Pin e.g.
+#  define IRSND_TIMER_HANDLER                   htim2                   //Handler of Timer e.g. htim (see tim.h)
+#  define IRSND_TIMER_CHANNEL_NUMBER            TIM_CHANNEL_2           //Channel of the used Timer PWM Pin e.g. TIM_CHANNEL_2
+#  define IRSND_TIMER_SPEED_APBX                64000000                //Speed of the corresponding APBx. (see STM32CubeMX: Clock Configuration)
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
  * Teensy 3.x with teensyduino gcc compiler
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 #elif defined (TEENSY_ARM_CORTEX_M4)
 #  define IRSND_PIN                             5                       // choose an arduino pin with PWM function!
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * ESP8266 (Arduino, see IRSEND.ino)
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#elif defined (__xtensa__)
+#  define IRSND_PIN                             0                       // choose an arduino pin with PWM function!
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * Other target systems
@@ -166,13 +182,6 @@
 #elif !defined (UNIX_OR_WINDOWS)
 #  error target system not defined.
 #endif
-
-/*---------------------------------------------------------------------------------------------------------------------------------------------------
- * ESP8266 (Arduino, see IRSEND.ino)
- *---------------------------------------------------------------------------------------------------------------------------------------------------
- */
-#elif defined (__xtensa__)
-#  define IRSND_PIN                             0                       // choose an arduino pin with PWM function!
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * Use Callbacks to indicate output signal or something else

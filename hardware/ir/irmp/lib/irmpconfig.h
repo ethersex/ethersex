@@ -3,10 +3,8 @@
  *
  * DO NOT INCLUDE THIS FILE, WILL BE INCLUDED BY IRMP.H!
  *
- * Copyright (c) 2009-2016 Frank Meyer - frank(at)fli4l.de
+ * Copyright (c) 2009-2019 Frank Meyer - frank(at)fli4l.de
  * Extensions for PIC 12F1820 W.Strobl 2014-07-20
- *
- * $Id: irmpconfig.h,v 1.155 2018/02/19 10:25:25 fm Exp $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +13,31 @@
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 
-#ifndef _IRMPCONFIG_H_
-#define _IRMPCONFIG_H_
-
 #ifndef _IRMP_H_
 #  error please include only irmp.h, not irmpconfig.h
 #endif
+
+#ifdef IRMPCONFIG_STAGE1_H
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * Change IRMP_32_BIT here
+ *
+ * Normally, IRMP_32_BIT ist 0. Then we use irmp.command as a 16 bit value.
+ * If you set IRMP_32_BIT to 1, we will use irmp.command as a 32 bit value.
+ * A 32 bit command costs more CPU resources on 8 bit processors (e.g. AVR),
+ * but there are IR protocols which need more than 16 bits for a reasonable
+ * command value.
+ *
+ * If you want to use one of the following protocols, set IRMP_32_BIT to 1,
+ * otherwise set it to 0:
+ *    - MERLIN
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+
+#define IRMP_32_BIT     0                                                                               // use 32 bit command value, 0 or 1
+
+#endif // IRMPCONFIG_STAGE1_H
+#ifdef IRMPCONFIG_STAGE2_H
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * Change F_INTERRUPTS if you change the number of interrupts per second,
@@ -51,7 +68,7 @@
 
 // typical protocols, disable here!             Enable  Remarks                 F_INTERRUPTS            Program Space
 #define IRMP_SUPPORT_SIRCS_PROTOCOL             1       // Sony SIRCS           >= 10000                 ~150 bytes
-#define IRMP_SUPPORT_NEC_PROTOCOL               1       // NEC + APPLE          >= 10000                 ~300 bytes
+#define IRMP_SUPPORT_NEC_PROTOCOL               1       // NEC + APPLE + ONKYO  >= 10000                 ~300 bytes
 #define IRMP_SUPPORT_SAMSUNG_PROTOCOL           1       // Samsung + Samsg32    >= 10000                 ~300 bytes
 #define IRMP_SUPPORT_KASEIKYO_PROTOCOL          1       // Kaseikyo             >= 10000                 ~250 bytes
 
@@ -101,6 +118,9 @@
 #define IRMP_SUPPORT_VINCENT_PROTOCOL           0       // VINCENT              >= 10000                 ~250 bytes
 #define IRMP_SUPPORT_SAMSUNGAH_PROTOCOL         0       // SAMSUNG AH           >= 10000                 ~250 bytes
 #define IRMP_SUPPORT_IRMP16_PROTOCOL            0       // IRMP specific        >= 15000                 ~250 bytes
+#define IRMP_SUPPORT_GREE_PROTOCOL              0       // GREE CLIMATE         >= 10000                 ~250 bytes
+#define IRMP_SUPPORT_RCII_PROTOCOL              0       // RCII T+A             >= 15000                 ~250 bytes
+#define IRMP_SUPPORT_METZ_PROTOCOL              0       // METZ                 >= 15000                 ~250 bytes
 
 #define IRMP_SUPPORT_RADIO1_PROTOCOL            0       // RADIO, e.g. TEVION   >= 10000                 ~250 bytes (experimental)
 
@@ -139,6 +159,14 @@
 #  define IRMP_BIT_NUMBER                       13
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * Hardware pin for ARM STM32 (HAL) - don't change here, define IRMP_RECEIVE_GPIO_Port & IRMP_RECEIVE_PIN in STM32Cube (Main.h)
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#elif defined (ARM_STM32_HAL)                                           // STM32: IRMP_RECEIVE_GPIO_Port & IRMP_RECEIVE_PIN must be defined in STM32Cube
+#  define IRMP_PORT_LETTER                      IRMP_Receive_GPIO_Port
+#  define IRMP_BIT_NUMBER                       IRMP_Receive_Pin
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
  * Change hardware pin here for Stellaris ARM Cortex M4
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
@@ -175,6 +203,16 @@
 #elif defined(__MBED__)
 #  define IRMP_PIN                              P0_22                   // use P1_27 on LPC1347
 #  define IRMP_PINMODE                          PullUp                  // hardware dependent
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * Change hardware pin here for ChibiOS HAL
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#elif defined(_CHIBIOS_HAL_)
+#  define IRMP_PIN                              LINE_IR_IN              // use pin names as defined in the board config file, prefixed with "LINE_"
+#  define IRMP_LOGGING_SD                       SD1                     // the ChibiOS HAL Serial Driver instance to log to
+                                                                        // (when IRMP_LOGGING is enabled below). 
+                                                                        // Make sure SERIAL_BUFFERS_SIZE is large enough when enabling logging
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * Handling of unknown target system: DON'T CHANGE
@@ -217,4 +255,33 @@
 #  define IRMP_USE_CALLBACK                     0       // 1: use callbacks. 0: do not. default is 0
 #endif
 
-#endif // _IRMPCONFIG_H_
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * Call the user-provided irmp_idle() function when IRMP is idle.
+ * Can be used to disable the timer irq and enter a sleep mode to save power
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#ifndef IRMP_USE_IDLE_CALL
+#  define IRMP_USE_IDLE_CALL                    0       // 1: use idle calls. 0: do not. default is 0
+#endif
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * Use ChibiOS Events to signal that valid IR data was received
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#if defined(_CHIBIOS_RT_) || defined(_CHIBIOS_NIL_)
+
+#  ifndef IRMP_USE_EVENT
+#    define IRMP_USE_EVENT                      0       // 1: use event. 0: do not. default is 0
+#  endif
+
+#  if IRMP_USE_EVENT == 1 && !defined(IRMP_EVENT_BIT)
+#    define IRMP_EVENT_BIT                      1                     // event flag or bit to send
+#  endif
+#  if IRMP_USE_EVENT == 1 && !defined(IRMP_EVENT_THREAD_PTR)
+#    define IRMP_EVENT_THREAD_PTR               ir_receive_thread_p   // pointer to the thread to send the event to
+extern thread_t *IRMP_EVENT_THREAD_PTR;                               // the pointer must be defined and initialized elsewhere
+#  endif
+
+#endif // _CHIBIOS_RT_ || _CHIBIOS_NIL_
+
+#endif // _IRMPCONFIG_STAGE2_H_

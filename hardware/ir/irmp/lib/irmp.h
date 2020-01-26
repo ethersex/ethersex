@@ -1,9 +1,7 @@
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * irmp.h
  *
- * Copyright (c) 2009-2016 Frank Meyer - frank(at)fli4l.de
- *
- * $Id: irmp.h,v 1.103 2016/09/09 07:53:29 fm Exp $
+ * Copyright (c) 2009-2019 Frank Meyer - frank(at)fli4l.de
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,10 +13,18 @@
 #ifndef _IRMP_H_
 #define _IRMP_H_
 
+#ifndef IRMP_USE_AS_LIB
+#  define IRMPCONFIG_STAGE1_H
+#  include "irmpconfig.h"
+#  undef IRMPCONFIG_STAGE1_H
+#endif
+
 #include "irmpsystem.h"
 
 #ifndef IRMP_USE_AS_LIB
+#  define IRMPCONFIG_STAGE2_H
 #  include "irmpconfig.h"
+#  undef IRMPCONFIG_STAGE2_H
 #endif
 
 #ifndef IRMP_USE_AS_LIB
@@ -64,6 +70,11 @@
 #    warning The STM32 port of IRMP uses the ST standard peripheral drivers which are not enabled in your build configuration.
 #  endif
 
+#elif defined (ARM_STM32_HAL)
+#  define IRMP_BIT                              IRMP_BIT_NUMBER
+#  define IRMP_PIN                              IRMP_BIT_NUMBER   // for use with input(x) below
+#  define input(x)                              HAL_GPIO_ReadPin(IRMP_PORT_LETTER, x)
+
 #elif defined (STELLARIS_ARM_CORTEX_M4)
 #  define _CONCAT(a,b)                          a##b
 #  define CONCAT(a,b)                           _CONCAT(a,b)
@@ -87,12 +98,25 @@
 #elif defined(__xtensa__)
 #  define IRMP_BIT                              IRMP_BIT_NUMBER
 #  define input(x)                              GPIO_INPUT_GET(IRMP_BIT_NUMBER)
+
+#elif defined(_CHIBIOS_HAL_)
+#  define input(x)                              palReadLine(x)
+
 #endif
+#endif
+
+#if IRMP_USE_IDLE_CALL == 1
+void irmp_idle(void);                   // the user has to provide an implementation of the irmp_idle() function and link it
 #endif
 
 #if IRMP_SUPPORT_TECHNICS_PROTOCOL == 1
 #  undef IRMP_SUPPORT_MATSUSHITA_PROTOCOL
 #  define IRMP_SUPPORT_MATSUSHITA_PROTOCOL      1
+#endif
+
+#if IRMP_32_BIT == 0 && IRMP_SUPPORT_MERLIN_PROTOCOL == 1
+#  undef IRMP_SUPPORT_MERLIN_PROTOCOL
+#  warning MERLIN protocol disabled, IRMP_32_BIT=1 needed
 #endif
 
 #if IRMP_SUPPORT_DENON_PROTOCOL == 1 && IRMP_SUPPORT_RUWIDO_PROTOCOL == 1
@@ -165,6 +189,20 @@
 #  define IRMP_SUPPORT_NETBOX_PROTOCOL          0
 #endif
 
+#if IRMP_SUPPORT_GRUNDIG_PROTOCOL == 1 && IRMP_SUPPORT_RCII_PROTOCOL == 1
+#  warning GRUNDIG protocol conflicts wih RCII, please enable only one of both protocols
+#  warning RCII protocol disabled
+#  undef IRMP_SUPPORT_RCII_PROTOCOL
+#  define IRMP_SUPPORT_RCII_PROTOCOL          0
+#endif
+
+#if IRMP_SUPPORT_NOKIA_PROTOCOL == 1 && IRMP_SUPPORT_RCII_PROTOCOL == 1
+#  warning NOKIA protocol conflicts wih RCII, please enable only one of both protocols
+#  warning RCII protocol disabled
+#  undef IRMP_SUPPORT_RCII_PROTOCOL
+#  define IRMP_SUPPORT_RCII_PROTOCOL          0
+#endif
+
 #if IRMP_SUPPORT_SIEMENS_PROTOCOL == 1 && F_INTERRUPTS < 15000
 #  warning F_INTERRUPTS too low, SIEMENS protocol disabled (should be at least 15000)
 #  undef IRMP_SUPPORT_SIEMENS_PROTOCOL
@@ -229,6 +267,18 @@
 #  warning F_INTERRUPTS too low, RCMM protocol disabled (should be at least 20000)
 #  undef IRMP_SUPPORT_RCMM_PROTOCOL
 #  define IRMP_SUPPORT_RCMM_PROTOCOL            0
+#endif
+
+#if IRMP_SUPPORT_PENTAX_PROTOCOL == 1 && F_INTERRUPTS > 16000
+#  warning F_INTERRUPTS too high, PENTAX protocol disabled (should be max 16000)
+#  undef IRMP_SUPPORT_PENTAX_PROTOCOL
+#  define IRMP_SUPPORT_PENTAX_PROTOCOL          0
+#endif
+
+#if IRMP_SUPPORT_GREE_PROTOCOL == 1 && F_INTERRUPTS > 16000
+#  warning F_INTERRUPTS too high, GREE protocol disabled (should be max 16000)
+#  undef IRMP_SUPPORT_GREE_PROTOCOL
+#  define IRMP_SUPPORT_GREE_PROTOCOL            0
 #endif
 
 #if F_INTERRUPTS > 20000
