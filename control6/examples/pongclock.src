@@ -1,0 +1,386 @@
+/*
+ * Copyright (c) 2020 Erik Kunze <ethersex@erik-kunze.de>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * For more information on the GPL, please go to:
+ * http://www.gnu.org/copyleft/gpl.html
+ */
+
+/*
+  Pong Clock by Mark Wilson
+  https://hackaday.io/funnypolynomial
+  https://hackaday.io/project/167162-flipclock
+ */
+
+#include <stdint.h>
+#include <stdbool.h>
+#include <avr/pgmspace.h>
+#include "hardware/lcd/glcd/glcd.h"
+
+#define SCREEN_WIDTH    320
+#define SCREEN_HEIGHT   240
+
+#define COLOUR_BACK     0, 0x00, 0x00, 0x00
+#define COLOUR_SCORE    0, 0xFF, 0xFF, 0xFF
+#define COLOUR_BALL     0, 0xFF, 0xFF, 0xFF
+#define COLOUR_NET      0, 0xFF, 0xFF, 0xFF
+#define COLOUR_LEFT     0, 0xFF, 0xFF, 0xFF
+#define COLOUR_RIGHT    0, 0xFF, 0xFF, 0xFF
+
+#define BALL_SIZE       8
+#define BALL_SPEED      (2 * BALL_SIZE)
+#define FONT_CELL_SIZE  BALL_SIZE
+#define PADDLE_WIDTH    BALL_SIZE
+#define PADDLE_HEIGHT   (5 * BALL_SIZE)
+#define SIDE_RIGHT      1
+#define SIDE_LEFT       0
+#define SIDE_NONE       -1
+#define DWELL_COUNT     8
+#define NET_LENGTH      4
+#define NET_WIDTH       2
+
+extern clock_datetime_t datetime;
+
+static uint8_t score_time_hour, score_time_minutes;
+static int16_t ball_x, ball_y;
+static int16_t ball_prev_x, ball_prev_y;
+static int16_t ball_delta_x, ball_delta_y;
+static int16_t paddle_left_y, paddle_right_y;
+static int16_t paddle_left_prev_y, paddle_right_prev_y;
+static int8_t side_loosing, dwell_counter_1, dwell_counter_2;
+static int16_t serve_sign;
+static bool served;
+
+
+static void
+draw_score_digit(int16_t x, uint8_t index)
+{
+  // draw the <index>th digit 0..9
+  // at x, y. x is advanced to the next char
+
+  // 15 bits, 5 rows of 3 cols, 15th bit is top left
+  static uint16_t const score_font[10] PROGMEM = {
+    0x7B6F, 0x6497, 0x73E7, 0x73CF, 0x5BC9,
+    0x79CF, 0x79EF, 0x7249, 0x7BEF, 0x7BC9
+  };
+
+  uint16_t font_word = pgm_read_word(&score_font[index]);
+  uint16_t mask = 0x4000;
+
+  int16_t sy = 0;
+  for (uint8_t cy = 0; cy < 5; cy++, sy += FONT_CELL_SIZE)
+  {
+    int16_t sx = x;
+    for (uint8_t cx = 0; cx < 3; cx++, sx += FONT_CELL_SIZE)
+    {
+      font_word & mask ? glcd_set_color(COLOUR_SCORE)
+        : glcd_set_color(COLOUR_BACK);
+      glcd_draw_box(sx, sy, FONT_CELL_SIZE, FONT_CELL_SIZE);
+      mask >>= 1;
+    }
+  }
+}
+
+static void
+draw_score_time(void)
+{
+  draw_score_digit(SCREEN_WIDTH / 2 - 8 * FONT_CELL_SIZE,
+                   score_time_hour / 10);
+  draw_score_digit(SCREEN_WIDTH / 2 - 4 * FONT_CELL_SIZE,
+                   score_time_hour % 10);
+  draw_score_digit(SCREEN_WIDTH / 2 + 1 * FONT_CELL_SIZE,
+                   score_time_minutes / 10);
+  draw_score_digit(SCREEN_WIDTH / 2 + 5 * FONT_CELL_SIZE,
+                   score_time_minutes % 10);
+}
+
+static void
+redraw_score_time(int16_t x1, int16_t x2)
+{
+  // the time is the score
+  if (x2 >= SCREEN_WIDTH / 2 - 8 * FONT_CELL_SIZE &&
+      x1 < SCREEN_WIDTH / 2 - 5 * FONT_CELL_SIZE)
+    draw_score_digit(SCREEN_WIDTH / 2 - 8 * FONT_CELL_SIZE,
+                     score_time_hour / 10);
+
+  if (x2 >= SCREEN_WIDTH / 2 - 4 * FONT_CELL_SIZE &&
+      x1 < SCREEN_WIDTH / 2 - 1 * FONT_CELL_SIZE)
+    draw_score_digit(SCREEN_WIDTH / 2 - 4 * FONT_CELL_SIZE,
+                     score_time_hour % 10);
+
+  if (x2 >= SCREEN_WIDTH / 2 + 1 * FONT_CELL_SIZE &&
+      x1 < SCREEN_WIDTH / 2 + 4 * FONT_CELL_SIZE)
+    draw_score_digit(SCREEN_WIDTH / 2 + 1 * FONT_CELL_SIZE,
+                     score_time_minutes / 10);
+
+  if (x2 >= SCREEN_WIDTH / 2 + 5 * FONT_CELL_SIZE &&
+      x1 < SCREEN_WIDTH / 2 + 8 * FONT_CELL_SIZE)
+    draw_score_digit(SCREEN_WIDTH / 2 + 5 * FONT_CELL_SIZE,
+                     score_time_minutes % 10);
+}
+
+static void
+draw_paddles(void)
+{
+  // both sides
+  for (uint8_t side = 0; side <= 1; side++)
+  {
+    int16_t x = side ? SCREEN_WIDTH - PADDLE_WIDTH : 0;
+    int16_t y = side ? paddle_right_y : paddle_left_y;
+    int16_t *prevY = side ? &paddle_right_prev_y : &paddle_left_prev_y;
+    y -= PADDLE_HEIGHT / 2 - BALL_SIZE / 2;
+    if (y < 0)
+      y = 0;
+    if (y + PADDLE_HEIGHT > SCREEN_HEIGHT)
+      y = SCREEN_HEIGHT - PADDLE_HEIGHT;
+    if (*prevY != y)
+    {
+      // blank the old paddle
+      if (*prevY != -1)
+      {
+        glcd_set_color(COLOUR_BACK);
+        glcd_draw_box(x, *prevY, PADDLE_WIDTH - 1, PADDLE_HEIGHT - 1);
+      }
+      // draw the paddle
+      side ? glcd_set_color(COLOUR_LEFT) : glcd_set_color(COLOUR_RIGHT);
+      glcd_draw_box(x, y, PADDLE_WIDTH - 1, PADDLE_HEIGHT - 1);
+      *prevY = y;
+    }
+  }
+}
+
+static void
+move_paddles(void)
+{
+  // Align paddle with the ball if it's approaching...
+  int8_t side_approaching = ball_delta_x < 0 ? SIDE_LEFT : SIDE_RIGHT;
+  int16_t paddleY = ball_y;
+  if (side_loosing == side_approaching)
+  {
+    // ... unless we need to miss. Just put it in the other half.
+    paddleY -= SCREEN_HEIGHT / 2;
+    if (paddleY < 0)
+      paddleY = SCREEN_HEIGHT + paddleY;
+  }
+
+  if (side_approaching == SIDE_LEFT)
+    paddle_left_y = paddleY;
+  else
+    paddle_right_y = paddleY;
+}
+
+static void
+draw_net(void)
+{
+  glcd_set_color(COLOUR_NET);
+  for (int16_t y = 0; y < SCREEN_HEIGHT; y += 2 * NET_LENGTH)
+  {
+    glcd_draw_box(SCREEN_WIDTH / 2 - NET_WIDTH / 2, y, NET_WIDTH, NET_LENGTH);
+  }
+}
+
+static void
+redraw_net(int16_t y1, int16_t y2)
+{
+  glcd_set_color(COLOUR_NET);
+  for (int16_t y = 0; y < SCREEN_HEIGHT; y += 2 * NET_LENGTH)
+  {
+    if (y2 >= y && y1 < y + NET_LENGTH)
+      glcd_draw_box(SCREEN_WIDTH / 2 - NET_WIDTH / 2, y,
+                    NET_WIDTH, NET_LENGTH);
+  }
+}
+
+static void
+draw_court(void)
+{
+  draw_net();
+  draw_score_time();
+  draw_paddles();
+}
+
+static void
+serve_ball(void)
+{
+  ball_x = SCREEN_WIDTH / 2;
+  // serve off the winning paddle
+  if (side_loosing == SIDE_LEFT)
+  {
+    ball_x = SCREEN_WIDTH - BALL_SIZE - PADDLE_WIDTH;
+    serve_sign = -1;
+  }
+  else if (side_loosing == SIDE_RIGHT)
+  {
+    ball_x = PADDLE_WIDTH;
+    serve_sign = +1;
+  }
+  ball_y = SCREEN_HEIGHT / 2 - 10 + (rand() % 20);
+  ball_delta_x = serve_sign * BALL_SPEED;
+  ball_delta_y = BALL_SPEED / (2 + (rand() % 2));
+  if (rand() % 2)
+    ball_delta_y = -ball_delta_y;
+  serve_sign = -serve_sign;
+  side_loosing = SIDE_NONE;
+  served = true;
+}
+
+static void
+xor_ball(int16_t x, int16_t y, bool on)
+{
+  // can't xor, fake it
+  on ? glcd_set_color(COLOUR_BALL) : glcd_set_color(COLOUR_BACK);
+  glcd_draw_box(x, y, BALL_SIZE, BALL_SIZE);
+  if (!on)
+  {
+    // refresh the elements which may've been altered
+    if (x < SCREEN_WIDTH / 2 + NET_WIDTH / 2 &&
+        x + BALL_SIZE > SCREEN_WIDTH / 2 - NET_WIDTH / 2)
+      redraw_net(y, y + BALL_SIZE - 1);
+
+    // we don't see leftovers between squares in the on cells?
+    if (y < 5 * FONT_CELL_SIZE)
+      redraw_score_time(x, x + BALL_SIZE - 1);
+  }
+}
+
+static void
+update_ball(void)
+{
+  // main logic
+  int bounde_side = SIDE_NONE;
+  // handle delays in animation
+  if (dwell_counter_1)
+  {
+    if (--dwell_counter_1 == 0)
+    {
+      score_time_hour = CLOCK_HOUR;
+      score_time_minutes = CLOCK_MIN;
+      draw_score_time();
+      dwell_counter_2 = DWELL_COUNT;
+    }
+    return;
+  }
+  if (dwell_counter_2)
+  {
+    if (--dwell_counter_2 == 0)
+    {
+      serve_ball();
+    }
+    return;
+  }
+
+  // move the ball (except on a serve, let it sit for one frame)
+  if (!served)
+  {
+    ball_x += ball_delta_x;
+    ball_y += ball_delta_y;
+  }
+  served = false;
+  // bounce left-right?
+  if (ball_x < PADDLE_WIDTH)
+  {
+    ball_x = PADDLE_WIDTH;
+    ball_delta_x = -ball_delta_x;
+    bounde_side = SIDE_LEFT;
+  }
+  if (ball_x >= (SCREEN_WIDTH - BALL_SIZE - PADDLE_WIDTH - 1))
+  {
+    ball_x = SCREEN_WIDTH - BALL_SIZE - PADDLE_WIDTH - 1;
+    ball_delta_x = -ball_delta_x;
+    bounde_side = SIDE_RIGHT;
+  }
+
+  // bounce up-down?
+  if (ball_y <= 0)
+  {
+    ball_y = 0;
+    ball_delta_y = -ball_delta_y;
+  }
+  if (ball_y >= (SCREEN_HEIGHT - BALL_SIZE - 1))
+  {
+    ball_y = SCREEN_HEIGHT - BALL_SIZE - 1;
+    ball_delta_y = -ball_delta_y;
+  }
+
+  if (ball_prev_x != -1)        // undraw ball at previous location
+    xor_ball(ball_prev_x, ball_prev_y, false);
+  ball_prev_x = ball_x;
+  ball_prev_y = ball_y;
+  xor_ball(ball_x, ball_y, true);       // draw ball at new location
+  if (bounde_side != SIDE_NONE)
+  {
+    if (bounde_side == side_loosing)
+    {
+      // bounced off the losing side, point!
+      dwell_counter_1 = DWELL_COUNT;    // linger showing loss and new score/time
+    }
+    else
+    {
+      // check if a side needs to lose
+      if (CLOCK_HOUR != score_time_hour)
+        side_loosing = SIDE_RIGHT;
+      else if (CLOCK_MIN != score_time_minutes)
+        side_loosing = SIDE_LEFT;
+    }
+  }
+  if (dwell_counter_1 == 0)
+  {
+    move_paddles();
+    draw_paddles();
+  }
+}
+
+static void
+setup(void)
+{
+  glcd_set_rotate_270();
+  glcd_set_color(COLOUR_BACK);
+  glcd_draw_box(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+  ball_prev_x = paddle_right_prev_y = paddle_left_prev_y = -1;
+  paddle_left_prev_y = paddle_right_prev_y = ball_prev_x = ball_prev_y = -1;
+  paddle_left_y = paddle_right_y = ball_y;
+  serve_sign = 1;
+
+  score_time_hour = CLOCK_HOUR;
+  score_time_minutes = CLOCK_MIN;
+
+  serve_ball();
+  draw_court();
+}
+
+static void
+tick(void)
+{
+  static uint8_t tick_counter = 5;      // 100ms
+
+  if (--tick_counter == 0)
+  {
+    tick_counter = 5;
+    update_ball();
+  }
+}
+
+CONTROL_START
+
+  ON STARTUP DO
+    setup();
+  END
+
+  tick();
+
+CONTROL_END
+
