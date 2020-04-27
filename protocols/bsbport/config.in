@@ -12,6 +12,9 @@ if [ "$BSBPORT_SUPPORT" = y -o $USARTS -gt $USARTS_USED ]; then
     if [ "$BSBPORT_BUFFER_LEN" -gt "$NET_MAX_FRAME_LENGTH" ] ; then
       BSBPORT_BUFFER_LEN=$NET_MAX_FRAME_LENGTH
     fi
+    if [ "$BSBPORT_BUFFER_LEN" -gt "256" ] ; then
+      BSBPORT_BUFFER_LEN=256
+    fi
     int    "BSBPort Buffer Length" BSBPORT_BUFFER_LEN 32
     int    "BSBPort Max Buffer Flush Interval (N*20ms)" BSBPORT_FLUSH 25
     int    "BSBPort Message History Size" BSBPORT_MESSAGE_BUFFER_LEN 10

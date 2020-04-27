@@ -154,7 +154,7 @@ bsbport_publish_cb(char const *topic, uint16_t topic_length,
              p1, p2, p3, p4, dest, type, strvalue, fp_val, raw_val);
 
     free(strvalue);
-    
+
     if (ret == 6)
     {
       uint8_t data[3];
@@ -203,8 +203,6 @@ bsbport_publish_cb(char const *topic, uint16_t topic_length,
     }
     else
       BSBDEBUG("MQTT set parse error");
-
-    free(strvalue);
   }
   if (topic[sizeof(BSBPORT_MQTT_TOPIC)] == 'q')
   {
