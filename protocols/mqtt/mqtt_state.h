@@ -22,15 +22,17 @@
 #ifndef HAVE_MQTT_STATE_H
 #define HAVE_MQTT_STATE_H
 
-enum {
-    MQTT_STATE_DISCONNECTED,
-    MQTT_STATE_CONNECT,
-    MQTT_STATE_CONNECTED,
-    MQTT_STATE_SUBSCRIBED,
+enum
+{
+  MQTT_STATE_DISCONNECTED,
+  MQTT_STATE_CONNECT,
+  MQTT_STATE_CONNECTED,
+  MQTT_STATE_SUBSCRIBED,
 };
 
-typedef struct mqtt_connection_state_t {
-    uint8_t stage;
+typedef struct mqtt_connection_state_t
+{
+  uint8_t stage;
 } mqtt_connection_state_t;
 
-#endif  /* HAVE_MQTT_STATE_H */
+#endif /* HAVE_MQTT_STATE_H */
