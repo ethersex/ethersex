@@ -61,6 +61,7 @@ protocols/mdns_sd/mdns_services.c
 protocols/uip/ipchair/ipchair.c
 protocols/ecmd/np_simple_glue.m4
 protocols/ecmd/wiki.txt
+protocols/mqtt/mqtt_callback_configuration.c
 
 # User defined pinning/named_pin profiles
 pinning/hardware/user*.m4

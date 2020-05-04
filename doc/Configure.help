@@ -3666,3 +3666,37 @@ I2C_BH1750_AUTO_RESOLUTION
   Enable automatic resolution adjustment according to the brightness.
   Increases measurement time and code size noticeably.
 
+MQTT client ID
+MQTT_CONF_CLIENTID
+  Depends on: 
+   * MQTT client (MQTT_SUPPORT)
+
+  Device's unique identifier.
+
+MQTT Prefix
+MQTT_CONF_PREFIX
+  Depends on: 
+   * MQTT client (MQTT_SUPPORT)
+
+  Topic prefix.
+
+Dynamic callback registration
+MQTT_DYNAMIC_CALLBACKS
+  Depends on: 
+   * MQTT client (MQTT_SUPPORT)
+
+  Enable support for dynamic callback registration. The static registry
+  should be used preferably. If unsure, do not activate.
+
+  Developers might have a look into the sources below protocols/mqtt.
+
+Maximum number of dynamic callbacks
+MQTT_DYNAMIC_CALLBACK_SLOTS
+  Depends on: 
+   * MQTT client (MQTT_SUPPORT)
+   * Enable dynamic callback registration (MQTT_DYNAMIC_CALLBACKS)
+
+  Number of cllbacks that can be registered dynamically.
+
+  Dynamic registration use a few byte RAM per module.
+

@@ -1,30 +1,26 @@
 dep_bool_menu "MQTT client" MQTT_SUPPORT $TCP_SUPPORT
-	int "Number of callback slots" MQTT_CALLBACK_SLOTS 1
-
-	comment  "Configuration"
-	dep_bool 'Enable MQTT static configuration' MQTT_STATIC_CONF $MQTT_SUPPORT
-
-if [ "$MQTT_STATIC_CONF" = y ]; then
-	string 'MQTT client ID' MQTT_STATIC_CONF_CLIENTID
-	ip "MQTT broker IP" MQTT_STATIC_CONF_SERVER_IP "192.168.23.254" "2001:19f0:feee:0:0:dead:beef:cafe"
-	dep_bool 'Supply MQTT username' MQTT_STATIC_CONF_SUPPLY_USERNAME $MQTT_SUPPORT
-  if [ "$MQTT_STATIC_CONF_SUPPLY_USERNAME" = y ]; then
-	dep_bool 'Supply MQTT password' MQTT_STATIC_CONF_SUPPLY_PASSWORD $MQTT_SUPPORT $MQTT_STATIC_CONF_SUPPLY_USERNAME
-	string 'MQTT username' MQTT_STATIC_CONF_USER
-    if [ "$MQTT_STATIC_CONF_SUPPLY_PASSWORD" = y ]; then
-	string 'MQTT password' MQTT_STATIC_CONF_PASS
-    fi
-  fi
-	dep_bool 'Supply MQTT will' MQTT_STATIC_CONF_SUPPLY_WILL $MQTT_SUPPORT
-  if [ "$MQTT_STATIC_CONF_SUPPLY_WILL" = y ]; then
-	string 'MQTT will topic' MQTT_STATIC_CONF_WILL_TOPIC
-	int 'MQTT will QoS' MQTT_STATIC_CONF_WILL_QOS 0
-	bool 'MQTT will retain flag' MQTT_STATIC_CONF_WILL_RETAIN
-	string 'MQTT will message' MQTT_STATIC_CONF_WILL_MESSAGE
-  fi
-fi
+	ip "MQTT broker IP" MQTT_CONF_SERVER_IP "192.168.23.254" "2001:19f0:feee:0:0:dead:beef:cafe"
+	string 'MQTT client ID' MQTT_CONF_CLIENTID "ethersex"
+	dep_bool 'Supply MQTT username' MQTT_CONF_SUPPLY_USERNAME $MQTT_SUPPORT
+	if [ "$MQTT_CONF_SUPPLY_USERNAME" = y ]; then
+		string 'MQTT username' MQTT_CONF_USER
+		dep_bool 'Supply MQTT password' MQTT_CONF_SUPPLY_PASSWORD $MQTT_SUPPORT $MQTT_CONF_SUPPLY_USERNAME
+		if [ "$MQTT_CONF_SUPPLY_PASSWORD" = y ]; then
+			string 'MQTT password' MQTT_CONF_PASS
+		fi
+	fi
+	dep_bool 'Supply MQTT will' MQTT_CONF_SUPPLY_WILL $MQTT_SUPPORT
+	if [ "$MQTT_CONF_SUPPLY_WILL" = y ]; then
+		string 'MQTT will topic' MQTT_CONF_WILL_TOPIC
+		int 'MQTT will QoS' MQTT_CONF_WILL_QOS 0
+		bool 'MQTT will retain flag' MQTT_CONF_WILL_RETAIN
+		string 'MQTT will message' MQTT_CONF_WILL_MESSAGE
+	fi
+	string 'MQTT Prefix' MQTT_CONF_PREFIX "ethersex"
+	dep_bool 'Dynamic callback registration' MQTT_DYNAMIC_CALLBACKS $MQTT_SUPPORT
+	int "Maximum number of dynamic callbacks" MQTT_DYNAMIC_CALLBACK_SLOTS 1
 
 	comment  "Debugging Flags"
-	dep_bool 'MQTT Debug Messages' MQTT_DEBUG $DEBUG $MQTT_SUPPORT
-	dep_bool 'MQTT Parse method Debug Messages' MQTT_PARSE_DEBUG $DEBUG $MQTT_SUPPORT
+	dep_bool 'MQTT' MQTT_DEBUG $DEBUG $MQTT_SUPPORT
+	dep_bool 'MQTT packet parsing' MQTT_PARSE_DEBUG $DEBUG $MQTT_SUPPORT
 endmenu
