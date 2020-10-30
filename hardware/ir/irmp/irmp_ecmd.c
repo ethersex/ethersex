@@ -47,9 +47,9 @@ parse_cmd_irmp_receive(char *cmd, char *output, uint16_t len)
   return (irmp_data_p != 0
           ? ECMD_FINAL(sprintf_P(output,
                                  PSTR("%02" PRIu8 ":"
-                                      "%04" PRIX16 ":"
-                                      "%04" PRIX16 ":"
-                                      "%02" PRIX8 "\n"),
+                                      "0x%04" PRIX16 ":"
+                                      "0x%04" PRIX16 ":"
+                                      "0x%02" PRIX8 "\n"),
                                  irmp_data_p->protocol,
                                  irmp_data_p->address,
                                  irmp_data_p->command,

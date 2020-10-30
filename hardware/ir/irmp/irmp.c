@@ -4,7 +4,7 @@
  * for additional information please
  * see http://www.mikrocontroller.net/articles/IRMP
  *
- * Copyright (c) 2010-2019 by Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) 2010-2020 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,6 +24,7 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
+#include <stdlib.h>
 #include <string.h>
 #include <avr/io.h>
 #include <util/delay.h>
@@ -31,8 +32,15 @@
 
 #include "config.h"
 #include "core/debug.h"
+#include "irmp_mqtt.h"
 #include "irmp.h"
 
+
+#ifdef DEBUG_IRMP
+#define IRMPDEBUG(s, ...)  debug_printf("irmp: " s "\n", ## __VA_ARGS__)
+#else
+#define IRMPDEBUG(...)     do { } while(0)
+#endif
 
 #if defined(IRMP_SUPPORT_LEGO_PROTOCOL) || defined(IRMP_SUPPORT_RCMM_PROTOCOL)
 #define IRMP_HZ            20000        /* interrupts per second */
@@ -240,13 +248,12 @@ irmp_read(void)
   irmp_data_t *irmp_data_p =
     &irmp_rx_fifo.buffer[irmp_rx_fifo.read = FIFO_NEXT(irmp_rx_fifo.read)];
 
-#ifdef DEBUG_IRMP
-  printf_P(PSTR("IRMP RX: proto %02" PRId8 " %S, address %04" PRIX16
-                ", command %04" PRIX16 ", flags %02" PRIX8 "\n"),
-           irmp_data_p->protocol,
-           pgm_read_word(&irmp_proto_names[irmp_data_p->protocol]),
-           irmp_data_p->address, irmp_data_p->command, irmp_data_p->flags);
-#endif
+  IRMPDEBUG("rx proto %02" PRId8 " (%S), address 0x%04" PRIX16
+            ", command 0x%04" PRIX16 ", flags 0x%02" PRIX8 "\n",
+            irmp_data_p->protocol,
+            pgm_read_word(&irmp_proto_names[irmp_data_p->protocol]),
+            irmp_data_p->address, irmp_data_p->command, irmp_data_p->flags);
+
   return irmp_data_p;
 }
 
@@ -312,13 +319,11 @@ irmp_tx_set_freq(uint8_t freq)
 void
 irmp_write(irmp_data_t * irmp_data_p)
 {
-#ifdef DEBUG_IRMP
-  printf_P(PSTR("IRMP TX: proto %02" PRId8 " %S, address %04" PRIX16
-                ", command %04" PRIX16 ", flags %02" PRIX8 "\n"),
-           irmp_data_p->protocol,
-           pgm_read_word(&irmp_proto_names[irmp_data_p->protocol]),
-           irmp_data_p->address, irmp_data_p->command, irmp_data_p->flags);
-#endif
+  IRMPDEBUG("tx proto %02" PRId8 " (%S), address 0x%04" PRIX16
+            ", command 0x%04" PRIX16 ", flags 0x%02" PRIX8 "\n",
+            irmp_data_p->protocol,
+            pgm_read_word(&irmp_proto_names[irmp_data_p->protocol]),
+            irmp_data_p->address, irmp_data_p->command, irmp_data_p->flags);
 
   uint8_t tmphead = FIFO_NEXT(irmp_tx_fifo.write);
 
@@ -365,11 +370,23 @@ ISR(TC0_VECTOR_COMPARE)
 
     if (irmp_rx_process(data) != 0)
     {
-      uint8_t tmphead = FIFO_NEXT(irmp_rx_fifo.write);
-      if (tmphead != irmp_rx_fifo.read)
+      irmp_data_t irmp_data;
+      if (irmp_rx_get(&irmp_data))
       {
-        if (irmp_rx_get(&irmp_rx_fifo.buffer[tmphead]))
+        uint8_t tmphead = FIFO_NEXT(irmp_rx_fifo.write);
+        if (tmphead != irmp_rx_fifo.read)
+        {
+          irmp_rx_fifo.buffer[tmphead] = irmp_data;
           irmp_rx_fifo.write = tmphead;
+        }
+#ifdef MQTT_SUPPORT
+        irmp_data_t *data_p = malloc(sizeof(irmp_data));
+        if (data_p != NULL)
+        {
+          *data_p = irmp_data;
+          irmp_mqtt_enqueue_rx(data_p);
+        }
+#endif
       }
     }
 #endif
