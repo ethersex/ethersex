@@ -69,17 +69,13 @@
 
 //#ifdef MQTT_DEBUG
 #ifdef DEBUG
-#define C6DEBUG(s, ...) debug_printf("MQTT: " s "\n", ## __VA_ARGS__)
+#define C6DEBUG(s, ...) debug_printf("mqtt: " s "\n", ## __VA_ARGS__)
 #else
 #define C6DEBUG(...)    do { } while(0)
 #endif
 
 /* Prefix */
-#ifdef MQTT_STATIC_CONF
-#define C6_MQTT_TOPIC              MQTT_STATIC_CONF_CLIENTID
-#else
-#define C6_MQTT_TOPIC              CONF_HOSTNAME
-#endif
+#define C6_MQTT_TOPIC              "ethersex/" MQTT_CONF_CLIENTID
 
 /* Sensors */
 #define C6_SENSOR_PUBLISH_FORMAT   C6_MQTT_TOPIC "/sensor/%s/%S"
@@ -222,8 +218,7 @@ c6_publish_cb(const char *topic, uint16_t topic_length,
 
   memcpy(strvalue, topic, topic_length);
   strvalue[topic_length] = '\0';
-  C6DEBUG("publish %s", strvalue);
-
+  
   if (strncmp_P(topic, PSTR(C6_NAMED_PIN_TOPIC), sizeof(C6_NAMED_PIN_TOPIC) - 1) == 0)
   {
     const char *name = strvalue + sizeof(C6_NAMED_PIN_TOPIC) - 1;
@@ -276,10 +271,6 @@ c6_publish_cb(const char *topic, uint16_t topic_length,
       mqtt_construct_publish_packet(topic, buf, 1, false);
     }
   }
-  else
-  {
-    C6DEBUG("parse error");
-  }
 
 out:
   if (strvalue != NULL)
@@ -298,12 +289,7 @@ c6_connack_cb(void)
 #endif
 
 #if defined(NAMED_PIN_SUPPORT) && defined(PORTIO_SUPPORT)
-  const char *topic = PSTR(C6_NAMED_PIN_SUBSCRIBE);
-  C6DEBUG("subscribe %S", topic);
-  if (mqtt_construct_subscribe_packet_P(topic) == false)
-  {
-    C6DEBUG("...failed");
-  }
+  mqtt_construct_subscribe_packet_P(PSTR(C6_NAMED_PIN_SUBSCRIBE));
 #endif
 }
 
@@ -318,34 +304,25 @@ c6_close_cb(void)
 #endif
 }
 
-static const mqtt_callback_config_t c6_mqtt_callback_config PROGMEM = {
+const mqtt_callback_config_t c6_mqtt_callback_config PROGMEM = {
+  .topic = NULL,
   .connack_callback = c6_connack_cb,
 #if defined(DHT_SUPPORT) || defined(ONEWIRE_DS18XX_SUPPORT)
   .poll_callback = c6_poll_cb,
-#else
-  .poll_callback = NULL,
 #endif
   .close_callback = c6_close_cb,
 #if defined(NAMED_PIN_SUPPORT) && defined(PORTIO_SUPPORT)
   .publish_callback = c6_publish_cb
-#else
-  .publish_callback = NULL
 #endif
 };
 
-static void
-c6_mqtt_init(void)
-{
-  mqtt_register_callback(&c6_mqtt_callback_config);
-}
-
-
 CONTROL_START
 
-  ON STARTUP DO
-    c6_mqtt_init();
-  END
-
 CONTROL_END
+
+/*
+  -- Ethersex META --
+  mqtt_conf(c6_mqtt_callback_config)
+*/
 
 dnl EOF

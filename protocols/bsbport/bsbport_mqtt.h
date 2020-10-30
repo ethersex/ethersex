@@ -23,6 +23,4 @@
 #ifndef _BSBPORT_MQTT_H
 #define _BSBPORT_MQTT_H
 
-void bsbport_mqtt_init();
-
 #endif /* _BSBPORT_MQTT_H */

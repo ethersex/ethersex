@@ -231,22 +231,18 @@ bsbport_connack_cb(void)
   mqtt_construct_subscribe_packet(BSBPORT_SUBSCRIBE_QUERY_TOPIC);
 }
 
-static const mqtt_callback_config_t mqtt_callback_config PROGMEM = {
+static const char bsbport_topic[] PROGMEM = BSBPORT_MQTT_TOPIC;
+
+const mqtt_callback_config_t bspport_mqtt_callback_config PROGMEM = {
+  .topic = bsbport_topic,
   .connack_callback = bsbport_connack_cb,
   .poll_callback = bsbport_poll_cb,
   .close_callback = NULL,
   .publish_callback = bsbport_publish_cb,
 };
 
-void
-bsbport_mqtt_init()
-{
-  BSBDEBUG("MQTT Init");
-  mqtt_register_callback(&mqtt_callback_config);
-}
-
 /*
   -- Ethersex META --
   header(protocols/bsbport/bsbport_mqtt.h)
-  net_init(bsbport_mqtt_init)
+  mqtt_conf(bspport_mqtt_callback_config)
 */

@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2014 by Philip Matura <ike@tura-home.de>
  * Copyright (c) 2015 by Daniel Lindner <daniel.lindner@gmx.de>
+ * Copyright (c) 2020 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,11 +24,13 @@
 #ifndef HAVE_MQTT_H
 #define HAVE_MQTT_H
 
-
-#include "config.h"
-#include "protocols/uip/uip.h"
 #include <stdint.h>
 #include <stdbool.h>
+#include <avr/pgmspace.h>
+
+#include "config.h"
+#include "core/periodic.h"
+#include "protocols/uip/uip.h"
 
 
 // KEEP ALIVE
@@ -47,7 +50,7 @@
 
 // CONSTANTS
 
-#define TIMER_TICKS_PER_SECOND 50
+#define TIMER_TICKS_PER_SECOND HZ
 
 #define MQTTPROTOCOLVERSION 3
 #define MQTTCONNECT     1 << 4  // Client request to connect to Server
@@ -78,15 +81,16 @@
 
 
 // CONFIG STRUCTURE
-typedef void (*connack_callback) (void);
-typedef void (*poll_callback) (void);
-typedef void (*close_callback) (void);
-typedef void (*publish_callback) (char const *topic, uint16_t topic_length,
-                                  void const *payload,
-                                  uint16_t payload_length, bool retained);
+typedef void (*connack_callback)(void);
+typedef void (*poll_callback)(void);
+typedef void (*close_callback)(void);
+typedef void (*publish_callback)(char const *topic, uint16_t topic_length,
+                                 void const *payload,
+                                 uint16_t payload_length, bool retained);
 typedef struct
 {
   // see mqtt.c for explanation
+  char const *const *topic;
   connack_callback connack_callback;
   poll_callback poll_callback;
   close_callback close_callback;
@@ -113,14 +117,13 @@ typedef struct
 
 
 // PUBLIC FUNCTIONS
-
 void mqtt_set_connection_config(mqtt_connection_config_t const *const config);
 uint8_t mqtt_register_callback(mqtt_callback_config_t const *const callbacks);
 void mqtt_unregister_callback(uint8_t slot_id);
 bool mqtt_is_connected(void);
 
-// put a packet in the mqtt send queue
-// return false if there is not enough buffer space
+// Put a packet in the mqtt send queue and return false if there
+// is not enough buffer space.
 bool mqtt_construct_publish_packet(char const *topic, const void *payload,
                                    uint16_t payload_length, bool retain);
 bool mqtt_construct_publish_packet_P(PGM_P topic, const void *payload,
@@ -135,12 +138,7 @@ bool mqtt_construct_ack_packet(uint8_t msg_type, uint16_t msgid);
 
 // INTERNAL
 void mqtt_periodic(void);
-
-#ifdef MQTT_STATIC_CONF
 void mqtt_set_static_conf(void);
-#else
-#define mqtt_set_static_conf(...)
-#endif
-
+char *mqtt_full_topic(const char *format, const char *topic);
 
 #endif /* HAVE_MQTT_H */
