@@ -3,7 +3,7 @@
  *
  * DO NOT INCLUDE THIS FILE, WILL BE INCLUDED BY IRMP.H!
  *
- * Copyright (c) 2009-2019 Frank Meyer - frank(at)fli4l.de
+ * Copyright (c) 2009-2020 Frank Meyer - frank(at)fli4l.de
  * Extensions for PIC 12F1820 W.Strobl 2014-07-20
  *
  * This program is free software; you can redistribute it and/or modify
@@ -34,9 +34,10 @@
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 
-#define IRMP_32_BIT     0                                                                               // use 32 bit command value, 0 or 1
+#define IRMP_32_BIT                             0                               // use 32 bit command value, 0 or 1
 
 #endif // IRMPCONFIG_STAGE1_H
+
 #ifdef IRMPCONFIG_STAGE2_H
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -47,7 +48,7 @@
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 #ifndef F_INTERRUPTS
-#  define F_INTERRUPTS                          15000   // interrupts per second, min: 10000, max: 20000, typ: 15000
+#  define F_INTERRUPTS                          15000                           // interrupts per second, min: 10000, max: 20000, typ: 15000
 #endif
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -66,6 +67,11 @@
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * Protocols Part 1: IR decoders
+ * If you use a RF receiver, deactivate all IR protocols!
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
 // typical protocols, disable here!             Enable  Remarks                 F_INTERRUPTS            Program Space
 #define IRMP_SUPPORT_SIRCS_PROTOCOL             1       // Sony SIRCS           >= 10000                 ~150 bytes
 #define IRMP_SUPPORT_NEC_PROTOCOL               1       // NEC + APPLE + ONKYO  >= 10000                 ~300 bytes
@@ -122,7 +128,14 @@
 #define IRMP_SUPPORT_RCII_PROTOCOL              0       // RCII T+A             >= 15000                 ~250 bytes
 #define IRMP_SUPPORT_METZ_PROTOCOL              0       // METZ                 >= 15000                 ~250 bytes
 
-#define IRMP_SUPPORT_RADIO1_PROTOCOL            0       // RADIO, e.g. TEVION   >= 10000                 ~250 bytes (experimental)
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * Protocols Part 2: RF decoders
+ * If you use an IR sensor, deactivate all RF protocols!
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#define IRMP_SUPPORT_RF_GEN24_PROTOCOL          0       // RF GEN24 (generic)   >= 15000                 ~250 bytes
+#define IRMP_SUPPORT_RF_X10_PROTOCOL            0       // RF PC X10 (Medion)   >= 15000                 ~250 bytes
+#define IRMP_SUPPORT_RF_MEDION_PROTOCOL         0       // RF PC Medion         >= 15000                 ~250 bytes
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * Change hardware pin here for ATMEL ATMega/ATTiny/XMega
@@ -142,6 +155,14 @@
 #  else
 #    define IRMP_PIN                            PORTBbits.RB4           // PIC C18
 #  endif
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * Change hardware pin here for PIC XC32 or ChipKIT compiler
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#elif defined (PIC_XC32)                                                // use RB13 as IR input on PIC (XC32 or ChipKIT compiler)
+#  define IRMP_PIN                              PORTBbits.RB13
+#  define IRMP_ANSELBIT                         ANSELBbits.ANSB13       // leave this undefined if the pin has no analog function
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * Change hardware pin here for PIC CCS compiler
@@ -179,8 +200,8 @@
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 #elif defined (SDCC_STM8)                                               // use PA1 as IR input on STM8
-#  define IRMP_PORT_LETTER                      A
-#  define IRMP_BIT_NUMBER                       1
+#  define IRMP_PORT_LETTER                      A                       // change here
+#  define IRMP_BIT_NUMBER                       1                       // change here
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * Change hardware pin here for ESP8266
@@ -223,11 +244,31 @@
 #endif
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * Change if sensor is high active
+ *
+ * Usually IR sensors are low active, RF receivers are high active. Change here if you use a RF receiver!
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#ifndef IRMP_HIGH_ACTIVE
+#  define IRMP_HIGH_ACTIVE                      0                       // set to 1 if you use a RF receiver!
+#endif
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
+ * Enable detection of key releases
+ *
+ * If user releases a key on the remote control, last protocol/address/command will be returned with flag IRMP_FLAG_RELEASE set
+ *---------------------------------------------------------------------------------------------------------------------------------------------------
+ */
+#ifndef IRMP_ENABLE_RELEASE_DETECTION
+#  define IRMP_ENABLE_RELEASE_DETECTION         0                       // enable detection of key releases
+#endif
+
+/*---------------------------------------------------------------------------------------------------------------------------------------------------
  * Set IRMP_LOGGING to 1 if want to log data to UART with 9600Bd
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 #ifndef IRMP_LOGGING
-#  define IRMP_LOGGING                          0       // 1: log IR signal (scan), 0: do not. default is 0
+#  define IRMP_LOGGING                          0                       // 1: log IR signal (scan), 0: do not. default is 0
 #endif
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -236,7 +277,7 @@
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 #ifndef IRMP_EXT_LOGGING
-#  define IRMP_EXT_LOGGING                      0       // 1: use external logging, 0: do not. default is 0
+#  define IRMP_EXT_LOGGING                      0                       // 1: use external logging, 0: do not. default is 0
 #endif
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -244,7 +285,7 @@
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 #ifndef IRMP_PROTOCOL_NAMES
-#  define IRMP_PROTOCOL_NAMES                   0       // 1: access protocol names, 0: do not. default is 0
+#  define IRMP_PROTOCOL_NAMES                   0                       // 1: access protocol names, 0: do not. default is 0
 #endif
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -252,7 +293,7 @@
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 #ifndef IRMP_USE_CALLBACK
-#  define IRMP_USE_CALLBACK                     0       // 1: use callbacks. 0: do not. default is 0
+#  define IRMP_USE_CALLBACK                     0                       // 1: use callbacks. 0: do not. default is 0
 #endif
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -261,7 +302,7 @@
  *---------------------------------------------------------------------------------------------------------------------------------------------------
  */
 #ifndef IRMP_USE_IDLE_CALL
-#  define IRMP_USE_IDLE_CALL                    0       // 1: use idle calls. 0: do not. default is 0
+#  define IRMP_USE_IDLE_CALL                    0                       // 1: use idle calls. 0: do not. default is 0
 #endif
 
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
@@ -271,15 +312,15 @@
 #if defined(_CHIBIOS_RT_) || defined(_CHIBIOS_NIL_)
 
 #  ifndef IRMP_USE_EVENT
-#    define IRMP_USE_EVENT                      0       // 1: use event. 0: do not. default is 0
+#    define IRMP_USE_EVENT                      0                       // 1: use event. 0: do not. default is 0
 #  endif
 
 #  if IRMP_USE_EVENT == 1 && !defined(IRMP_EVENT_BIT)
-#    define IRMP_EVENT_BIT                      1                     // event flag or bit to send
+#    define IRMP_EVENT_BIT                      1                       // event flag or bit to send
 #  endif
 #  if IRMP_USE_EVENT == 1 && !defined(IRMP_EVENT_THREAD_PTR)
-#    define IRMP_EVENT_THREAD_PTR               ir_receive_thread_p   // pointer to the thread to send the event to
-extern thread_t *IRMP_EVENT_THREAD_PTR;                               // the pointer must be defined and initialized elsewhere
+#    define IRMP_EVENT_THREAD_PTR               ir_receive_thread_p     // pointer to the thread to send the event to
+extern thread_t *IRMP_EVENT_THREAD_PTR;                                 // the pointer must be defined and initialized elsewhere
 #  endif
 
 #endif // _CHIBIOS_RT_ || _CHIBIOS_NIL_

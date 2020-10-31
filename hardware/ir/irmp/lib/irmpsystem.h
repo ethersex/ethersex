@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * irmpsystem.h - system specific includes and defines
  *
- * Copyright (c) 2009-2019 Frank Meyer - frank(at)fli4l.de
+ * Copyright (c) 2009-2020 Frank Meyer - frank(at)fli4l.de
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,8 @@
 #elif defined(__XC8)                                                                // PIC XC8 compiler
 #  include <xc.h>
 #  define PIC_C18
+#elif defined(__XC32)                                                               // XC32 or ChipKit compiler
+#  define PIC_XC32
 #elif defined(__PCM__) || defined(__PCB__) || defined(__PCH__)                      // CCS PIC compiler
 #  define PIC_CCS
 #elif defined(STM32L1XX_MD) || defined(STM32L1XX_MDP) || defined(STM32L1XX_HD)      // ARM STM32
@@ -37,10 +39,16 @@
 #  define ARM_STM32
 #  define ARM_STM32F10X
 #  define F_CPU (SysCtlClockGet())
+#elif defined(STM32F30X)                                                            // ARM STM32
+#  include <stm32f30x.h>
+#  define ARM_STM32
+#  define ARM_STM32F30X
+#  define F_CPU (SysCtlClockGet())
 #elif defined(STM32F4XX)                                                            // ARM STM32
 #  include <stm32f4xx.h>
 #  define ARM_STM32
 #  define ARM_STM32F4XX
+#  define F_CPU (SysCtlClockGet())
 #elif defined(USE_HAL_DRIVER)                                                       // ARM STM32 with HAL Library
 #  include "gpio.h"
 #  if defined(_IRSND_H_)
@@ -83,14 +91,11 @@
 #  include <stdlib.h>
 #  define F_CPU 8000000L
 #  define ANALYZE
-#  ifdef unix
-#    include <stdint.h>
-#  else
-typedef unsigned char                   uint8_t;
-typedef unsigned short                  uint16_t;
+#  include <stdint.h>
+#  ifdef _MSC_VER
+#    define IRMP_PACKED_STRUCT
 #  endif
 #endif
-
 
 #if defined(ATMEL_AVR)
 #  include <stdint.h>
@@ -189,6 +194,11 @@ typedef unsigned short                  uint_fast16_t;
 #  define FALSE                         0
 #endif
 
+#if defined(PIC_XC32)                                                               // XC32 or ChipKit compiler
+#  include <xc.h>
+#  include <stdint.h>
+#endif
+
 #if IRMP_32_BIT == 1
 
 typedef struct
@@ -202,9 +212,11 @@ typedef struct
 #else // not IRMP_32_BIT == 1
 
 #if defined(PIC_C18)
-#define IRMP_PACKED_STRUCT
+#  define IRMP_PACKED_STRUCT
 #else
-#define IRMP_PACKED_STRUCT              __attribute__ ((__packed__))
+#  ifndef IRMP_PACKED_STRUCT
+#    define IRMP_PACKED_STRUCT          __attribute__ ((__packed__))
+#  endif
 #endif
 
 #ifndef IRMP_USE_AS_LIB

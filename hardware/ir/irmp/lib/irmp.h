@@ -1,7 +1,7 @@
 /*---------------------------------------------------------------------------------------------------------------------------------------------------
  * irmp.h
  *
- * Copyright (c) 2009-2019 Frank Meyer - frank(at)fli4l.de
+ * Copyright (c) 2009-2020 Frank Meyer - frank(at)fli4l.de
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@
 #  define IRMP_BIT                              IRMP_BIT_NUMBER
 #  define input(x)                              ((x) & (1 << IRMP_BIT))
 
-#elif defined (PIC_C18) || defined (PIC_CCS)
+#elif defined (PIC_C18) || defined (PIC_CCS) || defined(PIC_XC32)
 #  define input(x)                              (x)
 
 #elif defined (ARM_STM32)
@@ -60,6 +60,8 @@
 #    define IRMP_PORT_RCC                       CONCAT(RCC_AHBPeriph_GPIO, IRMP_PORT_LETTER)
 #  elif defined (ARM_STM32F10X)
 #    define IRMP_PORT_RCC                       CONCAT(RCC_APB2Periph_GPIO, IRMP_PORT_LETTER)
+#  elif defined (ARM_STM32F30X)
+#    define IRMP_PORT_RCC                       CONCAT(RCC_AHBPeriph_GPIO, IRMP_PORT_LETTER)
 #  elif defined (ARM_STM32F4XX)
 #    define IRMP_PORT_RCC                       CONCAT(RCC_AHB1Periph_GPIO, IRMP_PORT_LETTER)
 #  endif
@@ -90,10 +92,15 @@
 #  define CONCAT(a,b)                           _CONCAT(a,b)
 #  define IRMP_GPIO_STRUCT                      CONCAT(GPIO, IRMP_PORT_LETTER)
 #  define IRMP_BIT                              IRMP_BIT_NUMBER
+#  define IRMP_PIN                              IRMP_GPIO_STRUCT->IDR
 #  define input(x)                              ((x) & (1 << IRMP_BIT))
 
 #elif defined (TEENSY_ARM_CORTEX_M4)
 #  define input(x)                              ((uint8_t)(digitalReadFast(x)))
+
+#elif defined (__MBED__)
+#  define IRMP_BIT                              gpioIRin
+#  define input(x)                              (gpio_read (&x))
 
 #elif defined(__xtensa__)
 #  define IRMP_BIT                              IRMP_BIT_NUMBER
@@ -288,6 +295,7 @@ void irmp_idle(void);                   // the user has to provide an implementa
 #include "irmpprotocols.h"
 
 #define IRMP_FLAG_REPETITION            0x01
+#define IRMP_FLAG_RELEASE               0x02                                    // see IRMP_ENABLE_RELEASE_DETECTION in irmpconfig.h
 
 #ifdef __cplusplus
 extern "C"
