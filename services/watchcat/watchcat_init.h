@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
+ * Copyrigth (c) 2019 by Moritz Wenk <max-1973@gmx.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -19,35 +19,9 @@
  * http://www.gnu.org/copyleft/gpl.html
  */
 
-#ifndef _WATCHCAT_H
-#define _WATCHCAT_H
+#ifndef _WATCHCAT_INIT_H
+#define _WATCHCAT_INIT_H
 
-struct VirtualPin {
-  uint8_t old_state;
-  uint8_t state;
-  uint8_t last_input;
-  /* Call function on edge */
-  void (*func)(uint8_t);
-};
-
-struct WatchcatReaction {
-  /* On which port */
-  uint8_t port;
-  /* On wich pin */
-  uint8_t pin;
-  /* on rising edge? */
-  uint8_t rising;
-  /* To which host should we connect? */
-  uip_ipaddr_t address;
-  /* What should we send him? */
-  const char *message;
-  /* The associated notifying function, e.g. ecmd_sender_send_command */
-  uip_conn_t *(*func)(uip_ipaddr_t *, client_return_text_callback_t, PGM_P, ...);
-};
-
-void watchcat_init();
-
-/* Call this e.g. every 20 ms */
-void watchcat_periodic();
+void watchcat_portio_init();
 
 #endif /* _WATCHCAT_H */
