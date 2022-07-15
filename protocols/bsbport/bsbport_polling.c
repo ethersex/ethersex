@@ -38,7 +38,7 @@ bsbport_polling_periodic(void)
       step++;
       break;
 
-    case 1:                    //      SolarRücklauftemperatur
+    case 1:                    //      SolarRÃ¼cklauftemperatur
       bsbport_query(0x49, 0x3d, 0x05, 0x0f, 0x00);
       step++;
       break;
@@ -131,12 +131,12 @@ bsbport_polling_periodic(void)
       step++;
       break;
 
-    case 19:                   //      Relaisausgang QX2  05   3d      09      BB -> 
+    case 19:                   //      Relaisausgang QX2  05   3d      09      BB ->
       bsbport_query(0x05, 0x3d, 0x09, 0xBB, 0x00);
       step++;
       break;
 
-    case 20:                   //      Relaisausgang QX3  05   3d      09      BC -> 
+    case 20:                   //      Relaisausgang QX3  05   3d      09      BC ->
       bsbport_query(0x05, 0x3d, 0x09, 0xBC, 0x00);
       step++;
       break;
@@ -146,8 +146,13 @@ bsbport_polling_periodic(void)
       step++;
       break;
 
-    case 22:                   //      Fehlerstatus            05      3d      00      9A 
+    case 22:                   //      Fehlerstatus            05      3d      00      9A
       bsbport_query(0x05, 0x3d, 0x00, 0x9A, 0x00);
+      step++;
+      break;
+
+    case 23:                   //      Aussentemperatur            05 3d 05 21
+      bsbport_query(0x05, 0x3d, 0x05, 0x21, 0x00);
       step++;
       break;
 

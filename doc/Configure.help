@@ -3700,3 +3700,21 @@ MQTT_DYNAMIC_CALLBACK_SLOTS
 
   Dynamic registration use a few byte RAM per module.
 
+Onewire MQTT support
+ONEWIRE_MQTT_SUPPORT
+  Depends on: 
+   * MQTT client (MQTT_SUPPORT)
+   * Onewire DS18XX (ONEWIRE_DS18XX_SUPPORT)
+
+  After each pollcycle all temperature sensor values are published to mqtt broker.
+  Broker setup must be done unter mqtt static configuration.
+  There is one mqtt callback slot used, so make sure there are enough free slots.
+
+MQTT Topic
+ONEWIRE_MQTT_TOPIC
+
+  This is the base path for all mqtt messages.
+  Topic for publish ONEWIRE_MQTT_TOPIC/ROMCODE payload is the value.
+  If naming support is activated and sensors are named over ecmd
+  value is also published to ONEWIRE_MQTT_TOPIC/NAME.
+
