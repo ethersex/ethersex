@@ -28,7 +28,7 @@ lxdialog: $(OBJS)
 	$(HOSTCC) -o lxdialog $(OBJS) $(LIBS)
 
 ncurses:
-	@echo "main() {}" > lxtemp.c
+	@echo "int main() {}" > lxtemp.c
 	@if $(HOSTCC) -lncurses lxtemp.c ; then \
 		rm -f lxtemp.c a.out; \
 	else \
