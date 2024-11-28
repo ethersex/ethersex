@@ -48,8 +48,15 @@ network_config_load (void)
 #endif
 #endif
 
-#if (defined(IPV4_SUPPORT) && !defined(BOOTP_SUPPORT) && !defined(DHCP_SUPPORT)) || defined(IPV6_STATIC_SUPPORT)
+#if (defined(IPV4_SUPPORT) && !defined(BOOTP_SUPPORT) && !defined(DHCP_SUPPORT)) || \
+    (defined(IPV4_SUPPORT) && defined(DHCP_SUPPORT) && defined(DHCP_SUPPORT_STATIC)) || \
+     defined(IPV6_STATIC_SUPPORT)
   uip_ipaddr_t ip;
+
+#ifdef DHCP_SUPPORT_STATIC
+  uip_ipaddr_t emptyIp;
+  uip_ipaddr(&emptyIp, 0, 0, 0, 0);
+#endif
 
   /* Configure the IP address. */
 #ifdef EEPROM_SUPPORT
@@ -57,6 +64,10 @@ network_config_load (void)
   eeprom_restore_ip (ip, &ip);
 #else
   set_CONF_ETHERSEX_IP (&ip);
+#endif
+
+#ifdef DHCP_SUPPORT_STATIC
+  if (!uip_ipaddr_cmp(&ip, &emptyIp))
 #endif
   uip_sethostaddr (&ip);
 
@@ -73,6 +84,9 @@ network_config_load (void)
 #else
   set_CONF_ETHERSEX_IP4_NETMASK (&ip);
 #endif
+#ifdef DHCP_SUPPORT_STATIC
+  if (!uip_ipaddr_cmp(&ip, &emptyIp))
+#endif
   uip_setnetmask (&ip);
 #endif /* IPV4_SUPPORT */
 
@@ -82,6 +96,9 @@ network_config_load (void)
   eeprom_restore_ip (gateway, &ip);
 #else
   set_CONF_ETHERSEX_GATEWAY (&ip);
+#endif
+#ifdef DHCP_SUPPORT_STATIC
+  if (!uip_ipaddr_cmp(&ip, &emptyIp))
 #endif
   uip_setdraddr (&ip);
 #endif /* No autoconfiguration. */
