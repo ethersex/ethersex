@@ -1,1 +1,4 @@
-dep_bool_editor "Watch IO changes (and react)" WATCHCAT_SUPPORT "services/watchcat/config" $ECMD_SENDER_SUPPORT $PORTIO_SUPPORT
+dep_bool_menu "Watch IO changes (and react)" WATCHCAT_SUPPORT $ECMD_SENDER_SUPPORT $PORTIO_SUPPORT
+editor "Configuration" WATCHCAT_SUPPORT "services/watchcat/config"  
+dep_bool "Initialize as intputs (active low)" CONF_WATCHCHAT_INITINPUTS $WATCHCAT_SUPPORT
+endmenu
