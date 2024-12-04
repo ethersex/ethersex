@@ -60,10 +60,14 @@
 #define BMP280_RESULT_ERROR    -1
 #define BMP280_RESULT_NODEV    -2
 #define BMP280_RESULT_INVAL    -3
+#define BMP280_RESULT_NODATA   -4
 
 
 typedef struct
 {
+#ifdef I2C_BME280_SUPPORT
+  uint8_t os_humid;
+#endif
   uint8_t os_temp;
   uint8_t os_pres;
   uint8_t odr;
@@ -77,5 +81,6 @@ int8_t i2c_bmp280_write_conf(uint8_t mode, const i2c_bmp280_conf * conf);
 int8_t i2c_bmp280_set_power_mode(uint8_t mode);
 int8_t i2c_bmp280_get_temp(int16_t * temp);
 int8_t i2c_bmp280_get_press(uint16_t * press);
+int8_t i2c_bme280_get_humid(uint16_t * humid);
 
 #endif /* __I2C_BMP280_H */

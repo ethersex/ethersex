@@ -68,10 +68,28 @@ parse_cmd_i2c_bmp280_getpress(char *cmd, char *output, uint16_t len)
   return ECMD_FINAL(itoa_fixedpoint(press, 1, output, len));
 }
 
+#ifdef I2C_BME280_SUPPORT
+
+int16_t
+parse_cmd_i2c_bme280_gethumid(char *cmd, char *output, uint16_t len)
+{
+  uint16_t humid;
+
+  int8_t result = i2c_bme280_get_humid(&humid);
+  if (result < BMP280_RESULT_OK)
+    return i2c_bmp280_map_result(result, output, len);
+
+  return ECMD_FINAL(itoa_fixedpoint(humid, 1, output, len));
+}
+
+#endif
 
 /*
   -- Ethersex META --
   block([[I2C]] (TWI))
   ecmd_feature(i2c_bmp280_gettemp,  "bmp280 temp", , Get temperature in 0.1°C)
   ecmd_feature(i2c_bmp280_getpress, "bmp280 apress", , Get absolute pressure in Pa)
+  ecmd_ifdef(I2C_BME280_SUPPORT)
+    ecmd_feature(i2c_bme280_gethumid, "bme280 humid", , Get humidity in %RH)
+  ecmd_endif()
  */

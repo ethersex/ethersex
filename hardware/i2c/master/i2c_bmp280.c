@@ -1,5 +1,5 @@
 /*
-* Copyright (c) 2018 by Erik Kunze <ethersex@erik-kunze.de>
+* Copyright (c) 2018,2024 by Erik Kunze <ethersex@erik-kunze.de>
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
@@ -21,9 +21,11 @@
 
 /*
 * BMP280 absolute barometric pressure sensor
-*
-* https://www.bosch-sensortec.com/bst/products/all_products/bmp280
+* https://www.bosch-sensortec.com/products/environmental-sensors/pressure-sensors/bmp280/
 * https://startingelectronics.org/tutorials/arduino/modules/pressure-sensor/
+*
+* BME280 humidity sensor
+* https://www.bosch-sensortec.com/products/environmental-sensors/humidity-sensors-bme280/
 */
 
 #include <avr/io.h>
@@ -40,6 +42,7 @@
 #define BMP280_CHIP_ID1	           0x56
 #define BMP280_CHIP_ID2	           0x57
 #define BMP280_CHIP_ID3	           0x58
+#define BME280_CHIP_ID	           0x60
 
 /* I2C addresses */
 #define BMP280_ADDR1               0x76 /* Default address */
@@ -47,13 +50,21 @@
 
 /* Registers */
 #define BMP280_DIG_T1_ADDR	   0x88
+#define BME280_DIG_H1_ADDR	   0xA1
+#define BME280_DIG_H2_ADDR	   0xE1
+#define BME280_DIG_H3_ADDR	   0xE3
+#define BME280_DIG_H4_ADDR	   0xE4
+#define BME280_DIG_H5_ADDR	   0xE5
+#define BME280_DIG_H6_ADDR	   0xE7
 #define BMP280_CHIP_ID_ADDR	   0xD0
 #define BMP280_SOFT_RESET_ADDR	   0xE0
+#define BMP280_CTRL_HUMID_ADDR	   0xF2
 #define BMP280_STATUS_ADDR	   0xF3
 #define BMP280_CTRL_MEAS_ADDR	   0xF4
 #define BMP280_CONFIG_ADDR	   0xF5
 #define BMP280_PRESS_ADDR	   0xF7
 #define BMP280_TEMP_ADDR	   0xFA
+#define BME280_HUMID_ADDR	   0xFD
 
 /* Soft reset command */
 #define BMP280_SOFT_RESET_CMD	   0xB6
@@ -73,6 +84,14 @@ typedef struct
   int16_t dig_p7;
   int16_t dig_p8;
   int16_t dig_p9;
+#ifdef I2C_BME280_SUPPORT
+  uint8_t dig_h1;
+  int16_t dig_h2;
+  uint8_t dig_h3;
+  int16_t dig_h4;
+  int16_t dig_h5;
+  int8_t dig_h6;
+#endif
   int32_t t_fine;
 } i2c_bmp280_calib;
 
@@ -80,6 +99,9 @@ typedef struct
 {
   uint32_t temp;
   uint32_t press;
+#ifdef I2C_BME280_SUPPORT
+  uint32_t humid;
+#endif
 } i2c_bmp280_raw;
 
 
@@ -93,10 +115,19 @@ static struct
 {
   .conf =
   {
+#ifdef I2C_BME280_SUPPORT
+    /* Datasheet 3.5.3 table 9 */
+    .os_humid = BMP280_OS_1X,
+    .os_temp = BMP280_OS_2X,
+    .os_pres = BMP280_OS_16X,
+    .odr = BMP280_ODR_500_MS,
+    .filter = BMP280_FILTER_COEFF_16
+#else
     .os_temp = BMP280_OS_4X,
     .os_pres = BMP280_OS_16X,
     .odr = BMP280_ODR_1000_MS,
     .filter = BMP280_FILTER_COEFF_2
+#endif
   }
 };
 
@@ -109,7 +140,7 @@ i2c_bmp280_select(uint8_t twi_mode)
 
   if (i2c_master_select(BMP280_ADDR1, twi_mode) != 0)
   {
-    I2CDEBUG("bmp280 addr=%02x\n", BMP280_ADDR1);
+    I2CDEBUG("bmp280 addr=0x%02x\n", BMP280_ADDR1);
     i2c_bmp280_data.addr = BMP280_ADDR1;
     return 1;
   }
@@ -249,6 +280,34 @@ i2c_bmp280_read_calib(void)
              i2c_bmp280_data.calib.dig_p5, i2c_bmp280_data.calib.dig_p6);
     I2CDEBUG("p7=%u, p8=%i, p9=%i\n", i2c_bmp280_data.calib.dig_p7,
              i2c_bmp280_data.calib.dig_p8, i2c_bmp280_data.calib.dig_p9);
+
+#ifdef I2C_BME280_SUPPORT
+    if (i2c_bmp280_data.chip_id == BME280_CHIP_ID)
+    {
+      result = i2c_bmp280_read(BME280_DIG_H1_ADDR, 1, temp);
+      if (result == BMP280_RESULT_OK)
+      {
+        i2c_bmp280_data.calib.dig_h1 = temp[0];
+        result = i2c_bmp280_read(BME280_DIG_H2_ADDR, 7, temp);
+        if (result == BMP280_RESULT_OK)
+        {
+          i2c_bmp280_data.calib.dig_h2 = (int16_t) (temp[1] << 8 | temp[0]);
+          i2c_bmp280_data.calib.dig_h3 = temp[2];
+          i2c_bmp280_data.calib.dig_h4 = (int16_t) (temp[3] << 4 | (temp[4] & 0xF));
+          i2c_bmp280_data.calib.dig_h5 = (int16_t) (temp[5] << 4 | temp[4] >> 4);
+          i2c_bmp280_data.calib.dig_h6 = (int8_t) temp[6];
+          I2CDEBUG("h1=%u, h2=%i, h3=%u\n",
+                   i2c_bmp280_data.calib.dig_h1,
+                   i2c_bmp280_data.calib.dig_h2,
+                   i2c_bmp280_data.calib.dig_h3);
+          I2CDEBUG("h4=%u, h5=%i, h6=%i\n",
+                   i2c_bmp280_data.calib.dig_h4,
+                   i2c_bmp280_data.calib.dig_h5,
+                   i2c_bmp280_data.calib.dig_h6);
+        }
+      }
+    }
+#endif
   }
 
   return result;
@@ -258,15 +317,21 @@ i2c_bmp280_read_calib(void)
 int8_t
 i2c_bmp280_read_conf(i2c_bmp280_conf * conf)
 {
-  uint8_t temp[2];
+  uint8_t temp[4];
 
-  int8_t result = i2c_bmp280_read(BMP280_CTRL_MEAS_ADDR, sizeof(temp), temp);
+  int8_t result = i2c_bmp280_read(BMP280_CTRL_HUMID_ADDR, sizeof(temp), temp);
   if (result == BMP280_RESULT_OK)
   {
-    conf->os_temp = (temp[0] & 0xE0) >> 5;
-    conf->os_pres = (temp[0] & 0x1C) >> 2;
-    conf->odr = (temp[1] & 0xE0) >> 5;
-    conf->filter = (temp[1] & 0x1C) >> 2;
+    I2CDEBUG("bmp280 read conf = %02x %02x %02x\n", temp[0], temp[2], temp[3]);
+
+#ifdef I2C_BME280_SUPPORT
+    if (i2c_bmp280_data.chip_id == BME280_CHIP_ID)
+        conf->os_humid = temp[0] & 0x07;
+#endif
+    conf->os_temp = (temp[2] & 0xE0) >> 5;
+    conf->os_pres = (temp[2] & 0x1C) >> 2;
+    conf->odr = (temp[3] & 0xE0) >> 5;
+    conf->filter = (temp[3] & 0x1C) >> 2;
 
     i2c_bmp280_data.conf = *conf;
   }
@@ -279,25 +344,40 @@ i2c_bmp280_read_conf(i2c_bmp280_conf * conf)
 int8_t
 i2c_bmp280_write_conf(uint8_t mode, const i2c_bmp280_conf * conf)
 {
-  uint8_t temp[2];
+  uint8_t temp[4];
   uint8_t addr[2] = { BMP280_CTRL_MEAS_ADDR, BMP280_CONFIG_ADDR };
 
   I2CDEBUG("bmp280 write conf\n");
 
-  int8_t result = i2c_bmp280_read(BMP280_CTRL_MEAS_ADDR, sizeof(temp), temp);
+  int8_t result = i2c_bmp280_read(BMP280_CTRL_HUMID_ADDR, sizeof(temp), temp);
   if (result < BMP280_RESULT_OK)
     goto end;
 
-  result = i2c_bmp280_soft_reset();
+  result = i2c_bmp280_soft_reset();  /* put device in sleep mode */
   if (result < BMP280_RESULT_OK)
     goto end;
 
-  temp[0] = (temp[0] & ~0xE0) | (conf->os_temp << 5);
-  temp[0] = (temp[0] & ~0x1C) | (conf->os_pres << 2);
-  temp[1] = (temp[1] & ~0xE0) | (conf->odr << 5);
-  temp[1] = (temp[1] & ~0x1C) | (conf->filter << 2);
+#ifdef I2C_BME280_SUPPORT
+  temp[0] = (temp[0] & ~0x07) | conf->os_humid;
+#endif
+  temp[2] = (temp[2] & ~0x03) | BMP280_SLEEP_MODE;
+  temp[2] = (temp[2] & ~0xE0) | (conf->os_temp << 5);
+  temp[2] = (temp[2] & ~0x1C) | (conf->os_pres << 2);
+  temp[3] = (temp[3] & ~0xE0) | (conf->odr << 5);
+  temp[3] = (temp[3] & ~0x1C) | (conf->filter << 2);
 
-  result = i2c_bmp280_write(addr, 2, temp);
+  I2CDEBUG("bmp280 write conf = %02x %02x %02x\n", temp[0], temp[2], temp[3]);
+
+#ifdef I2C_BME280_SUPPORT
+  if (i2c_bmp280_data.chip_id == BME280_CHIP_ID)
+  {
+    result = i2c_bmp280_write(BMP280_CTRL_HUMID_ADDR, 1, temp);
+    if (result < BMP280_RESULT_OK)
+      goto end;
+  }
+#endif
+
+  result = i2c_bmp280_write(addr, 2, &temp[2]);
   if (result < BMP280_RESULT_OK)
     goto end;
 
@@ -306,9 +386,17 @@ i2c_bmp280_write_conf(uint8_t mode, const i2c_bmp280_conf * conf)
   if (mode != BMP280_SLEEP_MODE)
   {
     /* Write only the power mode register in a separate write */
-    temp[0] = (temp[0] & ~0x03) | mode;
-    result = i2c_bmp280_write(addr, 1, temp);
+    temp[2] = (temp[2] & ~0x03) | mode;
+    result = i2c_bmp280_write(addr, 1, &temp[2]);
   }
+
+#ifdef DEBUG_I2C
+  result = i2c_bmp280_read(BMP280_CTRL_HUMID_ADDR, sizeof(temp), temp);
+  if (result < BMP280_RESULT_OK)
+    goto end;
+
+  I2CDEBUG("bmp280 read conf = %02x %02x %02x\n", temp[0], temp[2], temp[3]);
+#endif
 
 end:
   return result;
@@ -325,7 +413,7 @@ i2c_bmp280_set_power_mode(uint8_t mode)
 static int8_t
 i2c_bmp280_get_raw(i2c_bmp280_raw * raw)
 {
-  uint8_t temp[6];
+  uint8_t temp[8];
 
   I2CDEBUG("bmp280 get raw\n");
 
@@ -348,7 +436,19 @@ i2c_bmp280_get_raw(i2c_bmp280_raw * raw)
     v >>= 4;
     raw->temp = v;
 
-    I2CDEBUG("bmp280 press=%lu temp=%lu\n", raw->press, raw->temp);
+#ifdef I2C_BME280_SUPPORT
+    if (i2c_bmp280_data.chip_id == BME280_CHIP_ID)
+    {
+      v = temp[6];
+      v <<= 8;
+      v |= temp[7];
+      raw->humid = v;
+      I2CDEBUG("bme280 press=%lu temp=%lu humid=%lu\n",
+               raw->press, raw->temp, raw->humid);
+    }
+    else
+#endif
+      I2CDEBUG("bmp280 press=%lu temp=%lu\n", raw->press, raw->temp);
   }
 
   return result;
@@ -364,11 +464,15 @@ i2c_bmp280_init(void)
   if (i2c_bmp280_read(BMP280_CHIP_ID_ADDR, sizeof(i2c_bmp280_data.chip_id),
                       &i2c_bmp280_data.chip_id) == BMP280_RESULT_OK)
   {
-    I2CDEBUG("bmp280 chip_id=%02x\n", i2c_bmp280_data.chip_id);
+    I2CDEBUG("bmp280 chip_id=0x%02x\n", i2c_bmp280_data.chip_id);
 
-    if (i2c_bmp280_data.chip_id == BMP280_CHIP_ID1 ||
-        i2c_bmp280_data.chip_id == BMP280_CHIP_ID2 ||
-        i2c_bmp280_data.chip_id == BMP280_CHIP_ID3)
+    if (i2c_bmp280_data.chip_id == BMP280_CHIP_ID1
+        || i2c_bmp280_data.chip_id == BMP280_CHIP_ID2
+        || i2c_bmp280_data.chip_id == BMP280_CHIP_ID3
+#ifdef I2C_BME280_SUPPORT
+        || i2c_bmp280_data.chip_id == BME280_CHIP_ID
+#endif
+       )
     {
       if (i2c_bmp280_soft_reset() == BMP280_RESULT_OK &&
           i2c_bmp280_read_calib() == BMP280_RESULT_OK &&
@@ -459,6 +563,50 @@ end:
   return result;
 }
 
+#ifdef I2C_BME280_SUPPORT
+
+int8_t
+i2c_bme280_get_humid(uint16_t * humid)
+{
+  if (i2c_bmp280_data.chip_id != BME280_CHIP_ID)
+    return BMP280_RESULT_NODEV;
+
+  i2c_bmp280_raw raw;
+
+  int8_t result = i2c_bmp280_get_raw(&raw);
+  if (result < BMP280_RESULT_OK)
+    goto end;
+
+  /* value in case humidity measurement was disabled */
+  if (raw.humid == 0x8000)
+    return BMP280_RESULT_NODATA;
+
+  int32_t var;
+  var = i2c_bmp280_data.calib.t_fine - (int32_t) 76800;
+  var =
+    (((((((int32_t) raw.humid) << 14) -
+        (((int32_t) i2c_bmp280_data.calib.dig_h4) << 20) -
+        (((int32_t) i2c_bmp280_data.calib.dig_h5) * var)) +
+       ((int32_t) 16384)) >> 15) *
+     (((((((var * ((int32_t) i2c_bmp280_data.calib.dig_h6)) >> 10) *
+          (((var * ((int32_t) i2c_bmp280_data.calib.dig_h3)) >> 11) +
+           ((int32_t) 32768))) >> 10) +
+        ((int32_t) 2097152)) * ((int32_t) i2c_bmp280_data.calib.dig_h2) +
+       8192) >> 14));
+  var =
+    (var -
+     (((((var >> 15) * (var >> 15)) >> 7) *
+       ((int32_t) i2c_bmp280_data.calib.dig_h1)) >> 4));
+  var = (var < 0 ? 0 : var);
+  var = (var > 419430400 ? 419430400 : var);
+  I2CDEBUG("bmp280 humid=%lu\n", var);
+  *humid = (uint16_t) (var >> 12);
+
+end:
+  return result;
+}
+
+#endif /* I2C_BME280_SUPPORT */
 
 /*
   -- Ethersex META --
