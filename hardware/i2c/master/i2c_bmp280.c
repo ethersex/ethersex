@@ -345,7 +345,7 @@ int8_t
 i2c_bmp280_write_conf(uint8_t mode, const i2c_bmp280_conf * conf)
 {
   uint8_t temp[4];
-  uint8_t addr[2] = { BMP280_CTRL_MEAS_ADDR, BMP280_CONFIG_ADDR };
+  uint8_t addr[3] = { BMP280_CTRL_HUMID_ADDR, BMP280_CTRL_MEAS_ADDR, BMP280_CONFIG_ADDR };
 
   I2CDEBUG("bmp280 write conf\n");
 
@@ -371,13 +371,13 @@ i2c_bmp280_write_conf(uint8_t mode, const i2c_bmp280_conf * conf)
 #ifdef I2C_BME280_SUPPORT
   if (i2c_bmp280_data.chip_id == BME280_CHIP_ID)
   {
-    result = i2c_bmp280_write(BMP280_CTRL_HUMID_ADDR, 1, temp);
+    result = i2c_bmp280_write(addr, 1, temp);
     if (result < BMP280_RESULT_OK)
       goto end;
   }
 #endif
 
-  result = i2c_bmp280_write(addr, 2, &temp[2]);
+  result = i2c_bmp280_write(&addr[1], 2, &temp[2]);
   if (result < BMP280_RESULT_OK)
     goto end;
 
@@ -387,7 +387,7 @@ i2c_bmp280_write_conf(uint8_t mode, const i2c_bmp280_conf * conf)
   {
     /* Write only the power mode register in a separate write */
     temp[2] = (temp[2] & ~0x03) | mode;
-    result = i2c_bmp280_write(addr, 1, &temp[2]);
+    result = i2c_bmp280_write(&addr[1], 1, &temp[2]);
   }
 
 #ifdef DEBUG_I2C
@@ -599,8 +599,8 @@ i2c_bme280_get_humid(uint16_t * humid)
        ((int32_t) i2c_bmp280_data.calib.dig_h1)) >> 4));
   var = (var < 0 ? 0 : var);
   var = (var > 419430400 ? 419430400 : var);
-  I2CDEBUG("bmp280 humid=%lu\n", var);
-  *humid = (uint16_t) (var >> 12);
+  var = (((var >> 12) * 10) / 1024);
+  *humid = (uint16_t) var;
 
 end:
   return result;
