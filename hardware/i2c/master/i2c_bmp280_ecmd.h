@@ -26,5 +26,6 @@
 
 int16_t parse_cmd_i2c_bmp280_gettemp(char *cmd, char *output, uint16_t len);
 int16_t parse_cmd_i2c_bmp280_getpress(char *cmd, char *output, uint16_t len);
+int16_t parse_cmd_i2c_bme280_gethumid(char *cmd, char *output, uint16_t len);
 
 #endif /* __I2C_BMP280_ECMD_H */

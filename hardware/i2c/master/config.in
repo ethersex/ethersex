@@ -48,6 +48,9 @@ dep_bool_menu "I2C master" I2C_MASTER_SUPPORT "$(not $I2C_SLAVE_SUPPORT)" $ARCH_
            '3' I2C_BMP085_OVERSAMPLING
   fi
   dep_bool "I2C BMP280 barometric pressure sensor" I2C_BMP280_SUPPORT $I2C_MASTER_SUPPORT
+  if [ "$I2C_BMP280_SUPPORT" = "y" ]; then
+    dep_bool "  BME280 humidity sensor" I2C_BME280_SUPPORT $I2C_MASTER_SUPPORT
+  fi
 
   dep_bool "I2C PCA9531   8-bit LED dimmer" I2C_PCA9531_SUPPORT $I2C_MASTER_SUPPORT
   dep_bool "I2C PCA9685  12-bit LED dimmer" I2C_PCA9685_SUPPORT $I2C_MASTER_SUPPORT
