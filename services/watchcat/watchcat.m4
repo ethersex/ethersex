@@ -13,7 +13,7 @@ define(`text_variable', `format(`watchcat_text%d', text_counter)')
 define(`text_counter_next', `define(`text_counter', incr(text_counter))')
 
 define(`ECMDTCP', `divert(msg_divert)static const char text_variable()[] PROGMEM = "$4";
-INIT_PORT(EXTRACT_PORT($1))divert(rule_divert)    { .port = EXTRACT_PORT($1), .pin = EXTRACT_PIN($1),  .rising = $2, .address = { IPADDR($3) }, .message = text_variable, .func = ecmd_sender_send_command },text_counter_next()')dnl
+INIT_PORT(EXTRACT_PORT($1))divert(rule_divert)    { .port = EXTRACT_PORT($1), .pin = EXTRACT_PIN($1),  .rising = $2, .address = { IPADDR($3) }, .message = text_variable, .func = ecmd_sender_send_command_P },text_counter_next()')dnl
 define(`HTTPLOG', `divert(msg_divert)static const char text_variable()[] PROGMEM = "$4";
 INIT_PORT(EXTRACT_PORT($1))divert(rule_divert)    { .port = EXTRACT_PORT($1), .pin = EXTRACT_PIN($1),  .rising = $2, .address = { IPADDR($3) }, .message = text_variable, .func = watchcat_do_httplog },text_counter_next()')dnl
 define(`WC_RANGE', `A-J')
@@ -43,6 +43,6 @@ divert(rule_cpp)
 #define watchcat_port_init() do {\
 divert(rule_end_cpp)} while(0)
 divert(rule_divert)
-static const struct WatchcatReaction ecmd_react[] PROGMEM = {
+const struct WatchcatReaction ecmd_react[] PROGMEM = {
 divert(rule_end_divert)    { .port = 255, .pin = 255, .rising = 255}
 };

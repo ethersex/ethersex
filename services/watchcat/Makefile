@@ -2,6 +2,7 @@ TOPDIR ?= ../..
 include $(TOPDIR)/.config
 
 $(WATCHCAT_SUPPORT)_SRC += services/watchcat/watchcat.c
+$(CONF_WATCHCHAT_INITINPUTS)_SRC += services/watchcat/watchcat_init.c
 
 ##############################################################################
 # generic fluff
