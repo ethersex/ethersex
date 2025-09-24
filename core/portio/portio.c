@@ -25,6 +25,7 @@
 #include "core/portio/named_pin.h"
 #include "hardware/io_expander/hc595.h"
 #include "hardware/io_expander/hc165.h"
+#include "services/watchcat/watchcat_init.h"
 #include "core/debug.h"
 
 static uint8_t portio_read_port(uint8_t port);
@@ -68,9 +69,12 @@ void portio_init(void)
     vport[i].read_pin = hc165_read_pin;
   }
 #endif
-#   ifdef NAMED_PIN_SUPPORT
+#ifdef NAMED_PIN_SUPPORT
     named_pin_init();
-#   endif
+#endif
+#ifdef CONF_WATCHCHAT_INITINPUTS
+    watchcat_portio_init();
+#endif
 } 
 
 
