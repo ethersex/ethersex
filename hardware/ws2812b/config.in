@@ -1,0 +1,3 @@
+dep_bool_menu "WS2812B support" WS2812B_SUPPORT
+	dep_bool "Dynamic output API" WS2812B_DYNAPI_SUPPORT $WS2812B_SUPPORT
+endmenu

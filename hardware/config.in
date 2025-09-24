@@ -21,6 +21,7 @@ source hardware/ir/config.in
 source hardware/isdn/config.in
 source hardware/pwm/config.in
 source hardware/onewire/config.in
+source hardware/ws2812b/config.in
 source hardware/input/config.in
 source hardware/input/ps2/config.in
 source hardware/input/buttons/config.in
