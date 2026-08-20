@@ -68,6 +68,15 @@ dep_bool_menu "VFS (Virtual File System) support" VFS_SUPPORT
 
   define_bool DATAFLASH_SUPPORT $VFS_DF_SUPPORT
 
+  # Define VFS_WRITABLE_SUPPORT if any writable backend is enabled
+  if [ "$VFS_SD_SUPPORT" = "y" ] || \
+     [ "$VFS_DF_SUPPORT" = "y" ] || \
+     [ "$VFS_EEPROM_SUPPORT" = "y" ] || \
+     [ "$VFS_EEPROM_RAW_SUPPORT" = "y" ] || \
+     [ "$VFS_DC3840_SUPPORT" = "y" ]; then
+    define_bool VFS_WRITABLE_SUPPORT y
+  fi
+
   comment  "Debugging Flags"
   dep_bool 'Dataflash File System' DEBUG_FS $DEBUG $DATAFLASH_SUPPORT
   dep_bool '  Inode Table' DEBUG_FS_INODETABLE $DEBUG_FS
