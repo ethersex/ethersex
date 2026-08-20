@@ -17,7 +17,7 @@ else
 fi
 
 if [ "$BOOTLOADER_SUPPORT" != "y" ]; then
-  dep_bool "TFTP upload support" TFTP_UPLOAD_SUPPORT $VFS_SUPPORT
+  dep_bool "TFTP upload support" TFTP_UPLOAD_SUPPORT $VFS_SUPPORT $VFS_WRITABLE_SUPPORT
 fi
 
 int "Bootloader timeout" CONF_BOOTLOAD_DELAY 250
