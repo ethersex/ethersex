@@ -51,7 +51,7 @@ static struct
 #ifdef CLOCK_CRYSTAL_SUPPORT
   uint8_t ticks;
   uint8_t timerlast;
-#elif CLOCK_PERIODIC_SUPPORT
+#elif defined(CLOCK_PERIODIC_SUPPORT)
   periodic_timestamp_t timerlast;
 #endif
   uint8_t timebyte;
@@ -144,11 +144,26 @@ ISR(ANALOG_COMP_vect)
   uint8_t timertemp = TIMER_8_AS_1_COUNTER_CURRENT;
   uint16_t divtime = (dcf.ticks * (uint16_t) 256) + timertemp - dcf.timerlast;
   divtime = divtime << 2;       // TICKS2MS, x*1000ms/256
-#elif CLOCK_PERIODIC_SUPPORT
+#elif defined(CLOCK_PERIODIC_SUPPORT)
   periodic_timestamp_t timertemp;
   periodic_milliticks(&timertemp);
   uint32_t divtime = periodic_millis_elapsed(&dcf.timerlast);
 #endif
+
+  DCFDEBUG("Edge: %c, timertemp: %lu/%u, timerlast: %lu/%u, divtime: %lu\n",
+#ifdef HAVE_DCF1
+           (PIN_HIGH(DCF1)) ? 'R' : 'F',
+#else
+           (bit_is_set(ACSR, ACO)) ? 'R' : 'F',
+#endif
+#ifdef CLOCK_CRYSTAL_SUPPORT
+           (uint32_t) timertemp, (uint16_t) 0,
+           (uint32_t) dcf.timerlast, (uint16_t) 0, divtime
+#elif defined(CLOCK_PERIODIC_SUPPORT)
+           timertemp.ticks, timertemp.fragments,
+           dcf.timerlast.ticks, dcf.timerlast.fragments, divtime
+#endif
+  );
 
   if (divtime < 20)             // ignore short spikes
     return;
@@ -161,6 +176,7 @@ ISR(ANALOG_COMP_vect)
   {                             // start of impulse
     if (divtime > 992 || divtime < 736)
     {
+      DCFDEBUG("invalid timing, reset bitcount to 0\n");
       dcf.bitcount = 0;
     }
     if (divtime > 1700 && divtime < 2000 && dcf.bitcount == 0)
@@ -173,9 +189,11 @@ ISR(ANALOG_COMP_vect)
 #ifdef CLOCK_CRYSTAL_SUPPORT
         timertemp = 0;
         TIMER_8_AS_1_COUNTER_CURRENT = timertemp;
-#elif CLOCK_PERIODIC_SUPPORT_SUPPORT
-        timertemp = clock_get_time();
-        clock_set_time_raw_hr(timertemp, 0);
+        dcf.timerlast = 0;              // Fix: prevent underflow on next pulse
+#elif defined(CLOCK_PERIODIC_SUPPORT)
+        timestamp_t t = clock_get_time();
+        clock_set_time_raw_hr(t, 0);
+        periodic_milliticks(&dcf.timerlast);
 #endif
         last_valid_timestamp = timestamp;
         set_dcf_count(1);
@@ -193,7 +211,7 @@ ISR(ANALOG_COMP_vect)
       dcf.bitcount = 1;
     }
 #ifdef CLOCK_CRYSTAL_SUPPORT
-    dcf.ticks = 0;              // start time meassure for new bit
+    dcf.ticks = 0;              // start time measure for new bit
 #endif
   }
   else
@@ -298,6 +316,7 @@ ISR(ANALOG_COMP_vect)
         {
           if (dcf.bitcount == 21)       // start of time information
           {
+            DCFDEBUG("error, start bit must be 1.\n");
             dcf.bitcount = 0;
           }
           if (dcf.timebyte)
@@ -334,6 +353,9 @@ ISR(ANALOG_COMP_vect)
       }
       dcf.bitcount++;
     }
+#ifdef CLOCK_CRYSTAL_SUPPORT
+    dcf.ticks = 0;              // start time measure for new bit
+#endif
   }
   dcf.timerlast = timertemp;
 }
