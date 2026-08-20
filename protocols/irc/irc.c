@@ -285,7 +285,7 @@ irc_main(void)
 #endif
     }
 
-    else if (uip_newdata() && uip_len) {
+    if (uip_newdata() && uip_len) {
 	((char *) uip_appdata)[uip_len] = 0;
 	IRCDEBUG ("received data: %s\n", uip_appdata);
 
