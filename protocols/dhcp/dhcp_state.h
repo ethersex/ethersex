@@ -37,6 +37,8 @@ struct dhcp_connection_state_t {
 
     uint8_t retry_timer;
     uint8_t retry_counter;
+    uint32_t lease_time_seconds; /* Lease time in seconds (host byte order) */
+    uint32_t ticks; /* Timer for lease renewal phases */
 };
 
 #endif /* DHCP_STATE_H */

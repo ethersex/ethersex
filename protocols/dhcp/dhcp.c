@@ -32,10 +32,13 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdint.h>
 #include "config.h"
 
 #include "protocols/uip/uip.h"
+#include "core/bit-macros.h"
 #include "core/eeprom.h"
+#include "core/periodic.h"
 
 #include "dhcp_state.h"
 #include "dhcp.h"
@@ -46,6 +49,13 @@
 #define STATE_DISCOVERING     1
 #define STATE_REQUESTING      2
 #define STATE_CONFIGURED      3
+
+/* Lease renewal timing per RFC 2131 */
+#define LEASE_RENEW_T1(lease) ((lease) / 2)      /* 50% - start renewing */
+#define LEASE_REBIND_T2(lease) ((lease) * 7 / 8) /* 87.5% - start rebinding */
+
+/* Maximum values for overflow protection */
+#define MAX_TICKS32 (~((uint32_t)0))
 
 struct dhcp_msg {
   uint8_t op, htype, hlen, hops;
@@ -98,7 +108,7 @@ struct dhcp_msg {
 static const uint8_t xid[4] = {0xad, 0xde, 0x12, 0x23};
 static const uint8_t magic_cookie[4] = {99, 130, 83, 99};
 
-static uint8_t tick_sec;
+static uint32_t tick_sec;
 
 /*---------------------------------------------------------------------------*/
 static uint8_t *
@@ -280,7 +290,18 @@ parse_msg(void)
 }
 
 void dhcp_periodic(void) {
-  tick_sec++;
+  /* This is called 50 times per second (HZ=50) */
+  /* We want tick_sec to count actual seconds, so only increment every HZ calls */
+  static uint8_t counter = 0;
+  counter++;
+  if (counter >= HZ) {
+    tick_sec++;
+    counter = 0;
+    /* Prevent overflow */
+    if(tick_sec > MAX_TICKS32 / 2) {
+      tick_sec = MAX_TICKS32 / 2;
+    }
+  }
 }
 
 void dhcp_set_static(void) {
@@ -340,101 +361,136 @@ void dhcp_net_init(void) {
   dhcp_conn->appstate.dhcp.retry_counter = 0;
   dhcp_conn->appstate.dhcp.retry_timer = 5;
   dhcp_conn->appstate.dhcp.state = STATE_INITIAL;
+  dhcp_conn->appstate.dhcp.lease_time_seconds = 0;
+  dhcp_conn->appstate.dhcp.ticks = 0;
   tick_sec = 0;
 }
 
 
 void dhcp_net_main(void) {
-
+  /* Contiki-inspired DHCP state machine with lease renewal per RFC 2131 */
 
   if(uip_newdata()) {
+    uint8_t msg_type = parse_msg();
 
     switch (uip_udp_conn->appstate.dhcp.state) {
-      
     case STATE_DISCOVERING:
-
-      if (parse_msg() == DHCPOFFER) {
-	send_request();
-	uip_flags &= ~UIP_NEWDATA;
-	uip_udp_conn->appstate.dhcp.state = STATE_REQUESTING;
-	uip_udp_conn->appstate.dhcp.retry_timer   = 2; // retry
-	uip_udp_conn->appstate.dhcp.retry_counter = 1;
-	tick_sec = 0;
+      if (msg_type == DHCPOFFER) {
+        send_request();
+        uip_flags &= ~UIP_NEWDATA;
+        uip_udp_conn->appstate.dhcp.state = STATE_REQUESTING;
+        uip_udp_conn->appstate.dhcp.retry_timer = 2;
+        uip_udp_conn->appstate.dhcp.retry_counter = 1;
+        tick_sec = 0;
       }
-
       break;
 
     case STATE_REQUESTING:
-
-      if (parse_msg() == DHCPACK) {
-	uip_udp_conn->appstate.dhcp.state = STATE_CONFIGURED;
-
-	uip_sethostaddr(uip_udp_conn->appstate.dhcp.ipaddr);
-	uip_setdraddr(uip_udp_conn->appstate.dhcp.default_router);
-	uip_setnetmask(uip_udp_conn->appstate.dhcp.netmask);
+    case STATE_CONFIGURED:
+      if (msg_type == DHCPACK) {
+        /* Configure network with received parameters */
+        uip_sethostaddr(uip_udp_conn->appstate.dhcp.ipaddr);
+        uip_setdraddr(uip_udp_conn->appstate.dhcp.default_router);
+        uip_setnetmask(uip_udp_conn->appstate.dhcp.netmask);
 
 #ifdef DNS_SUPPORT
-	resolv_conf(uip_udp_conn->appstate.dhcp.dnsaddr);
-	//	eeprom_save(dns_server, &uip_udp_conn->appstate.dhcp.dnsaddr, IPADDR_LEN);
+        resolv_conf(uip_udp_conn->appstate.dhcp.dnsaddr);
 #endif
 
 #ifdef NTP_SUPPORT
-	ntp_conf(uip_udp_conn->appstate.dhcp.ntpaddr);
-	//	eeprom_save(ntp_server, &uip_udp_conn->appstate.dhcp.ntpaddr, IPADDR_LEN);
+        ntp_conf(uip_udp_conn->appstate.dhcp.ntpaddr);
 #endif
 
-	// eeprom_save(ip, &uip_udp_conn->appstate.dhcp.ipaddr, IPADDR_LEN);
-	// eeprom_save(netmask, &uip_udp_conn->appstate.dhcp.netmask, IPADDR_LEN);
-	// eeprom_save(gateway, &uip_udp_conn->appstate.dhcp.default_router, IPADDR_LEN);
+        uip_udp_conn->appstate.dhcp.state = STATE_CONFIGURED;
+        uip_flags &= ~UIP_NEWDATA;
 
-	// eeprom_update_chksum();
+        /* Calculate lease time in seconds from network byte order */
+        uip_udp_conn->appstate.dhcp.lease_time_seconds = 
+          (uint32_t)ntohs(uip_udp_conn->appstate.dhcp.lease_time[0]) * 65536UL +
+          ntohs(uip_udp_conn->appstate.dhcp.lease_time[1]);
 
-	/* Remove the bootp connection */
-	uip_udp_remove(uip_udp_conn);
+        /* Start with elapsed = 0, will count up to T1, T2, then lease expiration */
+        uip_udp_conn->appstate.dhcp.ticks = 0;
+        tick_sec = 0;
 
+        /* Do NOT remove the UDP connection - needed for lease renewal */
       }
-
       break;
-
     }
-    
   } else {
+    /* No data - handle timeouts and state transitions */
 
-    // No data yet
-    
     switch (uip_udp_conn->appstate.dhcp.state) {
-      
     case STATE_INITIAL:
     case STATE_DISCOVERING:
-      
-      if (tick_sec>uip_udp_conn->appstate.dhcp.retry_timer) {
-	send_discover();
-	uip_flags &= ~UIP_NEWDATA;
-	uip_udp_conn->appstate.dhcp.state = STATE_DISCOVERING;
-	if (uip_udp_conn->appstate.dhcp.retry_counter++>10)
-	  return dhcp_set_static();
-	uip_udp_conn->appstate.dhcp.retry_timer = 2 * uip_udp_conn->appstate.dhcp.retry_counter; // retry
-	tick_sec = 0;
+      if (tick_sec > uip_udp_conn->appstate.dhcp.retry_timer) {
+        send_discover();
+        uip_flags &= ~UIP_NEWDATA;
+        uip_udp_conn->appstate.dhcp.state = STATE_DISCOVERING;
+        if (uip_udp_conn->appstate.dhcp.retry_counter++ > 10) {
+          return dhcp_set_static();
+        }
+        uip_udp_conn->appstate.dhcp.retry_timer = 
+          2 * uip_udp_conn->appstate.dhcp.retry_counter;
+        tick_sec = 0;
       }
       break;
-      
 
     case STATE_REQUESTING:
-      if (tick_sec>uip_udp_conn->appstate.dhcp.retry_timer) {
-	send_request();
-	uip_flags &= ~UIP_NEWDATA;
-	if (uip_udp_conn->appstate.dhcp.retry_counter++>10)
-	  return dhcp_set_static();
-	uip_udp_conn->appstate.dhcp.retry_timer = 2; // retry
-	tick_sec = 0;
+      if (tick_sec > uip_udp_conn->appstate.dhcp.retry_timer) {
+        send_request();
+        uip_flags &= ~UIP_NEWDATA;
+        if (uip_udp_conn->appstate.dhcp.retry_counter++ > 10) {
+          return dhcp_set_static();
+        }
+        uip_udp_conn->appstate.dhcp.retry_timer = 2;
+        tick_sec = 0;
       }
       break;
-      
+
+    case STATE_CONFIGURED:
+      /* Lease renewal logic per RFC 2131 */
+      if (uip_udp_conn->appstate.dhcp.lease_time_seconds > 0) {
+        uint32_t lease = uip_udp_conn->appstate.dhcp.lease_time_seconds;
+        uint32_t t1 = LEASE_RENEW_T1(lease);
+        uint32_t t2 = LEASE_REBIND_T2(lease);
+        uint32_t elapsed = uip_udp_conn->appstate.dhcp.ticks + tick_sec;
+        
+        /* Check if we've reached T1 (50% of lease) - renewing phase */
+        if (elapsed >= t1 && uip_udp_conn->appstate.dhcp.ticks < t1) {
+          /* First time reaching T1 - send renewal request */
+          send_request();
+          uip_flags &= ~UIP_NEWDATA;
+          uip_udp_conn->appstate.dhcp.ticks = t1; /* Mark that we've passed T1 */
+          tick_sec = 0;
+        }
+        /* Check if we've reached T2 (87.5% of lease) - rebinding phase */
+        else if (elapsed >= t2 && uip_udp_conn->appstate.dhcp.ticks < t2) {
+          /* First time reaching T2 - send rebinding request */
+          send_request();
+          uip_flags &= ~UIP_NEWDATA;
+          uip_udp_conn->appstate.dhcp.ticks = t2; /* Mark that we've passed T2 */
+          tick_sec = 0;
+        }
+        /* Check if lease has expired */
+        else if (elapsed >= lease) {
+          /* Lease expired - restart DHCP from beginning */
+          uip_udp_conn->appstate.dhcp.state = STATE_INITIAL;
+          uip_udp_conn->appstate.dhcp.retry_counter = 0;
+          uip_udp_conn->appstate.dhcp.retry_timer = 5;
+          uip_udp_conn->appstate.dhcp.ticks = 0;
+          tick_sec = 0;
+        }
+        
+        /* If we haven't reached any threshold yet, just accumulate time */
+        if (elapsed < lease) {
+          uip_udp_conn->appstate.dhcp.ticks = elapsed;
+          tick_sec = 0;
+        }
+      }
+      break;
     }
-    
   }
-
-
 }
 
 
