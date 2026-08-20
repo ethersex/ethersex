@@ -88,6 +88,9 @@ tftp_handle_packet(void)
       pk->type = HTONS(3);      /* data packet */
       pk->u.data.block = HTONS(state->transfered + 1);
 
+      /* Seek to the correct position for this block (needed for retransmissions) */
+      vfs_fseek(state->fh, (fs_size_t)state->transfered * 512, SEEK_SET);
+
       fs_size_t ret = vfs_read(state->fh, pk->u.data.data, 512);
 
       if (ret < 0)
@@ -130,6 +133,9 @@ tftp_handle_packet(void)
 
       if (HTONS(pk->u.ack.block) > state->transfered + 1)
         goto error_out;         /* too late */
+
+      /* Seek to the correct position for this block (needed for retransmissions) */
+      vfs_fseek(state->fh, (fs_size_t)(HTONS(pk->u.ack.block) - 1) * 512, SEEK_SET);
 
       if (vfs_write(state->fh, pk->u.data.data, uip_datalen() - 4) <= 0)
         goto error_out;
