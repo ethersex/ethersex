@@ -406,15 +406,29 @@ function help () {
 	if [ "x$1" = "ximpossible_ret_cb" ]; then shift; fi
 	if extract_help $1 >help.out
 	then
-		dialog	--backtitle "$backtitle" --title "$2"\
-			--exit-label "Exit" \
-			--help-button --help-label "Modify Help Text" \
-			--textbox help.out $ROWS $COLS
+		if [ "$HAVEDIALOG" = yes ]
+		then
+			dialog	--backtitle "$backtitle" --title "$2"\
+				--no-cancel \
+				--exit-label "Exit" \
+				--help-button --help-label "Modify Help Text" \
+				--textbox help.out $ROWS $COLS
+		else
+			$DIALOG	--backtitle "$backtitle" --title "$2" \
+				--textbox help.out $ROWS $COLS
+		fi
 	else
-		dialog	--backtitle "$backtitle" \
-			--exit-label "Exit" \
-			--help-button --help-label "Modify Help Text" \
-			--textbox help.out $ROWS $COLS
+		if [ "$HAVEDIALOG" = yes ]
+		then
+			dialog	--backtitle "$backtitle" \
+				--no-cancel \
+				--exit-label "Exit" \
+				--help-button --help-label "Modify Help Text" \
+				--textbox help.out $ROWS $COLS
+		else
+			$DIALOG	--backtitle "$backtitle" \
+				--textbox help.out $ROWS $COLS
+		fi
 	fi
 	if [ $? = 2 ]; then
 		scripts/modify-help $1
@@ -1635,6 +1649,14 @@ Please enter a string value. \
 Use the <TAB> key to move from the input field to the buttons below it."
 
 DIALOG="./scripts/lxdialog/lxdialog"
+
+if command -v dialog > /dev/null 2>&1
+then
+	HAVEDIALOG=yes
+else
+	echo "Notice: dialog not found, falling back to lxdialog (no help button in help screens)." >&2
+	HAVEDIALOG=no
+fi
 
 backtitle="Ethersex Configuration"
 
