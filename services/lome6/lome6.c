@@ -23,6 +23,27 @@
 #include "lome6.h"
 #include <util/atomic.h>
 
+/* Global variable definitions */
+uint8_t iLCDPage;
+int16_t iTemperatureCPU;
+int16_t iTemperatureSB;
+uint8_t iCountdownTimer;
+uint32_t iUptime;
+uint16_t iPOD;
+
+#ifdef LOME6_LCD_SUPPORT
+WINDOW *ttyWindow;
+#endif
+
+#ifdef LOME6_ONEWIRE_SUPPORT
+int16_t iTemperatureAIR;
+int16_t iTemperaturePSU;
+int16_t iTemperatureRAM;
+ow_rom_code_t romcodePSU;
+ow_rom_code_t romcodeAIR;
+ow_rom_code_t romcodeRAM;
+#endif
+
 /*
 * lome6 one wire sensor stuff
 * tiny get temperature function (taken from control6)
