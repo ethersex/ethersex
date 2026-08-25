@@ -3,6 +3,10 @@ pin(SPI_CS_NET, SPI_CS_HARDWARE)
 pin(RS485TE_USART0, PD1, OUTPUT)
 pin(RS485TE_USART1, PD4, OUTPUT)
 
+ifdef(`conf_SOFT_UART', `dnl
+  pin(SOFT_UART_TX, PD7, OUTPUT)
+')dnl
+
 
 /* infrared support */
 ifdef(`conf_IRMP_RX', `dnl

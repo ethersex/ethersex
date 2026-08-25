@@ -44,12 +44,15 @@ static FILE debug_uart_stream = FDEV_SETUP_STREAM (debug_uart_put, NULL, _FDEV_S
 
 #include "pinning.c"
 
+#ifdef DEBUG_SERIAL_USART_SUPPORT
 /* We generate our own usart init, for our usart port */
 generate_usart_init()
+#endif
 
 void
 debug_init_uart(void)
 {
+#ifdef DEBUG_SERIAL_USART_SUPPORT
   RS485_TE_SETUP;
   RS485_DISABLE_TX;
   usart_init();
@@ -57,6 +60,7 @@ debug_init_uart(void)
   /* disable the receiver interrupt, if enabled.
    * Receiver needs to stay enabled for debug/ecmd handler to work. */
   usart(UCSR, B) &= ~(_BV(usart(RXCIE)));
+#endif
 
   /* open stdout/stderr */
   stdout = &debug_uart_stream;
@@ -96,7 +100,7 @@ debug_uart_put(char d, FILE * stream)
 }
 
 /* interrupt routine to disable the RS485 transmitter */
-#if RS485_HAVE_TE
+#if RS485_HAVE_TE && defined(DEBUG_SERIAL_USART_SUPPORT)
   ISR(usart(USART,_TX_vect))
   {
     RS485_DISABLE_TX;
