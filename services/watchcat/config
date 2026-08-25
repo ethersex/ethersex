@@ -1,2 +1,17 @@
+dnl Watchcat Configuration File
+dnl
+dnl Configure watchcat reactions to IO port changes here.
+dnl
+dnl Syntax: ECMDTCP(port, edge, ip, command)
+dnl   port:   Port and pin (e.g., PA0, PB3)
+dnl   edge:   RISING or FALLING
+dnl   ip:     IP address to send command to
+dnl   command: Command string to send via ecmd_sender_send_command
+dnl
+dnl Example: Send "io set 254-0" to 192.168.178.10 on PA0 rising and falling
+dnl
+dnl Every line starting with dnl is a comment.
+dnl
+
 ECMDTCP(PA0, RISING, 192.168.178.10, io set 254-0)
 ECMDTCP(PA0, FALLING, 192.168.178.10, io set 254-0)
