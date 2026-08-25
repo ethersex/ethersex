@@ -1,0 +1,54 @@
+name: Build
+
+on:
+  push:
+    branches: [ '**' ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  TERM: xterm
+
+jobs:
+  build:
+    name: Build Ethersex
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v5
+      
+    - name: Install AVR toolchain
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc-avr avr-libc make bison flex gawk libncurses-dev
+        
+    - name: Configure default build
+      run: |
+        cp scripts/profiles/defconfig .config
+        /bin/echo -ne '\t\n\n' | script -qec "make no_deps=t menuconfig" /dev/null
+        
+    - name: Build
+      run: |
+        make -j$(nproc)
+        
+    - name: Show build info
+      run: |
+        make show-config
+
+  regression-test:
+    name: Regression test (all profiles)
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v5
+
+    - name: Install AVR toolchain
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc-avr avr-libc make bison flex gawk libncurses-dev
+
+    - name: Run autotest on all profiles
+      run: |
+        MAKEOPTS="-j$(nproc)" script -qec "contrib/autotest/batch-local-test -n" /dev/null

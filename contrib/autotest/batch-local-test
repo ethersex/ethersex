@@ -11,9 +11,13 @@ else
   shift
 fi
 
+total=0
+failures=0
+
 if [ x"$1" != x"" ]; then
   while [ -n "$1" ]; do
 
+    profile=""
     if [ -e "contrib/autotest/profiles/$1" ]; then
       profile="contrib/autotest/profiles/$1"
     fi
@@ -26,9 +30,14 @@ if [ x"$1" != x"" ]; then
       continue;
     fi
 
+    total=$((total+1))
     echo "Trying to compile Ethersex firmware using profile '$profile' ..."
-    ./contrib/autotest/run "$profile" >/dev/null
-    [ -e "ethersex.bin" ] && ls -l ethersex.bin
+    if ./contrib/autotest/run "$profile" >/dev/null; then
+      [ -e "ethersex.bin" ] && ls -l ethersex.bin
+    else
+      echo "FAILED: $profile"
+      failures=$((failures+1))
+    fi
     echo ""
 
     shift;
@@ -38,8 +47,16 @@ if [ x"$1" != x"" ]; then
 else
   for A in contrib/autotest/profiles/* scripts/profiles/*; do
     echo "Trying to compile Ethersex firmware using profile '$A' ..."
-    ./contrib/autotest/run "$A" > /dev/null
-    [ -e "ethersex.bin" ] && ls -l ethersex.bin
+    if ./contrib/autotest/run "$A" > /dev/null; then
+      [ -e "ethersex.bin" ] && ls -l ethersex.bin
+    else
+      echo "FAILED: $A"
+      failures=$((failures+1))
+    fi
+    total=$((total+1))
     echo ""
   done
 fi
+
+echo "$((total-failures))/$total profiles built successfully."
+[ "$failures" -eq 0 ]
