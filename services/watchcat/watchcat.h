@@ -41,13 +41,18 @@ struct WatchcatReaction {
   uip_ipaddr_t address;
   /* What should we send him? */
   const char *message;
-  /* The associated notifying function, e.g. watchcat_do_ecmdtcp */
-  uip_conn_t * (* func) (uip_ipaddr_t *, PGM_P, client_return_text_callback_t);
+  /* The associated notifying function, e.g. ecmd_sender_send_command */
+  uip_conn_t * (* func) (uip_ipaddr_t *, client_return_text_callback_t,
+                         PGM_P, ...);
 };
 
 void watchcat_init();
 
 /* Call this e.g. every 20 ms */
 void watchcat_periodic();
+
+#ifdef CONF_WATCHCAT_INITINPUTS
+void watchcat_portio_init(void);
+#endif
 
 #endif /* _WATCHCAT_H */

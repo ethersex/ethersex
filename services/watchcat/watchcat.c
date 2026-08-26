@@ -1,7 +1,7 @@
 /*
  *
  * Copyright (c) 2007 by Christian Dietrich <stettberger@dokucode.de>
- * Copyrigth (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
+ * Copyright (c) 2009 by Stefan Siegl <stesie@brokenpipe.de>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License (either version 2 or
@@ -27,7 +27,6 @@
 #include "core/debug.h"
 #include "protocols/uip/uip.h"
 #include "core/portio/portio.h"
-#include "protocols/ecmd/sender/ecmd_sender_net.h"
 #include "watchcat.h"
 
 #define RISING_EDGE(port, pin) (!(vpin[(port)].old_state & _BV(pin)) \
@@ -49,7 +48,7 @@ watchcat_do_httplog (uip_ipaddr_t *ip, PGM_P msg, client_return_text_callback_t 
 
 #include "user_config.h"
 
-void watchcat_edge(uint8_t pin);
+void watchcat_edge(uint8_t port);
 
 void
 watchcat_init(void)
@@ -87,45 +86,70 @@ watchcat_periodic(void)
 }
 
 void
-watchcat_edge(uint8_t pin)
+watchcat_edge(uint8_t port)
 {
   uint8_t i = 0;
   uint8_t tmp;
   while (1) {
     tmp = (uint8_t) pgm_read_byte(&ecmd_react[i].port);
     if (tmp == 255) {
-      vpin[pin].old_state = vpin[pin].state;
+      vpin[port].old_state = vpin[port].state;
       break;
     }
-    if (tmp == pin) {
+    if (tmp == port) {
 
       tmp = (uint8_t) pgm_read_byte(&ecmd_react[i].pin);
 
       uint8_t falling = pgm_read_byte(&ecmd_react[i].rising);
-      if ((falling && RISING_EDGE(pin, tmp))
-          || (!falling && FALLING_EDGE(pin, tmp))) {
-	uip_conn_t * (* func) (uip_ipaddr_t *, PGM_P, client_return_text_callback_t);
+      if ((falling && RISING_EDGE(port, tmp))
+          || (!falling && FALLING_EDGE(port, tmp))) {
+	uip_conn_t * (* func) (uip_ipaddr_t *, client_return_text_callback_t,
+	                    PGM_P, ...);
 	func = (void *) pgm_read_word (&ecmd_react[i].func);
 
 	uip_ipaddr_t ipaddr;
 	memcpy_P(&ipaddr, &ecmd_react[i].address, sizeof(uip_ipaddr_t));
 
 	const char *text = (const char *) pgm_read_word(&ecmd_react[i].message);
-	if (func) func (&ipaddr, text, NULL);
+	if (func) func (&ipaddr, NULL, text);
 
       } else  {
         i++;
         continue;
       }
-      vpin[pin].old_state &= ~_BV(tmp);
-      if (vpin[pin].state & _BV(tmp))
-        vpin[pin].old_state |= _BV(tmp);
+      vpin[port].old_state &= ~_BV(tmp);
+      if (vpin[port].state & _BV(tmp))
+        vpin[port].old_state |= _BV(tmp);
       /* only one pin at once */
       return;
     }
     i++;
   }
 }
+
+#ifdef CONF_WATCHCAT_INITINPUTS
+void
+watchcat_portio_init(void)
+{
+    for (uint8_t i = 0; ; i++) {
+        uint8_t port = (uint8_t) pgm_read_byte(&ecmd_react[i].port);
+
+        if (port == 255) {
+            break;
+        }
+
+        uint8_t pin = (uint8_t) pgm_read_byte(&ecmd_react[i].pin);
+
+        vport[port].write_port(port, vport[port].read_port(port) | _BV(pin));
+
+        vport[port].write_ddr(port, vport[port].read_ddr(port) & ~_BV(pin));
+
+        vpin[port].old_state = vport[port].read_pin(port);
+        vpin[port].last_input = vpin[port].old_state;
+        vpin[port].state = vpin[port].old_state;
+    }
+}
+#endif
 
 /*
   -- Ethersex META --

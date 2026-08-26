@@ -71,6 +71,10 @@ void portio_init(void)
 #   ifdef NAMED_PIN_SUPPORT
     named_pin_init();
 #   endif
+#ifdef CONF_WATCHCAT_INITINPUTS
+#include "services/watchcat/watchcat.h"
+    watchcat_portio_init();
+#endif
 } 
 
 
