@@ -901,7 +901,7 @@ function parser(ifile,menu) {
 		else if ($1 == "dep_bool_menu") {
 			print >>menu
 
-			split ($0,ll,"\\\"");
+			split($0,ll,sprintf("%c",34));
 			split (ll[3],mm," ");
 
 			newmenu = sprintf("MCmenu%s", mm[1]);
