@@ -18,6 +18,7 @@
 
 /*
  * Copyright (c) 2001-2003, Adam Dunkels.
+ * Copyright (c) 2026 Erik Kunze <ethersex@erik-kunze.de>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -566,6 +567,44 @@ uip_conn_t *uip_connect(const uip_ipaddr_t *ripaddr, u16_t port, uip_conn_callba
  * \hideinitializer
  */
 void uip_send(const void *data, int len);
+
+/**
+ * Calculate the internet checksum over a buffer (RFC 1071).
+ *
+ * The 'sum' parameter is prepended to the calculation, pass 0 to
+ * checksum a plain buffer.  The result is returned in network byte
+ * order and may be stored into a checksum header field after one's
+ * complementing it.
+ *
+ * \param sum Initial value of the running sum.
+ *
+ * \param data A pointer to the data over which the checksum is to be
+ * computed.
+ *
+ * \param len The number of bytes over which the checksum is to be
+ * computed.
+ *
+ * \return The complement of the accumulated checksum in network byte
+ * order.
+ */
+u16_t uip_cksum(u16_t sum, const void *data, u16_t len);
+
+/**
+ * Calculate the internet checksum over the packet currently held in
+ * uip_buf, including the IPv6 pseudo-header (RFC 8200, section 8.1).
+ *
+ * The packet length is taken from its IP header, the source and
+ * destination addresses from the header as well.  The result is
+ * returned in network byte order and may be stored into a checksum
+ * header field after one's complementing it.
+ *
+ * \param proto The upper-layer protocol number (e.g. UIP_PROTO_ICMP6).
+ *
+ * \return The complement of the accumulated checksum in network byte
+ * order.
+ */
+u16_t upper_layer_chksum(u8_t proto);
+
 
 /**
  * The length of any incoming data that is currently avaliable (if avaliable)
