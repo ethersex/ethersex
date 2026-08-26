@@ -6,6 +6,7 @@ SRC += core/util/string_parsing.c
 SRC += core/util/byte2bin.c
 SRC += core/util/byte2hex.c
 SRC += core/util/app_crc.c
+SRC += core/util/base64.c
 
 ##############################################################################
 # generic fluff
