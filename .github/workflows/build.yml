@@ -21,7 +21,7 @@ jobs:
     - name: Install AVR toolchain
       run: |
         sudo apt-get update
-        sudo apt-get install -y gcc-avr avr-libc make bison flex gawk libncurses-dev
+        sudo apt-get install -y gcc-avr avr-libc make bison flex gawk libncurses-dev dialog
         
     - name: Configure default build
       run: |
@@ -47,7 +47,7 @@ jobs:
     - name: Install AVR toolchain
       run: |
         sudo apt-get update
-        sudo apt-get install -y gcc-avr avr-libc make bison flex gawk libncurses-dev
+        sudo apt-get install -y gcc-avr avr-libc make bison flex gawk libncurses-dev dialog
 
     - name: Run autotest on all profiles
       run: |
