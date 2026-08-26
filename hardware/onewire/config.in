@@ -2,7 +2,8 @@ dep_bool_menu "Onewire support" ONEWIRE_SUPPORT $ARCH_AVR
 	dep_bool "Onewire DS18XX (temperature) support" ONEWIRE_DS18XX_SUPPORT $ONEWIRE_SUPPORT
 	dep_bool "Onewire DS2502 (eeprom) support" ONEWIRE_DS2502_SUPPORT $ONEWIRE_SUPPORT
 	dep_bool "Onewire DS2450 (4 channel ADC) support" ONEWIRE_DS2450_SUPPORT $ONEWIRE_SUPPORT
-	if [ "$ONEWIRE_DS18XX_SUPPORT" = "y" -o "$ONEWIRE_DS2502_SUPPORT" = "y" -o "$ONEWIRE_DS2450_SUPPORT" = "y" ]; then
+	dep_bool "Onewire DS2423 (counter) support" ONEWIRE_DS2423_SUPPORT $ONEWIRE_SUPPORT
+	if [ "$ONEWIRE_DS18XX_SUPPORT" = "y" -o "$ONEWIRE_DS2502_SUPPORT" = "y" -o "$ONEWIRE_DS2450_SUPPORT" = "y" -o "$ONEWIRE_DS2423_SUPPORT" = "y" ]; then
 		define_bool ONEWIRE_DEVICES y
 	else
 		define_bool ONEWIRE_DEVICES n
@@ -27,4 +28,6 @@ dep_bool_menu "Onewire support" ONEWIRE_SUPPORT $ARCH_AVR
 	dep_bool "Onewire device detection (ECMD)" DEBUG_ECMD_OW_LIST $DEBUG $ONEWIRE_DS18XX_SUPPORT
 	dep_bool "Onewire DS2450 (core)" DEBUG_OW_DS2450_CORE $DEBUG $ONEWIRE_DS2450_SUPPORT
 	dep_bool "Onewire DS2450 (ECMD)" DEBUG_OW_DS2450_ECMD $DEBUG $ONEWIRE_DS2450_SUPPORT
+	dep_bool "Onewire DS2423 (core)" DEBUG_OW_DS2423_CORE $DEBUG $ONEWIRE_DS2423_SUPPORT
+	dep_bool "Onewire DS2423 (ECMD)" DEBUG_OW_DS2423_ECMD $DEBUG $ONEWIRE_DS2423_SUPPORT
 endmenu
