@@ -42,12 +42,12 @@ do_strip=false
 grep -Fq "#define VFS_INLINE_HTML_CLEAN_SUPPORT" autoconf.h &&  do_strip=true
 
 while true; do
-  fn="$1"; shift
-  test "x$fn" = "x" && {
+  test "x$1" = "x" && {
     SZ=$(stat ${STAT_ARGS} ethersex.bin)
     echo "Final size of ethersex.bin is $SZ."
     exit 0
   }
+  fn="$1"; shift
   >/dev/null
   if [ ! -e "$fn" ]; then 
     continue
