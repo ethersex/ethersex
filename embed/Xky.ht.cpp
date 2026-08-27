@@ -1,8 +1,6 @@
 #include "autoconf.h"
+#ifdef KTY_INLINE_SUPPORT
 #include "pinning.c"
-#ifndef KTY_INLINE_SUPPORT
-#error Do nt inline this file without KTY_INLINE_SUPPORT
-#endif
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC
     "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN"
@@ -77,3 +75,4 @@ window.onload = function() {
     <div id="logconsole"></div>
   </body>
 </html>
+#endif

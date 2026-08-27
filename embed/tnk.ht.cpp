@@ -1,8 +1,6 @@
 #include "autoconf.h"
+#ifdef TANKLEVEL_INLINE_SUPPORT
 #include "pinning.c"
-#ifndef TANKLEVEL_INLINE_SUPPORT
-#error Do not inline this file without TANKLEVEL_INLINE_SUPPORT
-#endif
 <html>
 <head>
 <title>Ethersex - Tank Level</title>
@@ -64,4 +62,5 @@ window.onload = function() {
 <div id="logconsole"></div>
 </body>
 </html>
+#endif
 

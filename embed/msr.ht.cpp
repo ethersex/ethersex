@@ -1,7 +1,5 @@
 #include "autoconf.h"
-#ifndef MSR1_INLINE_SUPPORT
-#error Do not inline this file without MSR1_INLINE_SUPPORT
-#endif
+#ifdef MSR1_INLINE_SUPPORT
 <html>
 <head>
 <title>Ethersex - MSR1 Status</title>
@@ -96,3 +94,4 @@ ArrAjax.ecmd("msr1 get 1", parse_c0);
 <div id="logconsole"></div>
 </body>
 </html>
+#endif
