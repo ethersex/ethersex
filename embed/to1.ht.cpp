@@ -1,7 +1,5 @@
 #include "autoconf.h"
-#ifndef TO1_INLINE_SUPPORT
-#error Do not inline this file without TO1_INLINE_SUPPORT
-#endif
+#ifdef TO1_INLINE_SUPPORT
 <html>
 <head>
 <title>Ethersex - TO-1 Status</title>
@@ -87,3 +85,4 @@ window.onload = function() {
 <div id="logconsole"></div>
 </body>
 </html>
+#endif

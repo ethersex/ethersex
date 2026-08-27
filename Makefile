@@ -191,11 +191,11 @@ endif
 #
 ##############################################################################
 
+# Embed files: strip .cpp/.m4/.sh extensions to get the generated target names.
+# These are used as dependencies of %.bin so make runs the pattern rules
+# (embed/%: embed/%.cpp etc.) before linking.
 ifeq ($(VFS_INLINE_SUPPORT),y)
 INLINE_FILES := $(shell ls embed/* | $(SED) '/\.tmp$$/d; /\.gz$$/d; /~$$/d; s/\.cpp$$//; s/\.m4$$//; s/\.sh$$//;')
-ifeq ($(DEBUG_INLINE_FILES),y)
-.PRECIOUS = $(INLINE_FILES)
-endif
 else
 INLINE_FILES :=
 endif
@@ -234,11 +234,13 @@ embed/%: embed/%.sh
 	  else echo "--> Include $@ ($<)"; \
 	fi
 
+# VFS inline: after linking, do-embed appends gzipped web UI files to the
+# binary. The file list is computed at recipe time ($$()) to avoid stale files.
 %.bin: % $(INLINE_FILES)
 	$(OBJCOPY) -O binary -R .eeprom $< $@
 ifeq ($(VFS_INLINE_SUPPORT),y)
 	@$(MAKE) -C core/vfs vfs-concat TOPDIR=../.. no_deps=t
-	$(CONFIG_SHELL) core/vfs/do-embed $(INLINE_FILES)
+	$(CONFIG_SHELL) core/vfs/do-embed $$(ls embed/* | $(SED) '/\.m4$$/d; /\.cpp$$/d; /\.sh$$/d; /\.tmp$$/d; /\.gz$$/d; /~$$/d')
 endif
 ifeq ($(CRC_PAD_SUPPORT),y)
 # fill up the binary to the maximum possible size minus 2 bytes for the crc
@@ -303,6 +305,12 @@ clean:
 		$(patsubst %.o,%.s,${OBJECTS}) network.dep
 	$(RM) meta.c meta.h meta.m4 meta.defines
 	$(RM) $(AUTOGEN_SRC) $(y_AUTOGEN_SRC)
+	# Remove generated embed files (targets from .cpp/.m4/.sh) and their .gz copies
+	@for src in embed/*.m4 embed/*.cpp embed/*.sh; do \
+		[ -f "$$src" ] || continue; \
+		case "$$src" in *.m4) t="$${src%.m4}" ;; *.cpp) t="$${src%.cpp}" ;; *.sh) t="$${src%.sh}" ;; esac; \
+		[ "$$t" != "$$src" ] && [ "$$t" != "embed/" ] && $(RM) "$$t" "$$t.gz"; \
+	done
 	echo "Cleaning completed"
 
 fullclean: clean
@@ -349,6 +357,10 @@ ifneq ($(MAKECMDGOALS),menuconfig)
 	# test the target file, test fails if it doesn't exist
 	# and will keep make from looping menuconfig.
 	test -s autoconf.h -a -s .config
+	# ensure autoconf.h contains only preprocessor directives (#define/#undef)
+	# so that #include in embed/*.cpp files produces no output when the feature is disabled
+	@if grep -vE '^#|^\s*/\*|^\s*\*/|^\s*\*|^\s*//' autoconf.h | grep -q '.'; then \
+		echo "ERROR: autoconf.h contains non-preprocessor code"; exit 1; fi
 	# now let's restart make so the .config is (re)evaluated.
 	$(MAKE) $(MAKECMDGOALS)
 	@echo Ethersex compiled successfully, ignore make error!
