@@ -23,6 +23,7 @@
 
 #include "config.h"
 #include <stdint.h>
+#include <avr/io.h>
 
 #if defined(_ATMEGA8) || defined(_ATMEGA88) || defined(_ATMEGA168) \
     || defined(_ATMEGA168P) || defined(_ATMEGA328P)
