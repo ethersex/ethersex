@@ -264,6 +264,10 @@ typedef struct
   uint8_t present :1;
   /* semaphore for conversion error 85.0°C */
   uint8_t conv_error :1;
+#if ONEWIRE_BUSCOUNT > 1
+  /* bus this sensor is connected to */
+  uint8_t bus :4;
+#endif
 
   /* byte aligned fields */
 #ifdef ONEWIRE_DS18XX_SUPPORT
@@ -331,24 +335,26 @@ uint8_t ow_read_byte(uint8_t busmask);
  * high level functions
  */
 
-/* tries to read the code of the attached device, if there is only one
+/* tries to read the rom code of the attached device using READ_ROM command.
+ * requires exactly one device on the bus. in multi-bus mode, iterates
+ * over all buses and returns the first device found.
  *
  * return values:
  *    1: code read successfully, code written to given ow_rom_code_t structure
- *   -1: no presence pulse has been detected, no device connected?
- *   -2: crc check failed, multiple devices on the same bus? use search_rom()
+ *   -1: no device found on any bus (crc failure or no presence pulse)
  */
 int8_t ow_read_rom(ow_rom_code_t * rom);
 
 
-/* skip rom addressing, only works if there is exactly one device on the bus
- * or if this command should go to ALL onewire devices!
+/* broadcast skip rom command on the given busmask.
+ * only valid if exactly one device is on the target bus,
+ * or to address ALL devices (e.g. before global convert).
  *
  * return values:
  *    1: skip rom command issued successfully
  *   -1: no presence pulse has been detected, no device connected?
  */
-int8_t ow_skip_rom(void);
+int8_t ow_skip_rom(uint8_t busmask);
 
 
 /* address one sensor.
@@ -359,6 +365,12 @@ int8_t ow_skip_rom(void);
  */
 int8_t ow_match_rom(ow_rom_code_t * rom);
 
+/* Get the busmask for a sensor based on its stored bus number */
+uint8_t ow_sensor_busmask(ow_sensor_t *sensor);
+
+/* Get the busmask for a ROM code by looking up the sensor */
+/* If rom is NULL, returns default busmask (first bus for multi-bus, ONEWIRE_BUSMASK for single) */
+uint8_t ow_rom_busmask(ow_rom_code_t *rom);
 
 /* detect rom codes on the onewire bus. call ow_search_rom_first() for initial
  * search, ow_search_rom_next() for next device, until 0 is returned.
