@@ -21,6 +21,7 @@
  */
 
 #include <stdint.h>
+#include <avr/io.h>
 #include "services/clock/clock.h"
 
 #ifndef _CRON_SHARED_H

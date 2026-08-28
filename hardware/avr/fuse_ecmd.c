@@ -21,6 +21,7 @@
 
 #include <stdio.h>
 #include <avr/pgmspace.h>
+#include <avr/io.h>
 
 #include "pinning.c"
 #include "protocols/ecmd/ecmd-base.h"
