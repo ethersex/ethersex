@@ -49,25 +49,16 @@ ow_match_skip_rom(ow_rom_code_t * rom)
 {
   int8_t ret;
 
-  if (rom == NULL)
+  if (!ow_ds2450_sensor(rom))
   {
-    DS2450_CORE_DEBUG
-      ("ow_match_skip_rom: rom == NULL, using skip command.\n");
-    ret = ow_skip_rom();
+    DS2450_CORE_DEBUG("ow_match_skip_rom: family code mismatch!\n");
+    ret = -3;
   }
   else
   {
-    if (!ow_ds2450_sensor(rom))
-    {
-      DS2450_CORE_DEBUG("ow_match_skip_rom: family code mismatch!\n");
-      ret = -3;
-    }
-    else
-    {
-      DS2450_CORE_DEBUG
-        ("ow_match_skip_rom: rom != NULL, using match command.\n");
-      ret = ow_match_rom(rom);
-    }
+    DS2450_CORE_DEBUG
+      ("ow_match_skip_rom: rom != NULL, using match command.\n");
+    ret = ow_match_rom(rom);
   }
 
   DS2450_CORE_DEBUG("ow_match_skip_rom: returning: %i.\n", ret);
@@ -479,8 +470,7 @@ ow_ds2450_power_set(ow_rom_code_t * rom, uint8_t vcc_powered)
 int8_t
 ow_ds2450_convert(ow_rom_code_t * rom, uint8_t input_select, uint8_t readout)
 {
-  // FIXME: currently only on 1st bus
-  uint8_t mask = 1 << (ONEWIRE_STARTPIN);
+  uint8_t mask = ow_rom_busmask(rom);
   int8_t ret;
   uint16_t seed = 0;
 
@@ -584,8 +574,7 @@ int8_t
 ow_ds2450_mempage_read(ow_rom_code_t * rom, const int8_t mempage,
                        const uint8_t len, uint8_t * mem)
 {
-  // FIXME: currently only on 1st bus
-  uint8_t mask = 1 << (ONEWIRE_STARTPIN);
+  uint8_t mask = ow_rom_busmask(rom);
   int8_t ret;
   uint16_t seed = 0;
 
@@ -678,8 +667,7 @@ int8_t
 ow_ds2450_mempage_write(ow_rom_code_t * rom, int8_t mempage, uint8_t len,
                         uint8_t * mem)
 {
-  // FIXME: currently only on 1st bus
-  uint8_t mask = 1 << (ONEWIRE_STARTPIN);
+  uint8_t mask = ow_rom_busmask(rom);
   int8_t ret;
   uint16_t seed = 0;
 

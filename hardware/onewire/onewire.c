@@ -211,40 +211,43 @@ int8_t noinline
 ow_read_rom(ow_rom_code_t * rom)
 {
 #if ONEWIRE_BUSCOUNT > 1
-  // FIXME: currently only on 1st bus
-  uint8_t busmask = 1 << (ONEWIRE_STARTPIN);
+  for (uint8_t bus = 0; bus < ONEWIRE_BUSCOUNT; bus++)
+  {
+    uint8_t busmask = (uint8_t) (1 << (bus + ONEWIRE_STARTPIN));
 #else
-  uint8_t busmask = ONEWIRE_BUSMASK;
+    uint8_t busmask = ONEWIRE_BUSMASK;
 #endif
-  /* reset the bus */
-  if (!reset_onewire(busmask))
-    return -1;
 
-  /* transmit command byte */
-  ow_write_byte(busmask, OW_ROM_READ_ROM);
+    /* reset the bus */
+    if (reset_onewire(busmask))
+    {
+      /* transmit command byte */
+      ow_write_byte(busmask, OW_ROM_READ_ROM);
 
-  /* read 64bit rom code */
-  for (uint8_t i = 0; i < 8; i++)
-    /* read byte */
-    rom->bytewise[i] = ow_read_byte(busmask);
+      /* read 64bit rom code */
+      for (uint8_t i = 0; i < 8; i++)
+        rom->bytewise[i] = ow_read_byte(busmask);
 
-  /* check CRC (last byte) */
-  if (rom->crc != crc_checksum(rom->bytewise, 7))
-    return -2;
+      /* check CRC (last byte) */
+      if (rom->crc == crc_checksum(rom->bytewise, 7))
+        return 1;
+    }
 
-  return 1;
+#if ONEWIRE_BUSCOUNT > 1
+  }
+#endif
+
+  return -1;
 }
 
 
 int8_t noinline
-ow_skip_rom(void)
+ow_skip_rom(uint8_t busmask)
 {
-  /* reset the bus */
-  if (!reset_onewire(ONEWIRE_BUSMASK))
+  if (!reset_onewire(busmask))
     return -1;
 
-  /* transmit command byte */
-  ow_write_byte(ONEWIRE_BUSMASK, OW_ROM_SKIP_ROM);
+  ow_write_byte(busmask, OW_ROM_SKIP_ROM);
 
   return 1;
 }
@@ -253,17 +256,19 @@ ow_skip_rom(void)
 int8_t noinline
 ow_match_rom(ow_rom_code_t * rom)
 {
+  uint8_t busmask = ow_rom_busmask(rom);
+
   /* reset the bus */
-  if (!reset_onewire(ONEWIRE_BUSMASK))
+  if (!reset_onewire(busmask))
     return -1;
 
   /* transmit command byte */
-  ow_write_byte(ONEWIRE_BUSMASK, OW_ROM_MATCH_ROM);
+  ow_write_byte(busmask, OW_ROM_MATCH_ROM);
 
   /* transmit rom code */
   for (uint8_t i = 0; i < 8; i++)
     for (uint8_t j = 0; j < 8; j++)
-      ow_write(ONEWIRE_BUSMASK, (uint8_t) (rom->bytewise[i] & _BV(j)));
+      ow_write(busmask, (uint8_t) (rom->bytewise[i] & _BV(j)));
 
   return 1;
 }
@@ -383,10 +388,27 @@ int8_t
 ow_temp_start_convert(ow_rom_code_t * rom)
 {
   int8_t ret;
+  uint8_t busmask = ow_rom_busmask(rom);
 
   if (rom == NULL) {
-    ret = ow_skip_rom();
     OW_DEBUG_POLL("start conversion on all sensors\n");
+#if ONEWIRE_BUSCOUNT > 1
+    for (uint8_t bus = 0; bus < ONEWIRE_BUSCOUNT; bus++)
+    {
+      busmask = (uint8_t) (1 << (bus + ONEWIRE_STARTPIN));
+      ret = ow_skip_rom(busmask);
+      if (ret < 0)
+        continue;
+      ow_write_byte(busmask, OW_FUNC_CONVERT);
+      OW_CONFIG_OUTPUT(busmask);
+      OW_HIGH(busmask);
+    }
+    return 0;
+#else
+    ret = ow_skip_rom(busmask);
+    if (ret < 0)
+      return ret;
+#endif
   }
   else
   {
@@ -399,16 +421,16 @@ ow_temp_start_convert(ow_rom_code_t * rom)
         "%02x%02x%02x%02x\n", rom->bytewise[0], rom->bytewise[1],
         rom->bytewise[2], rom->bytewise[3], rom->bytewise[4],
         rom->bytewise[5], rom->bytewise[6], rom->bytewise[7]);
+
+    if (ret < 0)
+      return ret;
   }
 
-  if (ret < 0)
-    return ret;
-
   /* transmit command byte */
-  ow_write_byte(ONEWIRE_BUSMASK, OW_FUNC_CONVERT);
+  ow_write_byte(busmask, OW_FUNC_CONVERT);
 
-  OW_CONFIG_OUTPUT(ONEWIRE_BUSMASK);
-  OW_HIGH(ONEWIRE_BUSMASK);
+  OW_CONFIG_OUTPUT(busmask);
+  OW_HIGH(busmask);
 
   return 0;
 }
@@ -418,47 +440,31 @@ int8_t
 ow_temp_read_scratchpad(ow_rom_code_t * rom,
                         ow_temp_scratchpad_t * scratchpad)
 {
-  uint8_t busmask;
+  uint8_t busmask = ow_rom_busmask(rom);
   int8_t ret;
 
-  if (rom == NULL)
-    ret = ow_skip_rom();
-  else
-  {
-    /* check for known family code */
-    if (!ow_temp_sensor(rom))
-      return -3;
+  /* check for known family code */
+  if (!ow_temp_sensor(rom))
+    return -3;
 
-    ret = ow_match_rom(rom);
-  }
+  ret = ow_match_rom(rom);
 
   if (ret < 0)
     return ret;
 
   /* transmit command byte */
-  ow_write_byte(ONEWIRE_BUSMASK, OW_FUNC_READ_SP);
+  ow_write_byte(busmask, OW_FUNC_READ_SP);
 
-#if ONEWIRE_BUSCOUNT > 1
-  for (uint8_t bus = 0; bus < ONEWIRE_BUSCOUNT; bus++)
+  for (uint8_t i = 0; i < 9; i++)
   {
-    /* read 9 bytes from each onewire bus */
-    busmask = (uint8_t) (1 << (bus + ONEWIRE_STARTPIN));
-#else
+    scratchpad->bytewise[i] = ow_read_byte(busmask);
+  }
+
+  /* check CRC (last byte) */
+  if (scratchpad->crc == crc_checksum(&scratchpad->bytewise, 8))
   {
-    busmask = ONEWIRE_BUSMASK;
-#endif
-
-    for (uint8_t i = 0; i < 9; i++)
-    {
-      scratchpad->bytewise[i] = ow_read_byte(busmask);
-    }
-
-    /* check CRC (last byte) */
-    if (scratchpad->crc == crc_checksum(&scratchpad->bytewise, 8))
-    {
-      /* return if we got a valid response from one device */
-      return 1;
-    }
+    /* return if we got a valid response from one device */
+    return 1;
   }
 
   return -2;
@@ -468,23 +474,13 @@ ow_temp_read_scratchpad(ow_rom_code_t * rom,
 int8_t
 ow_temp_power(ow_rom_code_t * rom)
 {
-#if ONEWIRE_BUSCOUNT > 1
-  // FIXME: currently only on 1st bus
-  uint8_t busmask = 1 << (ONEWIRE_STARTPIN);
-#else
-  uint8_t busmask = ONEWIRE_BUSMASK;
-#endif
+  uint8_t busmask = ow_rom_busmask(rom);
   int8_t ret;
 
-  if (rom == NULL)
-    ret = ow_skip_rom();
-  else
-  {
-    if (!ow_temp_sensor(rom))
-      return -2;
+  if (!ow_temp_sensor(rom))
+    return -2;
 
-    ret = ow_match_rom(rom);
-  }
+  ret = ow_match_rom(rom);
 
   if (ret < 0)
     return ret;
@@ -536,24 +532,14 @@ ow_eeprom(ow_rom_code_t * rom)
 int8_t
 ow_eeprom_read(ow_rom_code_t * rom, void *data)
 {
-#if ONEWIRE_BUSCOUNT > 1
-  // FIXME: currently only on 1st bus
-  uint8_t busmask = 1 << (ONEWIRE_STARTPIN);
-#else
-  uint8_t busmask = ONEWIRE_BUSMASK;
-#endif
+  uint8_t busmask = ow_rom_busmask(rom);
   int8_t ret;
 
-  if (rom == NULL)
-    ret = ow_skip_rom();
-  else
-  {
-    /* check for known family code */
-    if (!(rom->family == OW_FAMILY_DS2502E48))
-      return -2;
+  /* check for known family code */
+  if (!(rom->family == OW_FAMILY_DS2502E48))
+    return -2;
 
-    ret = ow_match_rom(rom);
-  }
+  ret = ow_match_rom(rom);
 
   if (ret < 0)
     return ret;
@@ -605,6 +591,45 @@ ow_find_sensor_index(ow_rom_code_t * rom)
     if (ow_sensors[i].ow_rom_code.raw == rom->raw)
       return i; /* found it */
   return -1;
+}
+
+uint8_t
+ow_sensor_busmask(ow_sensor_t *sensor)
+{
+#if ONEWIRE_BUSCOUNT > 1
+  return (uint8_t) (1 << (sensor->bus + ONEWIRE_STARTPIN));
+#else
+  return ONEWIRE_BUSMASK;
+#endif
+}
+
+uint8_t
+ow_rom_busmask(ow_rom_code_t *rom)
+{
+#if ONEWIRE_BUSCOUNT > 1
+  if (rom)
+  {
+    ow_sensor_t *sensor = ow_find_sensor(rom);
+    if (sensor)
+    {
+      if (!sensor->present)
+        OW_DEBUG_ROM("sensor %02x%02x%02x%02x%02x%02x%02x%02x disappeared from bus %d, falling back to bus %d\n",
+                     rom->bytewise[0], rom->bytewise[1], rom->bytewise[2], rom->bytewise[3],
+                     rom->bytewise[4], rom->bytewise[5], rom->bytewise[6], rom->bytewise[7],
+                     sensor->bus, ONEWIRE_STARTPIN);
+      return ow_sensor_busmask(sensor);
+    }
+    /* sensor not in list at all - log and fallback to first bus */
+    OW_DEBUG_ROM("sensor %02x%02x%02x%02x%02x%02x%02x%02x not in list, falling back to bus %d\n",
+                 rom->bytewise[0], rom->bytewise[1], rom->bytewise[2], rom->bytewise[3],
+                 rom->bytewise[4], rom->bytewise[5], rom->bytewise[6], rom->bytewise[7],
+                 ONEWIRE_STARTPIN);
+  }
+  /* fallback to first bus if sensor not found or rom is NULL */
+  return (uint8_t) (1 << ONEWIRE_STARTPIN);
+#else
+  return ONEWIRE_BUSMASK;
+#endif
 }
 
 static int8_t
@@ -672,6 +697,9 @@ ow_discover_sensor(void)
             if (ow_global.current_rom.raw == ow_sensors[i].ow_rom_code.raw)
             {
               ow_sensors[i].present = 1;
+#if ONEWIRE_BUSCOUNT > 1
+              ow_sensors[i].bus = ow_global.bus;
+#endif
               /* skip everything else to retain a regular update rate */
               break;
             }
@@ -689,6 +717,9 @@ ow_discover_sensor(void)
                 OW_DEBUG_POLL("stored new sensor in pos %d\n", i);
                 ow_sensors[i].ow_rom_code.raw = ow_global.current_rom.raw;
                 ow_sensors[i].present = 1;
+#if ONEWIRE_BUSCOUNT > 1
+                ow_sensors[i].bus = ow_global.bus;
+#endif
                 /* read temperature asap
                  * eeproms will be checked for later */
                 break;
