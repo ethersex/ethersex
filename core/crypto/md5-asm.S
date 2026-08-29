@@ -843,6 +843,8 @@ md5_lastBlock:
 	movw r14, r22 /* block_ptr */
 	movw r12, r24 /* state_ptr */
 	ldi r18, 64
+	clr r1 /* r1 is clobbered by the caller and by md5_nextBlock,
+	         but is used as a constant zero below */
 2:
 	cpi r17, 2 /* hi8(512) */	
 	brlo 2f
@@ -850,6 +852,9 @@ md5_lastBlock:
 	movw r24, r12
 	movw r22, r14
 	rcall md5_nextBlock
+	ldi r18, 64 /* md5_nextBlock leaves r18 == 3 (its round index), so the
+	               block stride must be reloaded after every call */
+	clr r1
 	add r14, r18
 	adc r15, r1
 	subi r17, 2
@@ -914,6 +919,7 @@ after_bit_fucking:
 	movw r24, r12
 	movw r22, r14
 	rcall md5_nextBlock
+	clr r1 /* restored as constant zero: md5_nextBlock clobbers r1 */
 	movw r30, r14
 	ldi r20, 64-8
 3:
