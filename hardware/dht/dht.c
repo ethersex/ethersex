@@ -198,8 +198,8 @@ dht_init(void)
   {
     DHT_DEBUG("init %S", dht_sensors[i].name);
 
-    volatile uint8_t * port = pgm_read_byte(&dht_sensors[i].port);
-    uint8_t pin  = pgm_read_byte(&dht_sensors[i].pin);
+    volatile uint8_t * port = dht_sensors[i].port;
+    uint8_t pin  = dht_sensors[i].pin;
 
     *(port-1) &= ~_BV(pin);
     dht_sensors[i].polling_delay = delay;
