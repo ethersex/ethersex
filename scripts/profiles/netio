@@ -698,7 +698,7 @@ ONEWIRE_ECMD_LIST_SUPPORT=y
 # Humidity & temperature sensors
 #
 # SHT_SUPPORT is not set
-# DHT_SUPPORT is not set
+DHT_SUPPORT=y
 # ZACWIRE_SUPPORT is not set
 # ZACWIRE_RAW_SUPPORT is not set
 # ZACWIRE_CONVERT306_SUPPORT is not set
