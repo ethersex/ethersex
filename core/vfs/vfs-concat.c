@@ -142,7 +142,10 @@ main(int argc, char **argv)
 
   putchar(VFS_INLINE_MAGIC);
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-truncation"
   strncpy(node.s.fn, argv[3], VFS_INLINE_FNLEN);
+#pragma GCC diagnostic pop
   node.s.len = file_len;
   node.s.crc = crc_calc(node.raw, sizeof(node) - 1);
 
