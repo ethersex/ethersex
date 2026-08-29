@@ -25,6 +25,7 @@ STAT_ARGS="-c %s"
 [ `uname` = "FreeBSD" ] && STAT_ARGS="-f %z"
 
 (cat <<EOF
+#include <avr/io.h>
 #include <avr/pgmspace.h>
 SPM_PAGESIZE
 EOF
