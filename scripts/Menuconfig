@@ -43,11 +43,11 @@ fi
 # from the arch-dependent defconfig file, or (3) a default passed by the caller.
 
 function set_x_info () {
-    eval x=\$$1
+    x="${!1}"
     if [ -z "$x" ]; then
-#	eval `$SED -n -e 's/# \(.*\) is not set.*/\1=n/' -e "/^$1=/p" arch/$ARCH/defconfig`
-	eval x=\${$1:-\"$2\"}
-	eval $1=$x
+ #	eval `$SED -n -e 's/# \(.*\) is not set.*/\1=n/' -e "/^$1=/p" arch/$ARCH/defconfig`
+	x="${!1:-$2}"
+	printf -v "$1" '%s' "$x"
 	eval INFO_$1="' (NEW)'"
     fi
     eval info=\"\$INFO_$1\"
@@ -574,9 +574,9 @@ function l_int () {
 			# we avoid them:
 			if expr "$answer" : '0$' '|' "$answer" : '[1-9][0-9]*$' '|' "$answer" : '-[1-9][0-9]*$' >/dev/null
 			then
-				eval $2=\"$answer\"
+				printf -v "$2" '%s' "$answer"
 			else
-				eval $2=\"$3\"
+				printf -v "$2" '%s' "$3"
 				echo -en "\007"
 				${DIALOG} --backtitle "$backtitle" \
 					--infobox "You have made an invalid entry." 3 43
@@ -609,9 +609,9 @@ function l_int_min_max_step () {
 			if expr '(' "$answer" : '0$' '|' "$answer" : '[1-9][0-9]*$' '|' "$answer" : '-[1-9][0-9]*$' ')' \
 			  '&' "$answer" '>=' $4 '&' "$answer" '<=' $5 '&' '(' "$answer" '%' $6 ')' = 0 >/dev/null
 			then
-				eval $2=\"$answer\"
+				printf -v "$2" '%s' "$answer"
 			else
-				eval $2=\"$3\"
+				printf -v "$2" '%s' "$3"
 				echo -en "\007"
 				${DIALOG} --backtitle "$backtitle" \
 					--msgbox "You have made an invalid entry." 5 43
@@ -642,9 +642,9 @@ function l_hex () {
 
 			if expr "$answer" : '[0-9a-fA-F][0-9a-fA-F]*$' >/dev/null
 			then
-				eval $2=\"$answer\"
+				printf -v "$2" '%s' "$answer"
 			else
-				eval $2=\"$3\"
+				printf -v "$2" '%s' "$3"
 				echo -en "\007"
 				${DIALOG} --backtitle "$backtitle" \
 					--infobox "You have made an invalid entry." 3 43
@@ -676,7 +676,7 @@ function l_string () {
 			# Someone may add a nice check for the entered
 			# string here...
 			#
-			eval $2=\"$answer\"
+			printf -v "$2" '%s' "$answer"
 
 			break
 		fi
@@ -718,9 +718,9 @@ function l_mac () {
 
 			if expr "$answer" : '[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]:[0-9a-fA-F][0-9a-fA-F]$' >/dev/null
 			then
-				eval $2=\"$answer\"
+				printf -v "$2" '%s' "$answer"
 			else
-				eval $2=\"$3\"
+				printf -v "$2" '%s' "$3"
 				echo -en "\007"
 				$DIALOG --backtitle "$backtitle" \
 					--infobox "You have made an invalid entry." 3 43
@@ -751,9 +751,9 @@ function l_ipv4 () {
 
 			if expr "$answer" : '[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$' >/dev/null
 			then
-				eval $2=\"$answer\"
+				printf -v "$2" '%s' "$answer"
 			else
-				eval $2=\"$3\"
+				printf -v "$2" '%s' "$3"
 				echo -en "\007"
 				$DIALOG --backtitle "$backtitle" \
 					--infobox "You have made an invalid entry." 3 43
@@ -784,9 +784,9 @@ function l_ipv6 () {
 
 			if scripts/ipv6-check "$answer"
 			then
-				eval $2=\"$answer\"
+				printf -v "$2" '%s' "$answer"
 			else
-				eval $2=\"$3\"
+				printf -v "$2" '%s' "$3"
 				echo -en "\007"
 				$DIALOG --backtitle "$backtitle" \
 					--infobox "You have made an invalid entry." 3 43
@@ -1310,12 +1310,27 @@ EOM
 # Converts all "# OPTION is not set" lines to "OPTION=n" lines
 #
 function load_config_file () {
+	[ -f "$1" ] || return 0
 	awk '
-	  /# .* is not set.*/ { printf("%s=n\n", $2) }
-	! /# .* is not set.*/ { print }
-	' $1 >.tmpconfig
-
-	source ./.tmpconfig
+	  /^# .* is not set.*/ { sub(/^# /,""); sub(/ is not set.*/,""); printf("%s=n\n", $0); next }
+	  /^[[:space:]]*#/ { next }
+	  /^[[:space:]]*$/ { next }
+	  { print }
+	' "$1" > .tmpconfig
+	q='"'
+	b='\'
+	while IFS= read -r line; do
+		case "$line" in
+			*=*)
+				var=${line%%=*}
+				val=${line#*=}
+				val=${val%$q}; val=${val#$q}
+				val=${val//$b$b$q/$q}      # quote
+				val=${val//$b$b$b$b/$b$b}      # backslash
+				printf -v "$var" '%s' "$val"
+				;;
+		esac
+	done < .tmpconfig
 	rm -f .tmpconfig
 }
 
@@ -1397,8 +1412,12 @@ save_configuration () {
 
 	function string () {
 		set_x_info "$2" "$3"
-		echo "$2=\"$x\"" 			 >>$CONFIG
-		echo "#define $2 \"$x\""	>>$CONFIG_H
+		q='"'
+		b='\'
+		esc=${x//$b/$b$b}        # backslash
+		esc=${esc//$q/$b$q}     # quote
+		echo "$2=\"$esc\"" >>$CONFIG
+		echo "#define $2 \"$esc\"" >>$CONFIG_H
 	}
 
 	function mac () {
