@@ -257,6 +257,9 @@ mainmenu_option next_comment
 		dep_bool "DHCP support" DHCP_SUPPORT "n"
 	else
 		dep_bool "DHCP support" DHCP_SUPPORT $BROADCAST_SUPPORT $ENC28J60_SUPPORT $IPV4_SUPPORT
+		if [ "$DHCP_SUPPORT" = "y" ]; then
+			dep_bool "  Allow also static configuration" DHCP_SUPPORT_STATIC $DHCP_SUPPORT
+		fi
 	fi
 
 	comment "Tunneling protocols"
