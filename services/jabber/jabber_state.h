@@ -77,6 +77,20 @@ enum {
 #define TARGET_BUDDY_MAXLEN 40
 #define JABBER_SASL_MAX_PARAM_LEN 32
 
+/* This header is also included via meta.h (uip.c) without jabber.h having
+ * defined the choice values, leaving JABBER_AUTH_METHOD and the choice
+ * symbols undefined (which then all compare as 0 == 0 and would enable
+ * both SASL state blocks).  Define the numeric constants and a default
+ * for JABBER_AUTH_METHOD here so the comparisons below stay correct. */
+#ifndef JABBER_AUTH_PLAIN
+#define JABBER_AUTH_PLAIN 0
+#define JABBER_AUTH_DIGEST_MD5 1
+#define JABBER_AUTH_SCRAM_SHA1 2
+#endif
+#ifndef JABBER_AUTH_METHOD
+#define JABBER_AUTH_METHOD JABBER_AUTH_PLAIN
+#endif
+
 struct jabber_connection_state_t
 {
   uint8_t stage;
