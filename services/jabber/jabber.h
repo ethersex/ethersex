@@ -41,6 +41,12 @@ extern char jabber_resrc[JABBER_VALUESIZE];
 extern char jabber_host[JABBER_VALUESIZE];
 #endif
 
+#ifdef JABBER_AUTH_DIGEST_MD5
+#include "core/crypto/md5.h"
+void jabber_digest_md5_response(char *response, const char *challenge,
+                                const char *username, const char *password);
+#endif
+
 void jabber_init(void);
 void jabber_periodic(void);
 uint8_t jabber_send_message(char *message);

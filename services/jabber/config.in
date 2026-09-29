@@ -7,6 +7,11 @@ dep_bool_menu "Jabber Client" JABBER_SUPPORT $TCP_SUPPORT
 	string "Target Buddy Name" CONF_JABBER_BUDDY "stesie@jabber.zerties.org"
     dep_bool 'Use EEPROM' JABBER_EEPROM_SUPPORT $JABBER_SUPPORT "$(not $TEENSY_SUPPORT)"
     dep_bool "Enable startup message" JABBER_STARTUP_MESSAGE_SUPPORT $JABBER_SUPPORT
+    if [ "$MD5_SUPPORT" = "y" ]; then
+	choice 'Authentication method' "Plain JABBER_AUTH_PLAIN DIGEST-MD5 JABBER_AUTH_DIGEST_MD5" JABBER_AUTH_PLAIN JABBER_AUTH_METHOD
+    else
+	choice 'Authentication method' "Plain JABBER_AUTH_PLAIN" JABBER_AUTH_PLAIN JABBER_AUTH_METHOD
+    fi
     dep_bool "Last Info" JABBER_LAST_SUPPORT $JABBER_SUPPORT
     if [ "$JABBER_LAST_SUPPORT" = "y" ]; then
 	  int "Last access (in seconds)" CONF_JABBER_LAST_VALUE 23

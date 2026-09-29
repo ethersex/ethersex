@@ -37,6 +37,12 @@
 
 #include "known_buddies.c"
 
+#ifdef JABBER_AUTH_DIGEST_MD5
+static void jabber_parse_sasl_challenge(const char *challenge_data);
+static void jabber_build_sasl_digest_response(char *response_buf,
+                                              uint16_t buf_len);
+#endif /* JABBER_AUTH_DIGEST_MD5 */
+
 
 #ifdef JABBER_EEPROM_SUPPORT
 static const char PROGMEM jabber_stream_text[] =
@@ -187,13 +193,46 @@ jabber_send_data(uint8_t send_state, uint8_t action)
       break;
 
     case JABBER_GET_AUTH:
+#ifdef JABBER_AUTH_DIGEST_MD5
+      /* Send SASL auth request with DIGEST-MD5 mechanism */
+      JABDEBUG("Sending SASL DIGEST-MD5 auth request\n");
+      uip_slen = snprintf_P(uip_sappdata, JABBER_SEND_BUFLEN,
+                            PSTR("<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' "
+                                 "mechanism='DIGEST-MD5'/>"));
+      uip_send(uip_sappdata, uip_slen);
+      STATE->sasl_state = JABBER_SASL_STATE_INIT;
+#else
+      /* Use plain auth */
       JABBER_SEND_E(jabber_get_auth_text, jabber_user);
+#endif
       break;
 
     case JABBER_SET_AUTH:
+#ifndef JABBER_AUTH_DIGEST_MD5
+      /* Plain auth: send credentials */
       JABBER_SEND_E(jabber_set_auth_text, jabber_resrc, jabber_user,
                     jabber_pass);
+#else
+      /* Should not reach here with DIGEST-MD5, SASL auth should complete earlier */
+      JABDEBUG("Unexpected SET_AUTH state with DIGEST-MD5\n");
+      return;
+#endif
       break;
+
+#ifdef JABBER_AUTH_DIGEST_MD5
+    case JABBER_SASL_AUTH:
+      {
+        char response[512];
+        jabber_build_sasl_digest_response(response, sizeof(response));
+        uip_slen = snprintf_P(uip_sappdata, JABBER_SEND_BUFLEN,
+                              PSTR("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl' "
+                                   ">%s</response>"),
+                              response);
+        uip_send(uip_sappdata, uip_slen);
+        STATE->sasl_state = JABBER_SASL_STATE_RESPONSE_SENT;
+      }
+      break;
+#endif /* JABBER_AUTH_DIGEST_MD5 */
 
     case JABBER_SET_PRESENCE:
       JABBER_SEND(jabber_set_presence_text);
@@ -355,15 +394,92 @@ jabber_parse(void)
         JABDEBUG("<stream:stream not found in reply.  stop.");
         return 1;
       }
+#ifdef JABBER_AUTH_DIGEST_MD5
+      /* Check if server advertises SASL DIGEST-MD5 support in stream features */
+      if (strstr_P(uip_appdata, PSTR("DIGEST-MD5")))
+      {
+        JABDEBUG("Server supports DIGEST-MD5 SASL\n");
+        /* We'll send SASL auth after GET_AUTH stage */
+      }
+#endif /* JABBER_AUTH_DIGEST_MD5 */
       break;
-
     case JABBER_GET_AUTH:
+#ifdef JABBER_AUTH_DIGEST_MD5
+      /* Check for SASL challenge response to our mechanism request */
+      if (strstr_P(uip_appdata, PSTR("<challenge xmlns='urn:ietf:params:xml:ns:xmpp-sasl'")))
+      {
+        JABDEBUG("SASL challenge received after mechanism request\n");
+        /* Extract the base64 encoded challenge data */
+        char *challenge_ptr = strstr_P(uip_appdata,
+                      PSTR("<challenge xmlns='urn:ietf:params:xml:ns:xmpp-sasl'"));
+        if (challenge_ptr)
+        {
+          char *data_start = strchr(challenge_ptr, '>');
+          if (data_start)
+          {
+            data_start++;
+            char *data_end = strchr(data_start, '<');
+            if (data_end)
+            {
+              *data_end = 0;
+              JABDEBUG("challenge data: %s\n", data_start);
+              jabber_parse_sasl_challenge(data_start);
+              STATE->sasl_state = JABBER_SASL_STATE_CHALLENGE_RECEIVED;
+            }
+          }
+        }
+        STATE->stage = JABBER_SASL_AUTH;
+        break;
+      }
+      /* Check for immediate SASL success (some servers may accept without challenge) */
+      if (strstr_P(uip_appdata, PSTR("<success xmlns='urn:ietf:params:xml:ns:xmpp-sasl'")))
+      {
+        JABDEBUG("SASL authentication successful (no challenge)\n");
+        STATE->stage = JABBER_SET_PRESENCE;
+        break;
+      }
+      /* Check for SASL failure */
+      if (strstr_P(uip_appdata, PSTR("<failure xmlns='urn:ietf:params:xml:ns:xmpp-sasl'")))
+      {
+        JABDEBUG("SASL authentication failed\n");
+        return 1;
+      }
+#endif /* JABBER_AUTH_DIGEST_MD5 */
+
       if (strstr_P(uip_appdata, PSTR("<password/>")) == NULL)
       {
         JABDEBUG("<password/> not found in reply.  stop.");
         return 1;
       }
       break;
+
+#ifdef JABBER_AUTH_DIGEST_MD5
+    case JABBER_SASL_AUTH:
+      /* In SASL_AUTH stage, we've sent our response and are waiting for success/failure */
+
+      /* Check for SASL success */
+      if (strstr_P(uip_appdata, PSTR("<success xmlns='urn:ietf:params:xml:ns:xmpp-sasl'")))
+      {
+        JABDEBUG("SASL authentication successful\n");
+        STATE->sasl_state = JABBER_SASL_STATE_RESPONSE_SENT;
+        /* Transition to presence setup */
+        STATE->stage = JABBER_SET_PRESENCE;
+        break;
+      }
+      /* Check for SASL failure */
+      if (strstr_P(uip_appdata, PSTR("<failure xmlns='urn:ietf:params:xml:ns:xmpp-sasl'")))
+      {
+        JABDEBUG("SASL authentication failed\n");
+        return 1;
+      }
+      /* If we receive another challenge (shouldn't happen with DIGEST-MD5, but handle it) */
+      if (strstr_P(uip_appdata, PSTR("<challenge xmlns='urn:ietf:params:xml:ns:xmpp-sasl'")))
+      {
+        JABDEBUG("Unexpected SASL challenge in SASL_AUTH stage\n");
+        return 1;
+      }
+      break;
+#endif /* JABBER_AUTH_DIGEST_MD5 */
 
     case JABBER_SET_AUTH:
       if (strstr_P(uip_appdata, PSTR("result")) == NULL)
@@ -469,6 +585,13 @@ jabber_main(void)
     STATE->stage = JABBER_OPEN_STREAM;
     STATE->sent = JABBER_INIT;
 
+#ifdef JABBER_AUTH_DIGEST_MD5
+    STATE->sasl_state = JABBER_SASL_STATE_INIT;
+    STATE->sasl_nonce[0] = 0;
+    STATE->sasl_realm[0] = 0;
+    STATE->sasl_qop[0] = 0;
+#endif /* JABBER_AUTH_DIGEST_MD5 */
+
 #ifdef JABBER_STARTUP_MESSAGE_SUPPORT
     strncpy_P(STATE->target, PSTR(CONF_JABBER_BUDDY), sizeof(STATE->target));
     strncpy_P(STATE->outbuf, jabber_startup_text, sizeof(STATE->outbuf));
@@ -554,6 +677,197 @@ jabber_init(void)
   eeprom_restore(jabber_hostname, &jabber_host, JABBER_VALUESIZE);
 #endif
 }
+
+#ifdef JABBER_AUTH_DIGEST_MD5
+#include "core/util/byte2hex.h"
+#include "core/util/base64.h"
+
+static const char PROGMEM jabber_sasl_uri_format[] = "xmpp/%s";
+static const char PROGMEM jabber_sasl_qop_default[] = "auth";
+static const char PROGMEM jabber_sasl_response_format[] =
+  "username=\"%s\",realm=\"%s\",nonce=\"%s\",nc=%s,cnonce=\"%s\","
+  "qop=%s,digest-uri=\"%s\",response=%s,charset=utf-8";
+
+/* Parse SASL DIGEST-MD5 challenge and extract parameters */
+/* Challenge format per RFC 2831: base64(realm="...",nonce="...",qop="...",...)*/
+static void
+jabber_parse_sasl_challenge(const char *challenge_data)
+{
+  uint8_t decoded[256];
+  uint8_t decoded_len = 0;
+  char *ptr;
+
+  JABDEBUG("Parsing SASL challenge: %s\n", challenge_data);
+
+  /* Decode base64 challenge; base64_decode NUL-terminates the output */
+  base64_decode((char *) challenge_data, decoded, sizeof(decoded));
+  decoded_len = strlen((char *) decoded);
+
+  JABDEBUG("Decoded challenge (%d bytes): %s\n", decoded_len, decoded);
+
+  /* Parse key=value pairs */
+  ptr = (char *)decoded;
+  while (ptr && *ptr)
+  {
+    /* Skip whitespace */
+    while (*ptr == ' ' || *ptr == ',') ptr++;
+
+    if (!*ptr) break;
+
+    /* Find key */
+    char *key = ptr;
+    while (*ptr && *ptr != '=') ptr++;
+
+    if (!*ptr) break;
+
+    *ptr++ = 0; /* Terminate key */
+
+    /* Handle quoted value */
+    if (*ptr == '"')
+    {
+      ptr++; /* Skip opening quote */
+      char *value = ptr;
+      while (*ptr && *ptr != '"') ptr++;
+      if (*ptr == '"')
+      {
+        *ptr++ = 0; /* Terminate value */
+
+        /* Store parameter based on key */
+        if (strcmp(key, "nonce") == 0)
+        {
+          strncpy(STATE->sasl_nonce, value, sizeof(STATE->sasl_nonce) - 1);
+          STATE->sasl_nonce[sizeof(STATE->sasl_nonce) - 1] = 0;
+          JABDEBUG("nonce: %s\n", STATE->sasl_nonce);
+        }
+        else if (strcmp(key, "realm") == 0)
+        {
+          strncpy(STATE->sasl_realm, value, sizeof(STATE->sasl_realm) - 1);
+          STATE->sasl_realm[sizeof(STATE->sasl_realm) - 1] = 0;
+          JABDEBUG("realm: %s\n", STATE->sasl_realm);
+        }
+        else if (strcmp(key, "qop") == 0)
+        {
+          strncpy(STATE->sasl_qop, value, sizeof(STATE->sasl_qop) - 1);
+          STATE->sasl_qop[sizeof(STATE->sasl_qop) - 1] = 0;
+          JABDEBUG("qop: %s\n", STATE->sasl_qop);
+        }
+      }
+    }
+    else
+    {
+      /* Unquoted value - skip to comma or end */
+      while (*ptr && *ptr != ',' && *ptr != ' ') ptr++;
+    }
+  }
+}
+
+/* Compute the hex representation of MD5(data) and store 32 chars + NUL in dest. */
+static void
+jabber_md5_hex(const void *data, uint16_t len, char *dest)
+{
+  md5_hash_t hash;
+  uint8_t i;
+
+  md5(&hash, data, (uint32_t) len * 8);
+  for (i = 0; i < MD5_HASH_BYTES; i++)
+    byte2hex(hash[i], &dest[i * 2]);
+  dest[MD5_HASH_BYTES * 2] = 0;
+}
+
+/* Nonce counter for SASL authentication */
+static uint8_t jabber_nc = 0;
+
+/* Build the SASL DIGEST-MD5 auth response per RFC 2831 / RFC 3920.
+   The RFC 2831 response string is base64-encoded into response_buf.
+   The raw response string is assembled in uip_sappdata, which is
+   overwritten by the caller when sending the final message. */
+static void
+jabber_build_sasl_digest_response(char *response_buf, uint16_t buf_len)
+{
+  char user[32], pass[32], host[64];
+  char realm[JABBER_SASL_MAX_PARAM_LEN], nonce[JABBER_SASL_MAX_PARAM_LEN];
+  char qop[5], nc_str[9], cnonce[17], uri[96];
+  char a1[128], a2[96], response_hex[33];
+  md5_hash_t ha1, ha2;
+  uint8_t rv_buf[192];
+  uint8_t rv_len;
+
+  /* Resolve credentials - either from EEPROM globals or compile-time config */
+#ifdef JABBER_EEPROM_SUPPORT
+  strncpy(user, jabber_user, sizeof(user) - 1);
+  strncpy(pass, jabber_pass, sizeof(pass) - 1);
+  strncpy(host, jabber_host, sizeof(host) - 1);
+#else
+  strncpy_P(user, PSTR(CONF_JABBER_USERNAME), sizeof(user) - 1);
+  strncpy_P(pass, PSTR(CONF_JABBER_PASSWORD), sizeof(pass) - 1);
+  strncpy_P(host, PSTR(CONF_JABBER_HOSTNAME), sizeof(host) - 1);
+#endif
+  user[sizeof(user) - 1] = 0;
+  pass[sizeof(pass) - 1] = 0;
+  host[sizeof(host) - 1] = 0;
+
+  /* Realm and nonce from the server challenge, with sensible fallbacks */
+  strncpy(realm, STATE->sasl_realm[0] ? STATE->sasl_realm : host,
+          sizeof(realm) - 1);
+  realm[sizeof(realm) - 1] = 0;
+  strncpy(nonce, STATE->sasl_nonce, sizeof(nonce) - 1);
+  nonce[sizeof(nonce) - 1] = 0;
+
+  /* qop is fixed to "auth" (the only variant we implement) */
+  strncpy_P(qop, jabber_sasl_qop_default, sizeof(qop) - 1);
+  qop[sizeof(qop) - 1] = 0;
+
+  /* Nonce count and client nonce (first 16 hex chars of MD5(user:nc)) */
+  jabber_nc++;
+  snprintf(nc_str, sizeof(nc_str), "%08x", jabber_nc);
+
+  {
+    char cnonce_input[32];
+    char cnonce_full[33];
+    snprintf(cnonce_input, sizeof(cnonce_input), "%s:%s", user, nc_str);
+    jabber_md5_hex(cnonce_input, strlen(cnonce_input), cnonce_full);
+    memcpy(cnonce, cnonce_full, 16);
+    cnonce[16] = 0;
+  }
+
+  /* HA1 = MD5(user:realm:pass) */
+  snprintf(a1, sizeof(a1), "%s:%s:%s", user, realm, pass);
+  md5(&ha1, a1, (uint32_t) strlen(a1) * 8);
+
+  /* digest-uri = xmpp/host, HA2 = MD5(AUTHENTICATE:digest-uri) */
+  snprintf_P(uri, sizeof(uri), jabber_sasl_uri_format, host);
+  snprintf(a2, sizeof(a2), "AUTHENTICATE:%s", uri);
+  md5(&ha2, a2, (uint32_t) strlen(a2) * 8);
+
+  /* response-value = MD5(HA1:nonce:nc:cnonce:qop:HA2) using binary HA1/HA2 */
+  rv_len = 0;
+  memcpy(rv_buf, ha1, MD5_HASH_BYTES);
+  rv_len += MD5_HASH_BYTES;
+  rv_buf[rv_len++] = ':';
+  memcpy(rv_buf + rv_len, nonce, strlen(nonce));
+  rv_len += strlen(nonce);
+  rv_buf[rv_len++] = ':';
+  memcpy(rv_buf + rv_len, nc_str, strlen(nc_str));
+  rv_len += strlen(nc_str);
+  rv_buf[rv_len++] = ':';
+  memcpy(rv_buf + rv_len, cnonce, strlen(cnonce));
+  rv_len += strlen(cnonce);
+  rv_buf[rv_len++] = ':';
+  memcpy(rv_buf + rv_len, qop, strlen(qop));
+  rv_len += strlen(qop);
+  rv_buf[rv_len++] = ':';
+  memcpy(rv_buf + rv_len, ha2, MD5_HASH_BYTES);
+  rv_len += MD5_HASH_BYTES;
+
+  jabber_md5_hex(rv_buf, rv_len, response_hex);
+
+  /* Assemble the RFC 2831 response string in uip_sappdata and base64 it */
+  snprintf_P(uip_sappdata, JABBER_SEND_BUFLEN, jabber_sasl_response_format,
+             user, realm, nonce, nc_str, cnonce, qop, uri, response_hex);
+  base64_encode((const uint8_t *) uip_sappdata,
+                strlen((char *) uip_sappdata), response_buf, buf_len);
+}
+#endif /* JABBER_AUTH_DIGEST_MD5 */
 
 /*
   -- Ethersex META --
