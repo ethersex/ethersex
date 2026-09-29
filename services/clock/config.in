@@ -36,7 +36,7 @@ dep_bool_menu "System clock support" CLOCK_SUPPORT
   if [ "$CLOCK_CRYSTAL_SUPPORT" = "y" ]; then
     dep_bool "Use periodic milliticks to tick the clock" CLOCK_PERIODIC_SUPPORT "n"
   else
-    dep_bool "Use periodic milliticks to tick the clock" CLOCK_PERIODIC_SUPPORT $CLOCK_SUPPORT
+    dep_bool "Use periodic milliticks to tick the clock" CLOCK_PERIODIC_SUPPORT $CLOCK_SUPPORT $PERIODIC_TIMER_API_SUPPORT
   fi
 
   source hardware/clock/dcf77/config.in

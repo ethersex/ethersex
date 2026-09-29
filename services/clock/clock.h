@@ -29,6 +29,10 @@
 #include "config.h"
 #include "services/clock/clock_lib.h"
 
+#if defined(CLOCK_CRYSTAL_SUPPORT) && defined(CLOCK_PERIODIC_SUPPORT)
+#error "CLOCK_CRYSTAL_SUPPORT and CLOCK_PERIODIC_SUPPORT are mutually exclusive"
+#endif
+
 void clock_init(void);
 void clock_periodic(void);
 void clock_tick(void);
