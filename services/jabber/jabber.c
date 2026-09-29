@@ -37,11 +37,19 @@
 
 #include "known_buddies.c"
 
-#ifdef JABBER_AUTH_DIGEST_MD5
+#if JABBER_AUTH_METHOD == JABBER_AUTH_DIGEST_MD5
+#include "core/util/base64.h"
 static void jabber_parse_sasl_challenge(const char *challenge_data);
 static void jabber_build_sasl_digest_response(char *response_buf,
                                               uint16_t buf_len);
 #endif /* JABBER_AUTH_DIGEST_MD5 */
+#if JABBER_AUTH_METHOD == JABBER_AUTH_SCRAM_SHA1
+#include "core/util/base64.h"
+extern void sha1(void *dest, const void *msg, uint32_t bitlen);
+static void scram_handle_server_first(const char *data);
+static void __attribute__((unused)) scram_build_client_first(char *out, uint16_t out_len);
+static void scram_build_client_final(char *out, uint16_t out_len);
+#endif /* JABBER_AUTH_SCRAM_SHA1 */
 
 
 #ifdef JABBER_EEPROM_SUPPORT
@@ -50,11 +58,11 @@ static const char PROGMEM jabber_stream_text[] =
   "<stream:stream xmlns:stream='http://etherx.jabber.org/streams' "
   "xmlns='jabber:client' to='%s' " "from='" CONF_HOSTNAME "' xml:lang='en' >";
 
-static const char PROGMEM jabber_get_auth_text[] =
+static const char PROGMEM jabber_get_auth_text[] __attribute__((unused)) =
   "<iq id='ga' type='get'><query xmlns='jabber:iq:auth'>"
   "<username>%s</username></query></iq>";
 
-static const char PROGMEM jabber_set_auth_text[] =
+static const char PROGMEM jabber_set_auth_text[] __attribute__((unused)) =
   "<iq id='sa' type='set'><query xmlns='jabber:iq:auth'>"
   "<resource>%s</resource>"
   "<username>%s</username>" "<password>%s</password></query></iq>";
@@ -87,11 +95,11 @@ static const char PROGMEM jabber_stream_text[] =
   "xmlns='jabber:client' to='" CONF_JABBER_HOSTNAME "' "
   "from='" CONF_HOSTNAME "' xml:lang='en' >";
 
-static const char PROGMEM jabber_get_auth_text[] =
+static const char PROGMEM jabber_get_auth_text[] __attribute__((unused)) =
   "<iq id='ga' type='get'><query xmlns='jabber:iq:auth'>"
   "<username>" CONF_JABBER_USERNAME "</username></query></iq>";
 
-static const char PROGMEM jabber_set_auth_text[] =
+static const char PROGMEM jabber_set_auth_text[] __attribute__((unused)) =
   "<iq id='sa' type='set'><query xmlns='jabber:iq:auth'>"
   "<resource>" CONF_JABBER_RESOURCE "</resource>"
   "<username>" CONF_JABBER_USERNAME "</username>"
@@ -119,18 +127,25 @@ static const char PROGMEM jabber_set_presence_text[] =
   /* Set the presence */
   "<presence><priority>1</priority></presence>";
 
-static const char PROGMEM jabber_startup_text[] =
+static const char PROGMEM jabber_startup_text[] __attribute__((unused)) =
   /* This message must NOT be longer than STATE->outbuf,
    * be careful ;) */
   "Your Ethersex '" CONF_HOSTNAME "' is now UP :)";
 
 
 #define JABBER_SEND_BUFLEN (sizeof(UIP_BUFSIZE)-UIP_IPTCPH_LEN-UIP_LLH_LEN-1)
+/* Syslog flushes debug lines at 100 bytes and drops entries once the queue
+ * is full, so stanzas are capped; without syslog they are logged fully. */
+#ifdef DEBUG_USE_SYSLOG
+#define JAB_DEBUG_STANZA_MAX 56
+#else
+#define JAB_DEBUG_STANZA_MAX 1024
+#endif
 #define JABBER_SEND(...) {                                           \
     int len;                                                         \
     len = snprintf_P(uip_sappdata, JABBER_SEND_BUFLEN, __VA_ARGS__); \
-    JABDEBUG("send:%s\n", (((char *)uip_sappdata)[len] = 0,          \
-                            uip_sappdata));                          \
+    JABDEBUG("send[%d]:%.*s\n", len, JAB_DEBUG_STANZA_MAX,           \
+             (((char *)uip_sappdata)[len] = 0, uip_sappdata));       \
     uip_send(uip_sappdata, len);                                     \
   }
 
@@ -193,46 +208,77 @@ jabber_send_data(uint8_t send_state, uint8_t action)
       break;
 
     case JABBER_GET_AUTH:
-#ifdef JABBER_AUTH_DIGEST_MD5
-      /* Send SASL auth request with DIGEST-MD5 mechanism */
-      JABDEBUG("Sending SASL DIGEST-MD5 auth request\n");
-      uip_slen = snprintf_P(uip_sappdata, JABBER_SEND_BUFLEN,
-                            PSTR("<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' "
-                                 "mechanism='DIGEST-MD5'/>"));
-      uip_send(uip_sappdata, uip_slen);
+#if JABBER_AUTH_METHOD == JABBER_AUTH_DIGEST_MD5
+      JABBER_SEND(PSTR("<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' "
+                       "mechanism='DIGEST-MD5'/>"));
       STATE->sasl_state = JABBER_SASL_STATE_INIT;
+#elif JABBER_AUTH_METHOD == JABBER_AUTH_SCRAM_SHA1
+      {
+        char client_first[128];
+        char client_first_b64[180];
+        scram_build_client_first(client_first, sizeof(client_first));
+        base64_encode((uint8_t*)client_first, strlen(client_first),
+                      client_first_b64, sizeof(client_first_b64));
+        JABDEBUG("Sending SCRAM-SHA-1 client-first: %s\n", client_first);
+        JABBER_SEND(PSTR("<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' "
+                         "mechanism='SCRAM-SHA-1'>%s</auth>"),
+                    client_first_b64);
+        STATE->scram_state = 1;
+      }
 #else
-      /* Use plain auth */
       JABBER_SEND_E(jabber_get_auth_text, jabber_user);
 #endif
       break;
 
     case JABBER_SET_AUTH:
-#ifndef JABBER_AUTH_DIGEST_MD5
-      /* Plain auth: send credentials */
+#if JABBER_AUTH_METHOD == JABBER_AUTH_PLAIN
       JABBER_SEND_E(jabber_set_auth_text, jabber_resrc, jabber_user,
                     jabber_pass);
 #else
-      /* Should not reach here with DIGEST-MD5, SASL auth should complete earlier */
-      JABDEBUG("Unexpected SET_AUTH state with DIGEST-MD5\n");
+      /* Should not reach here with SASL, auth should complete via SASL */
       return;
 #endif
       break;
 
-#ifdef JABBER_AUTH_DIGEST_MD5
     case JABBER_SASL_AUTH:
+#if JABBER_AUTH_METHOD == JABBER_AUTH_DIGEST_MD5
+      if (STATE->sasl_state == JABBER_SASL_STATE_RSPAUTH_RECEIVED)
+      {
+        /* Second step per RFC 2831: answer server's rspauth with empty response */
+        JABBER_SEND(PSTR("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'/>"));
+        /* Next we expect <success/> */
+        STATE->sasl_state = JABBER_SASL_STATE_RESPONSE_SENT;
+        break;
+      }
       {
         char response[512];
         jabber_build_sasl_digest_response(response, sizeof(response));
-        uip_slen = snprintf_P(uip_sappdata, JABBER_SEND_BUFLEN,
-                              PSTR("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl' "
-                                   ">%s</response>"),
-                              response);
-        uip_send(uip_sappdata, uip_slen);
+        JABBER_SEND(PSTR("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl' "
+                         ">%s</response>"),
+                     response);
         STATE->sasl_state = JABBER_SASL_STATE_RESPONSE_SENT;
       }
       break;
 #endif /* JABBER_AUTH_DIGEST_MD5 */
+#if JABBER_AUTH_METHOD == JABBER_AUTH_SCRAM_SHA1
+      {
+        char client_final[180];
+        char client_final_b64[240];
+        scram_build_client_final(client_final, sizeof(client_final));
+        base64_encode((uint8_t*)client_final, strlen(client_final),
+                      client_final_b64, sizeof(client_final_b64));
+        JABBER_SEND(PSTR("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>%s</response>"),
+                    client_final_b64);
+        STATE->scram_state = 2;
+      }
+      break;
+#endif /* JABBER_AUTH_SCRAM_SHA1 */
+
+    case JABBER_SEND_BIND:
+      JABBER_SEND(PSTR("<iq type='set' id='bind1'>"
+                       "<bind xmlns='urn:ietf:params:xml:ns:xmpp-bind'/>"
+                       "</iq>"));
+      break;
 
     case JABBER_SET_PRESENCE:
       JABBER_SEND(jabber_set_presence_text);
@@ -247,10 +293,9 @@ jabber_send_data(uint8_t send_state, uint8_t action)
         case JABBER_ACTION_MESSAGE:
           if (*STATE->outbuf)
           {
-            uip_slen = snprintf_P(uip_sappdata, JABBER_SEND_BUFLEN,
-                                  PSTR("<message to='%s' type='chat'>"
-                                       "<body>%s</body></message>"),
-                                  STATE->target, STATE->outbuf);
+            JABBER_SEND(PSTR("<message to='%s' type='chat'>"
+                             "<body>%s</body></message>"),
+                        STATE->target, STATE->outbuf);
           }
           break;
 
@@ -360,9 +405,8 @@ jabber_extract_from(void)
   }
 
   uint8_t auth = 1;
-  for (uint8_t i = 0;
-       i < (sizeof(jabber_known_buddies) / sizeof(jabber_known_buddies[0]));
-       ++i)
+  size_t buddies = sizeof(jabber_known_buddies) / sizeof(jabber_known_buddies[0]);
+  for (size_t i = 0; i < buddies; ++i)
   {
     char *jidlist_ptr = (char *) pgm_read_word(&jabber_known_buddies[i]);
     auth = strncmp_P(from, jidlist_ptr, jid_len) == 0;
@@ -386,6 +430,26 @@ jabber_parse(void)
 {
   JABDEBUG("jabber_parse stage=%d\n", STATE->stage);
 
+  char *e = strstr(uip_appdata, "<stream:error");
+  if (e)
+  {
+    char *c = strchr(e, '>');
+    if (c)
+    {
+      while (*++c == ' ' || *c == '\t' || *c == '\r' || *c == '\n')
+        ;
+      if (*c == '<')
+      {
+        char *n = ++c;
+        while (*c && *c != ' ' && *c != '/' && *c != '>')
+          c++;
+        *c = 0;
+        JABDEBUG("STREAM ERROR condition: %s", n);
+      }
+    }
+    return 1;
+  }
+
   switch (STATE->stage)
   {
     case JABBER_OPEN_STREAM:
@@ -394,22 +458,42 @@ jabber_parse(void)
         JABDEBUG("<stream:stream not found in reply.  stop.");
         return 1;
       }
-#ifdef JABBER_AUTH_DIGEST_MD5
+#if JABBER_AUTH_METHOD == JABBER_AUTH_DIGEST_MD5
+      /* Second stream after SASL success: bind a resource before presence.
+       * Must return directly, the trailing stage++ would skip the bind. */
+      if (STATE->sasl_complete)
+      {
+        JABDEBUG("second stream, SASL done, going to bind\n");
+        STATE->stage = JABBER_SEND_BIND;
+        return 0;
+      }
+#endif /* JABBER_AUTH_DIGEST_MD5 */
+#if JABBER_AUTH_METHOD == JABBER_AUTH_SCRAM_SHA1
+      if (STATE->scram_complete)
+      {
+        JABDEBUG("second stream, SCRAM done, going to bind\n");
+        STATE->stage = JABBER_SEND_BIND;
+        return 0;
+      }
+#endif /* JABBER_AUTH_SCRAM_SHA1 */
+#if JABBER_AUTH_METHOD == JABBER_AUTH_DIGEST_MD5
       /* Check if server advertises SASL DIGEST-MD5 support in stream features */
       if (strstr_P(uip_appdata, PSTR("DIGEST-MD5")))
       {
-        JABDEBUG("Server supports DIGEST-MD5 SASL\n");
         /* We'll send SASL auth after GET_AUTH stage */
       }
 #endif /* JABBER_AUTH_DIGEST_MD5 */
+#if JABBER_AUTH_METHOD == JABBER_AUTH_SCRAM_SHA1
+      if (strstr_P(uip_appdata, PSTR("SCRAM-SHA-1")))
+      {
+        JABDEBUG("Server supports SCRAM-SHA-1 SASL\n");
+      }
+#endif /* JABBER_AUTH_SCRAM_SHA1 */
       break;
     case JABBER_GET_AUTH:
-#ifdef JABBER_AUTH_DIGEST_MD5
-      /* Check for SASL challenge response to our mechanism request */
+#if JABBER_AUTH_METHOD == JABBER_AUTH_DIGEST_MD5
       if (strstr_P(uip_appdata, PSTR("<challenge xmlns='urn:ietf:params:xml:ns:xmpp-sasl'")))
       {
-        JABDEBUG("SASL challenge received after mechanism request\n");
-        /* Extract the base64 encoded challenge data */
         char *challenge_ptr = strstr_P(uip_appdata,
                       PSTR("<challenge xmlns='urn:ietf:params:xml:ns:xmpp-sasl'"));
         if (challenge_ptr)
@@ -422,29 +506,76 @@ jabber_parse(void)
             if (data_end)
             {
               *data_end = 0;
-              JABDEBUG("challenge data: %s\n", data_start);
               jabber_parse_sasl_challenge(data_start);
               STATE->sasl_state = JABBER_SASL_STATE_CHALLENGE_RECEIVED;
             }
           }
         }
+        /* Return directly: the trailing stage++ must not run,
+         * it would skip SASL_AUTH and send presence instead. */
         STATE->stage = JABBER_SASL_AUTH;
-        break;
+        return 0;
       }
-      /* Check for immediate SASL success (some servers may accept without challenge) */
       if (strstr_P(uip_appdata, PSTR("<success xmlns='urn:ietf:params:xml:ns:xmpp-sasl'")))
       {
         JABDEBUG("SASL authentication successful (no challenge)\n");
-        STATE->stage = JABBER_SET_PRESENCE;
-        break;
+        /* XMPP requires a new stream after SASL success. Reopen it
+         * instead of sending presence on the authenticated stream. */
+        STATE->sasl_complete = 1;
+        STATE->stage = JABBER_OPEN_STREAM;
+        STATE->sent = JABBER_INIT;
+        jabber_send_data(JABBER_OPEN_STREAM, STATE->action);
+        return 0;
       }
-      /* Check for SASL failure */
       if (strstr_P(uip_appdata, PSTR("<failure xmlns='urn:ietf:params:xml:ns:xmpp-sasl'")))
       {
         JABDEBUG("SASL authentication failed\n");
         return 1;
       }
 #endif /* JABBER_AUTH_DIGEST_MD5 */
+#if JABBER_AUTH_METHOD == JABBER_AUTH_SCRAM_SHA1
+      if (strstr_P(uip_appdata, PSTR("<challenge xmlns='urn:ietf:params:xml:ns:xmpp-sasl'")))
+      {
+        JABDEBUG("SCRAM challenge received\n");
+        char *challenge_ptr = strstr_P(uip_appdata,
+                      PSTR("<challenge xmlns='urn:ietf:params:xml:ns:xmpp-sasl'"));
+        if (challenge_ptr)
+        {
+          char *data_start = strchr(challenge_ptr, '>');
+          if (data_start)
+          {
+            data_start++;
+            char *data_end = strchr(data_start, '<');
+            if (data_end)
+            {
+              *data_end = 0;
+              JABDEBUG("SCRAM challenge[%d]:%.*s\n", (int)strlen(data_start),
+                       JAB_DEBUG_STANZA_MAX, data_start);
+              uint8_t decoded[128];
+              base64_decode(data_start, decoded, sizeof(decoded));
+              scram_handle_server_first((char*)decoded);
+              STATE->scram_state = 1;
+            }
+          }
+        }
+        /* Return directly, see DIGEST-MD5 above. */
+        STATE->stage = JABBER_SASL_AUTH;
+        return 0;
+      }
+      if (strstr_P(uip_appdata, PSTR("<success xmlns='urn:ietf:params:xml:ns:xmpp-sasl'")))
+      {
+        JABDEBUG("SCRAM authentication successful (no challenge)\n");
+        STATE->scram_complete = 1;
+        STATE->stage = JABBER_OPEN_STREAM;
+        STATE->sent = JABBER_INIT;
+        return 0;
+      }
+      if (strstr_P(uip_appdata, PSTR("<failure xmlns='urn:ietf:params:xml:ns:xmpp-sasl'")))
+      {
+        JABDEBUG("SCRAM authentication failed\n");
+        return 1;
+      }
+#endif /* JABBER_AUTH_SCRAM_SHA1 */
 
       if (strstr_P(uip_appdata, PSTR("<password/>")) == NULL)
       {
@@ -453,33 +584,92 @@ jabber_parse(void)
       }
       break;
 
-#ifdef JABBER_AUTH_DIGEST_MD5
     case JABBER_SASL_AUTH:
-      /* In SASL_AUTH stage, we've sent our response and are waiting for success/failure */
-
-      /* Check for SASL success */
+#if JABBER_AUTH_METHOD == JABBER_AUTH_DIGEST_MD5
+      /* In SASL_AUTH stage, we've sent our DIGEST response and are waiting
+       * for success/failure (or the rspauth second step per RFC 2831). */
       if (strstr_P(uip_appdata, PSTR("<success xmlns='urn:ietf:params:xml:ns:xmpp-sasl'")))
       {
-        JABDEBUG("SASL authentication successful\n");
-        STATE->sasl_state = JABBER_SASL_STATE_RESPONSE_SENT;
-        /* Transition to presence setup */
-        STATE->stage = JABBER_SET_PRESENCE;
-        break;
+        JABDEBUG("SASL DIGEST authentication successful\n");
+        /* XMPP requires a new stream after SASL success (RFC 3920 4.3.3).
+         * Send the restarted stream header right here: the generic send gate
+         * in jabber_poll() only fires on new data / acked / connected, and
+         * after <success/> none of those hold, so the restart header would
+         * never be sent and the server drops the session with
+         * not-authorized. */
+        STATE->sasl_complete = 1;
+        STATE->stage = JABBER_OPEN_STREAM;
+        STATE->sent = JABBER_INIT;
+        jabber_send_data(JABBER_OPEN_STREAM, STATE->action);
+        return 0;
       }
-      /* Check for SASL failure */
       if (strstr_P(uip_appdata, PSTR("<failure xmlns='urn:ietf:params:xml:ns:xmpp-sasl'")))
       {
-        JABDEBUG("SASL authentication failed\n");
+        JABDEBUG("SASL DIGEST authentication failed\n");
         return 1;
       }
-      /* If we receive another challenge (shouldn't happen with DIGEST-MD5, but handle it) */
+      /* Second step per RFC 2831: server challenge containing rspauth.
+       * Answer with an empty response and stay in SASL_AUTH. */
       if (strstr_P(uip_appdata, PSTR("<challenge xmlns='urn:ietf:params:xml:ns:xmpp-sasl'")))
       {
+        char *cptr = strstr_P(uip_appdata,
+                      PSTR("<challenge xmlns='urn:ietf:params:xml:ns:xmpp-sasl'"));
+        if (cptr)
+        {
+          char *ds = strchr(cptr, '>');
+          if (ds)
+          {
+            uint8_t rsp[128];
+            char *de;
+            ds++;
+            de = strchr(ds, '<');
+            if (de)
+            {
+              *de = 0;
+              base64_decode(ds, rsp, sizeof(rsp));
+              if (strstr_P((char *)rsp, PSTR("rspauth")))
+              {
+                JABDEBUG("SASL rspauth received, sending empty response\n");
+                STATE->sasl_state = JABBER_SASL_STATE_RSPAUTH_RECEIVED;
+                /* Force retransmission of this stage with new content */
+                STATE->sent = JABBER_SET_AUTH;
+                return 0;
+      }
+            }
+          }
+        }
         JABDEBUG("Unexpected SASL challenge in SASL_AUTH stage\n");
         return 1;
       }
-      break;
+      JABDEBUG("Unexpected data in SASL_AUTH stage\n");
+      return 1;
 #endif /* JABBER_AUTH_DIGEST_MD5 */
+#if JABBER_AUTH_METHOD == JABBER_AUTH_SCRAM_SHA1
+      /* SCRAM-SHA-1: waiting for server-final success */
+      if (strstr_P(uip_appdata, PSTR("<success xmlns='urn:ietf:params:xml:ns:xmpp-sasl'")))
+      {
+        JABDEBUG("SCRAM authentication successful\n");
+        /* Optional: verify server signature in success data */
+        STATE->scram_state = 2;
+        STATE->scram_complete = 1;
+        STATE->stage = JABBER_OPEN_STREAM;
+        STATE->sent = JABBER_INIT;
+        jabber_send_data(JABBER_OPEN_STREAM, STATE->action);
+        return 0;
+      }
+      if (strstr_P(uip_appdata, PSTR("<failure xmlns='urn:ietf:params:xml:ns:xmpp-sasl'")))
+      {
+        JABDEBUG("SCRAM authentication failed\n");
+        return 1;
+      }
+      if (strstr_P(uip_appdata, PSTR("<challenge xmlns='urn:ietf:params:xml:ns:xmpp-sasl'")))
+      {
+        JABDEBUG("Unexpected SCRAM challenge in SASL_AUTH stage\n");
+        return 1;
+      }
+      JABDEBUG("Unexpected data in SCRAM SASL_AUTH stage\n");
+      return 1;
+#endif /* JABBER_AUTH_SCRAM_SHA1 */
 
     case JABBER_SET_AUTH:
       if (strstr_P(uip_appdata, PSTR("result")) == NULL)
@@ -489,6 +679,18 @@ jabber_parse(void)
       }
 
       JABDEBUG("jippie, we successfully authenticated to the server\n");
+      break;
+
+    case JABBER_SEND_BIND:
+      if (strstr_P(uip_appdata, PSTR("<stream:features")))
+        return 0;
+
+      if (strstr_P(uip_appdata, PSTR("type='result'")) == NULL)
+      {
+        JABDEBUG("resource bind failed.  stop.");
+        return 1;
+      }
+      JABDEBUG("resource bound\n");
       break;
 
     case JABBER_SET_PRESENCE:
@@ -549,7 +751,7 @@ jabber_parse(void)
 #endif /* JABBER_VERSION_SUPPORT */
       }                         /* End of <iq type='get'> parser. */
 
-      JABDEBUG("got something, but no idea how to parse it: '%s'\n",
+      JABDEBUG("unparsed[%d]:%.*s\n", uip_len, JAB_DEBUG_STANZA_MAX,
                uip_appdata);
       break;
 
@@ -585,12 +787,23 @@ jabber_main(void)
     STATE->stage = JABBER_OPEN_STREAM;
     STATE->sent = JABBER_INIT;
 
-#ifdef JABBER_AUTH_DIGEST_MD5
+#if JABBER_AUTH_METHOD == JABBER_AUTH_DIGEST_MD5
     STATE->sasl_state = JABBER_SASL_STATE_INIT;
+    STATE->sasl_nc = 0;
+    STATE->sasl_complete = 0;
     STATE->sasl_nonce[0] = 0;
     STATE->sasl_realm[0] = 0;
     STATE->sasl_qop[0] = 0;
+    STATE->sasl_algorithm[0] = 0;
 #endif /* JABBER_AUTH_DIGEST_MD5 */
+#if JABBER_AUTH_METHOD == JABBER_AUTH_SCRAM_SHA1
+    STATE->scram_state = 0;
+    STATE->scram_complete = 0;
+    STATE->scram_client_nonce[0] = 0;
+    STATE->scram_server_nonce[0] = 0;
+    STATE->scram_salt_len = 0;
+    STATE->scram_iteration_count = 4096;
+#endif /* JABBER_AUTH_SCRAM_SHA1 */
 
 #ifdef JABBER_STARTUP_MESSAGE_SUPPORT
     strncpy_P(STATE->target, PSTR(CONF_JABBER_BUDDY), sizeof(STATE->target));
@@ -609,10 +822,11 @@ jabber_main(void)
   {
     /* Zero-terminate */
     ((char *) uip_appdata)[uip_len] = 0;
-    JABDEBUG("received data: %s\n", uip_appdata);
+    JABDEBUG("recv[%d]:%.*s\n", uip_len, JAB_DEBUG_STANZA_MAX, uip_appdata);
 
     if (jabber_parse())
     {
+      JABDEBUG("PARSE ERR at stage=%d -> closing\n", STATE->stage);
       uip_close();              /* Parse error */
       return;
     }
@@ -658,6 +872,17 @@ jabber_periodic(void)
 void
 jabber_init(void)
 {
+  /* Don't try before the stack has an address - ENC28J60 link and
+   * configuration (static or DHCP) are not yet ready at
+   * ethersex_meta_netinit time. Periodic will retry. */
+  {
+    uip_ipaddr_t host, zero;
+    uip_gethostaddr(&host);
+    memset(&zero, 0, sizeof(zero));
+    if (uip_ipaddr_cmp(&host, &zero))
+      return;
+  }
+
   JABDEBUG("initializing client\n");
 
   uip_ipaddr_t ip;
@@ -678,7 +903,8 @@ jabber_init(void)
 #endif
 }
 
-#ifdef JABBER_AUTH_DIGEST_MD5
+#if JABBER_AUTH_METHOD == JABBER_AUTH_DIGEST_MD5
+#include "core/crypto/md5.h"
 #include "core/util/byte2hex.h"
 #include "core/util/base64.h"
 
@@ -694,22 +920,18 @@ static void
 jabber_parse_sasl_challenge(const char *challenge_data)
 {
   uint8_t decoded[256];
-  uint8_t decoded_len = 0;
   char *ptr;
 
-  JABDEBUG("Parsing SASL challenge: %s\n", challenge_data);
 
   /* Decode base64 challenge; base64_decode NUL-terminates the output */
   base64_decode((char *) challenge_data, decoded, sizeof(decoded));
-  decoded_len = strlen((char *) decoded);
 
-  JABDEBUG("Decoded challenge (%d bytes): %s\n", decoded_len, decoded);
-
-  /* Parse key=value pairs */
+  /* Parse key=value pairs per RFC 2831. Values may be quoted-string
+   * or token (unquoted). Commas inside quoted-string must not split. */
   ptr = (char *)decoded;
   while (ptr && *ptr)
   {
-    /* Skip whitespace */
+    /* Skip whitespace and commas between pairs */
     while (*ptr == ' ' || *ptr == ',') ptr++;
 
     if (!*ptr) break;
@@ -722,41 +944,94 @@ jabber_parse_sasl_challenge(const char *challenge_data)
 
     *ptr++ = 0; /* Terminate key */
 
-    /* Handle quoted value */
+    /* Trim whitespace around key (RFC allows SP) */
+    /* key already without trailing SP because we stopped at '=', but
+     * caller may have leading SP already skipped. */
+
+    char *value = NULL;
+    char *value_end = NULL;
+
     if (*ptr == '"')
     {
       ptr++; /* Skip opening quote */
-      char *value = ptr;
+      value = ptr;
       while (*ptr && *ptr != '"') ptr++;
+      value_end = ptr;
       if (*ptr == '"')
-      {
-        *ptr++ = 0; /* Terminate value */
+        *ptr++ = 0; /* Terminate value, skip closing quote */
 
-        /* Store parameter based on key */
-        if (strcmp(key, "nonce") == 0)
-        {
-          strncpy(STATE->sasl_nonce, value, sizeof(STATE->sasl_nonce) - 1);
-          STATE->sasl_nonce[sizeof(STATE->sasl_nonce) - 1] = 0;
-          JABDEBUG("nonce: %s\n", STATE->sasl_nonce);
-        }
-        else if (strcmp(key, "realm") == 0)
-        {
-          strncpy(STATE->sasl_realm, value, sizeof(STATE->sasl_realm) - 1);
-          STATE->sasl_realm[sizeof(STATE->sasl_realm) - 1] = 0;
-          JABDEBUG("realm: %s\n", STATE->sasl_realm);
-        }
-        else if (strcmp(key, "qop") == 0)
-        {
-          strncpy(STATE->sasl_qop, value, sizeof(STATE->sasl_qop) - 1);
-          STATE->sasl_qop[sizeof(STATE->sasl_qop) - 1] = 0;
-          JABDEBUG("qop: %s\n", STATE->sasl_qop);
-        }
+      /* Store parameter based on key */
+      if (strcmp(key, "nonce") == 0)
+      {
+        strncpy(STATE->sasl_nonce, value, sizeof(STATE->sasl_nonce) - 1);
+        STATE->sasl_nonce[sizeof(STATE->sasl_nonce) - 1] = 0;
       }
+      else if (strcmp(key, "realm") == 0)
+      {
+        strncpy(STATE->sasl_realm, value, sizeof(STATE->sasl_realm) - 1);
+        STATE->sasl_realm[sizeof(STATE->sasl_realm) - 1] = 0;
+      }
+      else if (strcmp(key, "qop") == 0)
+      {
+        /* qop may be list like "auth,auth-int" - pick first token */
+        char *comma = strchr(value, ',');
+        if (comma) *comma = 0;
+        strncpy(STATE->sasl_qop, value, sizeof(STATE->sasl_qop) - 1);
+        STATE->sasl_qop[sizeof(STATE->sasl_qop) - 1] = 0;
+      }
+      else if (strcmp(key, "algorithm") == 0)
+      {
+        strncpy(STATE->sasl_algorithm, value, sizeof(STATE->sasl_algorithm) - 1);
+        STATE->sasl_algorithm[sizeof(STATE->sasl_algorithm) - 1] = 0;
+      }
+      else if (strcmp(key, "charset") == 0)
+      {
+        /* ignore, we always use utf-8 */
+      }
+      else
+      {
+      }
+      (void)value_end;
     }
     else
     {
-      /* Unquoted value - skip to comma or end */
-      while (*ptr && *ptr != ',' && *ptr != ' ') ptr++;
+      /* Unquoted value (token) - skip to comma or end, trim trailing SP */
+      value = ptr;
+      while (*ptr && *ptr != ',' ) ptr++;
+      /* Trim trailing whitespace */
+      char *end = ptr;
+      while (end > value && (end[-1] == ' ' || end[-1] == '\t')) end--;
+      *end = 0;
+      /* Advance ptr over comma will be done by outer loop; ensure NUL */
+      if (*ptr == ',') {
+        *ptr++ = 0;
+        /* ptr already advanced, but we terminated value at end */
+      } else if (*ptr) {
+        ptr++;
+      }
+
+      if (strcmp(key, "algorithm") == 0)
+      {
+        strncpy(STATE->sasl_algorithm, value, sizeof(STATE->sasl_algorithm) - 1);
+        STATE->sasl_algorithm[sizeof(STATE->sasl_algorithm) - 1] = 0;
+      }
+      else if (strcmp(key, "qop") == 0)
+      {
+        char *comma = strchr(value, ',');
+        if (comma) *comma = 0;
+        strncpy(STATE->sasl_qop, value, sizeof(STATE->sasl_qop) - 1);
+        STATE->sasl_qop[sizeof(STATE->sasl_qop) - 1] = 0;
+      }
+      else if (strcmp(key, "nonce") == 0)
+      {
+        strncpy(STATE->sasl_nonce, value, sizeof(STATE->sasl_nonce) - 1);
+        STATE->sasl_nonce[sizeof(STATE->sasl_nonce) - 1] = 0;
+      }
+      else if (strcmp(key, "realm") == 0)
+      {
+        strncpy(STATE->sasl_realm, value, sizeof(STATE->sasl_realm) - 1);
+        STATE->sasl_realm[sizeof(STATE->sasl_realm) - 1] = 0;
+      }
     }
   }
 }
@@ -765,17 +1040,18 @@ jabber_parse_sasl_challenge(const char *challenge_data)
 static void
 jabber_md5_hex(const void *data, uint16_t len, char *dest)
 {
+  static const char hex_digits[] PROGMEM = "0123456789abcdef";
   md5_hash_t hash;
   uint8_t i;
 
   md5(&hash, data, (uint32_t) len * 8);
   for (i = 0; i < MD5_HASH_BYTES; i++)
-    byte2hex(hash[i], &dest[i * 2]);
+  {
+    dest[i * 2] = pgm_read_byte(&hex_digits[(hash[i] >> 4) & 0xF]);
+    dest[i * 2 + 1] = pgm_read_byte(&hex_digits[hash[i] & 0xF]);
+  }
   dest[MD5_HASH_BYTES * 2] = 0;
 }
-
-/* Nonce counter for SASL authentication */
-static uint8_t jabber_nc = 0;
 
 /* Build the SASL DIGEST-MD5 auth response per RFC 2831 / RFC 3920.
    The RFC 2831 response string is base64-encoded into response_buf.
@@ -786,11 +1062,9 @@ jabber_build_sasl_digest_response(char *response_buf, uint16_t buf_len)
 {
   char user[32], pass[32], host[64];
   char realm[JABBER_SASL_MAX_PARAM_LEN], nonce[JABBER_SASL_MAX_PARAM_LEN];
-  char qop[5], nc_str[9], cnonce[17], uri[96];
-  char a1[128], a2[96], response_hex[33];
-  md5_hash_t ha1, ha2;
-  uint8_t rv_buf[192];
-  uint8_t rv_len;
+  char qop[8], nc_str[9], cnonce[17], uri[80];
+  char ha1_hex[33], ha2_hex[33], response_hex[33];
+  md5_hash_t ha1_bin, ha2_bin;
 
   /* Resolve credentials - either from EEPROM globals or compile-time config */
 #ifdef JABBER_EEPROM_SUPPORT
@@ -813,16 +1087,24 @@ jabber_build_sasl_digest_response(char *response_buf, uint16_t buf_len)
   strncpy(nonce, STATE->sasl_nonce, sizeof(nonce) - 1);
   nonce[sizeof(nonce) - 1] = 0;
 
-  /* qop is fixed to "auth" (the only variant we implement) */
-  strncpy_P(qop, jabber_sasl_qop_default, sizeof(qop) - 1);
-  qop[sizeof(qop) - 1] = 0;
+  /* qop: use server offer if present, else default to "auth" */
+  if (STATE->sasl_qop[0])
+  {
+    strncpy(qop, STATE->sasl_qop, sizeof(qop) - 1);
+    qop[sizeof(qop) - 1] = 0;
+  }
+  else
+  {
+    strncpy_P(qop, jabber_sasl_qop_default, sizeof(qop) - 1);
+    qop[sizeof(qop) - 1] = 0;
+  }
 
   /* Nonce count and client nonce (first 16 hex chars of MD5(user:nc)) */
-  jabber_nc++;
-  snprintf(nc_str, sizeof(nc_str), "%08x", jabber_nc);
+  STATE->sasl_nc++;
+  snprintf(nc_str, sizeof(nc_str), "%08x", STATE->sasl_nc);
 
   {
-    char cnonce_input[32];
+    char cnonce_input[48];
     char cnonce_full[33];
     snprintf(cnonce_input, sizeof(cnonce_input), "%s:%s", user, nc_str);
     jabber_md5_hex(cnonce_input, strlen(cnonce_input), cnonce_full);
@@ -830,36 +1112,68 @@ jabber_build_sasl_digest_response(char *response_buf, uint16_t buf_len)
     cnonce[16] = 0;
   }
 
-  /* HA1 = MD5(user:realm:pass) */
-  snprintf(a1, sizeof(a1), "%s:%s:%s", user, realm, pass);
-  md5(&ha1, a1, (uint32_t) strlen(a1) * 8);
+  /* HA1 = MD5(user:realm:pass), with md5-sess: MD5(MD5(user:realm:pass):nonce:cnonce) */
+  {
+    char a1_str[96];
+    snprintf(a1_str, sizeof(a1_str), "%s:%s:%s", user, realm, pass);
+    md5(&ha1_bin, a1_str, (uint32_t) strlen(a1_str) * 8);
+
+    if (strncmp(STATE->sasl_algorithm, "md5-sess", 8) == 0
+        || STATE->sasl_algorithm[0] == 0)
+    {
+      /* RFC 2831 md5-sess: H(A1) where A1 = MD5(user:realm:pass):nonce:cnonce
+       * ha1_bin currently holds MD5(user:realm:pass) binary (16 bytes).
+       * The nonce goes in exactly as the server sent it, i.e. the quoted
+       * base64 directive value, NOT the base64-decoded bytes.  jabberd2/Cyrus
+       * hashes the transmitted string here; using the raw bytes produces a
+       * valid-looking but rejected response.  Verified against the live
+       * server: text nonce -> success, decoded bytes -> not-authorized. */
+      uint8_t a1_sess[16 + 1 + JABBER_SASL_MAX_PARAM_LEN + 1 + 16];
+      uint8_t *p = a1_sess;
+      memcpy(p, ha1_bin, MD5_HASH_BYTES);
+      p += MD5_HASH_BYTES;
+      *p++ = ':';
+      memcpy(p, nonce, strlen(nonce));
+      p += strlen(nonce);
+      *p++ = ':';
+      memcpy(p, cnonce, strlen(cnonce));
+      p += strlen(cnonce);
+      uint16_t a1_sess_len = p - a1_sess;
+      md5(&ha1_bin, a1_sess, (uint32_t) a1_sess_len * 8);
+    }
+    /* hex representation for KD */
+    for (uint8_t i = 0; i < MD5_HASH_BYTES; i++)
+    {
+      static const char hex_digits[] PROGMEM = "0123456789abcdef";
+      ha1_hex[i * 2] = pgm_read_byte(&hex_digits[(ha1_bin[i] >> 4) & 0xF]);
+      ha1_hex[i * 2 + 1] = pgm_read_byte(&hex_digits[ha1_bin[i] & 0xF]);
+    }
+    ha1_hex[32] = 0;
+  }
 
   /* digest-uri = xmpp/host, HA2 = MD5(AUTHENTICATE:digest-uri) */
   snprintf_P(uri, sizeof(uri), jabber_sasl_uri_format, host);
-  snprintf(a2, sizeof(a2), "AUTHENTICATE:%s", uri);
-  md5(&ha2, a2, (uint32_t) strlen(a2) * 8);
+  {
+    char a2_str[128];
+    snprintf(a2_str, sizeof(a2_str), "AUTHENTICATE:%s", uri);
+    md5(&ha2_bin, a2_str, (uint32_t) strlen(a2_str) * 8);
+    for (uint8_t i = 0; i < MD5_HASH_BYTES; i++)
+    {
+      static const char hex_digits[] PROGMEM = "0123456789abcdef";
+      ha2_hex[i * 2] = pgm_read_byte(&hex_digits[(ha2_bin[i] >> 4) & 0xF]);
+      ha2_hex[i * 2 + 1] = pgm_read_byte(&hex_digits[ha2_bin[i] & 0xF]);
+    }
+    ha2_hex[32] = 0;
+  }
 
-  /* response-value = MD5(HA1:nonce:nc:cnonce:qop:HA2) using binary HA1/HA2 */
-  rv_len = 0;
-  memcpy(rv_buf, ha1, MD5_HASH_BYTES);
-  rv_len += MD5_HASH_BYTES;
-  rv_buf[rv_len++] = ':';
-  memcpy(rv_buf + rv_len, nonce, strlen(nonce));
-  rv_len += strlen(nonce);
-  rv_buf[rv_len++] = ':';
-  memcpy(rv_buf + rv_len, nc_str, strlen(nc_str));
-  rv_len += strlen(nc_str);
-  rv_buf[rv_len++] = ':';
-  memcpy(rv_buf + rv_len, cnonce, strlen(cnonce));
-  rv_len += strlen(cnonce);
-  rv_buf[rv_len++] = ':';
-  memcpy(rv_buf + rv_len, qop, strlen(qop));
-  rv_len += strlen(qop);
-  rv_buf[rv_len++] = ':';
-  memcpy(rv_buf + rv_len, ha2, MD5_HASH_BYTES);
-  rv_len += MD5_HASH_BYTES;
-
-  jabber_md5_hex(rv_buf, rv_len, response_hex);
+  /* response = MD5(HA1_hex:nonce:nc:cnonce:qop:HA2_hex) */
+  {
+    char kd_input[160];
+    /* HA1_hex (32) + ":" + nonce + ":" + nc (8) + ":" + cnonce (16) + ":" + qop + ":" + HA2_hex (32) */
+    snprintf(kd_input, sizeof(kd_input), "%s:%s:%s:%s:%s:%s",
+             ha1_hex, nonce, nc_str, cnonce, qop, ha2_hex);
+    jabber_md5_hex(kd_input, strlen(kd_input), response_hex);
+  }
 
   /* Assemble the RFC 2831 response string in uip_sappdata and base64 it */
   snprintf_P(uip_sappdata, JABBER_SEND_BUFLEN, jabber_sasl_response_format,
@@ -868,6 +1182,187 @@ jabber_build_sasl_digest_response(char *response_buf, uint16_t buf_len)
                 strlen((char *) uip_sappdata), response_buf, buf_len);
 }
 #endif /* JABBER_AUTH_DIGEST_MD5 */
+#if JABBER_AUTH_METHOD == JABBER_AUTH_SCRAM_SHA1
+/* SCRAM-SHA-1 implementation (RFC 5802) without channel binding. */
+
+#define SCRAM_SHA1_HASH_BYTES 20
+#define SCRAM_SHA1_BLOCK_BYTES 64
+
+static void scram_hmac_sha1(const uint8_t *key, uint8_t key_len,
+                            const uint8_t *data, uint16_t data_len,
+                            uint8_t *out)
+{
+  uint8_t k_ipad[SCRAM_SHA1_BLOCK_BYTES];
+  uint8_t k_opad[SCRAM_SHA1_BLOCK_BYTES];
+  uint8_t tk[SCRAM_SHA1_HASH_BYTES];
+  uint8_t i;
+
+  if (key_len > SCRAM_SHA1_BLOCK_BYTES) {
+    sha1(tk, key, (uint32_t)key_len * 8);
+    key = tk;
+    key_len = SCRAM_SHA1_HASH_BYTES;
+  }
+  memset(k_ipad, 0x36, sizeof(k_ipad));
+  memset(k_opad, 0x5c, sizeof(k_opad));
+  for (i = 0; i < key_len; i++) {
+    k_ipad[i] ^= key[i];
+    k_opad[i] ^= key[i];
+  }
+  /* inner = SHA1(k_ipad || data) */
+  uint8_t inner[SCRAM_SHA1_HASH_BYTES];
+  /* Use a temporary buffer for inner hash: k_ipad (64) + data (<=256) */
+  uint8_t buf[SCRAM_SHA1_BLOCK_BYTES + 128];
+  memcpy(buf, k_ipad, SCRAM_SHA1_BLOCK_BYTES);
+  memcpy(buf + SCRAM_SHA1_BLOCK_BYTES, data, data_len);
+  sha1(inner, buf, (uint32_t)(SCRAM_SHA1_BLOCK_BYTES + data_len) * 8);
+  /* outer = SHA1(k_opad || inner) */
+  memcpy(buf, k_opad, SCRAM_SHA1_BLOCK_BYTES);
+  memcpy(buf + SCRAM_SHA1_BLOCK_BYTES, inner, SCRAM_SHA1_HASH_BYTES);
+  sha1(out, buf, (uint32_t)(SCRAM_SHA1_BLOCK_BYTES + SCRAM_SHA1_HASH_BYTES) * 8);
+}
+
+static void scram_hi(const uint8_t *str, uint8_t str_len,
+                     const uint8_t *salt, uint8_t salt_len,
+                     uint32_t iterations, uint8_t *out)
+{
+  uint8_t u[SCRAM_SHA1_HASH_BYTES];
+  uint8_t tmp[SCRAM_SHA1_HASH_BYTES];
+  uint8_t salt_int[36];
+  uint32_t j, k;
+
+  memcpy(salt_int, salt, salt_len);
+  salt_int[salt_len]     = 0;
+  salt_int[salt_len + 1] = 0;
+  salt_int[salt_len + 2] = 0;
+  salt_int[salt_len + 3] = 1;
+  scram_hmac_sha1(str, str_len, salt_int, salt_len + 4, u);
+  memcpy(out, u, SCRAM_SHA1_HASH_BYTES);
+  for (j = 1; j < iterations; j++) {
+    scram_hmac_sha1(str, str_len, u, SCRAM_SHA1_HASH_BYTES, tmp);
+    memcpy(u, tmp, SCRAM_SHA1_HASH_BYTES);
+    for (k = 0; k < SCRAM_SHA1_HASH_BYTES; k++)
+      out[k] ^= u[k];
+  }
+}
+
+static void __attribute__((unused)) scram_build_client_first(char *out, uint16_t out_len)
+{
+  char user[32], cnonce[24];
+  char cnonce_input[32];
+  uint8_t i;
+
+  /* Use same cnonce derivation as DIGEST for determinism without extra RNG */
+#ifdef JABBER_EEPROM_SUPPORT
+  strncpy(user, jabber_user, sizeof(user) - 1);
+#else
+  strncpy_P(user, PSTR(CONF_JABBER_USERNAME), sizeof(user) - 1);
+#endif
+  user[sizeof(user) - 1] = 0;
+  snprintf(cnonce_input, sizeof(cnonce_input), "%s:%u", user, (unsigned)STATE->scram_client_nonce[0]);
+  /* Simple cnonce: hex of sha1 is overkill, use base64-like random from md5 */
+  for (i = 0; i < 16; i++)
+    cnonce[i] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"[ (user[i % strlen(user)] + i * 7) & 0x3F ];
+  cnonce[16] = 0;
+  strncpy(STATE->scram_client_nonce, cnonce, sizeof(STATE->scram_client_nonce) - 1);
+  STATE->scram_client_nonce[sizeof(STATE->scram_client_nonce) - 1] = 0;
+  snprintf_P(out, out_len, PSTR("n,,n=%s,r=%s"), user, cnonce);
+}
+
+static void scram_handle_server_first(const char *data)
+{
+  char *p, *end;
+  uint8_t salt_dec[32];
+  uint16_t salt_len = 0;
+  uint32_t iter = 4096;
+  char combined[64];
+
+  /* data is base64 decoded server-first-message */
+  /* Expected: r=client+server,s=base64(salt),i=4096 */
+  p = strstr(data, "r=");
+  if (p) {
+    p += 2;
+    end = strchr(p, ',');
+    if (end) *end = 0;
+    strncpy(STATE->scram_server_nonce, p, sizeof(STATE->scram_server_nonce) - 1);
+    STATE->scram_server_nonce[sizeof(STATE->scram_server_nonce) - 1] = 0;
+    if (end) *end = ',';
+    /* Verify server nonce starts with client nonce */
+    if (strncmp(STATE->scram_server_nonce, STATE->scram_client_nonce, strlen(STATE->scram_client_nonce)) != 0) {
+      JABDEBUG("SCRAM server nonce does not start with client nonce\n");
+    }
+    strncpy(combined, p, sizeof(combined) - 1);
+    combined[sizeof(combined) - 1] = 0;
+  }
+  p = strstr(data, "s=");
+  if (p) {
+    p += 2;
+    end = strchr(p, ',');
+    if (end) *end = 0;
+    {
+      uint16_t b64_len = strlen(p);
+      uint8_t pad = 0;
+      if (b64_len && p[b64_len - 1] == '=') pad++;
+      if (b64_len > 1 && p[b64_len - 2] == '=') pad++;
+      salt_len = (b64_len * 3) / 4 - pad;
+      base64_decode(p, salt_dec, sizeof(salt_dec));
+    }
+    STATE->scram_salt_len = salt_len;
+    if (salt_len > sizeof(STATE->scram_salt)) salt_len = sizeof(STATE->scram_salt);
+    memcpy(STATE->scram_salt, salt_dec, salt_len);
+    if (end) *end = ',';
+  }
+  p = strstr(data, "i=");
+  if (p) {
+    p += 2;
+    iter = atol(p);
+    if (iter == 0) iter = 4096;
+    STATE->scram_iteration_count = iter;
+  }
+}
+
+static void scram_build_client_final(char *out, uint16_t out_len)
+{
+  char user[32], pass[32];
+  uint8_t salted[SCRAM_SHA1_HASH_BYTES];
+  uint8_t client_key[SCRAM_SHA1_HASH_BYTES];
+  uint8_t stored_key[SCRAM_SHA1_HASH_BYTES];
+  uint8_t client_sig[SCRAM_SHA1_HASH_BYTES];
+  uint8_t proof[SCRAM_SHA1_HASH_BYTES];
+  char proof_b64[32];
+  char client_final_wo_proof[96];
+  uint8_t i;
+
+#ifdef JABBER_EEPROM_SUPPORT
+  strncpy(user, jabber_user, sizeof(user) - 1);
+  strncpy(pass, jabber_pass, sizeof(pass) - 1);
+#else
+  strncpy_P(user, PSTR(CONF_JABBER_USERNAME), sizeof(user) - 1);
+  strncpy_P(pass, PSTR(CONF_JABBER_PASSWORD), sizeof(pass) - 1);
+#endif
+  user[sizeof(user) - 1] = 0;
+  pass[sizeof(pass) - 1] = 0;
+
+  scram_hi((uint8_t*)pass, strlen(pass), STATE->scram_salt, STATE->scram_salt_len, STATE->scram_iteration_count, salted);
+  scram_hmac_sha1(salted, SCRAM_SHA1_HASH_BYTES, (uint8_t*)"Client Key", 10, client_key);
+  sha1(stored_key, client_key, (uint32_t)SCRAM_SHA1_HASH_BYTES * 8);
+  snprintf(client_final_wo_proof, sizeof(client_final_wo_proof), "c=biws,r=%s", STATE->scram_server_nonce);
+  {
+    char salt_b64[32];
+    char server_first[128];
+    char client_first_bare[64];
+    char auth_message[256];
+    base64_encode(STATE->scram_salt, STATE->scram_salt_len, salt_b64, sizeof(salt_b64));
+    snprintf(server_first, sizeof(server_first), "r=%s,s=%s,i=%lu", STATE->scram_server_nonce, salt_b64, (unsigned long)STATE->scram_iteration_count);
+    snprintf(client_first_bare, sizeof(client_first_bare), "n=%s,r=%s", user, STATE->scram_client_nonce);
+    snprintf(auth_message, sizeof(auth_message), "%s,%s,%s", client_first_bare, server_first, client_final_wo_proof);
+    scram_hmac_sha1(stored_key, SCRAM_SHA1_HASH_BYTES, (uint8_t*)auth_message, strlen(auth_message), client_sig);
+  }
+  for (i = 0; i < SCRAM_SHA1_HASH_BYTES; i++)
+    proof[i] = client_key[i] ^ client_sig[i];
+  base64_encode(proof, SCRAM_SHA1_HASH_BYTES, proof_b64, sizeof(proof_b64));
+  snprintf_P(out, out_len, PSTR("%s,p=%s"), client_final_wo_proof, proof_b64);
+}
+#endif /* JABBER_AUTH_SCRAM_SHA1 */
 
 /*
   -- Ethersex META --

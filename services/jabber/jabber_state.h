@@ -42,6 +42,10 @@ enum
   /* send: SASL DIGEST-MD5 auth response */
   /* expect: success or challenge */
 
+  JABBER_SEND_BIND,
+  /* send: <iq type=set><bind/></iq> */
+  /* expect: <iq type=result> */
+
   JABBER_SET_PRESENCE,
   /* send: presence and request roster */
   /* expect: nothing special */
@@ -63,7 +67,8 @@ enum
 enum {
   JABBER_SASL_STATE_INIT,
   JABBER_SASL_STATE_CHALLENGE_RECEIVED,
-  JABBER_SASL_STATE_RESPONSE_SENT
+  JABBER_SASL_STATE_RESPONSE_SENT,
+  JABBER_SASL_STATE_RSPAUTH_RECEIVED
 };
 
 #include <inttypes.h>
@@ -71,6 +76,20 @@ enum {
 
 #define TARGET_BUDDY_MAXLEN 40
 #define JABBER_SASL_MAX_PARAM_LEN 32
+
+/* This header is also included via meta.h (uip.c) without jabber.h having
+ * defined the choice values, leaving JABBER_AUTH_METHOD and the choice
+ * symbols undefined (which then all compare as 0 == 0 and would enable
+ * both SASL state blocks).  Define the numeric constants and a default
+ * for JABBER_AUTH_METHOD here so the comparisons below stay correct. */
+#ifndef JABBER_AUTH_PLAIN
+#define JABBER_AUTH_PLAIN 0
+#define JABBER_AUTH_DIGEST_MD5 1
+#define JABBER_AUTH_SCRAM_SHA1 2
+#endif
+#ifndef JABBER_AUTH_METHOD
+#define JABBER_AUTH_METHOD JABBER_AUTH_PLAIN
+#endif
 
 struct jabber_connection_state_t
 {
@@ -82,12 +101,25 @@ struct jabber_connection_state_t
   char target[TARGET_BUDDY_MAXLEN];
   char outbuf[ECMD_OUTPUTBUF_LENGTH];
 
-#ifdef JABBER_AUTH_DIGEST_MD5
+#if JABBER_AUTH_METHOD == JABBER_AUTH_DIGEST_MD5
   /* SASL DIGEST-MD5 state */
   uint8_t sasl_state;
+  uint8_t sasl_nc;
+  uint8_t sasl_complete; /* set after <success/>, stream must be reopened */
   char sasl_nonce[JABBER_SASL_MAX_PARAM_LEN];
   char sasl_realm[JABBER_SASL_MAX_PARAM_LEN];
   char sasl_qop[8];
+  char sasl_algorithm[16];
+#endif
+#if JABBER_AUTH_METHOD == JABBER_AUTH_SCRAM_SHA1
+  /* SCRAM-SHA-1 state */
+  uint8_t scram_state;
+  uint8_t scram_complete; /* set after <success/>, stream must be reopened */
+  char scram_client_nonce[32];
+  char scram_server_nonce[64];
+  uint8_t scram_salt[16];
+  uint8_t scram_salt_len;
+  uint32_t scram_iteration_count;
 #endif
 };
 

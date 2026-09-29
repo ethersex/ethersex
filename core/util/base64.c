@@ -31,7 +31,7 @@
 
 static const char PROGMEM cd64[] =
   "|$$$}rstuvwxyz{$$$$$$$>?@ABCDEFGHIJKLMNOPQRSTUVW"
-  "$$$$$$$XYZ[\\]^_`abcdefghijklmnopq";
+  "$$$$$$XYZ[\\]^_`abcdefghijklmnopq";
 
 void base64_decodeblock(char in[4], char out[3])
 {
@@ -56,13 +56,30 @@ void base64_decode(char *str, uint8_t *output, uint16_t max_len)
 	uint16_t len = strlen(str);
 	char *in = str;
 	uint8_t *out = output;
-	uint16_t out_len = 0;
+	uint8_t *out_end = output + max_len;
 
-	while (in < (str + len) && out_len < max_len) {
-		base64_decodeblock(in, (char *)out);
+	if (max_len == 0)
+		return;
+
+	while (in + 4 <= str + len && out < out_end) {
+		char tmp[3];
+		uint8_t pad = 0;
+
+		/* Count padding in this block ('=' only valid at the end) */
+		if (in[3] == '=')
+			pad++;
+		if (in[2] == '=')
+			pad++;
+
+		base64_decodeblock(in, tmp);
 		in += 4;
-		out += 3;
-		out_len += 3;
+
+		/* Only copy the significant bytes (3 - pad) */
+		for (uint8_t k = 0; k < 3 - pad && out < out_end; k++)
+			*out++ = tmp[k];
+
+		if (pad)
+			break;
 	}
 	*out = 0;
 }
@@ -88,10 +105,17 @@ void base64_encode(const uint8_t *input, uint16_t input_len,
 			bits -= 6;
 			output[j++] = pgm_read_byte(&base64_table[(chunk >> bits) & 0x3F]);
 		}
+
+		/* Remaining 2 or 4 bits: pad with zero bits to a full 6-bit group */
+		if (bits > 0 && j + 1 <= max_len) {
+			output[j++] =
+			  pgm_read_byte(&base64_table[(chunk << (6 - bits)) & 0x3F]);
+			bits = 0;
+		}
 	}
 
 	/* Padding */
-	while (j < max_len && (j - 1) % 4 != 3) {
+	while (j < max_len && (j & 3) != 0) {
 		output[j++] = '=';
 	}
 	if (j < max_len) {
