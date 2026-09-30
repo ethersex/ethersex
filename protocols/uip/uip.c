@@ -21,6 +21,7 @@
  * Copyright (c) 2001-2003, Adam Dunkels.
  * Copyright (c) 2007,2008 Stefan Siegl <stesie@brokenpipe.de>.
  * Copyright (c) 2007, Christian Dietrich <stettberger@dokucode.de>.
+ * Copyright (c) 2026 Erik Kunze <ethersex@erik-kunze.de>.
  *
  * All rights reserved.
  *
@@ -320,13 +321,11 @@ noinline chksum(u16_t sum, const u8_t *data, u16_t len)
   return sum;
 }
 /*---------------------------------------------------------------------------*/
-#if 0
-static u16_t
-uip_chksum(u16_t *data, u16_t len)
+u16_t
+uip_cksum(u16_t sum, const void *data, u16_t len)
 {
-  return htons(chksum(0, (u8_t *)data, len));
+  return htons(chksum(sum, (const u8_t *)data, len));
 }
-#endif
 /*---------------------------------------------------------------------------*/
 #ifndef UIP_ARCH_IPCHKSUM
 #if !UIP_CONF_IPV6
