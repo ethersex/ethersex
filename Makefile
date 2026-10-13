@@ -148,9 +148,21 @@ OBJECTS += $(patsubst %.c,%.o,${SRC} ${y_SRC} meta.c)
 OBJECTS += $(patsubst %.c,%.o,${AUTOGEN_SRC} ${y_AUTOGEN_SRC})
 OBJECTS += $(patsubst %.S,%.o,${ASRC} ${y_ASRC})
 
+# autoconf.h only learns new commits on menuconfig; keep GIT_VERSION in sync with HEAD.
+.PHONY: FORCE
+FORCE:
+
+.git-version: FORCE
+	@new="`scripts/get-git-version`"; [ -n "$$new" ] || new="unknown"; \
+	if [ -s autoconf.h ] && ! grep -q "define GIT_VERSION \"$$new\"" autoconf.h; then \
+		$(SED) -i 's/^#define GIT_VERSION ".*"/#define GIT_VERSION "'"$$new"'"/' autoconf.h; \
+		echo "--> GIT_VERSION refreshed to $$new"; \
+	fi; \
+	if [ ! -f $@ ] || [ "$$new" != "`cat $@ 2>/dev/null`" ]; then echo "$$new" > $@; fi
+
 # Do not add version.c to SRC or OBJECTS!
 # Compile version.c at link time ensures correct built time, ref. issue #448
-$(TARGET): $(OBJECTS)
+$(TARGET): .git-version $(OBJECTS)
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(TARGET_ARCH) -c version.c
 	$(CC) $(LDFLAGS) -o $@ $(OBJECTS) version.o -lm -lc # Pixie Dust!!! (Bug in avr-binutils)
 
