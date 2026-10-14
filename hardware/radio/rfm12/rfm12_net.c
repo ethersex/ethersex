@@ -473,6 +473,14 @@ rfm12_process(void)
 
   /* Application has generated output, send it out. */
   router_output();
+
+  /* Release the buffer lock acquired when the frame was received.  If
+     the output was routed back out over the RFM12 radio, uip_buf_unlock()
+     is a no-op (rfm12_tx_active() is set) and the radio's transmit-end
+     ISR releases the lock.  Without this the lock stays held forever
+     whenever the output is routed to another interface (e.g. the
+     ENC28J60), deadlocking that interface's receive path. */
+  uip_buf_unlock();
 }
 
 /*
