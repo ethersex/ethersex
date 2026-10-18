@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 by Erik Kunze <ethersex@erik-kunze.de>
+ * Copyright (c) 2018-2026 by Erik Kunze <ethersex@erik-kunze.de>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -125,8 +125,8 @@ c6_poll_cb(void)
   {
     if (dht_sensors[i].temp != dht_last_values[i].temp)
     {
-      snprintf_P(name, sizeof(name), dht_sensors[i].name);
-      name[NAME_LENGTH - 1] = '\0';
+      strncpy_P(name, dht_sensors[i].name, sizeof(name) - 1);
+      name[sizeof(name) - 1] = '\0';
       snprintf_P(topic, TOPIC_LENGTH, PSTR(C6_SENSOR_PUBLISH_FORMAT), name, PSTR("temp"));
       topic[TOPIC_LENGTH - 1] = '\0';
       len = itoa_fixedpoint(dht_sensors[i].temp, 1, buf, sizeof(buf));
@@ -138,8 +138,8 @@ c6_poll_cb(void)
     }
     if (dht_sensors[i].humid != dht_last_values[i].humid)
     {
-      snprintf_P(name, sizeof(name), dht_sensors[i].name);
-      name[NAME_LENGTH - 1] = '\0';
+      strncpy_P(name, dht_sensors[i].name, sizeof(name) - 1);
+      name[sizeof(name) - 1] = '\0';
       snprintf_P(topic, TOPIC_LENGTH, PSTR(C6_SENSOR_PUBLISH_FORMAT), name, PSTR("humid"));
       topic[TOPIC_LENGTH - 1] = '\0';
       len = itoa_fixedpoint(dht_sensors[i].humid, 1, buf, sizeof(buf));
@@ -163,12 +163,12 @@ c6_poll_cb(void)
 #ifdef ONEWIRE_NAMING_SUPPORT
       if (ow_sensors[j].named == 1)
       {
-        snprintf(name, sizeof(name), ow_sensors[j].name);
+        strncpy(name, ow_sensors[j].name, sizeof(name) - 1);
       }
       else
-#else
+#endif
       {
-        snprintf_P(name, sizeof(name),
+        snprintf_P(name, sizeof(name) - 1,
                    PSTR("%02x%02x%02x%02x%02x%02x%02x%02x"),
                    ow_sensors[j].ow_rom_code.bytewise[0],
                    ow_sensors[j].ow_rom_code.bytewise[1],
@@ -179,8 +179,7 @@ c6_poll_cb(void)
                    ow_sensors[j].ow_rom_code.bytewise[6],
                    ow_sensors[j].ow_rom_code.bytewise[7]);
       }
-#endif
-      name[NAME_LENGTH - 1] = '\0';
+      name[sizeof(name) - 1] = '\0';
       snprintf_P(topic, TOPIC_LENGTH, PSTR(C6_SENSOR_PUBLISH_FORMAT), name, PSTR("temp"));
       topic[TOPIC_LENGTH - 1] = '\0';
       len = itoa_fixedpoint(ow_sensors[j].temp.val,
@@ -212,13 +211,13 @@ c6_publish_cb(const char *topic, uint16_t topic_length,
               const void *payload, uint16_t payload_length,
               bool retained)
 {
-  char *strvalue = malloc(topic_length + 1);
-  if (strvalue == NULL)
-    goto out;
+  char strvalue[TOPIC_LENGTH];
+  if (topic_length >= sizeof(strvalue))
+    return;
 
   memcpy(strvalue, topic, topic_length);
   strvalue[topic_length] = '\0';
-  
+
   if (strncmp_P(topic, PSTR(C6_NAMED_PIN_TOPIC), sizeof(C6_NAMED_PIN_TOPIC) - 1) == 0)
   {
     const char *name = strvalue + sizeof(C6_NAMED_PIN_TOPIC) - 1;
@@ -227,8 +226,8 @@ c6_publish_cb(const char *topic, uint16_t topic_length,
     uint8_t pincfg = named_pin_by_name(name);
     if (pincfg == 255)
     {
-       C6DEBUG("...unknown");
-       goto out;
+      C6DEBUG("...unknown");
+      return;
     }
 
     uint8_t port = pgm_read_byte(&portio_pincfg[pincfg].port);
@@ -240,17 +239,17 @@ c6_publish_cb(const char *topic, uint16_t topic_length,
       /* Set only if it is output */
       if (vport[port].read_ddr(port) & _BV(pin))
       {
-        free(strvalue);
-        strvalue = malloc(payload_length + 1);
-        if (strvalue == NULL)
-          goto out;
-        memcpy(strvalue, payload, payload_length);
-        strvalue[payload_length] = 0;
-        C6DEBUG("out %s", strvalue);
+        char pbuf[8];
+        uint8_t plen = payload_length;
+        if (plen >= sizeof(pbuf))
+          plen = sizeof(pbuf) - 1;
+        memcpy(pbuf, payload, plen);
+        pbuf[plen] = '\0';
+        C6DEBUG("out %s", pbuf);
 
         uint8_t on;
-        if (sscanf_P(strvalue, PSTR("%hhd"), &on) != 1)
-          goto out;
+        if (sscanf_P(pbuf, PSTR("%hhd"), &on) != 1)
+          return;
 
         uint8_t val = vport[port].read_port(port);
         if (XOR_LOG(on, !active_high))
@@ -271,10 +270,6 @@ c6_publish_cb(const char *topic, uint16_t topic_length,
       mqtt_construct_publish_packet(topic, buf, 1, false);
     }
   }
-
-out:
-  if (strvalue != NULL)
-    free(strvalue);
 }
 #endif /* NAMED_PIN_SUPPORT && PORTIO_SUPPORT */
 
