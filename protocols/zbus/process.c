@@ -68,6 +68,15 @@ zbus_process(void)
   /* send buffer out */
   router_output ();
 
+  /* Release the buffer lock that was acquired by the zbus RX interrupt
+     at the START marker.  If the packet was routed back out over zbus,
+     uip_buf_unlock() is a no-op (zbus_tx_active() is set) and the lock
+     is released by the zbus TX interrupt when transmission finishes.
+     Without this the lock stays held forever whenever the output is
+     routed to another interface (e.g. the ENC28J60), which deadlocks
+     that interface's receive path in an endless interrupt loop. */
+  uip_buf_unlock ();
+
   uip_len = 0;
 }
 
