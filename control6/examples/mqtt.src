@@ -75,7 +75,7 @@
 #endif
 
 /* Prefix */
-#define C6_MQTT_TOPIC              "ethersex/" MQTT_CONF_CLIENTID
+#define C6_MQTT_TOPIC              MQTT_CONF_PREFIX "/" MQTT_CONF_CLIENTID
 
 /* Sensors */
 #define C6_SENSOR_PUBLISH_FORMAT   C6_MQTT_TOPIC "/sensor/%s/%S"
